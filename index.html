@@ -126,10 +126,12 @@
   .dominio-badge{background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;padding:2px 8px;display:inline-block;}
 
   /* ---- Lista de Entregas: barra de filtros y tarjetas de resumen ---- */
-  .list-filters-bar{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;background:var(--panel);border:1px solid var(--hairline);border-radius:14px;padding:14px 16px;margin-bottom:16px;}
   .list-filter-field{display:flex;flex-direction:column;gap:5px;}
   .list-filter-field label{font-size:9.5px;color:var(--text-faint);text-transform:uppercase;font-weight:700;letter-spacing:.04em;}
-  .list-filter-field select,.list-filter-field input[type="date"]{background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;min-width:150px;}
+  .list-filters-bar{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;background:var(--panel);border:1px solid var(--hairline);border-radius:14px;padding:14px 16px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.06);}
+  .list-filter-field select,.list-filter-field input[type="date"]{background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;color:var(--text);padding:8px 10px;font-size:12px;min-width:150px;transition:border-color .12s,box-shadow .12s;}
+  .list-filter-field select:hover,.list-filter-field input[type="date"]:hover{border-color:var(--accent);}
+  .list-filter-field select:focus,.list-filter-field input[type="date"]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
   .lista-resumen-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px;}
   .lista-resumen-card{background:var(--panel);border:1px solid var(--hairline);border-radius:14px;padding:18px;position:relative;overflow:hidden;}
   .lista-resumen-card .icon-badge{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
@@ -151,7 +153,7 @@
   .acc-badge{display:block;font-size:10px;color:var(--warn);font-weight:600;margin-top:3px;}
   .acc-badge.done{color:var(--ok);}
   .empty-onstar{color:var(--text-faint);font-size:10.5px;}
-  .actions{display:grid;grid-template-columns:1fr 1fr;gap:5px;align-content:center;height:100%;}
+  .actions{vertical-align:middle;}
   .actions button{padding:7px 6px;border-radius:7px;font-size:10.5px;font-weight:600;cursor:pointer;border:1px solid var(--hairline);background:transparent;color:var(--text-dim);transition:border-color .15s,color .15s;}
   .tint-blue,.btn-detalle{background:rgba(30,45,90,.45) !important;border:1px solid rgba(90,130,220,.5) !important;color:#bcd0ff !important;font-weight:700 !important;}
   .tint-blue:hover,.btn-detalle:hover{background:rgba(30,45,90,.7) !important;border-color:rgba(120,160,255,.8) !important;color:#fff !important;}
@@ -376,6 +378,9 @@
   .maestro-list-del:hover{filter:brightness(1.15);}
   .maestro-list-del .material-symbols-outlined{font-size:13px;}
   .maestro-list-header{display:flex;gap:10px;padding:0 10px 4px;font-size:9px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;}
+  .modulos-check-row{display:flex;flex-wrap:wrap;gap:6px 16px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;padding:10px 12px;margin-bottom:10px;}
+  .modulos-check-row label{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-dim);cursor:pointer;}
+  .modulos-check-row input{cursor:pointer;}
 
   /* ---- Dashboard: hero "próxima entrega" + próximas horas ---- */
   .hero-proxima{position:relative;background:linear-gradient(120deg,#12151d,#1a1e29);border:1px solid var(--hairline);border-left:4px solid var(--accent);border-radius:16px;padding:22px 26px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;overflow:hidden;}
@@ -442,10 +447,10 @@
   .timeline-daylabel.hoy{color:var(--accent);}
   .timeline-daylabel .sub{color:var(--text-faint);font-weight:500;font-size:10px;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;margin-top:2px;}
   .timeline-hourslabel{flex:1;display:flex;}
-  .timeline-hour{width:40px;flex-shrink:0;font-size:9.5px;color:var(--text-faint);text-align:center;padding:10px 0;font-family:'IBM Plex Mono',monospace;border-right:1px solid var(--hairline);}
+  .timeline-hour{width:26px;flex-shrink:0;font-size:9.5px;color:var(--text-faint);text-align:center;padding:10px 0;font-family:'IBM Plex Mono',monospace;border-right:1px solid var(--hairline);}
   .timeline-row{display:flex;border-bottom:1px solid var(--hairline);min-height:52px;}
   .timeline-row:hover{background:var(--panel-2);}
-  .timeline-track{position:relative;flex:1;background-image:repeating-linear-gradient(to right, var(--hairline) 0, var(--hairline) 1px, transparent 1px, transparent 40px);}
+  .timeline-track{position:relative;flex:1;background-image:repeating-linear-gradient(to right, var(--hairline) 0, var(--hairline) 1px, transparent 1px, transparent 26px);}
   .timeline-bar{position:absolute;top:8px;bottom:8px;border-radius:8px;background:var(--accent);color:#1a1206;font-size:10.5px;font-weight:700;padding:0 9px;overflow:hidden;white-space:nowrap;cursor:pointer;display:flex;align-items:center;box-shadow:0 2px 6px rgba(0,0,0,.18);transition:filter .12s,z-index 0s;}
   .timeline-bar:hover{filter:brightness(1.1);z-index:5;}
   .timeline-bar.entregada{opacity:.5;}
@@ -628,6 +633,8 @@
   .tv-single-footer-veh{color:var(--tv-accent);font-size:12.5px;font-weight:700;}
   .tv-single-footer-logo{height:24px;width:auto;object-fit:contain;}
   .tv-single-empty{display:flex;align-items:center;justify-content:center;min-height:60vh;color:#5a6172;font-size:19px;text-align:center;}
+  .tv-filtros-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+  .tv-filtros-row select{background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:7px 10px;font-size:12px;}
   @media(max-width:1100px){
     .tv-single-body{grid-template-columns:1fr;}
     .tv-single-cliente{font-size:40px;}
@@ -690,7 +697,8 @@
   body.role-tv header.topbar{display:none;}
   body.role-tv .main-shell{margin-left:0;}
   body.role-tv .tv-mode-toggle-row,
-  body.role-tv #tvSalirBtn{display:none;}
+  body.role-tv #tvSalirBtn,
+  body.role-tv .tv-filtros-row{display:none;}
   .tv-logout-mini{background:transparent;border:none;color:#4a5063;font-size:10.5px;cursor:pointer;padding:6px 8px;}
   .tv-logout-mini:hover{color:#8890a0;}
 </style>
@@ -999,6 +1007,7 @@
               <button class="view-btn" onclick="quitarRangoFecha()">Todo el período</button>
             </div>
           </div>
+          <div class="lista-resumen-grid" id="listaResumenCards" style="margin-top:0;margin-bottom:16px;"></div>
           <div class="blocked-banner" id="blockedBanner" style="display:none;"></div>
           <div class="board" id="boardWrap">
             <table>
@@ -1016,7 +1025,6 @@
               <tbody id="tbody"></tbody>
             </table>
           </div>
-          <div class="lista-resumen-grid" id="listaResumenCards"></div>
         </div>
 
 
@@ -1350,8 +1358,31 @@
         <div class="form-field full"><label>Teléfono de contacto (para los mails)</label><input id="cfgTelefono"></div>
         <div class="form-field full"><label>Copia siempre a (todas las confirmaciones y recordatorios)</label><input type="email" id="cfgCopiaA"></div>
         <div class="form-field full"><label>Duración estimada de la entrega (minutos) — se usa en todos los mails, de las 4 marcas</label><input type="number" id="cfgDuracion" min="1"></div>
+        <div class="form-field full"><label>Contraseña de "Acceso libre" (vendedores sin usuario propio)</label><input id="cfgAccesoLibrePassword" placeholder="Dejalo vacío para no pedir contraseña"></div>
       </div>
       <button class="save-btn" onclick="guardarDirecciones()">Guardar direcciones y teléfono</button>
+    </div>
+
+    <div class="maestro-block">
+      <div class="section-title">Activar / desactivar módulos (para todos los usuarios)</div>
+      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Si apagás un módulo acá, desaparece del menú para todo el mundo, sin importar el rol o los permisos que tenga cada usuario.</div>
+      <div class="modulos-check-row" id="cfgModulosRow">
+        <label><input type="checkbox" value="dashboard" checked> Dashboard</label>
+        <label><input type="checkbox" value="nuevaentrega" checked> Nueva Entrega</label>
+        <label><input type="checkbox" value="calendario" checked> Calendario</label>
+        <label><input type="checkbox" value="lista" checked> Lista de Entregas</label>
+        <label><input type="checkbox" value="reportes" checked> Reportes</label>
+        <label><input type="checkbox" value="maestro" checked> Maestro (Config)</label>
+        <label><input type="checkbox" value="tv" checked> TV Entregas</label>
+      </div>
+      <button class="save-btn" style="margin-top:6px;" onclick="guardarModulosActivos()">Guardar módulos activos</button>
+    </div>
+
+    <div class="maestro-block">
+      <div class="section-title">WhatsApp de Postventa por marca</div>
+      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Se usa en el mensaje de bienvenida que se manda cuando se entrega el vehículo.</div>
+      <div class="form-grid" id="postventaWhatsappContainer"></div>
+      <button class="save-btn" style="margin-top:10px;" onclick="guardarPostventaWhatsapp()">Guardar números de Postventa</button>
     </div>
 
     <div class="maestro-block">
@@ -1381,6 +1412,16 @@
             <option value="tv">TV Recepción (solo pantalla, sin acceso al sistema)</option>
           </select>
         </div>
+      </div>
+      <div style="font-size:11px;color:var(--text-faint);margin:2px 0 6px;">Opcional — módulos que puede ver este usuario en el menú. Si no tildás ninguno, se usan los del rol por defecto.</div>
+      <div class="modulos-check-row" id="uModulosRow">
+        <label><input type="checkbox" value="dashboard"> Dashboard</label>
+        <label><input type="checkbox" value="nuevaentrega"> Nueva Entrega</label>
+        <label><input type="checkbox" value="calendario"> Calendario</label>
+        <label><input type="checkbox" value="lista"> Lista de Entregas</label>
+        <label><input type="checkbox" value="reportes"> Reportes</label>
+        <label><input type="checkbox" value="maestro"> Maestro (Config)</label>
+        <label><input type="checkbox" value="tv"> TV Entregas</label>
       </div>
       <button class="save-btn" id="uSubmitBtn" style="width:auto;display:inline-block;margin-right:8px;" onclick="crearUsuarioUI()">Crear usuario</button>
       <button class="view-btn" id="uCancelarBtn" style="display:none;" onclick="cancelarEdicionUsuarioUI()">Cancelar edición</button>
@@ -1423,6 +1464,13 @@
             </div>
             <div class="tv-clock" id="tvReloj">—</div>
             <button class="view-btn" onclick="cerrarModoTV()" id="tvSalirBtn">✕ Salir del modo TV</button>
+          </div>
+
+          <div class="tv-filtros-row" id="tvFiltrosRow">
+            <span class="material-symbols-outlined" style="font-size:16px;color:var(--text-faint);">filter_alt</span>
+            <select id="tvFiltroMarcaSel" onchange="cambiarTvFiltroMarca(this.value)"></select>
+            <select id="tvFiltroSucursalSel" onchange="cambiarTvFiltroSucursal(this.value)"></select>
+            <span style="font-size:10.5px;color:var(--text-faint);">Se guarda en esta pantalla — no afecta a otros dispositivos.</span>
           </div>
 
           <div class="tv-single-wrap" id="tvSingleWrap"></div>
@@ -1795,7 +1843,7 @@ function intentarLogin(){
   gasPost('login',{usuario:usuario, password:password}).then(function(res){
     btn.disabled=false; btn.textContent='Ingresar';
     if(res.error){ err.textContent=res.error; err.style.display='block'; return; }
-    guardarSesion_({usuario:res.usuario, nombre:res.nombre, rol:res.rol, password:password}, document.getElementById('loginRecordar').checked);
+    guardarSesion_({usuario:res.usuario, nombre:res.nombre, rol:res.rol, password:password, modulos:res.modulos||[]}, document.getElementById('loginRecordar').checked);
     document.getElementById('loginUI').style.display='none';
     actualizarBotonUsuario();
     aplicarPermisosUI();
@@ -1822,25 +1870,46 @@ function olvidePasswordUI(){
 }
 // Oculta/deshabilita lo que el rol actual no puede tocar. Se llama al loguearse
 // y cada vez que se renderiza la tabla o se abre el detalle de una entrega.
+var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','reportes','maestro','tv'];
+var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', reportes:'navReportes', maestro:'navMaestro', tv:'navTv'};
 function aplicarPermisosUI(){
   var puede = puedeEditar();
-  var addBtn = document.getElementById('navNuevaentrega');
-  if(addBtn) addBtn.style.display = puede ? '' : 'none';
-  var navMaestro = document.getElementById('navMaestro');
-  if(navMaestro) navMaestro.style.display = esCalidad() ? '' : 'none';
-  var navReportes = document.getElementById('navReportes');
-  if(navReportes) navReportes.style.display = puede ? '' : 'none';
+  var s = sesionActual();
+  var modulosUsuario = (s && s.modulos && s.modulos.length) ? s.modulos : null;
+  var modulosGlobales = (typeof CONFIG!=='undefined' && CONFIG && CONFIG.modulosActivos) || {};
+  MODULOS_LIST.forEach(function(mod){
+    var el = document.getElementById(MODULOS_NAV_ID[mod]);
+    if(!el) return;
+    var visible;
+    if(mod==='maestro') visible = esCalidad();
+    else if(mod==='nuevaentrega' || mod==='reportes') visible = puede;
+    else visible = true;
+    if(modulosUsuario) visible = modulosUsuario.indexOf(mod)>-1;
+    if(modulosGlobales[mod]===false) visible = false;
+    el.style.display = visible ? '' : 'none';
+  });
   document.body.classList.toggle('role-tv', esTvRecepcion());
 }
 
 // Acceso libre para vendedores: solo ver el listado y el detalle de cada entrega,
-// sin usuario ni contraseña. No puede editar nada, no ve Reportes ni el Maestro.
+// sin usuario ni contraseña propia — pero pide la contraseña general de acceso libre
+// (la configura un Maestro en Configuración) para que no entre cualquiera.
 function entrarComoVendedorLibre(){
-  guardarSesion_({usuario:'libre', nombre:'Vendedor (acceso libre)', rol:'vendedor'}, false);
-  document.getElementById('loginUI').style.display='none';
-  actualizarBotonUsuario();
-  aplicarPermisosUI();
-  cargarTodo();
+  var pass = prompt('Ingresá la contraseña de acceso libre:');
+  if(pass===null) return;
+  gasGet('config').then(function(cfg){
+    if(!cfg || !cfg.accesoLibrePassword){
+      if(!confirm('Todavía no hay una contraseña de acceso libre configurada.\n\n¿Entrar de todas formas? (Un Maestro puede activar la contraseña en Configuración cuando quiera.)')) return;
+    } else if(pass !== cfg.accesoLibrePassword){
+      showToast('Contraseña incorrecta');
+      return;
+    }
+    guardarSesion_({usuario:'libre', nombre:'Vendedor (acceso libre)', rol:'vendedor'}, false);
+    document.getElementById('loginUI').style.display='none';
+    actualizarBotonUsuario();
+    aplicarPermisosUI();
+    cargarTodo();
+  });
 }
 
 function esMaestro(){ return esCalidad(); } // compat con código viejo que consultaba esto
@@ -1895,7 +1964,7 @@ function renderUsuariosTabla_(){
         '<td>'+etiquetaRol_(u.rol)+'</td>'+
         '<td>'+(u.activo?'<span class="tag ok">Activo</span>':'<span class="tag danger">Inactivo</span>')+'</td>'+
         '<td><div class="user-actions" style="flex-wrap:nowrap;justify-content:flex-end;">'+
-          '<button class="pill-btn edit" onclick="editarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\',\''+(u.email||'')+'\',\''+u.rol+'\')"><span class="material-symbols-outlined">edit</span>Editar</button>'+
+          '<button class="pill-btn edit" onclick="editarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\',\''+(u.email||'')+'\',\''+u.rol+'\','+JSON.stringify(u.modulos||[])+')"><span class="material-symbols-outlined">edit</span>Editar</button>'+
           '<div class="user-menu-wrap">'+
             '<button class="user-menu-btn" onclick="toggleUserMenu(\'um_'+u.usuario+'\',event)"><span class="material-symbols-outlined">more_vert</span></button>'+
             '<div class="user-menu-dropdown" id="um_'+u.usuario+'">'+
@@ -1914,7 +1983,13 @@ function renderUsuariosTabla_(){
   });
 }
 var usuarioEnEdicion = null; // null = modo "crear"; si no, es el "usuario" que se está editando
-function editarUsuarioUI(usuario, nombre, email, rol){
+function leerModulosSeleccionados_(){
+  return Array.prototype.slice.call(document.querySelectorAll('#uModulosRow input:checked')).map(function(c){return c.value;});
+}
+function marcarModulosUI_(modulos){
+  document.querySelectorAll('#uModulosRow input').forEach(function(c){ c.checked = (modulos||[]).indexOf(c.value)>-1; });
+}
+function editarUsuarioUI(usuario, nombre, email, rol, modulos){
   usuarioEnEdicion = usuario;
   document.getElementById('uFormTitulo').textContent = 'Editando a '+nombre;
   document.getElementById('uNombre').value = nombre;
@@ -1922,6 +1997,7 @@ function editarUsuarioUI(usuario, nombre, email, rol){
   document.getElementById('uUsuario').value = usuario;
   document.getElementById('uUsuario').disabled = true;
   document.getElementById('uRol').value = rol;
+  marcarModulosUI_(modulos);
   document.getElementById('uPasswordWrap').style.display = 'none';
   document.getElementById('uSubmitBtn').textContent = 'Guardar cambios';
   document.getElementById('uCancelarBtn').style.display = 'inline-block';
@@ -1936,6 +2012,7 @@ function cancelarEdicionUsuarioUI(){
   document.getElementById('uUsuario').disabled = false;
   document.getElementById('uPassword').value = '';
   document.getElementById('uRol').value = 'vendedor';
+  marcarModulosUI_([]);
   document.getElementById('uPasswordWrap').style.display = '';
   document.getElementById('uSubmitBtn').textContent = 'Crear usuario';
   document.getElementById('uCancelarBtn').style.display = 'none';
@@ -1945,13 +2022,14 @@ function crearUsuarioUI(){
   var email = document.getElementById('uEmail').value.trim();
   var usuario = document.getElementById('uUsuario').value.trim();
   var rol = document.getElementById('uRol').value;
+  var modulos = leerModulosSeleccionados_();
   var s = sesionActual();
   var pass = window._ultimaPasswordActor || credencialesActor_();
   if(pass===null) return;
 
   if(usuarioEnEdicion){
     if(!nombre){ showToast('Completá el nombre'); return; }
-    gasPost('editarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuarioEnEdicion, nombre:nombre, email:email, rol:rol}).then(function(res){
+    gasPost('editarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuarioEnEdicion, nombre:nombre, email:email, rol:rol, modulos:modulos}).then(function(res){
       if(res.error){ showToast(res.error); return; }
       showToast('Usuario "'+nombre+'" actualizado');
       cancelarEdicionUsuarioUI();
@@ -1962,7 +2040,7 @@ function crearUsuarioUI(){
 
   var password = document.getElementById('uPassword').value;
   if(!nombre || !usuario || !password){ showToast('Completá nombre, usuario y contraseña'); return; }
-  gasPost('crearUsuario',{actorUsuario:s.usuario, actorPassword:pass, nombre:nombre, usuario:usuario, password:password, rol:rol, email:email}).then(function(res){
+  gasPost('crearUsuario',{actorUsuario:s.usuario, actorPassword:pass, nombre:nombre, usuario:usuario, password:password, rol:rol, email:email, modulos:modulos}).then(function(res){
     if(res.error){ showToast(res.error); return; }
     cancelarEdicionUsuarioUI();
     showToast('Usuario "'+nombre+'" creado'+(email?' — le mandamos el mail con sus datos':''));
@@ -2077,21 +2155,36 @@ var VISTAS_APP = ['dashboard','calendario','lista','maestro','nuevaentrega','tv'
 // ============================================================
 var tvIntervalReloj = null;
 var tvMode = 'single';      // 'single' (formato tótem, 1 entrega a la vez) | 'lista' (grilla original)
-var tvIntervalCiclo = null; // rota automáticamente entre las entregas de hoy
+var tvIntervalCiclo = null; // revisa cada tanto si ya es hora de mostrar la siguiente entrega
 var tvHoyRows = [];
 var tvSingleIdx = 0;
+var tvFiltroMarca = localStorage.getItem('tvFiltroMarca') || '';
+var tvFiltroSucursal = localStorage.getItem('tvFiltroSucursal') || '';
+function poblarSelectsTvFiltro_(){
+  var selMarca = document.getElementById('tvFiltroMarcaSel');
+  var selSucursal = document.getElementById('tvFiltroSucursalSel');
+  if(!selMarca || !selSucursal) return;
+  selMarca.innerHTML = '<option value="">Todas las marcas</option>' + BRANDS.map(function(b){
+    return '<option value="'+b.id+'"'+(b.id===tvFiltroMarca?' selected':'')+'>'+b.label+'</option>';
+  }).join('');
+  selSucursal.innerHTML = '<option value="">Todas las sucursales</option>' + SUCURSALES.map(function(s){
+    return '<option value="'+s+'"'+(s===tvFiltroSucursal?' selected':'')+'>'+s+'</option>';
+  }).join('');
+}
+function cambiarTvFiltroMarca(v){ tvFiltroMarca=v; localStorage.setItem('tvFiltroMarca', v); tvSingleIdx=0; renderModoTV(); }
+function cambiarTvFiltroSucursal(v){ tvFiltroSucursal=v; localStorage.setItem('tvFiltroSucursal', v); tvSingleIdx=0; renderModoTV(); }
 function abrirModoTV(){
   setAppView('tv');
   document.body.classList.add('tv-mode');
   var logoImg = document.querySelector('.sidebar-brand img');
   var tvLogo = document.getElementById('tvLogo');
   if(logoImg && tvLogo) tvLogo.src = logoImg.src;
+  poblarSelectsTvFiltro_();
   actualizarRelojTV();
   if(tvIntervalReloj) clearInterval(tvIntervalReloj);
   tvIntervalReloj = setInterval(actualizarRelojTV, 1000);
   if(tvIntervalCiclo) clearInterval(tvIntervalCiclo);
-  tvIntervalCiclo = setInterval(tvAvanzarCiclo, 9000);
-  tvSingleIdx = 0;
+  tvIntervalCiclo = setInterval(tvAvanzarCiclo, 20000);
   setTvMode('single');
   renderModoTV();
   if(esTvRecepcion()){
@@ -2133,10 +2226,20 @@ function actualizarRelojTV(){
   var elSingle = document.getElementById('tvSingleReloj');
   if(elSingle) elSingle.textContent = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
 }
+function tvIdxSegunHoraReal_(){
+  if(!tvHoyRows.length) return 0;
+  var ahora = new Date();
+  var minAhora = ahora.getHours()*60+ahora.getMinutes();
+  var idx = 0;
+  for(var i=0;i<tvHoyRows.length;i++){
+    if(horaAMinutos_(tvHoyRows[i].hora) <= minAhora) idx = i; else break;
+  }
+  return idx;
+}
 function tvAvanzarCiclo(){
   if(!tvHoyRows.length) return;
-  tvSingleIdx = (tvSingleIdx+1) % tvHoyRows.length;
-  tvRenderSingleCard();
+  var nuevoIdx = tvIdxSegunHoraReal_();
+  if(nuevoIdx !== tvSingleIdx){ tvSingleIdx = nuevoIdx; tvRenderSingleCard(); }
 }
 function tvBrandInfo_(marcaId){
   return BRANDS.find(function(x){return x.id===marcaId;}) || BRANDS[0];
@@ -2211,11 +2314,13 @@ function renderModoTV(){
   if(!hoyList) return; // la vista no está montada
 
   var rows = pendientesTv_();
+  if(tvFiltroMarca) rows = rows.filter(function(r){ return r.marca===tvFiltroMarca; });
+  if(tvFiltroSucursal) rows = rows.filter(function(r){ return r.sucursal===tvFiltroSucursal; });
   var hoyStr = fmtFecha(new Date());
   var deHoy = rows.filter(function(r){ return r.fecha===hoyStr; });
 
   tvHoyRows = deHoy;
-  if(tvSingleIdx>=tvHoyRows.length) tvSingleIdx=0;
+  tvSingleIdx = tvIdxSegunHoraReal_();
   tvRenderSingleCard();
 
   hoyList.innerHTML = deHoy.length===0
@@ -2412,39 +2517,31 @@ function tienePendienteSinResolver_(r){
 function renderListaResumenCards(){
   var el = document.getElementById('listaResumenCards');
   if(!el) return;
-  var hoyStr = fmtFecha(new Date());
-  var ayerDate = new Date(); ayerDate.setDate(ayerDate.getDate()-1);
-  var ayerStr = fmtFecha(ayerDate);
-  var rows = entregasContexto();
-  var hoy = rows.filter(function(r){ return r.fecha===hoyStr; });
-  var ayer = rows.filter(function(r){ return r.fecha===ayerStr; });
-  var completadasHoy = hoy.filter(function(r){ return r.entregada; }).length;
-  var completadasAyer = ayer.filter(function(r){ return r.entregada; }).length;
-  var pendientesHoy = hoy.filter(function(r){ return !r.entregada; }).length;
-  var variacion = completadasAyer>0 ? Math.round(((completadasHoy-completadasAyer)/completadasAyer)*100) : (completadasHoy>0?100:0);
+  var rows = filasVisibles();
+  var completadas = rows.filter(function(r){ return r.entregada; }).length;
+  var pendientes = rows.filter(function(r){ return !r.entregada; }).length;
   var horaPico = null, conteoHora = {};
-  hoy.forEach(function(r){ conteoHora[r.hora]=(conteoHora[r.hora]||0)+1; });
+  rows.forEach(function(r){ conteoHora[r.hora]=(conteoHora[r.hora]||0)+1; });
   Object.keys(conteoHora).forEach(function(h){ if(!horaPico || conteoHora[h]>conteoHora[horaPico]) horaPico=h; });
-  var eficiencia = hoy.length>0 ? Math.round((completadasHoy/hoy.length)*100) : 100;
+  var eficiencia = rows.length>0 ? Math.round((completadas/rows.length)*100) : 100;
 
   el.innerHTML =
     '<div class="lista-resumen-card">'+
       '<div class="icon-badge" style="background:var(--ok-soft);"><span class="material-symbols-outlined" style="color:var(--ok);">check_circle</span></div>'+
-      '<div class="top-tag" style="color:'+(variacion>=0?'var(--ok)':'var(--danger)')+';">'+(variacion>=0?'+':'')+variacion+'% vs ayer</div>'+
-      '<div class="n">'+completadasHoy+'<span class="u">unidades</span></div>'+
-      '<div class="l">Entregas completadas hoy</div>'+
+      '<div class="n">'+completadas+'<span class="u">unidades</span></div>'+
+      '<div class="l">Entregas completadas (filtro actual)</div>'+
     '</div>'+
     '<div class="lista-resumen-card">'+
       '<div class="icon-badge" style="background:var(--pending-soft);"><span class="material-symbols-outlined" style="color:var(--pending);">schedule</span></div>'+
       (horaPico?'<div class="top-tag" style="color:var(--pending);">Pico: '+horaPico+'hs</div>':'')+
-      '<div class="n">'+pendientesHoy+'<span class="u">unidades</span></div>'+
-      '<div class="l">Pendientes de hoy</div>'+
+      '<div class="n">'+pendientes+'<span class="u">unidades</span></div>'+
+      '<div class="l">Pendientes (filtro actual)</div>'+
     '</div>'+
     '<div class="lista-resumen-card highlight">'+
       '<div class="icon-badge"><span class="material-symbols-outlined">speed</span></div>'+
-      '<div class="l" style="margin-top:0;">Eficiencia del día</div>'+
+      '<div class="l" style="margin-top:0;">Eficiencia (filtro actual)</div>'+
       '<div class="n">'+eficiencia+'%</div>'+
-      '<div class="l">Entregas completadas sobre el total de hoy</div>'+
+      '<div class="l">Entregas completadas sobre el total filtrado</div>'+
       '<div class="barra-fondo"><div class="barra-fill" style="width:'+eficiencia+'%;background:#fff;"></div></div>'+
     '</div>';
 }
@@ -2815,11 +2912,14 @@ function renderResumenHoyManana(){
   if(deManana.length===0){
     mananaEl.innerHTML = '<div style="color:var(--text-faint);font-size:12px;padding:12px;text-align:center;background:var(--panel);border:1px solid var(--hairline);border-radius:10px;">Sin entregas para mañana.</div>';
   } else {
-    mananaEl.innerHTML = deManana.map(function(r){
-      return '<div class="manana-card" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
-        '<span class="manana-hora">'+r.hora+'</span><span class="manana-cli">'+r.cliente+'</span>'+
+    mananaEl.innerHTML = '<div class="proximas-horas-grid">' + deManana.map(function(r){
+      var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
+      return '<div class="proxima-hora-card" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
+        '<div class="hora-box"><span class="dia">Mañana</span>'+r.hora+'</div>'+
+        '<div class="info"><div class="cli">'+r.cliente+'</div><div class="mod"><span class="dot" style="background:var('+b.color+');"></span>'+b.label+' '+r.modelo+'</div></div>'+
+        '<span class="material-symbols-outlined chev">chevron_right</span>'+
       '</div>';
-    }).join('');
+    }).join('') + '</div>';
   }
 }
 
@@ -2892,7 +2992,7 @@ var timelinePeriodo = 'semana'; // 'dia' | 'semana' | 'mes'
 var timelineDate = new Date();
 var TIMELINE_DESDE_MIN = horaAMinutos_('08:00');
 var TIMELINE_HASTA_MIN = horaAMinutos_('19:00');
-var TIMELINE_COL_PX = 40; // ancho por cada media hora
+var TIMELINE_COL_PX = 26; // ancho por cada 15 minutos
 function setCalendarioVista(modo){
   calVistaActual = modo;
   document.getElementById('calVistaMensual').style.display = modo==='mensual' ? '' : 'none';
@@ -2942,11 +3042,11 @@ function renderTimelineCalendario(){
   else titulo = MESES[timelineDate.getMonth()]+' '+timelineDate.getFullYear();
   document.getElementById('timelineTitle').textContent = titulo;
 
-  var totalCols = Math.round((TIMELINE_HASTA_MIN-TIMELINE_DESDE_MIN)/30);
+  var totalCols = Math.round((TIMELINE_HASTA_MIN-TIMELINE_DESDE_MIN)/15);
   var anchoTrack = totalCols*TIMELINE_COL_PX;
   var headerHoras = '';
   for(var c=0;c<totalCols;c++){
-    var min = TIMELINE_DESDE_MIN + c*30;
+    var min = TIMELINE_DESDE_MIN + c*15;
     headerHoras += '<div class="timeline-hour">'+(min%60===0 ? minutosAHora_(min) : '')+'</div>';
   }
   var html = '<div class="timeline-header"><div class="timeline-daylabel">Día</div><div class="timeline-hourslabel" style="min-width:'+anchoTrack+'px;">'+headerHoras+'</div></div>';
@@ -2959,8 +3059,8 @@ function renderTimelineCalendario(){
     entregasDia.forEach(function(r){
       var inicio = horaAMinutos_(r.hora);
       var dur = r.duracionMinutos || 60;
-      var left = Math.max(0,(inicio-TIMELINE_DESDE_MIN)/30*TIMELINE_COL_PX);
-      var width = Math.max(dur/30*TIMELINE_COL_PX - 3, 34);
+      var left = Math.max(0,(inicio-TIMELINE_DESDE_MIN)/15*TIMELINE_COL_PX);
+      var width = Math.max(dur/15*TIMELINE_COL_PX - 3, 34);
       var cls = 'timeline-bar'+(r.entregada?' entregada':(r.confirmado?' confirmada':''));
       barsHtml += '<div class="'+cls+'" style="left:'+left+'px;width:'+width+'px;" title="'+r.cliente+' · '+r.hora+' hs · '+r.modelo+(r.entregada?' · Entregada':(r.confirmado?' · Confirmada':''))+'" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+r.hora+' '+r.cliente+'</div>';
     });
@@ -4323,6 +4423,9 @@ function openConfig(){
   renderBloqueoTags();
   renderDireccionesUI();
   document.getElementById('cfgTelefono').value = CONFIG.telefonoContacto || '';
+  document.getElementById('cfgAccesoLibrePassword').value = CONFIG.accesoLibrePassword || '';
+  var modActivos = CONFIG.modulosActivos || {};
+  document.querySelectorAll('#cfgModulosRow input').forEach(function(c){ c.checked = modActivos[c.value]!==false; });
   document.getElementById('cfgCopiaA').value = CONFIG.copiaSiempreA || '';
   document.getElementById('cfgDuracion').value = CONFIG.duracionEntrega || 60;
   renderAlertaAccesoriosUI();
@@ -4501,6 +4604,13 @@ function addFeriado(){
   persistirConfig('Feriado agregado');
 }
 function removeFeriado(i){ CONFIG.bloqueos.feriados.splice(i,1); renderBloqueoTags(); checkBloqueado(); persistirConfig('Eliminado'); }
+function guardarModulosActivos(){
+  var activos = {};
+  document.querySelectorAll('#cfgModulosRow input').forEach(function(c){ activos[c.value] = c.checked; });
+  CONFIG.modulosActivos = activos;
+  aplicarPermisosUI();
+  persistirConfig('Módulos actualizados');
+}
 function guardarDirecciones(){
   BRANDS.forEach(function(b){
     if(!CONFIG.direcciones[b.id]) CONFIG.direcciones[b.id]={SJ:'',SL:'',VM:'',ML:''};
@@ -4510,6 +4620,7 @@ function guardarDirecciones(){
     });
   });
   CONFIG.telefonoContacto = document.getElementById('cfgTelefono').value.trim();
+  CONFIG.accesoLibrePassword = document.getElementById('cfgAccesoLibrePassword').value.trim();
   CONFIG.copiaSiempreA = document.getElementById('cfgCopiaA').value.trim();
   CONFIG.duracionEntrega = Number(document.getElementById('cfgDuracion').value) || 60;
   persistirConfig('Direcciones y teléfono guardados');
