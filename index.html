@@ -128,8 +128,8 @@
   /* ---- Lista de Entregas: barra de filtros y tarjetas de resumen ---- */
   .list-filter-field{display:flex;flex-direction:column;gap:5px;}
   .list-filter-field label{font-size:9.5px;color:var(--text-faint);text-transform:uppercase;font-weight:700;letter-spacing:.04em;}
-  .list-filters-bar{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;background:var(--panel);border:1px solid var(--hairline);border-radius:14px;padding:14px 16px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.06);}
-  .list-filter-field select,.list-filter-field input[type="date"]{background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;color:var(--text);padding:8px 10px;font-size:12px;min-width:150px;transition:border-color .12s,box-shadow .12s;}
+  .list-filters-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;background:var(--panel);border:1px solid var(--hairline);border-radius:14px;padding:14px 16px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.06);}
+  .list-filter-field select,.list-filter-field input[type="date"]{background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;color:var(--text);padding:8px 9px;font-size:11.5px;min-width:118px;transition:border-color .12s,box-shadow .12s;}
   .list-filter-field select:hover,.list-filter-field input[type="date"]:hover{border-color:var(--accent);}
   .list-filter-field select:focus,.list-filter-field input[type="date"]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
   .lista-resumen-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px;}
@@ -378,9 +378,16 @@
   .maestro-list-del:hover{filter:brightness(1.15);}
   .maestro-list-del .material-symbols-outlined{font-size:13px;}
   .maestro-list-header{display:flex;gap:10px;padding:0 10px 4px;font-size:9px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;}
-  .modulos-check-row{display:flex;flex-wrap:wrap;gap:6px 16px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;padding:10px 12px;margin-bottom:10px;}
-  .modulos-check-row label{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-dim);cursor:pointer;}
-  .modulos-check-row input{cursor:pointer;}
+  .modulos-check-row{display:flex;flex-wrap:wrap;gap:14px 22px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;padding:14px 16px;margin-bottom:10px;}
+  .switch-field{display:flex;flex-direction:column;align-items:center;gap:7px;}
+  .switch-field .switch-label{font-size:10.5px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;}
+  .switch{position:relative;display:inline-block;width:40px;height:23px;flex-shrink:0;}
+  .switch input{opacity:0;width:0;height:0;position:absolute;}
+  .switch-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--panel);border:1px solid var(--hairline);transition:.18s;border-radius:23px;}
+  .switch-slider:before{position:absolute;content:"";height:17px;width:17px;left:2px;top:2px;background:#fff;transition:.18s;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.3);}
+  .switch input:checked + .switch-slider{background:var(--ok);border-color:var(--ok);}
+  .switch input:checked + .switch-slider:before{transform:translateX(17px);}
+  .switch input:focus-visible + .switch-slider{box-shadow:0 0 0 3px var(--accent-soft);}
 
   /* ---- Dashboard: hero "próxima entrega" + próximas horas ---- */
   .hero-proxima{position:relative;background:linear-gradient(120deg,#12151d,#1a1e29);border:1px solid var(--hairline);border-left:4px solid var(--accent);border-radius:16px;padding:22px 26px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;overflow:hidden;}
@@ -404,6 +411,14 @@
   .proximas-horas-wrap{margin-bottom:18px;}
   .proximas-horas-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;}
   .proxima-hora-card{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--hairline);border-radius:12px;padding:12px 14px;cursor:pointer;transition:border-color .12s,transform .12s;}
+  .manana-grande .proxima-hora-card{padding:16px 18px;gap:16px;}
+  .manana-grande .hora-box{font-size:17px;}
+  .manana-grande .cli{font-size:14px;}
+  .manana-extra{font-size:10.5px;color:var(--text-faint);margin-top:3px;font-family:'IBM Plex Mono',monospace;}
+  .proxima-hora-card.manana-azul{background:rgba(64,140,255,.10);border:1px solid rgba(64,140,255,.35);}
+  .proxima-hora-card.manana-azul:hover{border-color:#5b9bff;}
+  .proxima-hora-card.manana-azul .hora-box{color:#6fa3ff;}
+  .proxima-hora-card.manana-azul .hora-box .dia{color:#6fa3ff;opacity:.75;}
   .proxima-hora-card:hover{border-color:var(--accent);transform:translateY(-2px);}
   .proxima-hora-card .hora-box{font-family:'IBM Plex Mono',monospace;font-weight:800;font-size:14px;color:var(--accent);min-width:52px;line-height:1.15;}
   .proxima-hora-card .hora-box .dia{display:block;font-size:8.5px;color:var(--text-faint);font-weight:700;text-transform:uppercase;}
@@ -817,6 +832,9 @@
           <div id="heroProximaEntrega" style="display:none;"></div>
           <div id="proximasHorasWrap" style="display:none;"></div>
 
+          <div class="section-title" style="margin-top:0;">Entregas de mañana</div>
+          <div class="manana-grid" id="mananaStrip" style="margin-bottom:18px;"></div>
+
           <div class="section-title" style="margin-top:0;">Filtrar todo</div>
           <div style="display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
             <div id="dashCanalToggleFiltro" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
@@ -828,9 +846,6 @@
             </label>
             <button class="view-btn" onclick="quitarRangoFechaDashboard()">Todo el período</button>
           </div>
-
-          <div class="section-title" style="margin-top:0;">Entregas de mañana</div>
-          <div class="manana-grid" id="mananaStrip"></div>
 
           <div class="stats-strip" id="statsStrip" style="margin-top:18px;"></div>
         </div>
@@ -1367,13 +1382,13 @@
       <div class="section-title">Activar / desactivar módulos (para todos los usuarios)</div>
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Si apagás un módulo acá, desaparece del menú para todo el mundo, sin importar el rol o los permisos que tenga cada usuario.</div>
       <div class="modulos-check-row" id="cfgModulosRow">
-        <label><input type="checkbox" value="dashboard" checked> Dashboard</label>
-        <label><input type="checkbox" value="nuevaentrega" checked> Nueva Entrega</label>
-        <label><input type="checkbox" value="calendario" checked> Calendario</label>
-        <label><input type="checkbox" value="lista" checked> Lista de Entregas</label>
-        <label><input type="checkbox" value="reportes" checked> Reportes</label>
-        <label><input type="checkbox" value="maestro" checked> Maestro (Config)</label>
-        <label><input type="checkbox" value="tv" checked> TV Entregas</label>
+        <label class="switch-field"><span class="switch-label">Dashboard</span><label class="switch"><input type="checkbox" value="dashboard" checked><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Nueva Entrega</span><label class="switch"><input type="checkbox" value="nuevaentrega" checked><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Calendario</span><label class="switch"><input type="checkbox" value="calendario" checked><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Lista</span><label class="switch"><input type="checkbox" value="lista" checked><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Reportes</span><label class="switch"><input type="checkbox" value="reportes" checked><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Maestro</span><label class="switch"><input type="checkbox" value="maestro" checked><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">TV</span><label class="switch"><input type="checkbox" value="tv" checked><span class="switch-slider"></span></label></label>
       </div>
       <button class="save-btn" style="margin-top:6px;" onclick="guardarModulosActivos()">Guardar módulos activos</button>
     </div>
@@ -1415,13 +1430,13 @@
       </div>
       <div style="font-size:11px;color:var(--text-faint);margin:2px 0 6px;">Opcional — módulos que puede ver este usuario en el menú. Si no tildás ninguno, se usan los del rol por defecto.</div>
       <div class="modulos-check-row" id="uModulosRow">
-        <label><input type="checkbox" value="dashboard"> Dashboard</label>
-        <label><input type="checkbox" value="nuevaentrega"> Nueva Entrega</label>
-        <label><input type="checkbox" value="calendario"> Calendario</label>
-        <label><input type="checkbox" value="lista"> Lista de Entregas</label>
-        <label><input type="checkbox" value="reportes"> Reportes</label>
-        <label><input type="checkbox" value="maestro"> Maestro (Config)</label>
-        <label><input type="checkbox" value="tv"> TV Entregas</label>
+        <label class="switch-field"><span class="switch-label">Dashboard</span><label class="switch"><input type="checkbox" value="dashboard"><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Nueva Entrega</span><label class="switch"><input type="checkbox" value="nuevaentrega"><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Calendario</span><label class="switch"><input type="checkbox" value="calendario"><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Lista</span><label class="switch"><input type="checkbox" value="lista"><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Reportes</span><label class="switch"><input type="checkbox" value="reportes"><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Maestro</span><label class="switch"><input type="checkbox" value="maestro"><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">TV</span><label class="switch"><input type="checkbox" value="tv"><span class="switch-slider"></span></label></label>
       </div>
       <button class="save-btn" id="uSubmitBtn" style="width:auto;display:inline-block;margin-right:8px;" onclick="crearUsuarioUI()">Crear usuario</button>
       <button class="view-btn" id="uCancelarBtn" style="display:none;" onclick="cancelarEdicionUsuarioUI()">Cancelar edición</button>
@@ -2912,11 +2927,15 @@ function renderResumenHoyManana(){
   if(deManana.length===0){
     mananaEl.innerHTML = '<div style="color:var(--text-faint);font-size:12px;padding:12px;text-align:center;background:var(--panel);border:1px solid var(--hairline);border-radius:10px;">Sin entregas para mañana.</div>';
   } else {
-    mananaEl.innerHTML = '<div class="proximas-horas-grid">' + deManana.map(function(r){
+    mananaEl.innerHTML = '<div class="proximas-horas-grid manana-grande">' + deManana.map(function(r){
       var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
-      return '<div class="proxima-hora-card" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
+      return '<div class="proxima-hora-card manana-azul" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
         '<div class="hora-box"><span class="dia">Mañana</span>'+r.hora+'</div>'+
-        '<div class="info"><div class="cli">'+r.cliente+'</div><div class="mod"><span class="dot" style="background:var('+b.color+');"></span>'+b.label+' '+r.modelo+'</div></div>'+
+        '<div class="info">'+
+          '<div class="cli">'+r.cliente+'</div>'+
+          '<div class="mod"><span class="dot" style="background:var('+b.color+');"></span>'+b.label+' '+r.modelo+'</div>'+
+          '<div class="manana-extra">'+(r.chasis?'VIN '+r.chasis:'')+(r.chasis&&r.administrativo?' · ':'')+(r.administrativo?'Adm: '+r.administrativo:'')+'</div>'+
+        '</div>'+
         '<span class="material-symbols-outlined chev">chevron_right</span>'+
       '</div>';
     }).join('') + '</div>';
