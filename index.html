@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -43,7 +43,7 @@
   body.light-mode .tint-orange:hover{background:rgba(232,163,61,.26) !important;color:#5e3d08 !important;}
 
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;}
   .app{max-width:1600px;margin:0 auto;padding:24px 24px 60px;}
   header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px;flex-wrap:wrap;}
   .brand-block h1{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin:0 0 4px;}
@@ -57,7 +57,7 @@
   .brand-tab.active{color:var(--text);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent);}
   .brand-tab.active .dot{background:var(--accent);}
   .branch-toggle{display:flex;gap:6px;margin-bottom:18px;}
-  .branch-btn{padding:8px 15px;border-radius:9px;border:1px solid var(--hairline);background:var(--panel);color:var(--text-dim);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+  .branch-btn{padding:8px 15px;border-radius:9px;border:1px solid var(--hairline);background:var(--panel);color:var(--text-dim);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;}
   .branch-btn:hover{color:var(--text);}
   .branch-btn.active{color:var(--text);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent);border-color:transparent;}
   .hero{background:linear-gradient(135deg, var(--panel) 0%, var(--panel-2) 100%);border:1px solid var(--hairline);border-radius:14px;padding:18px 20px;margin-bottom:14px;position:relative;overflow:hidden;}
@@ -86,9 +86,14 @@
   .stats-strip{display:flex;gap:9px;margin-bottom:14px;flex-wrap:wrap;}
   .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:14px;}
   .stats-grid .stat-chip{min-width:0;}
-  .stat-chip{flex:1;min-width:120px;background:var(--panel);border:1px solid var(--hairline);border-radius:10px;padding:10px 12px;}
-  .stat-chip .n{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;}
-  .stat-chip .l{font-size:10.5px;color:var(--text-dim);margin-top:2px;}
+  .stat-chip{flex:1;min-width:120px;background:var(--panel);border:1px solid var(--hairline);border-radius:14px;padding:14px 15px;transition:transform .12s,border-color .12s;}
+  .stat-chip:hover{transform:translateY(-2px);border-color:var(--accent);}
+  .stat-chip .icon-badge{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+  .stat-chip .icon-badge .material-symbols-outlined{font-size:19px;}
+  .stat-chip.ok .icon-badge{background:var(--ok-soft);color:var(--ok);} .stat-chip.warn .icon-badge{background:var(--warn-soft);color:var(--warn);}
+  .stat-chip.pending .icon-badge{background:var(--pending-soft);color:var(--pending);} .stat-chip.danger .icon-badge{background:var(--danger-soft);color:var(--danger);}
+  .stat-chip .n{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;}
+  .stat-chip .l{font-size:10.5px;color:var(--text-dim);margin-top:3px;}
   .stat-chip.ok .n{color:var(--ok);} .stat-chip.warn .n{color:var(--warn);} .stat-chip.pending .n{color:var(--pending);}
   .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
   .day-nav{display:flex;align-items:center;gap:8px;}
@@ -170,7 +175,7 @@
   .combo-item{padding:8px 10px;font-size:12.5px;cursor:pointer;color:var(--text);}
   .combo-item:hover{background:var(--accent-soft);color:var(--accent);}
   .combo-item.vacio{color:var(--text-faint);font-style:italic;cursor:default;}
-  .obs-input{width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;padding:10px 12px;font-size:12.5px;color:var(--text);font-family:'Inter',sans-serif;resize:vertical;min-height:60px;}
+  .obs-input{width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;padding:10px 12px;font-size:12.5px;color:var(--text);font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;resize:vertical;min-height:60px;}
   .acc-box{background:var(--warn-soft);border:1px solid rgba(232,178,61,.35);border-radius:9px;padding:10px 12px;font-size:12.5px;}
   .acc-box.empty{color:var(--text-faint);background:var(--panel-2);border-color:var(--hairline);font-style:italic;}
   .toggle-btn{margin-top:7px;width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--hairline);background:var(--panel-2);color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;}
@@ -187,11 +192,11 @@
   .comment-item{background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;padding:8px 10px;margin-bottom:7px;}
   .comment-item .meta{font-size:10px;color:var(--text-faint);margin-bottom:2px;font-family:'IBM Plex Mono',monospace;}
   .comment-add{display:flex;gap:7px;margin-top:7px;}
-  .comment-add textarea{flex:1;background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:8px 9px;font-family:'Inter',sans-serif;font-size:12px;resize:none;height:36px;}
+  .comment-add textarea{flex:1;background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:8px 9px;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;resize:none;height:36px;}
   .comment-add button{background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:0 13px;font-weight:600;font-size:11.5px;cursor:pointer;}
   .reprog-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px;}
   .reprog-grid input,.reprog-grid textarea{background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:8px 9px;font-family:'IBM Plex Mono',monospace;font-size:12px;width:100%;}
-  .reprog-grid textarea{grid-column:1/-1;font-family:'Inter',sans-serif;resize:none;height:40px;}
+  .reprog-grid textarea{grid-column:1/-1;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;resize:none;height:40px;}
   .reprog-btn{background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:9px;padding:9px 13px;font-weight:700;font-size:12px;cursor:pointer;width:100%;transition:background .15s;}
   .reprog-btn:hover{background:var(--accent-soft);}
   .history-item{font-size:12px;color:var(--text);padding:8px 12px;margin-bottom:5px;background:var(--panel-2);border-left:3px solid var(--accent);border-radius:0 7px 7px 0;font-family:'IBM Plex Mono',monospace;display:flex;flex-direction:column;gap:2px;}
@@ -215,7 +220,7 @@
   .form-field.full{grid-column:1/-1;}
   .form-field label{font-size:9.5px;color:var(--text-faint);text-transform:uppercase;}
   .form-field input,.form-field select,.form-field textarea{background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:8px 9px;font-family:'IBM Plex Mono',monospace;font-size:12px;width:100%;}
-  .form-field textarea{font-family:'Inter',sans-serif;resize:none;height:46px;}
+  .form-field textarea{font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;resize:none;height:46px;}
   .new-warning{background:var(--danger-soft);color:var(--danger);border-radius:8px;padding:9px 11px;font-size:12px;font-weight:600;margin-bottom:12px;display:none;}
   .save-btn{background:var(--accent);color:var(--bg);border:none;border-radius:10px;padding:11px 15px;font-weight:700;font-size:12.5px;cursor:pointer;width:100%;margin-top:5px;box-shadow:0 4px 14px -4px rgba(0,0,0,.3);transition:filter .15s;}
   .save-btn:hover{filter:brightness(1.08);}
@@ -234,6 +239,23 @@
   .report-table td[tabindex],.report-table td[onclick]{cursor:pointer;}
   .report-table td[tabindex]:focus,.report-table td[onclick]:focus{outline:2px solid var(--accent);outline-offset:-2px;background:var(--accent-soft);}
   .report-wrap{overflow:auto;max-height:62vh;border:1px solid var(--hairline);border-radius:9px;}
+
+  /* ---- Usuarios y Permisos: estilo tipo dashboard (avatares + píldoras) ---- */
+  .users-table td{padding:12px 11px;}
+  .user-cell{display:flex;align-items:center;gap:10px;}
+  .user-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#1a1206;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0;}
+  .user-avatar.inactivo{background:var(--panel-2);color:var(--text-faint);border:1px solid var(--hairline);}
+  .user-name{font-weight:700;color:var(--text);font-size:12.5px;}
+  .user-username{color:var(--text-faint);font-size:11px;font-family:'IBM Plex Mono',monospace;}
+  .user-actions{display:flex;gap:6px;flex-wrap:wrap;}
+  .pill-btn{border:none;border-radius:20px;padding:6px 13px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:filter .12s,transform .08s;}
+  .pill-btn:hover{filter:brightness(1.12);}
+  .pill-btn:active{transform:scale(.96);}
+  .pill-btn.edit{background:var(--accent-soft);color:var(--accent);}
+  .pill-btn.mail{background:rgba(99,140,255,.16);color:#6f97ff;}
+  .pill-btn.reset{background:var(--panel-2);color:var(--text-dim);border:1px solid var(--hairline);}
+  .pill-btn.danger{background:var(--danger-soft);color:var(--danger);}
+  .pill-btn.ok{background:var(--ok-soft);color:var(--ok);}
   @media (max-width:640px){
     .report-table{font-size:12px;}
     .report-table th, .report-table td{padding:10px 12px;}
@@ -282,7 +304,7 @@
   .login-card .sub{color:rgba(255,255,255,.6);font-size:13px;line-height:1.5;margin-bottom:26px;}
   .login-field{text-align:left;margin-bottom:16px;}
   .login-field label{display:block;font-size:11px;color:rgba(255,255,255,.55);margin-bottom:6px;letter-spacing:.02em;}
-  .login-field input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:13px 16px;color:#fff;font-size:14px;font-family:'Inter',sans-serif;transition:border-color .15s,background .15s;}
+  .login-field input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:13px 16px;color:#fff;font-size:14px;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;transition:border-color .15s,background .15s;}
   .login-field input:focus{outline:none;border-color:#fff;background:rgba(255,255,255,.1);}
   .login-field input::placeholder{color:rgba(255,255,255,.35);}
   .login-remember{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
@@ -305,9 +327,13 @@
   .maestro-tag button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;}
   .maestro-tag button:hover{color:var(--danger);}
   .maestro-tag.block{background:var(--danger-soft);}
+  .maestro-tag-avatar{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#1a1206;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:9.5px;flex-shrink:0;}
+  .maestro-tag.rich{padding:5px 8px 5px 6px;gap:8px;}
+  .maestro-tag-flota{background:var(--panel);border:1px solid var(--hairline);border-radius:10px;padding:2px 8px;font-size:10px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-weight:600;white-space:nowrap;}
+  .maestro-tag-email{color:var(--text-faint);font-size:10.5px;white-space:nowrap;}
   .maestro-add{display:flex;gap:8px;}
-  .maestro-add input, .maestro-add select{flex:1;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;}
-  .maestro-add button{background:var(--accent);color:var(--bg);border:none;border-radius:8px;padding:0 14px;font-weight:600;font-size:12px;cursor:pointer;}
+  .maestro-add input, .maestro-add select{flex:1;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;color:var(--text);padding:9px 15px;font-size:12px;}
+  .maestro-add button{background:var(--accent);color:var(--bg);border:none;border-radius:20px;padding:0 18px;font-weight:700;font-size:12px;cursor:pointer;}
   .view-toggle{display:flex;gap:6px;}
   .view-btn{padding:8px 13px;border-radius:9px;border:1px solid var(--hairline);background:var(--panel);color:var(--text-dim);font-size:12.5px;font-weight:600;cursor:pointer;transition:border-color .15s,color .15s;}
   .view-btn:hover{border-color:var(--accent);color:var(--text);}
@@ -378,7 +404,7 @@
   .sidebar:hover .sidebar-brand>div,.sidebar.pinned .sidebar-brand>div,
   .sidebar:hover .sidebar-user-toggle .info,.sidebar.pinned .sidebar-user-toggle .info{opacity:1;max-width:160px;}
   .sidebar-nav{padding:0 10px;display:flex;flex-direction:column;gap:2px;}
-  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:9px;color:#9099ac;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;text-align:left;width:100%;font-family:'Inter',sans-serif;white-space:nowrap;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:9px;color:#9099ac;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;text-align:left;width:100%;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;white-space:nowrap;}
   .sidebar:not(:hover):not(.pinned) .nav-item{justify-content:center;padding-left:0;padding-right:0;}
   .nav-item .material-symbols-outlined{font-size:21px;flex-shrink:0;}
   .nav-item:hover{background:#161b28;color:#fff;}
@@ -388,12 +414,12 @@
   .nav-item-highlight .material-symbols-outlined{color:#1a1206;}
   .nav-submenu{display:flex;flex-direction:column;gap:1px;margin:2px 0 6px;padding-left:14px;border-left:1px solid var(--hairline);margin-left:22px;}
   .sidebar:not(:hover):not(.pinned) .nav-submenu{display:none !important;}
-  .nav-subitem{display:block;text-align:left;background:none;border:none;color:var(--text-faint);font-size:12px;font-weight:500;padding:7px 10px;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;}
+  .nav-subitem{display:block;text-align:left;background:none;border:none;color:var(--text-faint);font-size:12px;font-weight:500;padding:7px 10px;border-radius:7px;cursor:pointer;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;white-space:nowrap;}
   .nav-subitem:hover{background:#161b28;color:#fff;}
   .nav-subitem.active{color:var(--accent);font-weight:700;background:var(--accent-soft);}
   .sidebar-foot{padding:14px 20px 0;border-top:1px solid var(--hairline);margin-top:10px;font-size:10.5px;color:var(--text-faint);line-height:1.6;}
   .sidebar-user{border-top:1px solid var(--hairline);margin-top:auto;padding-top:8px;position:relative;}
-  .sidebar-user-toggle{display:flex;align-items:center;gap:9px;width:100%;background:none;border:none;padding:8px 13px;cursor:pointer;text-align:left;font-family:'Inter',sans-serif;}
+  .sidebar-user-toggle{display:flex;align-items:center;gap:9px;width:100%;background:none;border:none;padding:8px 13px;cursor:pointer;text-align:left;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;}
   .sidebar:not(:hover):not(.pinned) .sidebar-user-toggle{justify-content:center;}
   .sidebar-user-toggle:hover{background:#161b28;}
   .sidebar-user-toggle .avatar{width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
@@ -403,7 +429,7 @@
   .sidebar-user-toggle .chev{font-size:18px;color:var(--text-faint);transition:transform .15s;flex-shrink:0;}
   .sidebar-user-toggle .chev.open{transform:rotate(180deg);}
   .sidebar-user-menu{display:flex;flex-direction:column;gap:1px;padding:6px;position:absolute;bottom:calc(100% + 4px);left:10px;right:10px;background:#161b28;border:1px solid var(--hairline);border-radius:10px;box-shadow:0 -8px 24px rgba(0,0,0,.5);z-index:70;}
-  .sidebar-user-menu button{display:flex;align-items:center;gap:9px;background:none;border:none;color:var(--text-dim);font-size:12px;font-weight:600;padding:8px 10px;border-radius:7px;cursor:pointer;text-align:left;font-family:'Inter',sans-serif;}
+  .sidebar-user-menu button{display:flex;align-items:center;gap:9px;background:none;border:none;color:var(--text-dim);font-size:12px;font-weight:600;padding:8px 10px;border-radius:7px;cursor:pointer;text-align:left;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;}
   .sidebar-user-menu button:hover{background:#20263a;color:#fff;}
   .sidebar-user-menu button .material-symbols-outlined{font-size:17px;}
   .sidebar-user-menu button.danger{color:var(--danger);}
@@ -467,7 +493,7 @@
   @media(max-width:1100px){ .tv-grid{grid-template-columns:1fr;} }
 
   /* ---- TV: vista individual "Entrega en curso" (formato tótem/monitor) ---- */
-  .tv-mode-toggle{background:transparent;border:1px solid rgba(255,255,255,.15);color:#9099ac;padding:7px 13px;border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-right:6px;}
+  .tv-mode-toggle{background:transparent;border:1px solid rgba(255,255,255,.15);color:#9099ac;padding:7px 13px;border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;margin-right:6px;}
   .tv-mode-toggle-row{display:flex;align-items:center;}
   .tv-mode-toggle.active{background:rgba(255,255,255,.09);color:#fff;border-color:rgba(255,255,255,.3);}
   .tv-single-wrap{background:#05070C;border:1px solid #12161f;border-radius:18px;overflow:hidden;}
@@ -582,6 +608,7 @@
       <h3 style="font-family:'Space Grotesk',sans-serif;margin-top:0;">No se pudo conectar con el backend</h3>
       <p style="color:var(--text-dim);font-size:13px;">Falta configurar la variable de entorno del backend en Vercel (VITE_API_URL), o el servicio no respondió. Contactá al administrador del sistema — este panel no requiere ninguna configuración manual.</p>
       <button class="save-btn" onclick="location.reload()">Reintentar</button>
+      <button class="save-btn" style="background:transparent;border:1px solid var(--hairline);color:var(--text-dim);margin-top:8px;" onclick="activarVistaPrevia()">Ver el diseño sin datos (solo vista previa)</button>
     </div>
   </div>
 
@@ -1672,28 +1699,44 @@ function credencialesActor_(){
   showToast('Cerrá sesión y volvé a entrar una vez para poder usar esta sección.');
   return null;
 }
+function iniciales_(nombre){
+  var partes = (nombre||'?').trim().split(/\s+/);
+  var ini = partes[0] ? partes[0][0] : '?';
+  if(partes.length>1) ini += partes[1][0];
+  return ini.toUpperCase();
+}
 function renderUsuariosTabla_(){
   var tabla = document.getElementById('tablaUsuarios');
   if(!tabla) return;
-  tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--text-faint);">Cargando usuarios...</th></tr>';
+  tabla.classList.add('users-table');
+  tabla.innerHTML = '<tr><th colspan="5" style="text-align:center;color:var(--text-faint);">Cargando usuarios...</th></tr>';
   var s = sesionActual();
   if(!s) return;
   var pass = credencialesActor_();
-  if(pass===null){ tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--text-faint);">Cerrá sesión y volvé a entrar para ver esto.</th></tr>'; return; }
+  if(pass===null){ tabla.innerHTML = '<tr><th colspan="5" style="text-align:center;color:var(--text-faint);">Cerrá sesión y volvé a entrar para ver esto.</th></tr>'; return; }
   gasPost('listarUsuarios',{actorUsuario:s.usuario, actorPassword:pass}).then(function(res){
-    if(res.error){ tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">'+res.error+'</th></tr>'; return; }
+    if(res.error){ tabla.innerHTML = '<tr><th colspan="5" style="text-align:center;color:var(--danger);">'+res.error+'</th></tr>'; return; }
     window._ultimaPasswordActor = pass; // se reusa para las acciones de esta sesión de la pestaña
-    var html = '<tr><th>Nombre</th><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr>';
+    var html = '<tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr>';
     (res.usuarios||[]).forEach(function(u){
-      html += '<tr><td>'+u.nombre+'</td><td>'+u.usuario+'</td><td>'+(u.email||'<span style="color:var(--text-faint);">—</span>')+'</td><td>'+etiquetaRol_(u.rol)+'</td>'+
+      var nombreEsc = u.nombre.replace(/'/g,"\\'");
+      html += '<tr>'+
+        '<td><div class="user-cell"><div class="user-avatar'+(u.activo?'':' inactivo')+'">'+iniciales_(u.nombre)+'</div><div><div class="user-name">'+u.nombre+'</div><div class="user-username">@'+u.usuario+'</div></div></div></td>'+
+        '<td>'+(u.email||'<span style="color:var(--text-faint);">—</span>')+'</td>'+
+        '<td>'+etiquetaRol_(u.rol)+'</td>'+
         '<td>'+(u.activo?'<span class="tag ok">Activo</span>':'<span class="tag danger">Inactivo</span>')+'</td>'+
-        '<td><button class="del-btn" style="width:auto;padding:5px 10px;margin:0 4px 4px 0;" onclick="editarUsuarioUI(\''+u.usuario+'\',\''+u.nombre.replace(/'/g,"\\'")+'\',\''+(u.email||'')+'\',\''+u.rol+'\')">✏️ Editar</button>'+
-        '<button class="del-btn" style="width:auto;padding:5px 10px;margin:0 4px 4px 0;" onclick="resetPasswordUsuarioUI(\''+u.usuario+'\')">🔑 Resetear contraseña</button>'+
-        '<button class="del-btn" style="width:auto;padding:5px 10px;margin:0;" onclick="toggleActivoUsuarioUI(\''+u.usuario+'\','+(!u.activo)+')">'+(u.activo?'🚫 Desactivar':'✅ Reactivar')+'</button></td></tr>';
+        '<td><div class="user-actions">'+
+          '<button class="pill-btn edit" onclick="editarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\',\''+(u.email||'')+'\',\''+u.rol+'\')">✏️ Editar</button>'+
+          (u.email ? '<button class="pill-btn mail" onclick="reenviarCredencialesUI(\''+u.usuario+'\')">✉️ Reenviar mail</button>' : '')+
+          '<button class="pill-btn reset" onclick="resetPasswordUsuarioUI(\''+u.usuario+'\')">🔑 Resetear</button>'+
+          '<button class="pill-btn '+(u.activo?'danger':'ok')+'" onclick="toggleActivoUsuarioUI(\''+u.usuario+'\','+(!u.activo)+')">'+(u.activo?'🚫 Desactivar':'✅ Reactivar')+'</button>'+
+          '<button class="pill-btn danger" onclick="eliminarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\')">🗑️ Eliminar</button>'+
+        '</div></td>'+
+      '</tr>';
     });
     tabla.innerHTML = html;
   }).catch(function(){
-    tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">No se pudo conectar.</th></tr>';
+    tabla.innerHTML = '<tr><th colspan="5" style="text-align:center;color:var(--danger);">No se pudo conectar.</th></tr>';
   });
 }
 var usuarioEnEdicion = null; // null = modo "crear"; si no, es el "usuario" que se está editando
@@ -1773,9 +1816,30 @@ function toggleActivoUsuarioUI(usuarioObjetivo, nuevoActivo){
     renderUsuariosTabla_();
   });
 }
+function reenviarCredencialesUI(usuarioObjetivo){
+  if(!confirm('¿Reenviar el mail con usuario y contraseña a "'+usuarioObjetivo+'"?')) return;
+  var s = sesionActual();
+  var pass = window._ultimaPasswordActor || credencialesActor_();
+  if(pass===null) return;
+  gasPost('reenviarCredenciales',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuarioObjetivo}).then(function(res){
+    if(res.error){ showToast(res.error); return; }
+    showToast('Mail reenviado a "'+usuarioObjetivo+'"');
+  });
+}
+function eliminarUsuarioUI(usuarioObjetivo, nombre){
+  if(!confirm('¿Eliminar definitivamente a "'+nombre+'" ('+usuarioObjetivo+')?\n\nEsto no se puede deshacer. Si solo querés que deje de entrar, mejor usá "Desactivar".')) return;
+  var s = sesionActual();
+  var pass = window._ultimaPasswordActor || credencialesActor_();
+  if(pass===null) return;
+  gasPost('eliminarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuarioObjetivo}).then(function(res){
+    if(res.error){ showToast(res.error); return; }
+    showToast('Usuario "'+nombre+'" eliminado');
+    renderUsuariosTabla_();
+  });
+}
 
 function init(){
-  aplicarTema(localStorage.getItem('tema') || 'oscuro');
+  aplicarTema(localStorage.getItem('tema') || 'claro');
   cargarConfigBackend().then(function(){
     if(!sesionActual()){
       document.getElementById('loadingMsg').style.display='none';
@@ -1794,6 +1858,16 @@ function cargarTodo(){
   document.getElementById('loadingMsg').style.display='block';
   document.getElementById('setupUI').style.display='none';
   document.getElementById('mainShell').style.display='none';
+  if(MODO_VISTA_PREVIA){
+    ENTREGAS = [];
+    CONFIG = {duracionEntrega:60, bloqueos:[], maestros:[], stockMinimos:[], stockRegalos:[], historicoKit:[], historicoRegalos:[], direcciones:{}, distribucionRegalos:{}, usuariosAutorizados:[], alertaAccesoriosEmails:[], copiaSiempreA:'', telefonoContacto:''};
+    document.getElementById('loadingMsg').style.display='none';
+    document.getElementById('mainShell').style.display='block';
+    renderSwitcher(); updateDayLabel(); checkBloqueado(); renderAll(); renderDatalists();
+    aplicarPermisosUI();
+    setAppView('dashboard');
+    return;
+  }
   Promise.all([gasGet('entregas'), gasGet('config')]).then(function(res){
     ENTREGAS = res[0];
     CONFIG = res[1];
@@ -1805,6 +1879,17 @@ function cargarTodo(){
   }).catch(function(err){
     document.getElementById('loadingMsg').textContent = 'No se pudo conectar con la planilla. Revisá la URL guardada.';
   });
+}
+// Vista previa sin backend: sirve para abrir el HTML local (doble click, file://)
+// o cuando /api/config no responde, y ver la interfaz con datos vacíos, sin
+// tocar nunca el backend real. NO usar en producción — solo para revisar diseño.
+var MODO_VISTA_PREVIA = false;
+function activarVistaPrevia(){
+  MODO_VISTA_PREVIA = true;
+  document.getElementById('setupUI').style.display='none';
+  guardarSesion_({usuario:'preview', nombre:'Vista previa (sin datos)', rol:'calidad', password:''}, false);
+  actualizarBotonUsuario();
+  cargarTodo();
 }
 
 // ============================================================
@@ -2363,11 +2448,11 @@ function renderStats(){
   // --- Alerta: entregas ya realizadas que todavía tienen algo pendiente ---
   var conPendienteReal = rows.filter(function(r){ return r.entregada && tienePendienteSinResolver_(r); }).length;
   if(conPendienteReal>0){
-    html+='<div class="stat-chip danger" style="cursor:pointer;box-shadow:inset 0 0 0 2px var(--danger);'+(filterAlertaPendientes?'background:var(--danger-soft);':'')+'" onclick="toggleFilterAlertaPendientes()"><div class="n" style="color:var(--danger);">⚠ '+conPendienteReal+'</div><div class="l">Entregadas con pendientes</div></div>';
+    html+='<div class="stat-chip danger" style="cursor:pointer;box-shadow:inset 0 0 0 2px var(--danger);'+(filterAlertaPendientes?'background:var(--danger-soft);':'')+'" onclick="toggleFilterAlertaPendientes()"><div class="icon-badge"><span class="material-symbols-outlined">warning</span></div><div class="n" style="color:var(--danger);">'+conPendienteReal+'</div><div class="l">Entregadas con pendientes</div></div>';
   }
 
-  html+='<div class="stat-chip ok" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'0KM cargados\', entregasContexto().filter(function(r){return r.tipoVenta===\'OKM\';}), null, \'statsStrip\')"><div class="n">'+okm+'</div><div class="l">0KM cargados</div></div>'+
-           '<div class="stat-chip pending" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Usados cargados\', entregasContexto().filter(function(r){return r.tipoVenta===\'USADO\';}), null, \'statsStrip\')"><div class="n">'+usado+'</div><div class="l">Usados cargados</div></div>';
+  html+='<div class="stat-chip ok" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'0KM cargados\', entregasContexto().filter(function(r){return r.tipoVenta===\'OKM\';}), null, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">directions_car</span></div><div class="n">'+okm+'</div><div class="l">0KM cargados</div></div>'+
+           '<div class="stat-chip pending" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Usados cargados\', entregasContexto().filter(function(r){return r.tipoVenta===\'USADO\';}), null, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">sync_alt</span></div><div class="n">'+usado+'</div><div class="l">Usados cargados</div></div>';
 
   // --- Accesorios, Regalo corporativo, Kit de seguridad y Campaña: cargados vs colocados/controlados ---
   // (mismo criterio que el Panel Maestro, pero acotado a la marca/sucursal que se está viendo)
@@ -2380,10 +2465,10 @@ function renderStats(){
   var conCampana = rows.filter(function(r){return r.campanaTexto;}).length;
   var campanaControlada = rows.filter(function(r){return r.campanaTexto && r.campanaControlada;}).length;
 
-  if(conAccesorio>0) html+='<div class="stat-chip warn" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Con accesorio ('+currentBrand+')\', entregasContexto().filter(function(r){return r.accesorios;}), {header:\'Accesorio\', pendiente:function(r){return !r.accesoriosColocado;}}, \'statsStrip\')"><div class="n">'+accColocado+' / '+conAccesorio+'</div><div class="l">Accesorios colocados</div></div>';
-  if(conRegalo>0) html+='<div class="stat-chip ok" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Con regalo corporativo\', entregasContexto().filter(function(r){return r.regaloCorporativo;}), {header:\'Regalo\', pendiente:function(r){return r.regaloEstado!==\'Entregado\';}}, \'statsStrip\')"><div class="n">'+regaloEntregado+' / '+conRegalo+'</div><div class="l">Regalos entregados</div></div>';
-  if(conKit>0) html+='<div class="stat-chip ok" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Con kit de seguridad\', entregasContexto().filter(function(r){return r.kitSeguridad;}), {header:\'Kit de seguridad\', pendiente:function(r){return !r.kitSeguridadColocado;}}, \'statsStrip\')"><div class="n">'+kitColocado+' / '+conKit+'</div><div class="l">Kit de seguridad colocado</div></div>';
-  if(conCampana>0) html+='<div class="stat-chip warn" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Con campaña\', entregasContexto().filter(function(r){return r.campanaTexto;}), {header:\'Campaña\', pendiente:function(r){return !r.campanaControlada;}}, \'statsStrip\')"><div class="n">'+campanaControlada+' / '+conCampana+'</div><div class="l">Campañas controladas</div></div>';
+  if(conAccesorio>0) html+='<div class="stat-chip warn" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Con accesorio ('+currentBrand+')\', entregasContexto().filter(function(r){return r.accesorios;}), {header:\'Accesorio\', pendiente:function(r){return !r.accesoriosColocado;}}, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">build</span></div><div class="n">'+accColocado+' / '+conAccesorio+'</div><div class="l">Accesorios colocados</div></div>';
+  if(conRegalo>0) html+='<div class="stat-chip ok" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Con regalo corporativo\', entregasContexto().filter(function(r){return r.regaloCorporativo;}), {header:\'Regalo\', pendiente:function(r){return r.regaloEstado!==\'Entregado\';}}, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">redeem</span></div><div class="n">'+regaloEntregado+' / '+conRegalo+'</div><div class="l">Regalos entregados</div></div>';
+  if(conKit>0) html+='<div class="stat-chip ok" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Con kit de seguridad\', entregasContexto().filter(function(r){return r.kitSeguridad;}), {header:\'Kit de seguridad\', pendiente:function(r){return !r.kitSeguridadColocado;}}, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">health_and_safety</span></div><div class="n">'+kitColocado+' / '+conKit+'</div><div class="l">Kit de seguridad colocado</div></div>';
+  if(conCampana>0) html+='<div class="stat-chip warn" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Con campaña\', entregasContexto().filter(function(r){return r.campanaTexto;}), {header:\'Campaña\', pendiente:function(r){return !r.campanaControlada;}}, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">campaign</span></div><div class="n">'+campanaControlada+' / '+conCampana+'</div><div class="l">Campañas controladas</div></div>';
 
   if(brand.onstar){
     var ok=rows.filter(function(r){return r.onstar==='ok';}).length;
@@ -3878,7 +3963,7 @@ function guardarAlertaAccesorios(){
 }
 function renderMaestroTags(tipo, elId){
   document.getElementById(elId).innerHTML = CONFIG.maestros[tipo].map(function(n,i){
-    return '<span class="maestro-tag"><span onclick="editarMaestroTag(\''+tipo+'\','+i+')" style="cursor:pointer;" title="Tocar para editar">'+n+'</span><button onclick="removeMaestro(\''+tipo+'\','+i+')">✕</button></span>';
+    return '<span class="maestro-tag rich"><span class="maestro-tag-avatar">'+iniciales_(n)+'</span><span onclick="editarMaestroTag(\''+tipo+'\','+i+')" style="cursor:pointer;" title="Tocar para editar">'+n+'</span><button onclick="removeMaestro(\''+tipo+'\','+i+')">✕</button></span>';
   }).join('') || '<span style="color:var(--text-faint);font-size:12px;">Sin cargar todavía.</span>';
 }
 function editarMaestroTag(tipo, i){
@@ -3893,7 +3978,11 @@ function editarMaestroTag(tipo, i){
 }
 function renderAdministrativosTags(){
   document.getElementById('tagsAdministrativos').innerHTML = CONFIG.maestros.administrativos.map(function(a,i){
-    return '<span class="maestro-tag"><span onclick="editarAdministrativoTag('+i+')" style="cursor:pointer;" title="Tocar para editar">'+a.nombre+(a.flota?' <span style="color:var(--text-faint);">· Flota '+a.flota+'</span>':'')+(a.email?' <span style="color:var(--text-faint);">· '+a.email+'</span>':'')+'</span><button onclick="removeAdministrativo('+i+')">✕</button></span>';
+    return '<span class="maestro-tag rich"><span class="maestro-tag-avatar">'+iniciales_(a.nombre)+'</span>'+
+      '<span onclick="editarAdministrativoTag('+i+')" style="cursor:pointer;font-weight:600;" title="Tocar para editar">'+a.nombre+'</span>'+
+      (a.flota?'<span class="maestro-tag-flota">Flota '+a.flota+'</span>':'')+
+      (a.email?'<span class="maestro-tag-email">'+a.email+'</span>':'')+
+      '<button onclick="removeAdministrativo('+i+')">✕</button></span>';
   }).join('') || '<span style="color:var(--text-faint);font-size:12px;">Sin cargar todavía.</span>';
 }
 function editarAdministrativoTag(i){
@@ -4239,15 +4328,15 @@ function renderDashboard(){
   var recordatoriosEnviados = rows.filter(function(r){return r.recordatorio==='enviado';}).length;
 
   var chips = [
-    {n:totalEntregas, l:'Total de entregas', cls:'ok', filtro:function(r){return true;}, titulo:'Todas las entregas'},
-    {n:accesoriosColocados+' / '+conAccesorio, l:'Accesorios colocados', cls:'warn', filtro:function(r){return !!r.accesorios;}, titulo:'Entregas con accesorio'},
-    {n:onstarActivado+' / '+onstarAplica, l:'OnStar activado (Chevrolet)', cls:'pending', filtro:function(r){return r.marca==='chevrolet';}, titulo:'Entregas Chevrolet (OnStar)'},
-    {n:campanaControlada+' / '+conCampana, l:'Campañas controladas', cls:'warn', filtro:function(r){return !!r.campanaTexto;}, titulo:'Entregas con campaña cargada'},
-    {n:confirmadas+' / '+totalEntregas, l:'Confirmaciones enviadas', cls:'ok', filtro:function(r){return !!r.confirmado;}, titulo:'Confirmaciones enviadas'},
-    {n:recordatoriosEnviados+' / '+totalEntregas, l:'Recordatorios enviados', cls:'pending', filtro:function(r){return r.recordatorio==='enviado';}, titulo:'Recordatorios enviados'}
+    {n:totalEntregas, l:'Total de entregas', cls:'ok', icon:'local_shipping', filtro:function(r){return true;}, titulo:'Todas las entregas'},
+    {n:accesoriosColocados+' / '+conAccesorio, l:'Accesorios colocados', cls:'warn', icon:'build', filtro:function(r){return !!r.accesorios;}, titulo:'Entregas con accesorio'},
+    {n:onstarActivado+' / '+onstarAplica, l:'OnStar activado (Chevrolet)', cls:'pending', icon:'satellite_alt', filtro:function(r){return r.marca==='chevrolet';}, titulo:'Entregas Chevrolet (OnStar)'},
+    {n:campanaControlada+' / '+conCampana, l:'Campañas controladas', cls:'warn', icon:'campaign', filtro:function(r){return !!r.campanaTexto;}, titulo:'Entregas con campaña cargada'},
+    {n:confirmadas+' / '+totalEntregas, l:'Confirmaciones enviadas', cls:'ok', icon:'check_circle', filtro:function(r){return !!r.confirmado;}, titulo:'Confirmaciones enviadas'},
+    {n:recordatoriosEnviados+' / '+totalEntregas, l:'Recordatorios enviados', cls:'pending', icon:'schedule', filtro:function(r){return r.recordatorio==='enviado';}, titulo:'Recordatorios enviados'}
   ];
   document.getElementById('dashIndicadores').innerHTML = chips.map(function(c,i){
-    return '<div class="stat-chip '+c.cls+'" style="cursor:pointer;min-width:150px;" onclick="abrirDetalleFiltradoDashboard('+i+')"><div class="n">'+c.n+'</div><div class="l">'+c.l+'</div></div>';
+    return '<div class="stat-chip '+c.cls+'" style="cursor:pointer;min-width:150px;" onclick="abrirDetalleFiltradoDashboard('+i+')"><div class="icon-badge"><span class="material-symbols-outlined">'+c.icon+'</span></div><div class="n">'+c.n+'</div><div class="l">'+c.l+'</div></div>';
   }).join('') + renderChipAlertaStock_();
   window._dashChipsFiltros = chips;
 
@@ -4848,10 +4937,10 @@ function renderChipAlertaStock_(){
   });
   var out='';
   if(bajoMinimo>0){
-    out += '<div class="stat-chip danger" style="cursor:pointer;min-width:150px;box-shadow:inset 0 0 0 2px var(--danger);" onclick="scrollToStock()"><div class="n" style="color:var(--danger);">'+bajoMinimo+'</div><div class="l">🛒 Items para comprar/reponer</div></div>';
+    out += '<div class="stat-chip danger" style="cursor:pointer;min-width:150px;box-shadow:inset 0 0 0 2px var(--danger);" onclick="scrollToStock()"><div class="icon-badge"><span class="material-symbols-outlined">shopping_cart</span></div><div class="n" style="color:var(--danger);">'+bajoMinimo+'</div><div class="l">Items para comprar/reponer</div></div>';
   }
   if(sucursalesSinStock>0){
-    out += '<div class="stat-chip danger" style="cursor:pointer;min-width:150px;box-shadow:inset 0 0 0 2px var(--danger);" onclick="scrollToStock()"><div class="n" style="color:var(--danger);">'+sucursalesSinStock+'</div><div class="l">📤 Sucursales sin stock para enviar</div></div>';
+    out += '<div class="stat-chip danger" style="cursor:pointer;min-width:150px;box-shadow:inset 0 0 0 2px var(--danger);" onclick="scrollToStock()"><div class="icon-badge"><span class="material-symbols-outlined">local_shipping</span></div><div class="n" style="color:var(--danger);">'+sucursalesSinStock+'</div><div class="l">Sucursales sin stock para enviar</div></div>';
   }
   return out;
 }
