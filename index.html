@@ -123,6 +123,27 @@
   .cliente{font-weight:600;max-width:220px;cursor:pointer;}
   .cliente .veh{display:block;font-weight:400;color:var(--text-dim);font-size:11px;margin-top:2px;}
   .dominio{font-family:'IBM Plex Mono',monospace;color:var(--text);font-weight:700;font-size:11.5px;white-space:normal;overflow-wrap:break-word;}
+  .dominio-badge{background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;padding:2px 8px;display:inline-block;}
+
+  /* ---- Lista de Entregas: barra de filtros y tarjetas de resumen ---- */
+  .list-filters-bar{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;background:var(--panel);border:1px solid var(--hairline);border-radius:14px;padding:14px 16px;margin-bottom:16px;}
+  .list-filter-field{display:flex;flex-direction:column;gap:5px;}
+  .list-filter-field label{font-size:9.5px;color:var(--text-faint);text-transform:uppercase;font-weight:700;letter-spacing:.04em;}
+  .list-filter-field select,.list-filter-field input[type="date"]{background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;min-width:150px;}
+  .lista-resumen-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px;}
+  .lista-resumen-card{background:var(--panel);border:1px solid var(--hairline);border-radius:14px;padding:18px;position:relative;overflow:hidden;}
+  .lista-resumen-card .icon-badge{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+  .lista-resumen-card .icon-badge .material-symbols-outlined{font-size:20px;}
+  .lista-resumen-card .top-tag{position:absolute;top:18px;right:18px;font-size:11px;font-weight:700;}
+  .lista-resumen-card .n{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:800;color:var(--text);}
+  .lista-resumen-card .n .u{font-size:12px;font-weight:600;color:var(--text-dim);margin-left:4px;}
+  .lista-resumen-card .l{font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.04em;margin-top:4px;font-weight:700;}
+  .lista-resumen-card.highlight{background:var(--accent);border:none;}
+  .lista-resumen-card.highlight .n,.lista-resumen-card.highlight .l{color:#fff;}
+  .lista-resumen-card.highlight .icon-badge{background:rgba(255,255,255,.18);}
+  .lista-resumen-card .barra-fondo{margin-top:12px;height:6px;background:rgba(255,255,255,.15);border-radius:20px;overflow:hidden;}
+  .lista-resumen-card:not(.highlight) .barra-fondo{background:var(--panel-2);}
+  .lista-resumen-card .barra-fill{height:100%;border-radius:20px;}
   .tag{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap;}
   .tag.ok{background:var(--ok-soft);color:var(--ok);} .tag.warn{background:var(--warn-soft);color:var(--warn);}
   .tag.danger{background:var(--danger-soft);color:var(--danger);} .tag.pending{background:var(--pending-soft);color:var(--pending);}
@@ -332,7 +353,7 @@
   .login-error{color:#ff9a9a;font-size:12.5px;margin-top:14px;background:rgba(232,93,93,.14);border:1px solid rgba(232,93,93,.3);border-radius:10px;padding:9px 11px;}
   .login-foot{margin-top:22px;font-size:11px;color:rgba(255,255,255,.4);}
   .setup-box input{width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;margin:10px 0;}
-  .maestro-block{margin-bottom:20px;}
+  .maestro-block{margin-bottom:14px;}
   .maestro-tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px;}
   .maestro-tag{display:flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 8px 5px 12px;font-size:12px;}
   .maestro-tag button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;}
@@ -344,17 +365,42 @@
   .maestro-tag-email{color:var(--text-faint);font-size:10.5px;white-space:nowrap;}
 
   /* ---- Configurar equipo: listas verticales (una fila por persona) ---- */
-  .maestro-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
-  .maestro-list-row{display:flex;align-items:center;gap:12px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:10px;padding:8px 12px;}
-  .maestro-list-row .maestro-tag-avatar{width:28px;height:28px;font-size:10.5px;flex-shrink:0;}
-  .maestro-list-name{font-weight:700;font-size:12.5px;color:var(--text);min-width:150px;cursor:pointer;flex-shrink:0;}
-  .maestro-list-field{font-size:11.5px;color:var(--text-dim);flex:1;min-width:0;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .maestro-list{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;}
+  .maestro-list-row{display:flex;align-items:center;gap:10px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;padding:6px 10px;}
+  .maestro-list-row .maestro-tag-avatar{width:23px;height:23px;font-size:9px;flex-shrink:0;}
+  .maestro-list-name{font-weight:700;font-size:11.5px;color:var(--text);min-width:140px;cursor:pointer;flex-shrink:0;}
+  .maestro-list-field{font-size:11px;color:var(--text-dim);flex:1;min-width:0;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .maestro-list-field.empty{color:var(--text-faint);font-style:italic;}
-  .maestro-list-flota{background:var(--panel);border:1px solid var(--hairline);border-radius:8px;padding:3px 9px;font-size:10.5px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-weight:600;white-space:nowrap;cursor:pointer;flex-shrink:0;}
-  .maestro-list-del{width:28px;height:28px;border-radius:50%;border:none;background:var(--danger-soft);color:var(--danger);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+  .maestro-list-flota{background:var(--panel);border:1px solid var(--hairline);border-radius:7px;padding:2px 8px;font-size:10px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-weight:600;white-space:nowrap;cursor:pointer;flex-shrink:0;}
+  .maestro-list-del{width:23px;height:23px;border-radius:50%;border:none;background:var(--danger-soft);color:var(--danger);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
   .maestro-list-del:hover{filter:brightness(1.15);}
-  .maestro-list-del .material-symbols-outlined{font-size:15px;}
-  .maestro-list-header{display:flex;gap:12px;padding:0 12px 5px;font-size:9.5px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;}
+  .maestro-list-del .material-symbols-outlined{font-size:13px;}
+  .maestro-list-header{display:flex;gap:10px;padding:0 10px 4px;font-size:9px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;}
+
+  /* ---- Dashboard: hero "próxima entrega" + próximas horas ---- */
+  .hero-proxima{position:relative;background:linear-gradient(120deg,#12151d,#1a1e29);border:1px solid var(--hairline);border-left:4px solid var(--accent);border-radius:16px;padding:22px 26px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;overflow:hidden;}
+  .hero-proxima .tag-top{display:flex;align-items:center;gap:7px;color:var(--accent);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;}
+  .hero-proxima .tag-top .material-symbols-outlined{font-size:16px;}
+  .hero-proxima h3{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#fff;margin:0 0 8px;}
+  .hero-proxima .sub{display:flex;align-items:center;gap:10px;color:#c7cbd6;font-size:12.5px;margin-bottom:12px;flex-wrap:wrap;}
+  .hero-proxima .sub .vin{background:rgba(255,255,255,.08);border-radius:7px;padding:3px 9px;font-family:'IBM Plex Mono',monospace;font-size:11px;}
+  .hero-proxima .meta{display:flex;gap:24px;flex-wrap:wrap;}
+  .hero-proxima .meta div{color:#e3e6ee;}
+  .hero-proxima .meta .l{font-size:9.5px;color:#8890a0;text-transform:uppercase;letter-spacing:.05em;}
+  .hero-proxima .meta .v{font-weight:700;font-size:13px;}
+  .hero-proxima .cta-btn{background:var(--accent);color:#1a1206;border:none;border-radius:10px;padding:12px 20px;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap;}
+  .hero-proxima .cta-btn:hover{filter:brightness(1.08);}
+  .proximas-horas-wrap{margin-bottom:18px;}
+  .proximas-horas-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;}
+  .proxima-hora-card{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--hairline);border-radius:12px;padding:12px 14px;cursor:pointer;transition:border-color .12s,transform .12s;}
+  .proxima-hora-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+  .proxima-hora-card .hora-box{font-family:'IBM Plex Mono',monospace;font-weight:800;font-size:14px;color:var(--accent);min-width:52px;line-height:1.15;}
+  .proxima-hora-card .hora-box .dia{display:block;font-size:8.5px;color:var(--text-faint);font-weight:700;text-transform:uppercase;}
+  .proxima-hora-card .info{flex:1;min-width:0;}
+  .proxima-hora-card .cli{font-weight:700;font-size:12.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .proxima-hora-card .mod{font-size:11px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:5px;}
+  .proxima-hora-card .mod .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+  .proxima-hora-card .material-symbols-outlined.chev{color:var(--text-faint);flex-shrink:0;}
   .maestro-add{display:flex;gap:8px;}
   .maestro-add input, .maestro-add select{flex:1;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;color:var(--text);padding:9px 15px;font-size:12px;}
   .maestro-add button{background:var(--accent);color:var(--bg);border:none;border-radius:20px;padding:0 18px;font-weight:700;font-size:12px;cursor:pointer;}
@@ -362,23 +408,25 @@
   .view-btn{padding:8px 13px;border-radius:9px;border:1px solid var(--hairline);background:var(--panel);color:var(--text-dim);font-size:12.5px;font-weight:600;cursor:pointer;transition:border-color .15s,color .15s;}
   .view-btn:hover{border-color:var(--accent);color:var(--text);}
   .view-btn.active{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);}
-  .cal-wrap{background:var(--panel);border:1px solid var(--hairline);border-radius:12px;padding:16px;}
-  .cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+  .cal-wrap{background:var(--panel);border:1px solid var(--hairline);border-radius:16px;padding:18px;}
+  .cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
   .cal-nav{display:flex;align-items:center;gap:10px;}
-  .cal-nav button{background:var(--panel-2);border:1px solid var(--hairline);color:var(--text-dim);width:28px;height:28px;border-radius:7px;cursor:pointer;}
-  .cal-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;min-width:150px;text-align:center;text-transform:capitalize;}
-  .cal-legend{display:flex;gap:12px;font-size:10.5px;color:var(--text-dim);flex-wrap:wrap;}
-  .cal-legend .sw{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
-  .cal-dow{font-size:9.5px;color:var(--text-faint);text-transform:uppercase;text-align:center;padding-bottom:5px;letter-spacing:.5px;font-weight:600;}
-  .cal-day{background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;min-height:64px;padding:7px;cursor:pointer;position:relative;}
-  .cal-day:hover{border-color:var(--accent);}
+  .cal-nav button{background:var(--panel-2);border:1px solid var(--hairline);color:var(--text-dim);width:30px;height:30px;border-radius:50%;cursor:pointer;transition:background .12s,color .12s;}
+  .cal-nav button:hover{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);}
+  .cal-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;min-width:150px;text-align:center;text-transform:capitalize;}
+  .cal-legend{display:flex;gap:14px;font-size:10.5px;color:var(--text-dim);flex-wrap:wrap;}
+  .cal-legend .sw{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;}
+  .cal-dow{font-size:9.5px;color:var(--text-faint);text-transform:uppercase;text-align:center;padding-bottom:7px;letter-spacing:.6px;font-weight:700;}
+  .cal-day{background:var(--panel-2);border:1px solid var(--hairline);border-radius:13px;min-height:68px;padding:8px;cursor:pointer;position:relative;transition:transform .12s,border-color .12s,box-shadow .12s;}
+  .cal-day:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.12);}
   .cal-day.empty{background:transparent;border-color:transparent;cursor:default;}
-  .cal-day.today{box-shadow:inset 0 0 0 1px var(--accent);}
-  .cal-day.today .num{color:var(--accent);}
-  .cal-day.blocked{background:var(--danger-soft);}
-  .cal-day .num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;}
-  .cal-day .count{margin-top:6px;font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:4px;}
+  .cal-day.empty:hover{transform:none;box-shadow:none;}
+  .cal-day.today{background:var(--accent-soft);border-color:var(--accent);}
+  .cal-day.today .num{color:var(--accent);font-weight:800;}
+  .cal-day.blocked{background:var(--danger-soft);border-color:transparent;}
+  .cal-day .num{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:700;}
+  .cal-day .count{margin-top:7px;font-size:9.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:20px;padding:2px 7px;display:inline-flex;align-items:center;gap:4px;}
   .cal-day .count .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);}
   @media(max-width:640px){ .cal-day{min-height:44px;padding:5px;} .cal-legend{display:none;} }
 
@@ -752,6 +800,9 @@
         <div class="app-view active" id="viewDashboard">
           <div class="view-header"><h2>Dashboard</h2><p>Filtrá el resumen general, o mirá directo las entregas de hoy y mañana.</p></div>
 
+          <div id="heroProximaEntrega" style="display:none;"></div>
+          <div id="proximasHorasWrap" style="display:none;"></div>
+
           <div class="section-title" style="margin-top:0;">Filtrar todo</div>
           <div style="display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
             <div id="dashCanalToggleFiltro" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
@@ -764,7 +815,7 @@
             <button class="view-btn" onclick="quitarRangoFechaDashboard()">Todo el período</button>
           </div>
 
-          <div class="section-title" style="margin-top:0;">📅 Entregas de hoy</div>
+          <div class="section-title" style="margin-top:0;">Entregas de hoy</div>
           <div class="hoy-grid" id="hoyStrip"></div>
 
           <div class="section-title" style="margin-top:18px;">Entregas de mañana</div>
@@ -863,7 +914,18 @@
       <div class="form-field"><label>Color</label><input id="nColor"></div>
       <div class="form-field"><label>Dominio</label><input id="nDominio"></div>
       <div class="form-field full"><label>Chasis / VIN</label><input id="nChasis"></div>
-      <div class="form-field"><label>Duración estimada (min)</label><input type="number" min="1" id="nDuracion"></div>
+      <div class="form-field"><label>Duración estimada</label>
+        <select id="nDuracion" onchange="renderDisponibilidadNuevaEntrega()">
+          <option value="15">15 minutos</option>
+          <option value="30">30 minutos</option>
+          <option value="45">45 minutos</option>
+          <option value="60">1 hora</option>
+          <option value="75">1 hora 15</option>
+          <option value="90">1 hora 30</option>
+          <option value="105">1 hora 45</option>
+          <option value="120">2 horas</option>
+        </select>
+      </div>
       <div class="form-field"><label>¿Regalo corporativo?</label><select id="nRegaloCorp"><option value="No">No</option><option value="Sí">Sí</option></select></div>
       <div class="form-field"><label>¿Kit de seguridad?</label><select id="nKitSeguridad"><option value="No">No</option><option value="Sí">Sí</option></select></div>
       <div class="form-field"><label>¿Manual del vehículo?</label><select id="nManual"><option value="No">No</option><option value="Sí">Sí</option></select></div>
@@ -896,17 +958,41 @@
         </div>
 
         <div class="app-view" id="viewLista">
-          <div class="view-header"><h2>Lista de Entregas</h2><p>Filtrá por día, rango de fechas o canal.</p></div>
-          <div id="canalToggle" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
-          <div class="toolbar" style="flex-wrap:wrap;row-gap:8px;justify-content:flex-start;align-items:flex-end;">
-            <div class="day-nav" style="height:34px;">
-              <button onclick="shiftDay(-1)">‹</button>
-              <div class="day-label" id="dayLabel">—</div>
-              <button onclick="shiftDay(1)">›</button>
+          <div class="view-header"><h2>Lista de Entregas</h2><p>Filtrá por día, rango de fechas, canal o estado.</p></div>
+          <div class="list-filters-bar">
+            <div class="list-filter-field">
+              <label>Canal</label>
+              <div id="canalToggle" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
             </div>
-            <div style="display:flex;align-items:flex-end;gap:8px;">
-              <div class="form-field" style="margin:0;"><label style="font-size:10.5px;">Desde</label><input type="date" id="rangoDesde" onchange="aplicarRangoFecha()" style="padding:7px 8px;font-size:12px;"></div>
-              <div class="form-field" style="margin:0;"><label style="font-size:10.5px;">Hasta</label><input type="date" id="rangoHasta" onchange="aplicarRangoFecha()" style="padding:7px 8px;font-size:12px;"></div>
+            <div class="list-filter-field">
+              <label>Día</label>
+              <div class="day-nav" style="height:34px;">
+                <button onclick="shiftDay(-1)">‹</button>
+                <div class="day-label" id="dayLabel">—</div>
+                <button onclick="shiftDay(1)">›</button>
+              </div>
+            </div>
+            <div class="list-filter-field">
+              <label>Desde</label>
+              <input type="date" id="rangoDesde" onchange="aplicarRangoFecha()">
+            </div>
+            <div class="list-filter-field">
+              <label>Hasta</label>
+              <input type="date" id="rangoHasta" onchange="aplicarRangoFecha()">
+            </div>
+            <div class="list-filter-field">
+              <label>Estado</label>
+              <select id="filtroEstadoSelect" onchange="setFiltroEstado(this.value)">
+                <option value="">Todos los estados</option>
+                <option value="pendiente">Pendientes</option>
+                <option value="entregada">Entregadas</option>
+                <option value="ok">OK para entregar</option>
+                <option value="warn">Riesgo de retraso</option>
+                <option value="danger">Retrasadas</option>
+              </select>
+            </div>
+            <div class="list-filter-field" style="justify-content:flex-end;">
+              <label>&nbsp;</label>
               <button class="view-btn" onclick="quitarRangoFecha()">Todo el período</button>
             </div>
           </div>
@@ -927,15 +1013,16 @@
               <tbody id="tbody"></tbody>
             </table>
           </div>
+          <div class="lista-resumen-grid" id="listaResumenCards"></div>
         </div>
 
 
 
         <div class="app-view" id="viewMaestro">
-  <div class="view-header"><h2 id="maestroTituloPagina">🎓 Panel Maestro</h2><p id="maestroSubtituloPagina">Dashboard, Reportes, Configuración y Permisos.</p></div>
+  <div class="view-header"><h2 id="maestroTituloPagina">Panel Maestro</h2><p id="maestroSubtituloPagina">Dashboard, Reportes, Configuración y Permisos.</p></div>
   <div class="modal-body" style="padding:0;">
     <div class="tpl-tabs" style="margin-bottom:16px;display:none;">
-      <button class="tpl-tab active" id="tabMaestroDashboard" onclick="setMaestroTab('dashboard')">📊 Dashboard</button>
+      <button class="tpl-tab active" id="tabMaestroDashboard" onclick="setMaestroTab('dashboard')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">bar_chart</span> Dashboard</button>
       <button class="tpl-tab" id="tabMaestroRegalos" onclick="setMaestroTab('regalos')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">redeem</span> Regalos Corporativos</button>
       <button class="tpl-tab" id="tabMaestroKit" onclick="setMaestroTab('kit')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">health_and_safety</span> Kit de Seguridad</button>
       <button class="tpl-tab" id="tabMaestroReportes" onclick="setMaestroTab('reportes')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">bar_chart</span> Reportes</button>
@@ -1038,7 +1125,7 @@
         </label>
         <button class="filter-pill" onclick="limpiarDashboardFecha()">Todo el período</button>
       </div>
-      <div class="section-title" style="margin-top:0;">🎁 Proyección de regalos corporativos (próximo mes)</div>
+      <div class="section-title" style="margin-top:0;">Proyección de regalos corporativos (próximo mes)</div>
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Calculada según el promedio histórico de entregas con regalo, mes a mes, con los datos ya cargados.</div>
       <div class="report-wrap" style="max-height:260px;">
         <table class="report-table" id="dashProyeccion"></table>
@@ -1051,7 +1138,7 @@
       </div>
       <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">Este archivo NO se agrega al planning ni a la planilla — solo queda guardado como base histórica para la proyección. Para los meses que ya tengan entregas reales cargadas en el sistema, se usa siempre el dato real (no se duplica con el histórico).</div>
 
-      <div class="section-title" style="margin-top:26px;">📦 Stock real de regalos corporativos</div>
+      <div class="section-title" style="margin-top:26px;">Stock real de regalos corporativos</div>
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Cargá acá cada ingreso de mercadería (compra) — el sistema descuenta solo lo que ya se entregó, para saber cuánto queda disponible. El stock es general de la empresa (un solo depósito); debajo se ve el consumo desglosado por marca.</div>
       <div class="report-wrap" style="max-height:220px;margin-bottom:10px;">
         <table class="report-table" id="dashStock"></table>
@@ -1065,7 +1152,7 @@
         <table class="report-table" id="dashStockPorSucursal"></table>
       </div>
 
-      <div class="section-title" style="margin-top:22px;">📤 Distribución a sucursales — ¿quién se está quedando sin stock?</div>
+      <div class="section-title" style="margin-top:22px;">Distribución a sucursales — ¿quién se está quedando sin stock?</div>
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Registrá cuánto le mandaste del stock central a cada sucursal. El sistema resta lo que esa sucursal ya consumió, y te avisa cuál se está quedando sin nada para enviarle más.</div>
       <div class="report-wrap" style="max-height:220px;margin-bottom:10px;">
         <table class="report-table" id="dashDistribucion"></table>
@@ -1084,7 +1171,7 @@
         <table class="report-table" id="dashDistribucionLog"></table>
       </div>
 
-      <div class="section-title" style="margin-top:22px;">📦 Ingreso al stock central</div>
+      <div class="section-title" style="margin-top:22px;">Ingreso al stock central</div>
       <div class="form-grid" style="margin-bottom:8px;">
         <div class="form-field"><label>Item</label><input id="stockItem" placeholder="Ej: Mate, Llavero, Portadocumentos..."></div>
         <div class="form-field"><label>Cantidad que ingresó</label><input type="number" min="1" id="stockCantidad"></div>
@@ -1108,7 +1195,7 @@
         </label>
         <button class="filter-pill" onclick="limpiarDashboardFecha()">Todo el período</button>
       </div>
-      <div class="section-title" style="margin-top:0;">🦺 Proyección de Kit de Seguridad (próximo mes)</div>
+      <div class="section-title" style="margin-top:0;">Proyección de Kit de Seguridad (próximo mes)</div>
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Calculada según el promedio histórico de entregas con kit de seguridad, mes a mes.</div>
       <div class="report-wrap" style="max-height:180px;">
         <table class="report-table" id="dashProyeccionKit"></table>
@@ -1120,7 +1207,7 @@
       </div>
       <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">Este archivo NO se agrega al planning ni a la planilla — solo queda guardado como base histórica para la proyección. Para los meses que ya tengan entregas reales cargadas en el sistema, se usa siempre el dato real (no se duplica con el histórico).</div>
 
-      <div class="section-title" style="margin-top:22px;">📦 Stock real de Kit de Seguridad</div>
+      <div class="section-title" style="margin-top:22px;">Stock real de Kit de Seguridad</div>
       <div class="report-wrap" style="max-height:150px;margin-bottom:10px;">
         <table class="report-table" id="dashStockKit"></table>
       </div>
@@ -1133,7 +1220,7 @@
         <table class="report-table" id="dashStockKitPorSucursal"></table>
       </div>
 
-      <div class="section-title" style="margin-top:22px;">📤 Distribución de Kit de Seguridad a sucursales</div>
+      <div class="section-title" style="margin-top:22px;">Distribución de Kit de Seguridad a sucursales</div>
       <div class="report-wrap" style="max-height:200px;margin-bottom:10px;">
         <table class="report-table" id="dashDistribucionKit"></table>
       </div>
@@ -1150,7 +1237,7 @@
         <table class="report-table" id="dashDistribucionKitLog"></table>
       </div>
 
-      <div class="section-title" style="margin-top:22px;">📦 Ingreso al stock central de Kit de Seguridad</div>
+      <div class="section-title" style="margin-top:22px;">Ingreso al stock central de Kit de Seguridad</div>
       <div class="form-grid" style="margin-bottom:8px;">
         <div class="form-field"><label>Cantidad que ingresó</label><input type="number" min="1" id="stockKitCantidad"></div>
         <div class="form-field"><label>Fecha de ingreso</label><input id="stockKitFecha" placeholder="dd/mm/aaaa"></div>
@@ -1339,7 +1426,7 @@
 
           <div class="tv-grid" id="tvGridWrap" style="display:none;">
             <div class="tv-col-main">
-              <div class="tv-section-title">🚚 Entregas de hoy</div>
+              <div class="tv-section-title">Entregas de hoy</div>
               <div class="tv-hoy-list" id="tvHoyList"></div>
             </div>
             <div class="tv-col-side">
@@ -1396,7 +1483,7 @@
       <div style="font-size:10.5px;color:var(--text-faint);margin-top:6px;">Para cambiar fecha u hora, usá "Reprogramar" más abajo (así queda el motivo en el historial).</div>
     </div>
 
-    <div class="block-title">🚚 Responsable de Entrega / Logística</div>
+    <div class="block-title">Responsable de Entrega / Logística</div>
 
     <div class="section">
       <div class="section-title">Accesorios</div>
@@ -1405,7 +1492,7 @@
     </div>
 
     <div class="section">
-      <div class="section-title">🔑 Llave Duplicada</div>
+      <div class="section-title">Llave Duplicada</div>
       <select id="dLlaveDuplicada" onchange="cambiarLlaveDuplicada(this.value)" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;margin-bottom:8px;">
         <option value="No">No corresponde</option>
         <option value="Sí">Sí, corresponde</option>
@@ -1438,10 +1525,10 @@
       </div>
     </div>
 
-    <div class="block-title">📋 Administrativo</div>
+    <div class="block-title">Administrativo</div>
 
     <div class="section">
-      <div class="section-title">📘 Manual del Vehículo</div>
+      <div class="section-title">Manual del Vehículo</div>
       <select id="dManual" onchange="cambiarManual(this.value)" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;margin-bottom:8px;">
         <option value="No">No corresponde</option>
         <option value="Sí">Sí, corresponde</option>
@@ -1510,7 +1597,7 @@
     </div>
 
     <div class="section">
-      <div class="section-title">📜 Historial de esta entrega</div>
+      <div class="section-title">Historial de esta entrega</div>
       <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:7px;">Todo lo que se hizo con esta entrega, en orden — confirmaciones, recordatorios, cambios de estado, accesorios, regalo, kit, OnStar, reprogramaciones, etc.</div>
       <div id="dHistorial"></div>
     </div>
@@ -2306,6 +2393,8 @@ function entregasDelDia(){
 }
 var filterOnstar = null;
 var filterAlertaPendientes = false;
+var filterEstado = null; // null | 'pendiente' | 'entregada' | 'ok' | 'warn' | 'danger'
+function setFiltroEstado(v){ filterEstado = v || null; renderAll(); }
 function limpiarFiltroOnstar(){ filterOnstar=null; filterAlertaPendientes=false; renderAll(); }
 function toggleFilterAlertaPendientes(){ filterAlertaPendientes=!filterAlertaPendientes; if(filterAlertaPendientes) filterOnstar=null; renderAll(); }
 // Un pendiente "real" es el que queda en un auto que el cliente YA se llevó
@@ -2317,16 +2406,60 @@ function tienePendienteSinResolver_(r){
   if(r.marca==='chevrolet' && r.onstar==='pending') return true;
   return false;
 }
+function renderListaResumenCards(){
+  var el = document.getElementById('listaResumenCards');
+  if(!el) return;
+  var hoyStr = fmtFecha(new Date());
+  var ayerDate = new Date(); ayerDate.setDate(ayerDate.getDate()-1);
+  var ayerStr = fmtFecha(ayerDate);
+  var rows = entregasContexto();
+  var hoy = rows.filter(function(r){ return r.fecha===hoyStr; });
+  var ayer = rows.filter(function(r){ return r.fecha===ayerStr; });
+  var completadasHoy = hoy.filter(function(r){ return r.entregada; }).length;
+  var completadasAyer = ayer.filter(function(r){ return r.entregada; }).length;
+  var pendientesHoy = hoy.filter(function(r){ return !r.entregada; }).length;
+  var variacion = completadasAyer>0 ? Math.round(((completadasHoy-completadasAyer)/completadasAyer)*100) : (completadasHoy>0?100:0);
+  var horaPico = null, conteoHora = {};
+  hoy.forEach(function(r){ conteoHora[r.hora]=(conteoHora[r.hora]||0)+1; });
+  Object.keys(conteoHora).forEach(function(h){ if(!horaPico || conteoHora[h]>conteoHora[horaPico]) horaPico=h; });
+  var eficiencia = hoy.length>0 ? Math.round((completadasHoy/hoy.length)*100) : 100;
+
+  el.innerHTML =
+    '<div class="lista-resumen-card">'+
+      '<div class="icon-badge" style="background:var(--ok-soft);"><span class="material-symbols-outlined" style="color:var(--ok);">check_circle</span></div>'+
+      '<div class="top-tag" style="color:'+(variacion>=0?'var(--ok)':'var(--danger)')+';">'+(variacion>=0?'+':'')+variacion+'% vs ayer</div>'+
+      '<div class="n">'+completadasHoy+'<span class="u">unidades</span></div>'+
+      '<div class="l">Entregas completadas hoy</div>'+
+    '</div>'+
+    '<div class="lista-resumen-card">'+
+      '<div class="icon-badge" style="background:var(--pending-soft);"><span class="material-symbols-outlined" style="color:var(--pending);">schedule</span></div>'+
+      (horaPico?'<div class="top-tag" style="color:var(--pending);">Pico: '+horaPico+'hs</div>':'')+
+      '<div class="n">'+pendientesHoy+'<span class="u">unidades</span></div>'+
+      '<div class="l">Pendientes de hoy</div>'+
+    '</div>'+
+    '<div class="lista-resumen-card highlight">'+
+      '<div class="icon-badge"><span class="material-symbols-outlined">speed</span></div>'+
+      '<div class="l" style="margin-top:0;">Eficiencia del día</div>'+
+      '<div class="n">'+eficiencia+'%</div>'+
+      '<div class="l">Entregas completadas sobre el total de hoy</div>'+
+      '<div class="barra-fondo"><div class="barra-fill" style="width:'+eficiencia+'%;background:#fff;"></div></div>'+
+    '</div>';
+}
 function filasVisibles(){
+  var rows;
   if(filterAlertaPendientes){
-    return entregasContexto().filter(function(r){ return r.entregada && tienePendienteSinResolver_(r); });
+    rows = entregasContexto().filter(function(r){ return r.entregada && tienePendienteSinResolver_(r); });
+  } else if(filterOnstar){
+    if(filterOnstar==='noaplica') rows = entregasContexto().filter(function(r){ return r.onstar===null || r.onstar===''; });
+    else if(filterOnstar==='pending') rows = entregasContexto().filter(function(r){ return r.onstar==='pending' || r.onstar==='warn'; });
+    else rows = entregasContexto().filter(function(r){ return r.onstar===filterOnstar; });
+  } else {
+    rows = entregasDelDia();
   }
-  if(filterOnstar){
-    if(filterOnstar==='noaplica') return entregasContexto().filter(function(r){ return r.onstar===null || r.onstar===''; });
-    if(filterOnstar==='pending') return entregasContexto().filter(function(r){ return r.onstar==='pending' || r.onstar==='warn'; });
-    return entregasContexto().filter(function(r){ return r.onstar===filterOnstar; });
-  }
-  return entregasDelDia();
+  if(filterEstado==='entregada') rows = rows.filter(function(r){ return r.entregada; });
+  else if(filterEstado==='pendiente') rows = rows.filter(function(r){ return !r.entregada; });
+  else if(filterEstado) rows = rows.filter(function(r){ return !r.entregada && r.estado===filterEstado; });
+  return rows;
 }
 function pendientes(){
   return entregasContexto().filter(function(r){return !r.entregada;}).sort(function(a,b){
@@ -2476,7 +2609,7 @@ function checkBloqueado(){
 }
 
 function estadoTag(r){
-  if(r.entregada) return '<span class="tag ok">✓ Entregada</span>';
+  if(r.entregada) return '<span class="tag ok">Entregada</span>';
   var map={ok:['ok','OK para entregar'],warn:['warn','Riesgo de retraso'],danger:['danger','Retrasada'],pending:['pending','Pendiente']};
   var m=map[r.estado]||map.pending;
   return '<span class="tag '+m[0]+'">'+m[1]+'</span>';
@@ -2491,11 +2624,17 @@ function renderTable(){
   var tbody=document.getElementById('tbody');
   if(rows.length===0){ tbody.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--text-faint);padding:24px;">'+((rangoFechaDesde||rangoFechaHasta)?'Sin entregas cargadas en ese rango de fechas.':'Sin entregas cargadas para este día.')+'</td></tr>'; return; }
   tbody.innerHTML=rows.map(function(r){
+    var rowKey = r.marca+'_'+r.id;
     return '<tr class="'+(r.entregada?'is-entregada':'')+'">'+
       '<td class="hora" data-label="Fecha">'+r.fecha+'</td>'+
       '<td class="hora" data-label="Hora">'+r.hora+'</td>'+
-      '<td class="cliente" data-label="Cliente" tabindex="0" role="button" aria-label="Ver detalle de '+r.cliente+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openDetail(\''+r.marca+'\',\''+r.id+'\');}" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+r.cliente+'<span class="veh">'+r.modelo+' · '+r.color+' <span class="usado-badge">· '+(r.usado==='Sí'?'USADO':'0KM')+'</span></span>'+(r.accesorios?'<span class="acc-badge '+(r.accesoriosColocado?'done':'')+'">'+r.accesorios+' — '+(r.accesoriosColocado?'colocado':'pendiente')+'</span>':'')+'</td>'+
-      '<td class="dominio" data-label="Dominio">'+r.dominio+(r.chasis&&r.chasis!=='—'?'<span style="display:block;font-size:9.5px;color:var(--text-faint);">VIN '+r.chasis+'</span>':'')+'</td>'+
+      '<td class="cliente" data-label="Cliente" tabindex="0" role="button" aria-label="Ver detalle de '+r.cliente+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openDetail(\''+r.marca+'\',\''+r.id+'\');}" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
+        '<div style="display:flex;align-items:flex-start;gap:8px;">'+
+          '<span class="material-symbols-outlined" style="font-size:18px;color:var(--text-faint);margin-top:1px;flex-shrink:0;">directions_car</span>'+
+          '<span>'+r.cliente+'<span class="veh">'+r.modelo+' · '+r.color+' <span class="usado-badge">· '+(r.usado==='Sí'?'USADO':'0KM')+'</span></span>'+(r.accesorios?'<span class="acc-badge '+(r.accesoriosColocado?'done':'')+'">'+r.accesorios+' — '+(r.accesoriosColocado?'colocado':'pendiente')+'</span>':'')+'</span>'+
+        '</div>'+
+      '</td>'+
+      '<td class="dominio" data-label="Dominio"><span class="dominio-badge">'+r.dominio+'</span>'+(r.chasis&&r.chasis!=='—'?'<span style="display:block;font-size:9.5px;color:var(--text-faint);margin-top:3px;">VIN '+r.chasis+'</span>':'')+'</td>'+
       '<td data-label="Vendedor">'+r.vendedor+'</td>'+
       '<td data-label="Admin.">'+r.administrativo+'</td>'+
       '<td data-label="Resp.">'+r.responsableEntrega+'</td>'+
@@ -2503,12 +2642,19 @@ function renderTable(){
       '<td data-label="OnStar">'+onstarTag(r.onstar)+'</td>'+
       '<td data-label="Estado">'+estadoTag(r)+'</td>'+
       '<td class="actions">'+
-        '<button class="btn-detalle" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">Detalle</button>'+
-        (puedeEditar() ?
-          '<button class="'+(r.confirmado?'sent':'tint-orange')+'" onclick="openEmailPreview(\'confirmacion\',\''+r.marca+'\',\''+r.id+'\')">'+(r.confirmado?'✓ Confirmado':'Confirmar')+'</button>'+
-          '<button class="btn-entregar '+(r.entregada?'entregada':'pendiente')+'" onclick="toggleEntregadaId(\''+r.marca+'\',\''+r.id+'\')">'+(r.entregada?'✓ Entregada':'Entregar')+'</button>'+
-          '<button class="del" onclick="deleteRow(\''+r.marca+'\',\''+r.id+'\')">🗑 Eliminar</button>'
-          : '')+
+        '<div class="user-actions" style="flex-wrap:nowrap;justify-content:flex-end;">'+
+          '<button class="pill-btn edit" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">visibility</span>Detalle</button>'+
+          (puedeEditar() ?
+            '<div class="user-menu-wrap">'+
+              '<button class="user-menu-btn" onclick="toggleUserMenu(\'rm_'+rowKey+'\',event)"><span class="material-symbols-outlined">more_vert</span></button>'+
+              '<div class="user-menu-dropdown" id="rm_'+rowKey+'">'+
+                '<button onclick="openEmailPreview(\'confirmacion\',\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">mail</span>'+(r.confirmado?'Ya confirmada — reenviar':'Confirmar entrega')+'</button>'+
+                '<button onclick="toggleEntregadaId(\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">'+(r.entregada?'undo':'check_circle')+'</span>'+(r.entregada?'Marcar como pendiente':'Marcar como entregada')+'</button>'+
+                '<button class="danger" onclick="deleteRow(\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">delete</span>Eliminar</button>'+
+              '</div>'+
+            '</div>'
+            : '')+
+        '</div>'+
       '</td></tr>';
   }).join('');
 }
@@ -2573,6 +2719,48 @@ function diaSemanaDeFecha_(fechaStr){
   return DIAS[d.getDay()];
 }
 var heroActual = null;
+function renderHeroProximaEntrega_(r){
+  var el = document.getElementById('heroProximaEntrega');
+  if(!el) return;
+  if(!r){ el.style.display='none'; el.innerHTML=''; return; }
+  el.style.display='block';
+  var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
+  var hoyStr = fmtFecha(new Date());
+  var esHoy = r.fecha===hoyStr;
+  el.innerHTML =
+    '<div class="hero-proxima">'+
+      '<div>'+
+        '<div class="tag-top"><span class="material-symbols-outlined">bolt</span>Próxima entrega inminente</div>'+
+        '<h3>'+r.cliente+'</h3>'+
+        '<div class="sub">'+(r.chasis?'<span class="vin">VIN: '+r.chasis+'</span>':'')+'<span>'+b.label+' '+r.modelo+'</span></div>'+
+        '<div class="meta">'+
+          '<div><div class="l">Horario</div><div class="v">'+r.hora+' hs'+(esHoy?'':' · '+r.fecha)+'</div></div>'+
+          '<div><div class="l">Ubicación</div><div class="v">'+(r.sucursal&&r.sucursal!=='default'?r.sucursal:'—')+'</div></div>'+
+          '<div><div class="l">Asesor</div><div class="v">'+(r.vendedor||'—')+'</div></div>'+
+        '</div>'+
+      '</div>'+
+      '<button class="cta-btn" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">Preparar Entrega <span class="material-symbols-outlined">arrow_forward</span></button>'+
+    '</div>';
+}
+function renderProximasHoras_(deHoy, hero){
+  var el = document.getElementById('proximasHorasWrap');
+  if(!el) return;
+  var resto = deHoy.filter(function(r){ return !hero || r.id!==hero.id || r.marca!==hero.marca; }).slice(0,6);
+  if(resto.length===0){ el.style.display='none'; el.innerHTML=''; return; }
+  el.style.display='block';
+  el.innerHTML =
+    '<div class="section-title">Próximas horas</div>'+
+    '<div class="proximas-horas-grid">'+
+      resto.map(function(r){
+        var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
+        return '<div class="proxima-hora-card" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
+          '<div class="hora-box"><span class="dia">Hoy</span>'+r.hora+'</div>'+
+          '<div class="info"><div class="cli">'+r.cliente+'</div><div class="mod"><span class="dot" style="background:var('+b.color+');"></span>'+b.label+' '+r.modelo+'</div></div>'+
+          '<span class="material-symbols-outlined chev">chevron_right</span>'+
+        '</div>';
+      }).join('')+
+    '</div>';
+}
 function renderResumenHoyManana(){
   var rows = pendientes().filter(function(r){ return filterTipo==='todos'||r.tipoVenta===filterTipo; }); // canal ya viene filtrado desde entregasContexto()
   var hoyStr = fmtFecha(new Date());
@@ -2583,6 +2771,8 @@ function renderResumenHoyManana(){
   var deManana = rows.filter(function(r){ return r.fecha===mananaStr; });
 
   heroActual = deHoy[0] || deManana[0] || rows[0] || null;
+  renderHeroProximaEntrega_(heroActual);
+  renderProximasHoras_(deHoy, heroActual);
 
   var hoyEl = document.getElementById('hoyStrip');
   if(deHoy.length===0){
@@ -2613,7 +2803,7 @@ function renderResumenHoyManana(){
 }
 
 function renderAll(){
-  renderTable(); renderStats(); renderResumenHoyManana(); renderCanalToggle();
+  renderTable(); renderStats(); renderResumenHoyManana(); renderCanalToggle(); renderListaResumenCards();
   if(currentView==='mes' || currentAppView==='calendario') renderCalendar();
   if(currentAppView==='calendario' && calVistaActual==='linea') renderTimelineCalendario();
   if(typeof renderHorariosDia_==='function' && diaSeleccionadoCalendario) renderHorariosDia_();
@@ -2806,7 +2996,7 @@ function renderHorariosDia_(){
   });
   var desdeMin = regla ? horaAMinutos_(regla.desde) : horaAMinutos_('09:00');
   var hastaMin = horaAMinutos_('18:00');
-  var PASO = 30;
+  var PASO = 15;
   var html = '';
   for(var min=desdeMin; min<hastaMin; min+=PASO){
     var horaSlot = minutosAHora_(min);
@@ -3681,7 +3871,8 @@ function openNewDelivery(){
   var brand=BRANDS.find(function(x){return x.id===currentBrand;});
   document.getElementById('nFecha').value=currentDate.getFullYear()+'-'+String(currentDate.getMonth()+1).padStart(2,'0')+'-'+String(currentDate.getDate()).padStart(2,'0');
   document.getElementById('nHora').value='09:00';
-  document.getElementById('nDuracion').value = CONFIG.duracionEntrega || 60;
+  var duracionDefault = Math.max(15, Math.min(120, Math.round((CONFIG.duracionEntrega||60)/15)*15));
+  document.getElementById('nDuracion').value = duracionDefault;
   document.getElementById('nRegaloCorp').value = 'No';
   document.getElementById('nKitSeguridad').value = 'No';
   document.getElementById('nManual').value = 'No';
@@ -3752,7 +3943,7 @@ function renderDisponibilidadNuevaEntrega(){
   var desdeMin = regla ? horaAMinutos_(regla.desde) : horaAMinutos_('09:00');
   var hastaMin = horaAMinutos_('18:00');
   var html='';
-  for(var min=desdeMin; min<hastaMin; min+=30){
+  for(var min=desdeMin; min<hastaMin; min+=15){
     var horaSlot = minutosAHora_(min);
     var ocupante = rows.find(function(r){
       var inicio=horaAMinutos_(r.hora), fin=inicio+(r.duracionMinutos||60);
@@ -4156,7 +4347,7 @@ function editarMaestroTag(tipo, i){
 function renderAdministrativosTags(){
   var el = document.getElementById('tagsAdministrativos');
   el.classList.add('maestro-list');
-  var cabecera = CONFIG.maestros.administrativos.length ? '<div class="maestro-list-header"><span style="width:28px;flex-shrink:0;"></span><span style="min-width:150px;">Nombre</span><span style="flex:1;">Email</span><span style="flex:1;">Teléfono</span><span style="width:70px;flex-shrink:0;">Flota</span><span style="width:28px;flex-shrink:0;"></span></div>' : '';
+  var cabecera = CONFIG.maestros.administrativos.length ? '<div class="maestro-list-header"><span style="width:23px;flex-shrink:0;"></span><span style="min-width:140px;">Nombre</span><span style="flex:1;">Email</span><span style="flex:1;">Teléfono</span><span style="width:70px;flex-shrink:0;">Flota</span><span style="width:23px;flex-shrink:0;"></span></div>' : '';
   el.innerHTML = cabecera + CONFIG.maestros.administrativos.map(function(a,i){
     return '<div class="maestro-list-row">'+
       '<span class="maestro-tag-avatar">'+iniciales_(a.nombre)+'</span>'+
@@ -4972,10 +5163,10 @@ function mostrarDetalleFiltrado(titulo, filas, columnaExtra, contenedorId){
   var html = '<tr>'+headers.map(function(h){return '<th>'+h+'</th>';}).join('')+'</tr>';
   filas.forEach(function(r){
     var b=BRANDS.find(function(x){return x.id===r.marca;});
-    html += '<tr><td>'+(b?b.label:r.marca)+'</td><td>'+(r.sucursal==='default'?'—':r.sucursal)+'</td><td>'+r.fecha+'</td><td>'+r.hora+'</td><td>'+r.cliente+'</td><td>'+r.modelo+'</td><td>'+(r.chasis||'—')+'</td><td>'+r.dominio+'</td><td>'+r.vendedor+'</td><td>'+r.administrativo+'</td><td>'+r.estado+'</td>';
+    html += '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')" title="Ver detalle de esta entrega"><td>'+(b?b.label:r.marca)+'</td><td>'+(r.sucursal==='default'?'—':r.sucursal)+'</td><td>'+r.fecha+'</td><td>'+r.hora+'</td><td>'+r.cliente+'</td><td>'+r.modelo+'</td><td>'+(r.chasis||'—')+'</td><td>'+r.dominio+'</td><td>'+r.vendedor+'</td><td>'+r.administrativo+'</td><td>'+r.estado+'</td>';
     if(columnaExtra){
       var pend = columnaExtra.pendiente(r);
-      html += '<td style="font-weight:700;color:'+(pend?'var(--warn)':'var(--ok)')+';">'+(pend?'🔧 Pendiente':'✓ Colocado')+'</td>';
+      html += '<td style="font-weight:700;color:'+(pend?'var(--warn)':'var(--ok)')+';">'+(pend?'Pendiente':'Colocado')+'</td>';
     }
     html += '</tr>';
   });
