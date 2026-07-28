@@ -257,6 +257,16 @@
   .pill-btn.reset{background:var(--panel-2);color:var(--text-dim);border:1px solid var(--hairline);}
   .pill-btn.danger{background:var(--danger-soft);color:var(--danger);}
   .pill-btn.ok{background:var(--ok-soft);color:var(--ok);}
+  .user-menu-wrap{position:relative;display:inline-block;}
+  .user-menu-btn{width:30px;height:30px;border-radius:50%;border:1px solid var(--hairline);background:var(--panel-2);color:var(--text-dim);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+  .user-menu-btn:hover{background:var(--panel);color:var(--text);}
+  .user-menu-btn .material-symbols-outlined{font-size:17px;}
+  .user-menu-dropdown{display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--panel);border:1px solid var(--hairline);border-radius:10px;padding:6px;min-width:190px;z-index:40;box-shadow:0 8px 24px rgba(0,0,0,.35);}
+  .user-menu-dropdown.open{display:block;}
+  .user-menu-dropdown button{display:flex;align-items:center;gap:8px;width:100%;background:none;border:none;padding:8px 10px;border-radius:7px;font-size:12px;font-weight:600;color:var(--text-dim);cursor:pointer;text-align:left;}
+  .user-menu-dropdown button:hover{background:var(--panel-2);color:var(--text);}
+  .user-menu-dropdown button.danger{color:var(--danger);}
+  .user-menu-dropdown button.danger:hover{background:var(--danger-soft);}
   @media (max-width:640px){
     .report-table{font-size:12px;}
     .report-table th, .report-table td{padding:10px 12px;}
@@ -332,6 +342,19 @@
   .maestro-tag.rich{padding:5px 8px 5px 6px;gap:8px;}
   .maestro-tag-flota{background:var(--panel);border:1px solid var(--hairline);border-radius:10px;padding:2px 8px;font-size:10px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-weight:600;white-space:nowrap;}
   .maestro-tag-email{color:var(--text-faint);font-size:10.5px;white-space:nowrap;}
+
+  /* ---- Configurar equipo: listas verticales (una fila por persona) ---- */
+  .maestro-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+  .maestro-list-row{display:flex;align-items:center;gap:12px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:10px;padding:8px 12px;}
+  .maestro-list-row .maestro-tag-avatar{width:28px;height:28px;font-size:10.5px;flex-shrink:0;}
+  .maestro-list-name{font-weight:700;font-size:12.5px;color:var(--text);min-width:150px;cursor:pointer;flex-shrink:0;}
+  .maestro-list-field{font-size:11.5px;color:var(--text-dim);flex:1;min-width:0;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .maestro-list-field.empty{color:var(--text-faint);font-style:italic;}
+  .maestro-list-flota{background:var(--panel);border:1px solid var(--hairline);border-radius:8px;padding:3px 9px;font-size:10.5px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-weight:600;white-space:nowrap;cursor:pointer;flex-shrink:0;}
+  .maestro-list-del{width:28px;height:28px;border-radius:50%;border:none;background:var(--danger-soft);color:var(--danger);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+  .maestro-list-del:hover{filter:brightness(1.15);}
+  .maestro-list-del .material-symbols-outlined{font-size:15px;}
+  .maestro-list-header{display:flex;gap:12px;padding:0 12px 5px;font-size:9.5px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;}
   .maestro-add{display:flex;gap:8px;}
   .maestro-add input, .maestro-add select{flex:1;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;color:var(--text);padding:9px 15px;font-size:12px;}
   .maestro-add button{background:var(--accent);color:var(--bg);border:none;border-radius:20px;padding:0 18px;font-weight:700;font-size:12px;cursor:pointer;}
@@ -1189,13 +1212,14 @@
       <div class="maestro-add"><input id="inVendedor" placeholder="Agregar vendedor..." onkeydown="if(event.key==='Enter'){addMaestro('vendedores','inVendedor');}"><button onclick="addMaestro('vendedores','inVendedor')">Agregar</button></div>
     </div>
     <div class="maestro-block">
-      <div class="section-title">Administrativos (con N° de flota y email)</div>
+      <div class="section-title">Administrativos (con N° de flota, email y teléfono)</div>
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:8px;">El email se usa para mandarle copia de las confirmaciones y recordatorios de sus propias entregas.</div>
       <div class="maestro-tags" id="tagsAdministrativos"></div>
       <div class="maestro-add">
         <input id="inAdministrativo" placeholder="Nombre..." onkeydown="if(event.key==='Enter'){addAdministrativo();}">
         <input id="inAdministrativoFlota" placeholder="N° de flota (opcional)" style="max-width:150px;" onkeydown="if(event.key==='Enter'){addAdministrativo();}">
         <input id="inAdministrativoEmail" type="email" placeholder="Email (opcional)" onkeydown="if(event.key==='Enter'){addAdministrativo();}">
+        <input id="inAdministrativoTelefono" type="tel" placeholder="Teléfono (opcional)" style="max-width:160px;" onkeydown="if(event.key==='Enter'){addAdministrativo();}">
         <button onclick="addAdministrativo()">Agregar</button>
       </div>
     </div>
@@ -1750,6 +1774,16 @@ function iniciales_(nombre){
   if(partes.length>1) ini += partes[1][0];
   return ini.toUpperCase();
 }
+function toggleUserMenu(id, ev){
+  if(ev) ev.stopPropagation();
+  document.querySelectorAll('.user-menu-dropdown.open').forEach(function(el){ if(el.id!==id) el.classList.remove('open'); });
+  var el = document.getElementById(id);
+  if(el) el.classList.toggle('open');
+}
+document.addEventListener('click', function(ev){
+  if(ev.target.closest('.user-menu-wrap')) return;
+  document.querySelectorAll('.user-menu-dropdown.open').forEach(function(el){ el.classList.remove('open'); });
+});
 function renderUsuariosTabla_(){
   var tabla = document.getElementById('tablaUsuarios');
   if(!tabla) return;
@@ -1770,12 +1804,17 @@ function renderUsuariosTabla_(){
         '<td>'+(u.email||'<span style="color:var(--text-faint);">—</span>')+'</td>'+
         '<td>'+etiquetaRol_(u.rol)+'</td>'+
         '<td>'+(u.activo?'<span class="tag ok">Activo</span>':'<span class="tag danger">Inactivo</span>')+'</td>'+
-        '<td><div class="user-actions">'+
+        '<td><div class="user-actions" style="flex-wrap:nowrap;justify-content:flex-end;">'+
           '<button class="pill-btn edit" onclick="editarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\',\''+(u.email||'')+'\',\''+u.rol+'\')"><span class="material-symbols-outlined">edit</span>Editar</button>'+
-          (u.email ? '<button class="pill-btn mail" onclick="reenviarCredencialesUI(\''+u.usuario+'\')"><span class="material-symbols-outlined">mail</span>Reenviar mail</button>' : '')+
-          '<button class="pill-btn reset" onclick="resetPasswordUsuarioUI(\''+u.usuario+'\')"><span class="material-symbols-outlined">key</span>Resetear</button>'+
-          '<button class="pill-btn '+(u.activo?'danger':'ok')+'" onclick="toggleActivoUsuarioUI(\''+u.usuario+'\','+(!u.activo)+')"><span class="material-symbols-outlined">'+(u.activo?'block':'check_circle')+'</span>'+(u.activo?'Desactivar':'Reactivar')+'</button>'+
-          '<button class="pill-btn danger" onclick="eliminarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\')"><span class="material-symbols-outlined">delete</span>Eliminar</button>'+
+          '<div class="user-menu-wrap">'+
+            '<button class="user-menu-btn" onclick="toggleUserMenu(\'um_'+u.usuario+'\',event)"><span class="material-symbols-outlined">more_vert</span></button>'+
+            '<div class="user-menu-dropdown" id="um_'+u.usuario+'">'+
+              (u.email ? '<button onclick="reenviarCredencialesUI(\''+u.usuario+'\')"><span class="material-symbols-outlined">mail</span>Reenviar mail</button>' : '')+
+              '<button onclick="resetPasswordUsuarioUI(\''+u.usuario+'\')"><span class="material-symbols-outlined">key</span>Resetear contraseña</button>'+
+              '<button onclick="toggleActivoUsuarioUI(\''+u.usuario+'\','+(!u.activo)+')"><span class="material-symbols-outlined">'+(u.activo?'block':'check_circle')+'</span>'+(u.activo?'Desactivar':'Reactivar')+'</button>'+
+              '<button class="danger" onclick="eliminarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\')"><span class="material-symbols-outlined">delete</span>Eliminar</button>'+
+            '</div>'+
+          '</div>'+
         '</div></td>'+
       '</tr>';
     });
@@ -4094,8 +4133,14 @@ function guardarAlertaAccesorios(){
   persistirConfig('Emails de alerta de accesorios guardados');
 }
 function renderMaestroTags(tipo, elId){
-  document.getElementById(elId).innerHTML = CONFIG.maestros[tipo].map(function(n,i){
-    return '<span class="maestro-tag rich"><span class="maestro-tag-avatar">'+iniciales_(n)+'</span><span onclick="editarMaestroTag(\''+tipo+'\','+i+')" style="cursor:pointer;" title="Tocar para editar">'+n+'</span><button onclick="removeMaestro(\''+tipo+'\','+i+')">✕</button></span>';
+  var el = document.getElementById(elId);
+  el.classList.add('maestro-list');
+  el.innerHTML = CONFIG.maestros[tipo].map(function(n,i){
+    return '<div class="maestro-list-row">'+
+      '<span class="maestro-tag-avatar">'+iniciales_(n)+'</span>'+
+      '<span class="maestro-list-name" onclick="editarMaestroTag(\''+tipo+'\','+i+')" title="Tocar para editar">'+n+'</span>'+
+      '<button class="maestro-list-del" onclick="removeMaestro(\''+tipo+'\','+i+')" title="Eliminar"><span class="material-symbols-outlined">delete</span></button>'+
+    '</div>';
   }).join('') || '<span style="color:var(--text-faint);font-size:12px;">Sin cargar todavía.</span>';
 }
 function editarMaestroTag(tipo, i){
@@ -4109,12 +4154,18 @@ function editarMaestroTag(tipo, i){
   persistirConfig('"'+actual+'" ahora es "'+nuevo+'"');
 }
 function renderAdministrativosTags(){
-  document.getElementById('tagsAdministrativos').innerHTML = CONFIG.maestros.administrativos.map(function(a,i){
-    return '<span class="maestro-tag rich"><span class="maestro-tag-avatar">'+iniciales_(a.nombre)+'</span>'+
-      '<span onclick="editarAdministrativoTag('+i+')" style="cursor:pointer;font-weight:600;" title="Tocar para editar">'+a.nombre+'</span>'+
-      (a.flota?'<span class="maestro-tag-flota">Flota '+a.flota+'</span>':'')+
-      (a.email?'<span class="maestro-tag-email">'+a.email+'</span>':'')+
-      '<button onclick="removeAdministrativo('+i+')">✕</button></span>';
+  var el = document.getElementById('tagsAdministrativos');
+  el.classList.add('maestro-list');
+  var cabecera = CONFIG.maestros.administrativos.length ? '<div class="maestro-list-header"><span style="width:28px;flex-shrink:0;"></span><span style="min-width:150px;">Nombre</span><span style="flex:1;">Email</span><span style="flex:1;">Teléfono</span><span style="width:70px;flex-shrink:0;">Flota</span><span style="width:28px;flex-shrink:0;"></span></div>' : '';
+  el.innerHTML = cabecera + CONFIG.maestros.administrativos.map(function(a,i){
+    return '<div class="maestro-list-row">'+
+      '<span class="maestro-tag-avatar">'+iniciales_(a.nombre)+'</span>'+
+      '<span class="maestro-list-name" onclick="editarAdministrativoTag('+i+')" title="Tocar para editar">'+a.nombre+'</span>'+
+      '<span class="maestro-list-field'+(a.email?'':' empty')+'" onclick="editarAdministrativoTag('+i+')" title="Tocar para editar">'+(a.email||'Sin email')+'</span>'+
+      '<span class="maestro-list-field'+(a.telefono?'':' empty')+'" onclick="editarAdministrativoTag('+i+')" title="Tocar para editar">'+(a.telefono||'Sin teléfono')+'</span>'+
+      '<span class="maestro-list-flota" onclick="editarAdministrativoTag('+i+')" title="Tocar para editar">'+(a.flota?'Flota '+a.flota:'—')+'</span>'+
+      '<button class="maestro-list-del" onclick="removeAdministrativo('+i+')" title="Eliminar"><span class="material-symbols-outlined">delete</span></button>'+
+    '</div>';
   }).join('') || '<span style="color:var(--text-faint);font-size:12px;">Sin cargar todavía.</span>';
 }
 function editarAdministrativoTag(i){
@@ -4127,7 +4178,9 @@ function editarAdministrativoTag(i){
   if(flota===null) return;
   var email = prompt('Email (vacío si no tiene):', a.email||'');
   if(email===null) return;
-  CONFIG.maestros.administrativos[i] = {nombre:nombre, flota:flota.trim(), email:email.trim()};
+  var telefono = prompt('Teléfono (vacío si no tiene):', a.telefono||'');
+  if(telefono===null) return;
+  CONFIG.maestros.administrativos[i] = {nombre:nombre, flota:flota.trim(), email:email.trim(), telefono:telefono.trim()};
   renderAdministrativosTags();
   persistirConfig('"'+nombre+'" actualizado');
 }
@@ -4198,12 +4251,14 @@ function addAdministrativo(){
   var nombre=document.getElementById('inAdministrativo').value.trim();
   var flota=document.getElementById('inAdministrativoFlota').value.trim();
   var email=document.getElementById('inAdministrativoEmail').value.trim();
+  var telefono=document.getElementById('inAdministrativoTelefono').value.trim();
   if(!nombre) return;
   if(CONFIG.maestros.administrativos.some(function(a){return a.nombre===nombre;})){ showToast('Ya está en la lista'); return; }
-  CONFIG.maestros.administrativos.push({nombre:nombre, flota:flota, email:email});
+  CONFIG.maestros.administrativos.push({nombre:nombre, flota:flota, email:email, telefono:telefono});
   document.getElementById('inAdministrativo').value='';
   document.getElementById('inAdministrativoFlota').value='';
   document.getElementById('inAdministrativoEmail').value='';
+  document.getElementById('inAdministrativoTelefono').value='';
   renderAdministrativosTags();
   persistirConfig('"'+nombre+'" agregado');
 }
