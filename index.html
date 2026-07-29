@@ -6420,4 +6420,10 @@ function exportarReporteExcel(){
   });
   var libro = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(libro, hojaConEstilo_(headers, datos, '1D2330','FFFFFF'), 'Reporte');
-  XLSX.writeFile(li
+  XLSX.writeFile(libro, 'Reporte_GrupoParis.xlsx');
+}
+
+init();
+</script>
+</body>
+</html>
