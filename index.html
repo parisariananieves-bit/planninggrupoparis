@@ -708,7 +708,7 @@
   }
   .tv-single-body > div{min-width:0;}
   .tv-single-cliente{overflow-wrap:anywhere;}
-  html,body{overflow-x:hidden;}
+  html,body{overflow-x:hidden;width:100%;height:100%;}
 
   /* ---- TV: ajustes para celular ---- */
   @media(max-width:640px){
@@ -947,6 +947,10 @@
                   <div id="horariosDiaTitulo" style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;">—</div>
                 </div>
                 <button onclick="cerrarHorariosDia()" style="background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;">✕</button>
+              </div>
+              <div class="filter-pills" id="horariosDiaVistaToggle" style="margin-bottom:10px;">
+                <button class="filter-pill active" onclick="setVistaHorariosDia_('horarios', this)">Horarios</button>
+                <button class="filter-pill" onclick="setVistaHorariosDia_('lista', this)">Lista de clientes</button>
               </div>
               <div id="horariosDiaGrilla"></div>
             </div>
@@ -2044,20 +2048,22 @@ function aplicarPermisosUI(){
 // sin usuario ni contraseña propia — pero pide la contraseña general de acceso libre
 // (la configura un Maestro en Configuración) para que no entre cualquiera.
 function entrarComoVendedorLibre(){
-  var pass = prompt('Ingresá la contraseña de acceso libre:');
-  if(pass===null) return;
   gasGet('config').then(function(cfg){
+    function entrar(){
+      guardarSesion_({usuario:'libre', nombre:'Vendedor (acceso libre)', rol:'vendedor'}, false);
+      document.getElementById('loginUI').style.display='none';
+      actualizarBotonUsuario();
+      aplicarPermisosUI();
+      cargarTodo();
+    }
     if(!cfg || !cfg.accesoLibrePassword){
-      if(!confirm('Todavía no hay una contraseña de acceso libre configurada.\n\n¿Entrar de todas formas? (Un Maestro puede activar la contraseña en Configuración cuando quiera.)')) return;
-    } else if(pass !== cfg.accesoLibrePassword){
-      showToast('Contraseña incorrecta');
+      entrar(); // sin contraseña configurada: entra directo, sin preguntar nada
       return;
     }
-    guardarSesion_({usuario:'libre', nombre:'Vendedor (acceso libre)', rol:'vendedor'}, false);
-    document.getElementById('loginUI').style.display='none';
-    actualizarBotonUsuario();
-    aplicarPermisosUI();
-    cargarTodo();
+    var pass = prompt('Ingresá la contraseña de acceso libre:');
+    if(pass===null) return;
+    if(pass !== cfg.accesoLibrePassword){ showToast('Contraseña incorrecta'); return; }
+    entrar();
   });
 }
 
@@ -2434,6 +2440,17 @@ function poblarSelectsTvFiltro_(){
 }
 function cambiarTvFiltroMarca(v){ tvFiltroMarca=v; localStorage.setItem('tvFiltroMarca', v); tvSingleIdx=0; renderModoTV(); }
 function cambiarTvFiltroSucursal(v){ tvFiltroSucursal=v; localStorage.setItem('tvFiltroSucursal', v); tvSingleIdx=0; renderModoTV(); }
+function ajustarEscalaTV_(){
+  var el = document.getElementById('viewTv');
+  if(!el || !document.body.classList.contains('tv-mode')) return;
+  var anchoDiseno = 1600; // ancho de referencia sobre el que está pensado el diseño
+  var escala = window.innerWidth / anchoDiseno;
+  escala = Math.max(0.55, Math.min(escala, 2.5));
+  el.style.transform = 'scale('+escala+')';
+  el.style.transformOrigin = 'top left';
+  el.style.width = (100/escala)+'%';
+  el.style.height = (100/escala)+'%';
+}
 function abrirModoTV(){
   setAppView('tv');
   document.body.classList.add('tv-mode');
@@ -2459,9 +2476,12 @@ function abrirModoTV(){
       barra.appendChild(mini);
     }
   }
+  ajustarEscalaTV_();
+  window.addEventListener('resize', ajustarEscalaTV_);
   try{ if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){}); }catch(e){}
 }
 function cerrarModoTV(){
+  window.removeEventListener('resize', ajustarEscalaTV_);
   document.body.classList.remove('tv-mode');
   if(tvIntervalReloj){ clearInterval(tvIntervalReloj); tvIntervalReloj=null; }
   if(tvIntervalCiclo){ clearInterval(tvIntervalCiclo); tvIntervalCiclo=null; }
@@ -3444,6 +3464,23 @@ function seSuperponenHorarios_(hora1, dur1, hora2, dur2){
   var inicio2=horaAMinutos_(hora2), fin2=inicio2+(dur2||60);
   return inicio1 < fin2 && inicio2 < fin1;
 }
+function renderListaClientesDia_(rows){
+  var rowsOrdenadas = rows.slice().sort(function(a,b){ return horaAMinutos_(a.hora)-horaAMinutos_(b.hora); });
+  return rowsOrdenadas.length
+    ? rowsOrdenadas.map(function(r){
+        var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
+        return '<div class="horario-slot ocupado" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
+          '<span class="hora">'+r.hora+'</span><span class="info">'+r.cliente+' · '+b.label+' '+r.modelo+'</span></div>';
+      }).join('')
+    : '<div style="color:var(--text-faint);font-size:12.5px;padding:14px;text-align:center;">No hay clientes agendados para este día.</div>';
+}
+var vistaHorariosDia_ = 'horarios'; // 'horarios' (libre/ocupado, para agendar) | 'lista' (solo clientes del día)
+function setVistaHorariosDia_(v, btn){
+  vistaHorariosDia_ = v;
+  document.querySelectorAll('#horariosDiaVistaToggle .filter-pill').forEach(function(b){b.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+  renderHorariosDia_();
+}
 function renderHorariosDia_(){
   var sel = diaSeleccionadoCalendario;
   var panel = document.getElementById('horariosDiaPanel');
@@ -3455,6 +3492,10 @@ function renderHorariosDia_(){
   var regla = reglaDia(diaSemana);
   document.getElementById('horariosDiaTitulo').textContent = diaSemana.charAt(0).toUpperCase()+diaSemana.slice(1)+' · '+fechaStr;
 
+  var toggleEl = document.getElementById('horariosDiaVistaToggle');
+  var esRecepcion = rolActual()==='recepcion';
+  if(toggleEl) toggleEl.style.display = esRecepcion ? 'none' : 'flex';
+
   if(feriado || (regla && regla.desde==='00:00')){
     document.getElementById('horariosDiaGrilla').innerHTML = '<div style="color:var(--danger);font-size:12.5px;padding:14px;text-align:center;background:var(--danger-soft);border-radius:9px;">🚫 '+(feriado?('Feriado — '+feriado.motivo):'Día bloqueado, no se agenda.')+'</div>';
     return;
@@ -3465,16 +3506,10 @@ function renderHorariosDia_(){
     return marcasAgenda.indexOf(r.marca)>-1 && (currentBranches.length===0 || currentBranches.indexOf(r.sucursal)>-1) && r.fecha===fechaStr;
   });
 
-  // Recepción no necesita ver horarios libres para agendar — solo quiénes vienen ese día.
-  if(rolActual()==='recepcion'){
-    var rowsOrdenadas = rows.slice().sort(function(a,b){ return horaAMinutos_(a.hora)-horaAMinutos_(b.hora); });
-    document.getElementById('horariosDiaGrilla').innerHTML = rowsOrdenadas.length
-      ? rowsOrdenadas.map(function(r){
-          var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
-          return '<div class="horario-slot ocupado" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
-            '<span class="hora">'+r.hora+'</span><span class="info">'+r.cliente+' · '+b.label+' '+r.modelo+'</span></div>';
-        }).join('')
-      : '<div style="color:var(--text-faint);font-size:12.5px;padding:14px;text-align:center;">No hay clientes agendados para este día.</div>';
+  // Recepción siempre ve la lista de clientes — no necesita agendar, ni ver huecos libres.
+  // El resto de los roles elige con el toggle de arriba (por defecto: horarios, para agendar).
+  if(esRecepcion || vistaHorariosDia_==='lista'){
+    document.getElementById('horariosDiaGrilla').innerHTML = renderListaClientesDia_(rows);
     return;
   }
 
@@ -6357,28 +6392,4 @@ function ejecutarReporte(){
   var html = '<tr>'+headers.map(function(h){return '<th>'+h+'</th>';}).join('')+'</tr>';
   filas.forEach(function(r){
     var b=BRANDS.find(function(x){return x.id===r.marca;});
-    html += '<tr><td>'+(b?b.label:r.marca)+'</td><td>'+(r.sucursal==='default'?'—':r.sucursal)+'</td><td>'+r.fecha+'</td><td>'+r.hora+'</td><td>'+r.cliente+'</td><td>'+r.modelo+'</td><td>'+r.dominio+'</td><td>'+r.vendedor+'</td><td>'+r.administrativo+'</td><td>'+r.estado+'</td>'+
-      '<td>'+(r.accesorios?(r.accesoriosColocado?'Colocado':'Pendiente'):'—')+'</td><td>'+(r.onstar||'—')+'</td><td>'+(r.campanaTexto?(r.campanaControlada?'Controlada':'Pendiente'):'—')+'</td><td>'+(r.regaloCorporativo?(r.regaloEstado||'Pendiente'):'—')+'</td></tr>';
-  });
-  document.getElementById('repResultadoTabla').innerHTML = html;
-  document.getElementById('repResultadoWrap').style.display = filas.length? 'block':'none';
-  document.getElementById('repExportBtns').style.display = filas.length? 'block':'none';
-}
-function exportarReporteExcel(){
-  var filas = window._reporteFiltradoFilas || [];
-  if(filas.length===0){ showToast('No hay resultados para exportar'); return; }
-  var headers = ['Marca','Sucursal','Fecha','Hora','Cliente','Vehículo','Dominio','Vendedor','Administrativo','Estado','Accesorio','OnStar','Campaña','Regalo'];
-  var datos = filas.map(function(r){
-    var b=BRANDS.find(function(x){return x.id===r.marca;});
-    return [(b?b.label:r.marca), (r.sucursal==='default'?'—':r.sucursal), r.fecha, r.hora, r.cliente, r.modelo, r.dominio, r.vendedor, r.administrativo, r.estado,
-      (r.accesorios?(r.accesoriosColocado?'Colocado':'Pendiente'):'—'), (r.onstar||'—'), (r.campanaTexto?(r.campanaControlada?'Controlada':'Pendiente'):'—'), (r.regaloCorporativo?(r.regaloEstado||'Pendiente'):'—')];
-  });
-  var libro = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(libro, hojaConEstilo_(headers, datos, '1D2330','FFFFFF'), 'Reporte');
-  XLSX.writeFile(libro, 'Reporte_GrupoParis.xlsx');
-}
-
-init();
-</script>
-</body>
-</html>
+    html += '<tr><td>'+(b?b.label:r.marca)+'</td><td>'+(r.sucursal==='default'?'—':r.sucursal)+'</td><td>'+r.fecha+'</td><td>'+r.hora+'</td><td>'+r.cliente+'</td
