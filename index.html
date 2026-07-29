@@ -2321,8 +2321,13 @@ function init(){
   var tokenUrl = params.get('token');
   var usuarioUrl = params.get('u');
   if(tokenUrl && usuarioUrl){
-    document.getElementById('loadingMsg').style.display='none';
-    mostrarPantallaElegirPassword_(usuarioUrl, tokenUrl);
+    cargarConfigBackend().then(function(){
+      document.getElementById('loadingMsg').style.display='none';
+      mostrarPantallaElegirPassword_(usuarioUrl, tokenUrl);
+    }).catch(function(){
+      document.getElementById('loadingMsg').style.display='none';
+      document.getElementById('setupUI').style.display='block';
+    });
     return;
   }
   cargarConfigBackend().then(function(){
@@ -2356,6 +2361,9 @@ function confirmarElegirPassword(){
     document.getElementById('elegirPasswordUI').innerHTML =
       '<div class="login-card"><h3 style="color:var(--ok);">¡Listo!</h3><p>Tu contraseña quedó guardada. Ya podés entrar con tu usuario y esta contraseña nueva.</p>'+
       '<button class="save-btn" onclick="window.location.href=window.location.origin+window.location.pathname;">Ir al login</button></div>';
+  }).catch(function(){
+    msgEl.textContent = 'No se pudo conectar con el servidor. Probá de nuevo en un momento.';
+    msgEl.style.display='block';
   });
 }
 
