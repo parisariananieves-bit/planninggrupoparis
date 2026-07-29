@@ -25,6 +25,8 @@
     --warn:#E8B23D; --warn-soft:rgba(232,178,61,0.14);
     --danger:#E85D5D; --danger-soft:rgba(232,93,93,0.14);
     --pending:#6B7385; --pending-soft:rgba(107,115,133,0.16);
+    --invertido:#8B7CF6; --invertido-soft:rgba(139,124,246,0.14);
+    --invertido2:#2DD4BF; --invertido2-soft:rgba(45,212,191,0.14);
     --accent: var(--chevrolet); --accent-soft: var(--chevrolet-soft);
   }
   body.light-mode{
@@ -45,6 +47,22 @@
 
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;}
+  .material-symbols-outlined{
+    font-family:'Material Symbols Outlined';
+    font-weight:normal;
+    font-style:normal;
+    font-size:20px;
+    line-height:1;
+    letter-spacing:normal;
+    text-transform:none;
+    display:inline-block;
+    white-space:nowrap;
+    word-wrap:normal;
+    direction:ltr;
+    -webkit-font-feature-settings:'liga';
+    -webkit-font-smoothing:antialiased;
+    vertical-align:middle;
+  }
   .app{max-width:1600px;margin:0 auto;padding:24px 24px 60px;}
   header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px;flex-wrap:wrap;}
   .brand-block h1{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin:0 0 4px;}
@@ -91,14 +109,37 @@
   .stats-strip{display:flex;gap:9px;margin-bottom:14px;flex-wrap:wrap;}
   .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:14px;}
   .stats-grid .stat-chip{min-width:0;}
-  .stat-chip{flex:1;min-width:120px;background:var(--panel);border:1px solid var(--hairline);border-radius:14px;padding:14px 15px;transition:transform .12s,border-color .12s;}
+  .stat-chip{flex:1;min-width:120px;background:linear-gradient(160deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid var(--hairline);border-radius:14px;padding:14px 15px;transition:transform .14s,border-color .14s;}
+  .stat-chip:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.2);}
+  .costos-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+  .costo-card{background:linear-gradient(160deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid var(--hairline);border-radius:16px;padding:18px 20px;position:relative;overflow:hidden;transition:transform .14s,border-color .14s;}
+  .costo-card:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.2);}
+  .costo-card .icon-badge{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+  .costo-card .icon-badge .material-symbols-outlined{font-size:21px;}
+  .costo-card .valor{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:800;color:var(--text);line-height:1.1;}
+  .costo-card .valor small{font-size:13px;font-weight:600;color:var(--text-faint);}
+  .costo-card .label{font-size:11.5px;color:var(--text-dim);margin-top:4px;font-weight:600;}
+  .costo-card .sub{font-size:10.5px;color:var(--text-faint);margin-top:6px;}
+  .costo-card.morado .icon-badge{background:var(--invertido-soft);color:var(--invertido);}
+  .costo-card.teal .icon-badge{background:var(--invertido2-soft);color:var(--invertido2);}
+  .costo-card.ambar .icon-badge{background:var(--warn-soft);color:var(--warn);}
+  .costo-card.ok .icon-badge{background:var(--ok-soft);color:var(--ok);}
+  .chart-panel{background:linear-gradient(160deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid var(--hairline);border-radius:14px;padding:16px;transition:border-color .14s;}
+  .chart-panel:hover{border-color:rgba(255,255,255,.16);}
+  .chart-panel-title{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:12px;}
+  .chart-icon{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .chart-icon .material-symbols-outlined{font-size:15px;}
+  .chart-icon.morado{background:var(--invertido-soft);color:var(--invertido);}
+  .chart-icon.teal{background:var(--invertido2-soft);color:var(--invertido2);}
+  .chart-icon.ambar{background:var(--warn-soft);color:var(--warn);}
+  .chart-icon.ok{background:var(--ok-soft);color:var(--ok);}
   .stat-chip:hover{transform:translateY(-2px);border-color:var(--accent);}
   .stat-chip .icon-badge{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
   .stat-chip .icon-badge .material-symbols-outlined{font-size:19px;}
   .stat-chip.ok .icon-badge{background:var(--ok-soft);color:var(--ok);} .stat-chip.warn .icon-badge{background:var(--warn-soft);color:var(--warn);}
   .stat-chip.pending .icon-badge{background:var(--pending-soft);color:var(--pending);} .stat-chip.danger .icon-badge{background:var(--danger-soft);color:var(--danger);}
-  .stat-chip .n{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;}
-  .stat-chip .l{font-size:10.5px;color:var(--text-dim);margin-top:3px;}
+  .stat-chip .n{font-family:'Space Grotesk',sans-serif;font-size:23px;font-weight:800;}
+  .stat-chip .l{font-size:10.5px;color:var(--text-dim);margin-top:3px;font-weight:600;}
   .stat-chip.ok .n{color:var(--ok);} .stat-chip.warn .n{color:var(--warn);} .stat-chip.pending .n{color:var(--pending);}
   .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
   .day-nav{display:flex;align-items:center;gap:8px;}
@@ -250,7 +291,9 @@
   .form-field input,.form-field select,.form-field textarea{background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:8px 9px;font-family:'IBM Plex Mono',monospace;font-size:12px;width:100%;}
   .form-field textarea{font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;resize:none;height:46px;}
   .new-warning{background:var(--danger-soft);color:var(--danger);border-radius:8px;padding:9px 11px;font-size:12px;font-weight:600;margin-bottom:12px;display:none;}
-  .save-btn{background:var(--accent);color:var(--bg);border:none;border-radius:10px;padding:11px 15px;font-weight:700;font-size:12.5px;cursor:pointer;width:100%;margin-top:5px;box-shadow:0 4px 14px -4px rgba(0,0,0,.3);transition:filter .15s;}
+  .save-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:linear-gradient(135deg,var(--accent) 0%,#c98f2e 100%);color:var(--bg);border:none;border-radius:10px;padding:11px 15px;font-weight:700;font-size:12.5px;cursor:pointer;width:100%;margin-top:5px;box-shadow:0 6px 18px -6px rgba(232,178,61,.55);transition:filter .15s,transform .12s;}
+  .save-btn:hover{filter:brightness(1.06);transform:translateY(-1px);}
+  .save-btn .material-symbols-outlined{font-size:17px;}
   .save-btn:hover{filter:brightness(1.08);}
   .save-btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;filter:none;}
   .context-tag{display:inline-block;background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;margin-bottom:14px;}
@@ -261,6 +304,8 @@
   .report-brand-header .report-count{font-weight:600;font-size:11px;background:rgba(255,255,255,.35);padding:3px 10px;border-radius:20px;}
   .report-table th{background:var(--panel-2);text-align:left;padding:9px 11px;white-space:nowrap;color:var(--text-dim);font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;border-bottom:1px solid var(--hairline);position:sticky;top:0;z-index:1;}
   .report-table td{padding:8px 11px;border-bottom:1px solid var(--hairline);white-space:nowrap;}
+  .report-table tbody tr{transition:background-color .1s;}
+  .report-table tbody tr:hover{background-color:rgba(255,255,255,.03);}
   #detalleFiltradoTabla{table-layout:fixed;}
   #detalleFiltradoTabla th, #detalleFiltradoTabla td{white-space:normal;word-break:break-word;font-size:11px;padding:7px 9px;}
   .report-table tbody tr:nth-child(even){background:var(--panel-2);}
@@ -306,9 +351,13 @@
     .modal.wide{width:98vw;max-height:94vh;}
     .modal-body{padding:12px 14px 18px;}
   }
-  .print-btn{background:var(--accent);color:var(--bg);border:none;border-radius:9px;padding:9px 15px;font-weight:700;font-size:12px;cursor:pointer;margin-top:13px;margin-right:8px;transition:filter .15s;}
+  .print-btn{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--accent) 0%,#c98f2e 100%);color:var(--bg);border:none;border-radius:9px;padding:9px 16px;font-weight:700;font-size:12px;cursor:pointer;margin-top:13px;margin-right:8px;transition:filter .15s,transform .12s;box-shadow:0 4px 14px -5px rgba(232,178,61,.5);}
+  .print-btn:hover{filter:brightness(1.06);transform:translateY(-1px);}
+  .print-btn .material-symbols-outlined{font-size:16px;}
   .print-btn:hover{filter:brightness(1.08);}
-  .xlsx-btn{background:var(--ok-soft);color:var(--ok);border:1px solid var(--ok);border-radius:9px;padding:9px 15px;font-weight:700;font-size:12px;cursor:pointer;margin-top:13px;transition:background .15s;}
+  .xlsx-btn{display:inline-flex;align-items:center;gap:7px;background:var(--ok-soft);color:var(--ok);border:1px solid var(--ok);border-radius:9px;padding:9px 16px;font-weight:700;font-size:12px;cursor:pointer;margin-top:13px;transition:background .15s,transform .12s;}
+  .xlsx-btn:hover{background:rgba(63,191,136,.24);transform:translateY(-1px);}
+  .xlsx-btn .material-symbols-outlined{font-size:16px;}
   .xlsx-btn:hover{background:rgba(63,191,136,.25);}
   .email-preview{background:#fff;color:#1a1a1a;border-radius:9px;padding:20px 22px;font-size:12.5px;line-height:1.6;}
   .whatsapp-preview{background:#e5ddd5;color:#111;border-radius:9px;padding:16px;font-size:12.5px;line-height:1.55;white-space:pre-wrap;max-height:50vh;overflow-y:auto;}
@@ -1168,20 +1217,22 @@
         </div>
         <div class="report-wrap" style="border:none;border-radius:0;max-height:none;margin:0 16px;"><table class="report-table" id="detalleFiltradoTabla"></table></div>
         <div style="position:sticky;bottom:0;background:var(--panel);padding:12px 16px 16px;border-top:1px solid var(--hairline);">
-          <button class="print-btn" style="margin:0 8px 0 0;" onclick="window.print()">🖨 Imprimir / PDF</button>
-          <button class="xlsx-btn" style="margin:0;" onclick="exportarDetalleFiltradoExcel()">📊 Descargar Excel</button>
+          <button class="print-btn" style="margin:0 8px 0 0;" onclick="window.print()"><span class="material-symbols-outlined">print</span> Imprimir / PDF</button>
+          <button class="xlsx-btn" style="margin:0;" onclick="exportarDetalleFiltradoExcel()"><span class="material-symbols-outlined">download</span> Descargar Excel</button>
         </div>
       </div>
 
-      <div class="section-title" style="margin-top:18px;">Gráficos</div>
+      <div class="section-title" style="margin-top:18px;display:flex;align-items:center;gap:8px;">
+        <span class="material-symbols-outlined" style="font-size:18px;color:var(--accent);">insights</span>Gráficos
+      </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:18px;">
-        <div style="background:var(--panel);border:1px solid var(--hairline);border-radius:12px;padding:14px;">
-          <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">Entregas por marca</div>
+        <div class="chart-panel">
+          <div class="chart-panel-title"><span class="chart-icon morado"><span class="material-symbols-outlined">directions_car</span></span>Entregas por marca</div>
           <canvas id="chartPorMarca" height="180"></canvas>
         </div>
-        <div style="background:var(--panel);border:1px solid var(--hairline);border-radius:12px;padding:14px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
-            <div style="font-size:12px;color:var(--text-dim);">Entregas por vendedor</div>
+        <div class="chart-panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
+            <div class="chart-panel-title" style="margin:0;"><span class="chart-icon teal"><span class="material-symbols-outlined">badge</span></span>Entregas por vendedor</div>
             <div style="position:relative;">
               <button class="filter-pill" style="font-size:11px;padding:5px 10px;" onclick="toggleDropdownFiltro('vendedor')">🔍 Filtrar nombres ▾</button>
               <div id="dropdownFiltroVendedor" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;padding:8px;width:220px;max-height:260px;overflow-y:auto;z-index:30;box-shadow:0 8px 24px rgba(0,0,0,0.4);"></div>
@@ -1191,9 +1242,9 @@
             <canvas id="chartPorVendedor"></canvas>
           </div>
         </div>
-        <div style="background:var(--panel);border:1px solid var(--hairline);border-radius:12px;padding:14px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
-            <div style="font-size:12px;color:var(--text-dim);">Entregas por administrativo</div>
+        <div class="chart-panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
+            <div class="chart-panel-title" style="margin:0;"><span class="chart-icon ambar"><span class="material-symbols-outlined">support_agent</span></span>Entregas por administrativo</div>
             <div style="position:relative;">
               <button class="filter-pill" style="font-size:11px;padding:5px 10px;" onclick="toggleDropdownFiltro('admin')">🔍 Filtrar nombres ▾</button>
               <div id="dropdownFiltroAdmin" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;padding:8px;width:220px;max-height:260px;overflow-y:auto;z-index:30;box-shadow:0 8px 24px rgba(0,0,0,0.4);"></div>
@@ -1203,12 +1254,12 @@
             <canvas id="chartPorAdmin"></canvas>
           </div>
         </div>
-        <div style="background:var(--panel);border:1px solid var(--hairline);border-radius:12px;padding:14px;">
-          <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">Estado de las entregas</div>
+        <div class="chart-panel">
+          <div class="chart-panel-title"><span class="chart-icon ok"><span class="material-symbols-outlined">task_alt</span></span>Estado de las entregas</div>
           <canvas id="chartEstado" height="180"></canvas>
         </div>
-        <div style="background:var(--panel);border:1px solid var(--hairline);border-radius:12px;padding:14px;">
-          <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">% Cumplimiento por tarea</div>
+        <div class="chart-panel">
+          <div class="chart-panel-title"><span class="chart-icon morado"><span class="material-symbols-outlined">percent</span></span>% Cumplimiento por tarea</div>
           <canvas id="chartCumplimiento" height="180"></canvas>
         </div>
       </div>
@@ -1229,21 +1280,23 @@
         </label>
         <button class="filter-pill" onclick="limpiarDashboardFecha()">Todo el período</button>
       </div>
-      <div class="section-title" style="margin-top:0;">Proyección de regalos corporativos (próximo mes)</div>
+      <div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido);">trending_up</span>Proyección de regalos corporativos (próximo mes)</div>
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Calculada según el promedio histórico de entregas con regalo, mes a mes, con los datos ya cargados.</div>
+      <div class="costos-grid" id="proyeccionRegalosCards" style="margin-bottom:14px;"></div>
       <div class="report-wrap" style="max-height:260px;">
         <table class="report-table" id="dashProyeccion"></table>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;">
-        <button class="print-btn" onclick="exportarProyeccionExcel()">📊 Exportar proyección a Excel</button>
+        <button class="print-btn" onclick="exportarProyeccionExcel()"><span class="material-symbols-outlined">trending_up</span> Exportar proyección a Excel</button>
         <input type="file" accept=".xlsx,.xls" id="historicoRegalosFileInput" onchange="importarHistoricoRegalos(event)" style="display:none;">
-        <button class="xlsx-btn" style="margin-top:0;" onclick="document.getElementById('historicoRegalosFileInput').click()">📥 Importar histórico (solo proyección)</button>
+        <button class="xlsx-btn" style="margin-top:0;" onclick="document.getElementById('historicoRegalosFileInput').click()"><span class="material-symbols-outlined">upload_file</span> Importar histórico (solo proyección)</button>
         <span id="historicoRegalosInfo" style="font-size:11.5px;color:var(--text-dim);"></span>
       </div>
       <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">Este archivo NO se agrega al planning ni a la planilla — solo queda guardado como base histórica para la proyección. Para los meses que ya tengan entregas reales cargadas en el sistema, se usa siempre el dato real (no se duplica con el histórico).</div>
 
-      <div class="section-title" style="margin-top:26px;">Stock real de regalos corporativos</div>
+      <div class="section-title" style="margin-top:26px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido2);">inventory_2</span>Stock real de regalos corporativos</div>
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Cargá acá cada ingreso de mercadería (compra) — el sistema descuenta solo lo que ya se entregó, para saber cuánto queda disponible. El stock es general de la empresa (un solo depósito); debajo se ve el consumo desglosado por marca.</div>
+      <div class="costos-grid" id="costosRegalosCards" style="margin-bottom:16px;"></div>
       <div class="report-wrap" style="max-height:220px;margin-bottom:10px;">
         <table class="report-table" id="dashStock"></table>
       </div>
@@ -1256,7 +1309,7 @@
         <table class="report-table" id="dashStockPorSucursal"></table>
       </div>
 
-      <div class="section-title" style="margin-top:22px;">Distribución a sucursales — ¿quién se está quedando sin stock?</div>
+      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--warn);">local_shipping</span>Distribución a sucursales — ¿quién se está quedando sin stock?</div>
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Registrá cuánto le mandaste del stock central a cada sucursal. El sistema resta lo que esa sucursal ya consumió, y te avisa cuál se está quedando sin nada para enviarle más.</div>
       <div class="report-wrap" style="max-height:220px;margin-bottom:10px;">
         <table class="report-table" id="dashDistribucion"></table>
@@ -1269,7 +1322,7 @@
         <div class="form-field"><label>Cantidad enviada</label><input type="number" min="1" id="distCantidad"></div>
         <div class="form-field"><label>Fecha de envío</label><input id="distFecha" placeholder="dd/mm/aaaa"></div>
       </div>
-      <button class="save-btn" onclick="addDistribucionEntry()">Registrar envío a sucursal</button>
+      <button class="save-btn" onclick="addDistribucionEntry()"><span class="material-symbols-outlined">local_shipping</span> Registrar envío a sucursal</button>
       <div class="section-title" style="margin-top:18px;">Historial de envíos a sucursales</div>
       <div class="report-wrap" style="max-height:180px;margin-bottom:10px;">
         <table class="report-table" id="dashDistribucionLog"></table>
@@ -1279,14 +1332,15 @@
       <div class="form-grid" style="margin-bottom:8px;">
         <div class="form-field"><label>Item</label><input id="stockItem" placeholder="Ej: Mate, Llavero, Portadocumentos..."></div>
         <div class="form-field"><label>Cantidad que ingresó</label><input type="number" min="1" id="stockCantidad"></div>
+        <div class="form-field"><label>Costo unitario ($)</label><input type="number" min="0" step="0.01" id="stockCosto" placeholder="Opcional"></div>
         <div class="form-field"><label>Fecha de ingreso</label><input id="stockFecha" placeholder="dd/mm/aaaa"></div>
       </div>
-      <button class="save-btn" onclick="addStockEntry()">Agregar ingreso de stock</button>
+      <button class="save-btn" onclick="addStockEntry()"><span class="material-symbols-outlined">add_box</span> Agregar ingreso de stock</button>
       <div class="section-title" style="margin-top:18px;">Historial de ingresos cargados</div>
       <div class="report-wrap" style="max-height:180px;">
         <table class="report-table" id="dashStockLog"></table>
       </div>
-      <button class="xlsx-btn" onclick="exportarStockExcel()" style="margin-top:16px;">📊 Descargar todo el control de stock a Excel</button>
+      <button class="xlsx-btn" onclick="exportarStockExcel()" style="margin-top:16px;"><span class="material-symbols-outlined">download</span> Descargar todo el control de stock a Excel</button>
     </div>
 
     <div id="paneMaestroKit" style="display:none;">
@@ -1299,19 +1353,21 @@
         </label>
         <button class="filter-pill" onclick="limpiarDashboardFecha()">Todo el período</button>
       </div>
-      <div class="section-title" style="margin-top:0;">Proyección de Kit de Seguridad (próximo mes)</div>
+      <div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido);">trending_up</span>Proyección de Kit de Seguridad (próximo mes)</div>
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Calculada según el promedio histórico de entregas con kit de seguridad, mes a mes.</div>
+      <div class="costos-grid" id="proyeccionKitCards" style="margin-bottom:14px;"></div>
       <div class="report-wrap" style="max-height:180px;">
         <table class="report-table" id="dashProyeccionKit"></table>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;">
         <input type="file" accept=".xlsx,.xls" id="historicoKitFileInput" onchange="importarHistoricoKit(event)" style="display:none;">
-        <button class="xlsx-btn" style="margin-top:0;" onclick="document.getElementById('historicoKitFileInput').click()">📥 Importar histórico (solo proyección)</button>
+        <button class="xlsx-btn" style="margin-top:0;" onclick="document.getElementById('historicoKitFileInput').click()"><span class="material-symbols-outlined">upload_file</span> Importar histórico (solo proyección)</button>
         <span id="historicoKitInfo" style="font-size:11.5px;color:var(--text-dim);"></span>
       </div>
       <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">Este archivo NO se agrega al planning ni a la planilla — solo queda guardado como base histórica para la proyección. Para los meses que ya tengan entregas reales cargadas en el sistema, se usa siempre el dato real (no se duplica con el histórico).</div>
 
-      <div class="section-title" style="margin-top:22px;">Stock real de Kit de Seguridad</div>
+      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido2);">health_and_safety</span>Stock real de Kit de Seguridad</div>
+      <div class="costos-grid" id="costosKitCards" style="margin-bottom:16px;"></div>
       <div class="report-wrap" style="max-height:150px;margin-bottom:10px;">
         <table class="report-table" id="dashStockKit"></table>
       </div>
@@ -1324,7 +1380,7 @@
         <table class="report-table" id="dashStockKitPorSucursal"></table>
       </div>
 
-      <div class="section-title" style="margin-top:22px;">Distribución de Kit de Seguridad a sucursales</div>
+      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--warn);">local_shipping</span>Distribución de Kit de Seguridad a sucursales</div>
       <div class="report-wrap" style="max-height:200px;margin-bottom:10px;">
         <table class="report-table" id="dashDistribucionKit"></table>
       </div>
@@ -1335,7 +1391,7 @@
         <div class="form-field"><label>Cantidad enviada</label><input type="number" min="1" id="distKitCantidad"></div>
         <div class="form-field"><label>Fecha de envío</label><input id="distKitFecha" placeholder="dd/mm/aaaa"></div>
       </div>
-      <button class="save-btn" onclick="addDistribucionKitEntry()">Registrar envío a sucursal</button>
+      <button class="save-btn" onclick="addDistribucionKitEntry()"><span class="material-symbols-outlined">local_shipping</span> Registrar envío a sucursal</button>
       <div class="section-title" style="margin-top:18px;">Historial de envíos a sucursales</div>
       <div class="report-wrap" style="max-height:160px;margin-bottom:10px;">
         <table class="report-table" id="dashDistribucionKitLog"></table>
@@ -1344,9 +1400,10 @@
       <div class="section-title" style="margin-top:22px;">Ingreso al stock central de Kit de Seguridad</div>
       <div class="form-grid" style="margin-bottom:8px;">
         <div class="form-field"><label>Cantidad que ingresó</label><input type="number" min="1" id="stockKitCantidad"></div>
+        <div class="form-field"><label>Costo unitario ($)</label><input type="number" min="0" step="0.01" id="stockKitCosto" placeholder="Opcional"></div>
         <div class="form-field"><label>Fecha de ingreso</label><input id="stockKitFecha" placeholder="dd/mm/aaaa"></div>
       </div>
-      <button class="save-btn" onclick="addStockKitEntry()">Agregar ingreso de stock</button>
+      <button class="save-btn" onclick="addStockKitEntry()"><span class="material-symbols-outlined">add_box</span> Agregar ingreso de stock</button>
       <div class="section-title" style="margin-top:18px;">Historial de ingresos cargados</div>
       <div class="report-wrap" style="max-height:160px;">
         <table class="report-table" id="dashStockKitLog"></table>
@@ -1354,17 +1411,20 @@
     </div>
 
     <div id="paneMaestroReportes" style="display:none;">
-      <div style="background:var(--panel);border:1px solid var(--hairline);border-radius:12px;padding:14px 16px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-        <div>
-          <div style="font-weight:700;font-size:13px;margin-bottom:2px;">📄 Reporte general rápido</div>
-          <div style="font-size:11.5px;color:var(--text-dim);">Todas las entregas, agrupadas por marca — listo para imprimir o descargar en Excel, sin filtrar nada.</div>
+      <div class="chart-panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="chart-icon morado" style="width:34px;height:34px;"><span class="material-symbols-outlined" style="font-size:19px;">description</span></div>
+          <div>
+            <div style="font-weight:700;font-size:13px;margin-bottom:2px;">Reporte general rápido</div>
+            <div style="font-size:11.5px;color:var(--text-dim);">Todas las entregas, agrupadas por marca — listo para imprimir o descargar en Excel, sin filtrar nada.</div>
+          </div>
         </div>
-        <button class="print-btn" style="margin:0;" id="btnToggleReporteGeneral" onclick="toggleReporteGeneralInline()">Abrir reporte general</button>
+        <button class="print-btn" style="margin:0;" id="btnToggleReporteGeneral" onclick="toggleReporteGeneralInline()"><span class="material-symbols-outlined">description</span> Abrir reporte general</button>
       </div>
       <div id="reporteGeneralInline" style="display:none;margin-bottom:20px;">
         <div class="report-wrap"><div id="reportTable"></div></div>
-        <button class="print-btn" onclick="window.print()">🖨 Imprimir / Guardar como PDF</button>
-        <button class="xlsx-btn" onclick="exportarExcel()">📊 Descargar Excel (.xlsx)</button>
+        <button class="print-btn" onclick="window.print()"><span class="material-symbols-outlined">print</span> Imprimir / Guardar como PDF</button>
+        <button class="xlsx-btn" onclick="exportarExcel()"><span class="material-symbols-outlined">download</span> Descargar Excel (.xlsx)</button>
       </div>
       <div class="section-title" style="margin-top:0;">Buscador avanzado (con filtros)</div>
       <div class="form-grid">
@@ -1381,14 +1441,14 @@
         <div class="form-field"><label>Campañas</label><select id="repCampana"><option value="">Todas</option><option value="si">Con campaña</option><option value="no">Sin campaña</option></select></div>
         <div class="form-field"><label>Regalo corporativo</label><select id="repRegalo"><option value="">Todos</option><option value="si">Con regalo</option><option value="no">Sin regalo</option></select></div>
       </div>
-      <button class="save-btn" onclick="ejecutarReporte()">Buscar</button>
+      <button class="save-btn" onclick="ejecutarReporte()"><span class="material-symbols-outlined">search</span> Buscar</button>
       <div id="repResultadoResumen" style="margin:12px 0;color:var(--text-dim);font-size:12.5px;"></div>
       <div class="report-wrap" id="repResultadoWrap" style="display:none;">
         <table class="report-table" id="repResultadoTabla"></table>
       </div>
       <div id="repExportBtns" style="display:none;">
-        <button class="print-btn" onclick="window.print()">🖨 Imprimir / PDF</button>
-        <button class="xlsx-btn" onclick="exportarReporteExcel()">📊 Descargar Excel</button>
+        <button class="print-btn" onclick="window.print()"><span class="material-symbols-outlined">print</span> Imprimir / PDF</button>
+        <button class="xlsx-btn" onclick="exportarReporteExcel()"><span class="material-symbols-outlined">download</span> Descargar Excel</button>
       </div>
     </div>
 
@@ -5977,6 +6037,36 @@ function renderProyeccionRegalos(rows){
     html += '<tr><td>'+it+'</td><td>'+totalPorItem[it]+'</td><td>'+promedio.toFixed(1)+'</td><td style="font-weight:700;color:var(--ok);">'+Math.ceil(promedio)+'</td></tr>';
   });
   document.getElementById('dashProyeccion').innerHTML = html;
+
+  // Tarjetas resumen arriba de la tabla
+  var totalProyectado = itemsOrdenados.reduce(function(a,it){ return a+Math.ceil(totalPorItem[it]/cantMeses); },0);
+  var itemTop = itemsOrdenados[0] || null;
+  var costosPorItem_ = {};
+  (CONFIG.stockRegalos||[]).forEach(function(s){
+    if(s.item.trim().toLowerCase()===NOMBRE_KIT_SEGURIDAD.toLowerCase()) return;
+    var it = s.item.trim();
+    if(!costosPorItem_[it]) costosPorItem_[it] = {unidades:0, costo:0};
+    if(Number(s.costoUnitario||0)>0){ costosPorItem_[it].unidades += Number(s.cantidad||0); costosPorItem_[it].costo += Number(s.cantidad||0)*Number(s.costoUnitario||0); }
+  });
+  var inversionEstimada = 0;
+  itemsOrdenados.forEach(function(it){
+    var c = costosPorItem_[it];
+    if(c && c.unidades>0){
+      var costoProm = c.costo/c.unidades;
+      inversionEstimada += costoProm * Math.ceil(totalPorItem[it]/cantMeses);
+    }
+  });
+  var elCards = document.getElementById('proyeccionRegalosCards');
+  if(elCards){
+    if(itemsOrdenados.length===0){
+      elCards.innerHTML = '';
+    } else {
+      elCards.innerHTML =
+        '<div class="costo-card morado"><div class="icon-badge"><span class="material-symbols-outlined">redeem</span></div><div class="valor">'+totalProyectado+' <small>uds.</small></div><div class="label">Proyectado para el próximo mes</div><div class="sub">Entre '+itemsOrdenados.length+' items distintos</div></div>'+
+        '<div class="costo-card teal"><div class="icon-badge"><span class="material-symbols-outlined">star</span></div><div class="valor" style="font-size:18px;">'+(itemTop||'—')+'</div><div class="label">Item más entregado</div><div class="sub">'+(itemTop?totalPorItem[itemTop]+' entregados en total':'')+'</div></div>'+
+        (inversionEstimada>0 ? '<div class="costo-card ambar"><div class="icon-badge"><span class="material-symbols-outlined">account_balance_wallet</span></div><div class="valor">'+fmtMoneda_(inversionEstimada)+'</div><div class="label">Inversión estimada próximo mes</div><div class="sub">Según el costo promedio cargado</div></div>' : '');
+    }
+  }
   window._proyeccionData = itemsOrdenados.map(function(it){
     return {item:it, total:totalPorItem[it], promedio:(totalPorItem[it]/cantMeses).toFixed(1), proyeccion:Math.ceil(totalPorItem[it]/cantMeses)};
   });
@@ -6068,6 +6158,55 @@ function scrollToStock(){
     if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
   }, 100);
 }
+function fmtMoneda_(n){
+  n = Number(n)||0;
+  return '$'+n.toLocaleString('es-AR',{minimumFractionDigits:0, maximumFractionDigits:0});
+}
+function renderCostosStock_(contenedorId, entradas, etiqueta){
+  var el = document.getElementById(contenedorId);
+  if(!el) return;
+  var totalUnidades = entradas.reduce(function(a,s){return a+Number(s.cantidad||0);},0);
+  var totalInvertido = entradas.reduce(function(a,s){return a+Number(s.cantidad||0)*Number(s.costoUnitario||0);},0);
+  var conCosto = entradas.filter(function(s){return Number(s.costoUnitario||0)>0;});
+  var unidadesConCosto = conCosto.reduce(function(a,s){return a+Number(s.cantidad||0);},0);
+  var costoPromedio = unidadesConCosto>0 ? totalInvertido/unidadesConCosto : 0;
+  var totalConsumido = 0;
+  var itemsUnicos = {};
+  entradas.forEach(function(s){ itemsUnicos[s.item.trim().toLowerCase()]=true; });
+  Object.keys(itemsUnicos).forEach(function(it){ totalConsumido += consumidoPorItem_(it); });
+  var costoConsumido = costoPromedio * totalConsumido;
+
+  if(entradas.length===0){
+    el.innerHTML = '<div style="grid-column:1/-1;color:var(--text-faint);font-size:12px;padding:14px;text-align:center;background:var(--panel);border:1px dashed var(--hairline);border-radius:12px;">Todavía no cargaste el costo unitario de ningún ingreso de '+etiqueta+'.</div>';
+    return;
+  }
+
+  el.innerHTML =
+    '<div class="costo-card morado">'+
+      '<div class="icon-badge"><span class="material-symbols-outlined">payments</span></div>'+
+      '<div class="valor">'+fmtMoneda_(totalInvertido)+'</div>'+
+      '<div class="label">Total invertido en '+etiqueta+'</div>'+
+      '<div class="sub">'+totalUnidades+' unidades ingresadas</div>'+
+    '</div>'+
+    '<div class="costo-card teal">'+
+      '<div class="icon-badge"><span class="material-symbols-outlined">sell</span></div>'+
+      '<div class="valor">'+(costoPromedio>0?fmtMoneda_(costoPromedio):'—')+'</div>'+
+      '<div class="label">Costo promedio por unidad</div>'+
+      '<div class="sub">'+(unidadesConCosto>0?unidadesConCosto+' unidades con costo cargado':'Cargá el costo unitario para verlo')+'</div>'+
+    '</div>'+
+    '<div class="costo-card ambar">'+
+      '<div class="icon-badge"><span class="material-symbols-outlined">local_shipping</span></div>'+
+      '<div class="valor">'+totalConsumido+' <small>uds.</small></div>'+
+      '<div class="label">Ya entregadas a clientes</div>'+
+      '<div class="sub">'+(costoConsumido>0?fmtMoneda_(costoConsumido)+' invertidos en lo entregado':'')+'</div>'+
+    '</div>'+
+    '<div class="costo-card ok">'+
+      '<div class="icon-badge"><span class="material-symbols-outlined">inventory_2</span></div>'+
+      '<div class="valor">'+(totalUnidades-totalConsumido)+' <small>uds.</small></div>'+
+      '<div class="label">Disponible en stock</div>'+
+      '<div class="sub">'+(costoPromedio>0?fmtMoneda_(costoPromedio*(totalUnidades-totalConsumido))+' en stock hoy':'')+'</div>'+
+    '</div>';
+}
 function renderStockRegalos(){
   if(!CONFIG.stockRegalos) CONFIG.stockRegalos=[];
   if(!CONFIG.stockMinimos) CONFIG.stockMinimos={};
@@ -6106,13 +6245,15 @@ function renderStockRegalos(){
       '<td>'+alerta+'</td></tr>';
   });
   document.getElementById('dashStock').innerHTML = html;
+  renderCostosStock_('costosRegalosCards', stock.filter(function(s){ return s.item.trim().toLowerCase()!==NOMBRE_KIT_SEGURIDAD.toLowerCase(); }), 'regalos corporativos');
 
-  var htmlLog = '<tr><th>Item</th><th>Cantidad</th><th>Fecha</th><th></th></tr>';
+  var htmlLog = '<tr><th>Item</th><th>Cantidad</th><th>Costo unitario</th><th>Total</th><th>Fecha</th><th></th></tr>';
   if(stock.length===0){
-    htmlLog += '<tr><td colspan="4" style="text-align:center;color:var(--text-faint);">Sin ingresos cargados.</td></tr>';
+    htmlLog += '<tr><td colspan="6" style="text-align:center;color:var(--text-faint);">Sin ingresos cargados.</td></tr>';
   }
   stock.forEach(function(s,i){
-    htmlLog += '<tr><td>'+s.item+'</td><td>'+s.cantidad+'</td><td>'+s.fecha+'</td><td><button class="del-btn" style="padding:3px 8px;margin:0;width:auto;" onclick="removeStockEntry('+i+')">🗑</button></td></tr>';
+    var costo = Number(s.costoUnitario||0);
+    htmlLog += '<tr><td>'+s.item+'</td><td>'+s.cantidad+'</td><td>'+(costo?fmtMoneda_(costo):'—')+'</td><td>'+(costo?fmtMoneda_(costo*s.cantidad):'—')+'</td><td>'+s.fecha+'</td><td><button class="del-btn" style="padding:3px 8px;margin:0;width:auto;" onclick="removeStockEntry('+i+')">🗑</button></td></tr>';
   });
   document.getElementById('dashStockLog').innerHTML = htmlLog;
 }
@@ -6254,11 +6395,12 @@ function exportarStockExcel(){
 function addStockEntry(){
   var item = document.getElementById('stockItem').value.trim();
   var cantidad = Number(document.getElementById('stockCantidad').value);
+  var costoUnitario = Number(document.getElementById('stockCosto').value) || 0;
   var fecha = document.getElementById('stockFecha').value.trim() || fmtFecha(new Date());
   if(!item || !cantidad || cantidad<=0){ showToast('Completá el item y una cantidad válida'); return; }
   if(!CONFIG.stockRegalos) CONFIG.stockRegalos=[];
-  CONFIG.stockRegalos.push({item:item, cantidad:cantidad, fecha:fecha});
-  document.getElementById('stockItem').value=''; document.getElementById('stockCantidad').value=''; document.getElementById('stockFecha').value='';
+  CONFIG.stockRegalos.push({item:item, cantidad:cantidad, costoUnitario:costoUnitario, fecha:fecha});
+  document.getElementById('stockItem').value=''; document.getElementById('stockCantidad').value=''; document.getElementById('stockCosto').value=''; document.getElementById('stockFecha').value='';
   gasPost('guardarConfig',{config:CONFIG}).then(function(){
     renderStockRegalos();
     showToast('Ingreso de stock cargado: '+cantidad+' '+item);
@@ -6302,6 +6444,22 @@ function renderProyeccionKit(rows){
     html += '<tr><td>'+NOMBRE_KIT_SEGURIDAD+'</td><td>'+total+'</td><td>'+promedio.toFixed(1)+'</td><td style="font-weight:700;color:var(--ok);">'+Math.ceil(promedio)+'</td></tr>';
   }
   document.getElementById('dashProyeccionKit').innerHTML = html;
+
+  var elCards = document.getElementById('proyeccionKitCards');
+  if(elCards){
+    if(total===0){
+      elCards.innerHTML = '';
+    } else {
+      var proyeccionUds = Math.ceil(promedio);
+      var entradasKitCosto = (CONFIG.stockRegalos||[]).filter(function(s){ return s.item.trim().toLowerCase()===NOMBRE_KIT_SEGURIDAD.toLowerCase() && Number(s.costoUnitario||0)>0; });
+      var udsConCosto = entradasKitCosto.reduce(function(a,s){return a+Number(s.cantidad||0);},0);
+      var costoTotal = entradasKitCosto.reduce(function(a,s){return a+Number(s.cantidad||0)*Number(s.costoUnitario||0);},0);
+      var costoProm = udsConCosto>0 ? costoTotal/udsConCosto : 0;
+      elCards.innerHTML =
+        '<div class="costo-card morado"><div class="icon-badge"><span class="material-symbols-outlined">health_and_safety</span></div><div class="valor">'+proyeccionUds+' <small>uds.</small></div><div class="label">Proyectado para el próximo mes</div><div class="sub">Promedio histórico: '+promedio.toFixed(1)+'/mes</div></div>'+
+        (costoProm>0 ? '<div class="costo-card ambar"><div class="icon-badge"><span class="material-symbols-outlined">account_balance_wallet</span></div><div class="valor">'+fmtMoneda_(costoProm*proyeccionUds)+'</div><div class="label">Inversión estimada próximo mes</div><div class="sub">A '+fmtMoneda_(costoProm)+' por unidad</div></div>' : '');
+    }
+  }
 }
 function renderStockKit(){
   if(!CONFIG.stockRegalos) CONFIG.stockRegalos=[];
@@ -6321,18 +6479,21 @@ function renderStockKit(){
     '<td><input type="number" min="0" value="'+minimo+'" style="width:70px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:6px;color:var(--text);padding:4px 6px;font-family:\'IBM Plex Mono\',monospace;font-size:12px;" onchange="updateStockMinimo(\''+item+'\', this.value)"></td>'+
     '<td>'+alerta+'</td></tr>';
   document.getElementById('dashStockKit').innerHTML = html;
+  var entradasKitParaCosto = CONFIG.stockRegalos.filter(function(s){ return s.item.trim().toLowerCase()===item.toLowerCase(); });
+  renderCostosStock_('costosKitCards', entradasKitParaCosto, 'kit de seguridad');
 
   renderStockPorMarca_([item], 'dashStockKitPorMarca');
   renderStockPorSucursal_([item], 'dashStockKitPorSucursal');
   renderDistribucionKit_(item);
 
-  var htmlLog = '<tr><th>Cantidad</th><th>Fecha</th><th></th></tr>';
+  var htmlLog = '<tr><th>Cantidad</th><th>Costo unitario</th><th>Total</th><th>Fecha</th><th></th></tr>';
   var entradasKit = CONFIG.stockRegalos.map(function(s,i){ return {s:s, i:i}; }).filter(function(x){ return x.s.item.trim().toLowerCase()===item.toLowerCase(); });
   if(entradasKit.length===0){
-    htmlLog += '<tr><td colspan="3" style="text-align:center;color:var(--text-faint);">Sin ingresos cargados.</td></tr>';
+    htmlLog += '<tr><td colspan="5" style="text-align:center;color:var(--text-faint);">Sin ingresos cargados.</td></tr>';
   }
   entradasKit.forEach(function(x){
-    htmlLog += '<tr><td>'+x.s.cantidad+'</td><td>'+x.s.fecha+'</td><td><button class="del-btn" style="padding:3px 8px;margin:0;width:auto;" onclick="removeStockEntry('+x.i+')">🗑</button></td></tr>';
+    var costo = Number(x.s.costoUnitario||0);
+    htmlLog += '<tr><td>'+x.s.cantidad+'</td><td>'+(costo?fmtMoneda_(costo):'—')+'</td><td>'+(costo?fmtMoneda_(costo*x.s.cantidad):'—')+'</td><td>'+x.s.fecha+'</td><td><button class="del-btn" style="padding:3px 8px;margin:0;width:auto;" onclick="removeStockEntry('+x.i+')">🗑</button></td></tr>';
   });
   document.getElementById('dashStockKitLog').innerHTML = htmlLog;
 }
@@ -6370,11 +6531,12 @@ function renderDistribucionKit_(item){
 }
 function addStockKitEntry(){
   var cantidad = Number(document.getElementById('stockKitCantidad').value);
+  var costoUnitario = Number(document.getElementById('stockKitCosto').value) || 0;
   var fecha = document.getElementById('stockKitFecha').value.trim() || fmtFecha(new Date());
   if(!cantidad || cantidad<=0){ showToast('Completá una cantidad válida'); return; }
   if(!CONFIG.stockRegalos) CONFIG.stockRegalos=[];
-  CONFIG.stockRegalos.push({item:NOMBRE_KIT_SEGURIDAD, cantidad:cantidad, fecha:fecha});
-  document.getElementById('stockKitCantidad').value=''; document.getElementById('stockKitFecha').value='';
+  CONFIG.stockRegalos.push({item:NOMBRE_KIT_SEGURIDAD, cantidad:cantidad, costoUnitario:costoUnitario, fecha:fecha});
+  document.getElementById('stockKitCantidad').value=''; document.getElementById('stockKitCosto').value=''; document.getElementById('stockKitFecha').value='';
   gasPost('guardarConfig',{config:CONFIG}).then(function(){
     renderStockKit();
     showToast('Ingreso de stock cargado: '+cantidad+' '+NOMBRE_KIT_SEGURIDAD);
