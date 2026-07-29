@@ -387,11 +387,13 @@
   .maestro-list-del .material-symbols-outlined{font-size:13px;}
   .maestro-list-header{display:flex;gap:10px;padding:0 10px 4px;font-size:9px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;}
   .modulos-check-row{display:flex;flex-wrap:wrap;gap:14px 22px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;padding:14px 16px;margin-bottom:10px;}
-  .mini-modulos-row{display:flex;gap:3px;flex-wrap:wrap;max-width:170px;}
+  .mini-modulos-row{display:flex;gap:3px;flex-wrap:nowrap;width:194px;}
   .mini-modulo-btn{width:24px;height:24px;border-radius:6px;border:1px solid var(--hairline);background:var(--panel-2);color:var(--text-faint);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;flex-shrink:0;}
   .mini-modulo-btn .material-symbols-outlined{font-size:14px;}
   .mini-modulo-btn.on{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);}
   .mini-modulo-btn:hover{filter:brightness(1.15);}
+  .online-dot{position:absolute;bottom:-1px;right:-1px;width:9px;height:9px;border-radius:50%;background:var(--text-faint);border:2px solid var(--panel);}
+  .online-dot.online{background:var(--ok);}
   .switch-field{display:flex;flex-direction:column;align-items:center;gap:7px;}
   .switch-field .switch-label{font-size:10.5px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;}
   .switch{position:relative;display:inline-block;width:40px;height:23px;flex-shrink:0;}
@@ -492,7 +494,7 @@
     .timeline-daylabel{width:76px;padding:8px;}
   }
 
-  /* ---- Calendario: vista línea de tiempo por administrativo (columnas = personas, lista semanal) ---- */
+  /* ---- Calendario: vista línea de tiempo por administrativo (por día = grilla de horas, por semana = lista) ---- */
   .tl-admin-wrap{display:flex;gap:12px;min-width:0;align-items:flex-start;}
   .tl-admin-col{min-width:200px;max-width:240px;flex:1;background:var(--panel);border:1px solid var(--hairline);border-radius:12px;overflow:hidden;}
   .tl-admin-col-header{padding:10px 12px;border-bottom:1px solid var(--hairline);background:var(--panel-2);}
@@ -507,6 +509,17 @@
   .tl-admin-item.entregada{opacity:.5;}
   .tl-admin-item.confirmada{box-shadow:inset 0 0 0 1px var(--ok);}
   @media(max-width:900px){ .tl-admin-wrap{flex-wrap:wrap;} .tl-admin-col{min-width:160px;} }
+  /* Vista por día: columna fija de horas + tarjetas posicionadas por horario real */
+  .tl-admin-timecol{width:52px;flex-shrink:0;position:sticky;left:0;background:var(--panel);z-index:2;border-right:1px solid var(--hairline);}
+  .tl-admin-timecol .tl-admin-headerpad{height:56px;border-bottom:1px solid var(--hairline);}
+  .tl-admin-timecol .tl-hour-mark{height:64px;font-size:9.5px;color:var(--text-faint);text-align:right;padding:2px 6px 0 0;font-family:'IBM Plex Mono',monospace;box-sizing:border-box;border-bottom:1px dashed var(--hairline);}
+  .tl-admin-col-body{position:relative;background-image:repeating-linear-gradient(to bottom, var(--hairline) 0, var(--hairline) 1px, transparent 1px, transparent 64px);}
+  .tl-admin-bar{position:absolute;left:4px;right:4px;border-radius:8px;background:var(--accent);color:#1a1206;font-size:10.5px;font-weight:700;padding:5px 8px;overflow:hidden;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.18);transition:filter .12s,z-index 0s;line-height:1.3;}
+  .tl-admin-bar:hover{filter:brightness(1.1);z-index:5;}
+  .tl-admin-bar .h{font-family:'IBM Plex Mono',monospace;font-size:9.5px;opacity:.8;}
+  .tl-admin-bar-veh{display:block;font-size:9px;font-weight:600;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tl-admin-bar.entregada{opacity:.5;}
+  .tl-admin-bar.confirmada{box-shadow:0 2px 6px rgba(0,0,0,.18), inset 0 0 0 2px var(--ok);}
   .horario-slot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 11px;border-radius:8px;margin-bottom:4px;cursor:pointer;font-size:12px;transition:background .12s;}
   .horario-slot .hora{font-family:'IBM Plex Mono',monospace;font-weight:700;flex-shrink:0;}
   .horario-slot .info{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;}
@@ -920,7 +933,11 @@
 
           <div id="calVistaLinea" style="display:none;">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
-              <div class="cal-nav">
+              <div class="filter-pills" style="margin:0;" id="timelinePeriodoToggle">
+                <button class="filter-pill active" onclick="setTimelinePeriodo('dia', this)">Por día</button>
+                <button class="filter-pill" onclick="setTimelinePeriodo('semana', this)">Por semana</button>
+              </div>
+              <div class="cal-nav" style="margin-left:auto;">
                 <button onclick="shiftTimeline(-1)">‹</button>
                 <div class="cal-title" id="timelineTitle">—</div>
                 <button onclick="shiftTimeline(1)">›</button>
@@ -1411,7 +1428,14 @@
         <div class="form-field full"><label>Teléfono de contacto (para los mails)</label><input id="cfgTelefono"></div>
         <div class="form-field full"><label>Copia siempre a (todas las confirmaciones y recordatorios)</label><input type="email" id="cfgCopiaA"></div>
         <div class="form-field full"><label>Duración estimada de la entrega (minutos) — se usa en todos los mails, de las 4 marcas</label><input type="number" id="cfgDuracion" min="1"></div>
-        <div class="form-field full"><label>Contraseña de "Acceso libre" (vendedores sin usuario propio)</label><input id="cfgAccesoLibrePassword" placeholder="Dejalo vacío para no pedir contraseña"></div>
+        <div class="form-field full">
+          <label>Acceso libre (vendedores sin usuario propio)</label>
+          <div style="display:flex;align-items:center;gap:12px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;padding:10px 14px;">
+            <label class="switch"><input type="checkbox" id="cfgAccesoLibreRequierePassword" onchange="onCambioAccesoLibreSwitch()"><span class="switch-slider"></span></label>
+            <span id="cfgAccesoLibreSwitchTexto" style="font-size:12px;color:var(--text-dim);">Acceso libre sin contraseña</span>
+          </div>
+          <input id="cfgAccesoLibrePassword" placeholder="Contraseña para el acceso libre" style="margin-top:8px;display:none;">
+        </div>
       </div>
       <button class="save-btn" onclick="guardarDirecciones()">Guardar direcciones y teléfono</button>
     </div>
@@ -1459,11 +1483,15 @@
         <div class="form-field" id="uPasswordWrap"><label>Contraseña inicial</label><input id="uPassword" type="text" placeholder="Mínimo 4 caracteres" autocomplete="off"></div>
         <div class="form-field"><label>Rol</label>
           <select id="uRol">
-            <option value="vendedor">Vendedor (solo lectura)</option>
-            <option value="administrativo">Administrativo (edita, sin Maestro)</option>
-            <option value="calidad">Maestro (acceso total)</option>
-            <option value="tv">TV Recepción (solo pantalla, sin acceso al sistema)</option>
+            <option value="vendedor">Vendedor</option>
+            <option value="administrativo">Administrativo</option>
+            <option value="recepcion">Recepción</option>
+            <option value="supervisor">Supervisor</option>
+            <option value="calidad">Calidad</option>
+            <option value="maestro">Maestro</option>
+            <option value="tv">TV Recepción</option>
           </select>
+          <div style="font-size:10.5px;color:var(--text-faint);margin-top:4px;">El rol es solo una etiqueta descriptiva — lo que ve y puede hacer cada usuario lo definís abajo, en "Módulos".</div>
         </div>
       </div>
       <div style="font-size:11px;color:var(--text-faint);margin:2px 0 6px;">Opcional — módulos que puede ver este usuario en el menú. Si no tildás ninguno, se usan los del rol por defecto.</div>
@@ -1861,9 +1889,15 @@ function cerrarSesion(){
 }
 function usuarioActual(){ var s=sesionActual(); return s ? s.nombre : ''; }
 function rolActual(){ var s=sesionActual(); return s ? s.rol : null; }
-function esCalidad(){ return rolActual()==='calidad'; }
-function puedeEditar(){ var r=rolActual(); return r==='calidad' || r==='administrativo'; }
-function etiquetaRol_(r){ return r==='calidad'?'Maestro':(r==='administrativo'?'Administrativo':(r==='tv'?'TV Recepción':'Vendedor — solo lectura')); }
+// El rol ya no "encierra" los permisos por sí solo — es una etiqueta descriptiva.
+// La autoridad real de Maestro también la puede dar el módulo "maestro" (ver modulosUsuarioActual()).
+function modulosUsuarioActual(){ var s=sesionActual(); return (s && s.modulos) || []; }
+function esCalidad(){ var r=rolActual(); return r==='calidad' || r==='maestro' || modulosUsuarioActual().indexOf('maestro')>-1; }
+function puedeEditar(){ var r=rolActual(); return esCalidad() || r==='administrativo' || r==='supervisor' || r==='recepcion'; }
+function etiquetaRol_(r){
+  var etiquetas = {calidad:'Calidad', maestro:'Maestro', administrativo:'Administrativo', vendedor:'Vendedor', tv:'TV Recepción', recepcion:'Recepción', supervisor:'Supervisor'};
+  return etiquetas[r] || r;
+}
 function esTvRecepcion(){ return rolActual()==='tv'; }
 function actualizarBotonUsuario(){
   var s=sesionActual();
@@ -2035,7 +2069,7 @@ function renderUsuariosTabla_(){
       var nombreEsc = u.nombre.replace(/'/g,"\\'");
       var modulosUsuario = u.modulos || [];
       html += '<tr>'+
-        '<td><div class="user-cell"><div class="user-avatar'+(u.activo?'':' inactivo')+'">'+iniciales_(u.nombre)+'</div><div><div class="user-name">'+u.nombre+'</div><div class="user-username">@'+u.usuario+'</div></div></div></td>'+
+        '<td><div class="user-cell"><div class="user-avatar'+(u.activo?'':' inactivo')+'" style="position:relative;">'+iniciales_(u.nombre)+'<span class="online-dot'+(u.online?' online':'')+'" title="'+(u.online?'Online':'Offline')+'"></span></div><div><div class="user-name">'+u.nombre+'</div><div class="user-username">@'+u.usuario+'</div></div></div></td>'+
         '<td>'+(u.email||'<span style="color:var(--text-faint);">—</span>')+'</td>'+
         '<td>'+etiquetaRol_(u.rol)+'</td>'+
         '<td>'+(u.activo?'<span class="tag ok">Activo</span>':'<span class="tag danger">Inactivo</span>')+'</td>'+
@@ -2050,6 +2084,7 @@ function renderUsuariosTabla_(){
           '<div class="user-menu-wrap">'+
             '<button class="user-menu-btn" onclick="toggleUserMenu(\'um_'+u.usuario+'\',event)"><span class="material-symbols-outlined">more_vert</span></button>'+
             '<div class="user-menu-dropdown" id="um_'+u.usuario+'">'+
+              '<button onclick="mostrarUltimoIngreso_(\''+nombreEsc+'\',\''+(u.ultimoIngreso||'')+'\')"><span class="material-symbols-outlined">history</span>Último ingreso</button>'+
               (u.email ? '<button onclick="reenviarCredencialesUI(\''+u.usuario+'\')"><span class="material-symbols-outlined">mail</span>Reenviar mail</button>' : '')+
               '<button onclick="resetPasswordUsuarioUI(\''+u.usuario+'\')"><span class="material-symbols-outlined">key</span>Resetear contraseña</button>'+
               '<button onclick="toggleActivoUsuarioUI(\''+u.usuario+'\','+(!u.activo)+')"><span class="material-symbols-outlined">'+(u.activo?'block':'check_circle')+'</span>'+(u.activo?'Desactivar':'Reactivar')+'</button>'+
@@ -2063,6 +2098,11 @@ function renderUsuariosTabla_(){
   }).catch(function(){
     tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">No se pudo conectar.</th></tr>';
   });
+}
+function mostrarUltimoIngreso_(nombre, ultimoIngreso){
+  if(!ultimoIngreso){ showToast(nombre+' todavía no inició sesión.'); return; }
+  var fecha = new Date(ultimoIngreso);
+  showToast(nombre+' — último ingreso: '+fecha.toLocaleString('es-AR'));
 }
 function toggleModuloUsuarioInline(usuario, modulo, btn){
   var u = (window._usuariosCache||[]).find(function(x){return x.usuario===usuario;});
@@ -2920,7 +2960,7 @@ function renderHeroProximaEntrega_(r){
 
   el.innerHTML =
     '<div class="hero-proxima">'+
-      '<div>'+
+      '<div style="min-width:0;flex:1;">'+
         '<div class="tag-top"><span class="material-symbols-outlined">bolt</span>Próxima entrega inminente</div>'+
         '<h3>'+r.cliente+'</h3>'+
         '<div class="sub">'+(r.chasis?'<span class="vin">VIN: '+r.chasis+'</span>':'')+'<span>'+b.label+' '+r.modelo+'</span></div>'+
@@ -2932,7 +2972,7 @@ function renderHeroProximaEntrega_(r){
         '</div>'+
         (controles?'<div class="hero-controles">'+controles+'</div>':'')+
       '</div>'+
-      '<button class="cta-btn" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">Preparar Entrega <span class="material-symbols-outlined">arrow_forward</span></button>'+
+      '<button class="cta-btn" style="flex-shrink:0;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">Preparar Entrega <span class="material-symbols-outlined">arrow_forward</span></button>'+
     '</div>';
 }
 function heroToggleAccesorio(marca,id){
@@ -3114,13 +3154,14 @@ function renderCalendar(){
   }
   document.getElementById('calGrid').innerHTML=html;
 }
-// ---- Calendario: vista línea de tiempo por administrativo (navegación semanal) ----
+// ---- Calendario: vista línea de tiempo por administrativo (por día o por semana) ----
 var calVistaActual = 'mensual';
+var timelinePeriodo = 'dia'; // 'dia' | 'semana'
 var timelineDate = new Date();
 var TIMELINE_DESDE_MIN = horaAMinutos_('08:00');
 var TIMELINE_HASTA_MIN = horaAMinutos_('19:00');
 function renderTimelineActiva_(){
-  renderTimelinePorAdministrativo_();
+  if(timelinePeriodo==='dia') renderTimelinePorAdminDia_(); else renderTimelinePorAdminSemana_();
 }
 function setCalendarioVista(modo){
   calVistaActual = modo;
@@ -3130,9 +3171,15 @@ function setCalendarioVista(modo){
   document.getElementById('calVistaBtnLinea').classList.toggle('active', modo==='linea');
   if(modo==='linea') renderTimelineActiva_();
 }
+function setTimelinePeriodo(p, btn){
+  timelinePeriodo = p;
+  document.querySelectorAll('#timelinePeriodoToggle .filter-pill').forEach(function(b){b.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+  renderTimelineActiva_();
+}
 function shiftTimeline(dir){
-  timelineDate.setDate(timelineDate.getDate()+dir*7);
-  renderTimelinePorAdministrativo_();
+  timelineDate.setDate(timelineDate.getDate()+(timelinePeriodo==='dia'?dir:dir*7));
+  renderTimelineActiva_();
 }
 function diasDeLaSemanaTimeline_(){
   var d = new Date(timelineDate);
@@ -3142,7 +3189,68 @@ function diasDeLaSemanaTimeline_(){
   for(var i=0;i<7;i++){ var x=new Date(lunes); x.setDate(lunes.getDate()+i); dias.push(x); }
   return dias;
 }
-function renderTimelinePorAdministrativo_(){
+function ordenAdministrativos_(nombres){
+  var ordenMaestro = ((CONFIG.maestros && CONFIG.maestros.administrativos) || []).map(function(a){return a.nombre;});
+  return nombres.slice().sort(function(a,b){
+    var ia=ordenMaestro.indexOf(a), ib=ordenMaestro.indexOf(b);
+    if(ia===-1) ia=999; if(ib===-1) ib=999;
+    return ia-ib;
+  });
+}
+
+// ---- Vista por día: columnas = administrativos, con hora real en el eje vertical ----
+function renderTimelinePorAdminDia_(){
+  var grid = document.getElementById('timelineAdminGrid');
+  if(!grid) return;
+  var fecha = new Date(timelineDate);
+  var fechaStr = fmtFecha(fecha);
+  var tituloEl = document.getElementById('timelineTitle');
+  if(tituloEl) tituloEl.textContent = DIAS[fecha.getDay()]+' '+fechaStr;
+
+  var rows = entregasContexto().filter(function(r){ return r.fecha===fechaStr; });
+
+  var administrativos = [];
+  rows.forEach(function(r){
+    var nombre = r.administrativo || 'Sin administrativo asignado';
+    if(administrativos.indexOf(nombre)===-1) administrativos.push(nombre);
+  });
+  administrativos = ordenAdministrativos_(administrativos);
+
+  if(administrativos.length===0){
+    grid.innerHTML = '<div class="tv-single-empty" style="min-height:30vh;">Nadie tiene entregas agendadas hoy.</div>';
+    return;
+  }
+
+  var horaDesdeH = Math.floor(TIMELINE_DESDE_MIN/60), horaHastaH = Math.ceil(TIMELINE_HASTA_MIN/60);
+  var horasMarcas = '';
+  for(var h=horaDesdeH; h<=horaHastaH; h++){ horasMarcas += '<div class="tl-hour-mark">'+String(h).padStart(2,'0')+':00</div>'; }
+  var alturaTotalPx = (horaHastaH-horaDesdeH)*64;
+
+  var cols = administrativos.map(function(nombre){
+    var entregasAdmin = rows.filter(function(r){ return (r.administrativo||'Sin administrativo asignado')===nombre; });
+    var barsHtml = entregasAdmin.map(function(r){
+      var inicio = horaAMinutos_(r.hora);
+      var dur = r.duracionMinutos || 60;
+      var top = Math.max(0, (inicio-TIMELINE_DESDE_MIN)/60*64);
+      var height = Math.max(dur/60*64 - 4, 40);
+      var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
+      var cls = 'tl-admin-bar'+(r.entregada?' entregada':(r.confirmado?' confirmada':''));
+      return '<div class="'+cls+'" style="top:'+top+'px;height:'+height+'px;background:var('+b.color+');" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')" title="'+r.cliente+' · '+r.hora+' hs · '+r.modelo+'"><span class="h">'+r.hora+'</span> '+r.cliente+'<span class="tl-admin-bar-veh">'+b.label+' '+r.modelo+'</span></div>';
+    }).join('');
+    return '<div class="tl-admin-col">'+
+      '<div class="tl-admin-col-header"><div class="nom">'+nombre+'</div><div class="cant">'+entregasAdmin.length+' entrega'+(entregasAdmin.length===1?'':'s')+'</div></div>'+
+      '<div class="tl-admin-col-body" style="height:'+alturaTotalPx+'px;">'+barsHtml+'</div>'+
+    '</div>';
+  }).join('');
+
+  grid.innerHTML = '<div class="tl-admin-wrap">'+
+    '<div class="tl-admin-timecol"><div class="tl-admin-headerpad"></div>'+horasMarcas+'</div>'+
+    cols+
+  '</div>';
+}
+
+// ---- Vista por semana: columnas = administrativos, lista con fecha + hora de cada entrega ----
+function renderTimelinePorAdminSemana_(){
   var grid = document.getElementById('timelineAdminGrid');
   if(!grid) return;
   var dias = diasDeLaSemanaTimeline_();
@@ -3152,19 +3260,12 @@ function renderTimelinePorAdministrativo_(){
 
   var rows = entregasContexto().filter(function(r){ return fechasSemana.indexOf(r.fecha)>-1; });
 
-  // Solo administrativos con al menos una entrega esta semana
   var administrativosConEntregas = [];
   rows.forEach(function(r){
     var nombre = r.administrativo || 'Sin administrativo asignado';
     if(administrativosConEntregas.indexOf(nombre)===-1) administrativosConEntregas.push(nombre);
   });
-  // Orden: el mismo orden que en Configurar equipo, y al final los que no estén ahí
-  var ordenMaestro = ((CONFIG.maestros && CONFIG.maestros.administrativos) || []).map(function(a){return a.nombre;});
-  administrativosConEntregas.sort(function(a,b){
-    var ia=ordenMaestro.indexOf(a), ib=ordenMaestro.indexOf(b);
-    if(ia===-1) ia=999; if(ib===-1) ib=999;
-    return ia-ib;
-  });
+  administrativosConEntregas = ordenAdministrativos_(administrativosConEntregas);
 
   if(administrativosConEntregas.length===0){
     grid.innerHTML = '<div class="tv-single-empty" style="min-height:30vh;">Nadie tiene entregas agendadas esta semana.</div>';
@@ -4549,6 +4650,9 @@ function openConfig(){
   renderDireccionesUI();
   document.getElementById('cfgTelefono').value = CONFIG.telefonoContacto || '';
   document.getElementById('cfgAccesoLibrePassword').value = CONFIG.accesoLibrePassword || '';
+  var requierePass = !!CONFIG.accesoLibrePassword;
+  document.getElementById('cfgAccesoLibreRequierePassword').checked = requierePass;
+  actualizarUIAccesoLibreSwitch_(requierePass);
   var modActivos = CONFIG.modulosActivos || {};
   document.querySelectorAll('#cfgModulosRow input').forEach(function(c){ c.checked = modActivos[c.value]!==false; });
   document.getElementById('cfgCopiaA').value = CONFIG.copiaSiempreA || '';
@@ -4750,6 +4854,14 @@ function addFeriado(){
   persistirConfig('Feriado agregado');
 }
 function removeFeriado(i){ CONFIG.bloqueos.feriados.splice(i,1); renderBloqueoTags(); checkBloqueado(); persistirConfig('Eliminado'); }
+function actualizarUIAccesoLibreSwitch_(requierePass){
+  document.getElementById('cfgAccesoLibreSwitchTexto').textContent = requierePass ? 'Pedir contraseña para entrar' : 'Acceso libre sin contraseña';
+  document.getElementById('cfgAccesoLibrePassword').style.display = requierePass ? '' : 'none';
+}
+function onCambioAccesoLibreSwitch(){
+  var on = document.getElementById('cfgAccesoLibreRequierePassword').checked;
+  actualizarUIAccesoLibreSwitch_(on);
+}
 function guardarModulosActivos(){
   var activos = {};
   document.querySelectorAll('#cfgModulosRow input').forEach(function(c){ activos[c.value] = c.checked; });
@@ -4766,7 +4878,9 @@ function guardarDirecciones(){
     });
   });
   CONFIG.telefonoContacto = document.getElementById('cfgTelefono').value.trim();
-  CONFIG.accesoLibrePassword = document.getElementById('cfgAccesoLibrePassword').value.trim();
+  CONFIG.accesoLibrePassword = document.getElementById('cfgAccesoLibreRequierePassword').checked
+    ? document.getElementById('cfgAccesoLibrePassword').value.trim()
+    : '';
   CONFIG.copiaSiempreA = document.getElementById('cfgCopiaA').value.trim();
   CONFIG.duracionEntrega = Number(document.getElementById('cfgDuracion').value) || 60;
   persistirConfig('Direcciones y teléfono guardados');
