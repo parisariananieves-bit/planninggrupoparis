@@ -810,6 +810,25 @@
     </div>
   </div>
 
+  <div id="elegirPasswordUI" style="display:none;">
+    <div class="login-hero">
+      <div class="login-card">
+        <h1>Elegí tu <span>contraseña</span></h1>
+        <div class="sub">Usuario: <b id="elegirPasswordUsuarioTexto">—</b></div>
+        <div class="login-field">
+          <label>Nueva contraseña</label>
+          <input id="elegirPassword1" type="password" placeholder="Mínimo 4 caracteres" autocomplete="new-password">
+        </div>
+        <div class="login-field">
+          <label>Repetí la contraseña</label>
+          <input id="elegirPassword2" type="password" placeholder="Repetila" autocomplete="new-password" onkeydown="if(event.key==='Enter'){confirmarElegirPassword();}">
+        </div>
+        <button class="login-submit" onclick="confirmarElegirPassword()">Guardar contraseña</button>
+        <div id="elegirPasswordMsg" class="login-error" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
   <div id="mainShell" style="display:none;">
     <aside class="sidebar" id="sidebarEl">
       <button class="sidebar-pin" onclick="toggleSidebarPin()" title="Fijar menú expandido" id="sidebarPinBtn"><span class="material-symbols-outlined">push_pin</span></button>
@@ -2298,6 +2317,14 @@ function eliminarUsuarioUI(usuarioObjetivo, nombre){
 
 function init(){
   aplicarTema(localStorage.getItem('tema') || 'claro');
+  var params = new URLSearchParams(window.location.search);
+  var tokenUrl = params.get('token');
+  var usuarioUrl = params.get('u');
+  if(tokenUrl && usuarioUrl){
+    document.getElementById('loadingMsg').style.display='none';
+    mostrarPantallaElegirPassword_(usuarioUrl, tokenUrl);
+    return;
+  }
   cargarConfigBackend().then(function(){
     if(!sesionActual()){
       document.getElementById('loadingMsg').style.display='none';
@@ -2309,6 +2336,26 @@ function init(){
   }).catch(function(){
     document.getElementById('loadingMsg').style.display='none';
     document.getElementById('setupUI').style.display='block';
+  });
+}
+function mostrarPantallaElegirPassword_(usuario, token){
+  window._tokenPasswordUsuario = usuario;
+  window._tokenPasswordToken = token;
+  document.getElementById('elegirPasswordUsuarioTexto').textContent = usuario;
+  document.getElementById('elegirPasswordUI').style.display='block';
+}
+function confirmarElegirPassword(){
+  var p1 = document.getElementById('elegirPassword1').value;
+  var p2 = document.getElementById('elegirPassword2').value;
+  var msgEl = document.getElementById('elegirPasswordMsg');
+  if(p1.length<4){ msgEl.textContent='La contraseña tiene que tener al menos 4 caracteres.'; msgEl.style.display='block'; return; }
+  if(p1!==p2){ msgEl.textContent='Las dos contraseñas no coinciden.'; msgEl.style.display='block'; return; }
+  msgEl.style.display='none';
+  gasPost('establecerPasswordConToken',{usuario:window._tokenPasswordUsuario, token:window._tokenPasswordToken, passwordNueva:p1}).then(function(res){
+    if(res.error){ msgEl.textContent=res.error; msgEl.style.display='block'; return; }
+    document.getElementById('elegirPasswordUI').innerHTML =
+      '<div class="login-card"><h3 style="color:var(--ok);">¡Listo!</h3><p>Tu contraseña quedó guardada. Ya podés entrar con tu usuario y esta contraseña nueva.</p>'+
+      '<button class="save-btn" onclick="window.location.href=window.location.origin+window.location.pathname;">Ir al login</button></div>';
   });
 }
 
