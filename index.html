@@ -1786,6 +1786,17 @@
   </div>
 </div>
 
+<div class="modal" id="resetPasswordModal">
+  <div class="modal-head">
+    <div><h3 id="resetPasswordModalTitle">Resetear contraseña</h3><div class="sub">Vas a definir una contraseña nueva para este usuario.</div></div>
+    <button class="close" onclick="cerrarResetPasswordModal()">✕</button>
+  </div>
+  <div class="modal-body">
+    <input id="resetPasswordInput" type="text" placeholder="Nueva contraseña (mínimo 4 caracteres)" onkeydown="if(event.key==='Enter'){confirmarResetPassword();}" style="width:100%;box-sizing:border-box;padding:10px 12px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);font-size:13px;">
+    <button class="email-action-btn" onclick="confirmarResetPassword()">Guardar nueva contraseña</button>
+  </div>
+</div>
+
 <div class="modal wide" id="plantillasModal">
   <div class="modal-head">
     <div><h3>Editar plantillas de mail</h3><div class="sub">Una plantilla distinta por marca y por tipo.</div></div>
@@ -2108,7 +2119,7 @@ function renderUsuariosTabla_(){
           }).join('')+
         '</div></td>'+
         '<td><div class="user-actions" style="flex-wrap:nowrap;justify-content:flex-end;">'+
-          '<button class="pill-btn edit" onclick="editarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\',\''+(u.email||'')+'\',\''+u.rol+'\','+JSON.stringify(u.modulos||[])+')"><span class="material-symbols-outlined">edit</span>Editar</button>'+
+          '<button class="pill-btn edit" onclick="editarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\',\''+(u.email||'')+'\',\''+u.rol+'\','+JSON.stringify(u.modulos||[]).replace(/"/g,'&quot;')+')"><span class="material-symbols-outlined">edit</span>Editar</button>'+
           '<div class="user-menu-wrap">'+
             '<button class="user-menu-btn" onclick="toggleUserMenu(\'um_'+u.usuario+'\',event)"><span class="material-symbols-outlined">more_vert</span></button>'+
             '<div class="user-menu-dropdown" id="um_'+u.usuario+'">'+
@@ -2227,14 +2238,29 @@ function crearUsuarioUI(){
     renderUsuariosTabla_();
   });
 }
+var _resetPasswordUsuarioObjetivo = null;
 function resetPasswordUsuarioUI(usuarioObjetivo){
-  var nueva = prompt('Nueva contraseña para "'+usuarioObjetivo+'" (mínimo 4 caracteres):');
-  if(nueva===null || nueva.trim().length<4){ if(nueva!==null) showToast('Contraseña muy corta'); return; }
+  _resetPasswordUsuarioObjetivo = usuarioObjetivo;
+  document.getElementById('resetPasswordModalTitle').textContent = 'Resetear contraseña de "'+usuarioObjetivo+'"';
+  document.getElementById('resetPasswordInput').value = '';
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('resetPasswordModal').classList.add('show');
+  setTimeout(function(){ document.getElementById('resetPasswordInput').focus(); }, 50);
+}
+function cerrarResetPasswordModal(){
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('resetPasswordModal').classList.remove('show');
+}
+function confirmarResetPassword(){
+  var nueva = document.getElementById('resetPasswordInput').value.trim();
+  if(nueva.length<4){ showToast('Contraseña muy corta'); return; }
+  var usuarioObjetivo = _resetPasswordUsuarioObjetivo;
   var s = sesionActual();
   var pass = window._ultimaPasswordActor || credencialesActor_();
   if(pass===null) return;
-  gasPost('resetPassword',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuarioObjetivo, passwordNueva:nueva.trim()}).then(function(res){
+  gasPost('resetPassword',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuarioObjetivo, passwordNueva:nueva}).then(function(res){
     if(res.error){ showToast(res.error); return; }
+    cerrarResetPasswordModal();
     showToast(res.mailError ? 'Contraseña actualizada, pero el mail FALLÓ: '+res.mailError : 'Contraseña de "'+usuarioObjetivo+'" actualizada');
   });
 }
