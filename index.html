@@ -1467,7 +1467,7 @@
           <input id="cfgAccesoLibrePassword" placeholder="Contraseña para el acceso libre" style="margin-top:8px;display:none;">
         </div>
       </div>
-      <button class="save-btn" onclick="guardarDirecciones()">Guardar direcciones y teléfono</button>
+      <button class="save-btn" onclick="guardarDirecciones()">Guardar direcciones, teléfono y acceso libre</button>
     </div>
 
     <div class="maestro-block">
@@ -2695,6 +2695,12 @@ function setAppView(view){
 }
 
 function fmtFecha(d){ var dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0'); return dd+'/'+mm+'/'+d.getFullYear(); }
+function parseFechaDDMMYYYY_(f){ var p=f.split('/'); return new Date(Number(p[2]), Number(p[1])-1, Number(p[0])); }
+function etiquetaCortaFecha_(f){
+  var d = parseFechaDDMMYYYY_(f);
+  var dias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  return dias[d.getDay()]+' '+String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');
+}
 var DIAS=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 
 var filterCanal = null; // null = todos, 'pda' = solo canal PDA, 'tradicional' = vendedores con nombre
@@ -3216,18 +3222,29 @@ function renderResumenHoyManana(){
   var deHoy = rows.filter(function(r){ return r.fecha===hoyStr; });
   var deManana = rows.filter(function(r){ return r.fecha===mananaStr; });
 
+  var etiquetaProxima = 'Mañana';
+  if(deManana.length===0){
+    var futuras = rows.filter(function(r){ return r.fecha > hoyStr && r.fecha !== mananaStr; })
+      .sort(function(a,b){ return parseFechaDDMMYYYY_(a.fecha) - parseFechaDDMMYYYY_(b.fecha); });
+    if(futuras.length){
+      var proxFecha = futuras[0].fecha;
+      deManana = futuras.filter(function(r){ return r.fecha===proxFecha; });
+      etiquetaProxima = etiquetaCortaFecha_(proxFecha);
+    }
+  }
+
   heroActual = deHoy[0] || deManana[0] || rows[0] || null;
   renderHeroProximaEntrega_(heroActual);
   renderProximasHoras_(deHoy, heroActual);
 
   var mananaEl = document.getElementById('mananaStrip');
   if(deManana.length===0){
-    mananaEl.innerHTML = '<div style="color:var(--text-faint);font-size:12px;padding:12px;text-align:center;background:var(--panel);border:1px solid var(--hairline);border-radius:10px;">Sin entregas para mañana.</div>';
+    mananaEl.innerHTML = '<div style="color:var(--text-faint);font-size:12px;padding:12px;text-align:center;background:var(--panel);border:1px solid var(--hairline);border-radius:10px;">Sin próximas entregas cargadas.</div>';
   } else {
     mananaEl.innerHTML = '<div class="proximas-horas-grid manana-grande">' + deManana.map(function(r){
       var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
       return '<div class="proxima-hora-card manana-azul" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
-        '<div class="hora-box"><span class="dia">Mañana</span>'+r.hora+'</div>'+
+        '<div class="hora-box"><span class="dia">'+etiquetaProxima+'</span>'+r.hora+'</div>'+
         '<div class="info">'+
           '<div class="cli">'+r.cliente+'</div>'+
           '<div class="mod"><span class="dot" style="background:var('+b.color+');"></span>'+b.label+' '+r.modelo+'</div>'+
@@ -3546,6 +3563,7 @@ function renderHorariosDia_(){
   document.getElementById('horariosDiaGrilla').innerHTML = html || '<div style="color:var(--text-faint);font-size:12.5px;padding:14px;text-align:center;">Sin horarios configurados para este día.</div>';
 }
 function reservarHorario_(fechaStr, horaSlot){
+  if(!puedeEditar()){ showToast('Tu usuario no tiene permiso para agendar entregas.'); return; }
   var p = fechaStr.split('/');
   currentDate = new Date(Number(p[2]), Number(p[1])-1, Number(p[0]));
   openNewDelivery();
@@ -4396,6 +4414,7 @@ function responsableAutomatico_(marca, sucursal){
   return nombreDeMaestro_(CONFIG.maestros.responsables[0]) || '';
 }
 function openNewDelivery(){
+  if(!puedeEditar()){ showToast('Tu usuario no tiene permiso para agendar entregas.'); setAppView('dashboard'); return; }
   document.getElementById('nMarca').innerHTML = BRANDS.map(function(b){
     return '<option value="'+b.id+'" '+(b.id===currentBrand?'selected':'')+'>'+b.label+'</option>';
   }).join('');
@@ -5164,7 +5183,7 @@ function guardarDirecciones(){
     : '';
   CONFIG.copiaSiempreA = document.getElementById('cfgCopiaA').value.trim();
   CONFIG.duracionEntrega = Number(document.getElementById('cfgDuracion').value) || 60;
-  persistirConfig('Direcciones y teléfono guardados');
+  persistirConfig('Direcciones, teléfono y acceso libre guardados');
 }
 
 function openPlantillas(){
