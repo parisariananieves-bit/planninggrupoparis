@@ -423,6 +423,7 @@
   .hero-proxima .cta-btn:hover{filter:brightness(1.08);}
   .hero-controles{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
   .hero-chip{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:20px;padding:7px 13px;font-size:11.5px;font-weight:700;cursor:pointer;transition:filter .12s;}
+  .hero-chip.readonly{cursor:default;opacity:.7;}
   .hero-chip .material-symbols-outlined{font-size:15px;}
   .hero-chip:hover{filter:brightness(1.12);}
   .hero-chip.ok{background:var(--ok-soft);color:var(--ok);}
@@ -1519,6 +1520,7 @@
           <select id="uRol">
             <option value="vendedor">Vendedor</option>
             <option value="administrativo">Administrativo</option>
+            <option value="logistica">Logística</option>
             <option value="recepcion">Recepción</option>
             <option value="supervisor">Supervisor</option>
             <option value="calidad">Calidad</option>
@@ -1596,10 +1598,8 @@
               <div class="tv-hoy-list" id="tvHoyList"></div>
             </div>
             <div class="tv-col-side">
-              <div class="tv-section-title">Próximas entregas</div>
+              <div class="tv-section-title" style="margin-top:18px;">Próximas entregas</div>
               <div class="tv-proximas-list" id="tvProximasList"></div>
-              <div class="tv-section-title" style="margin-top:18px;">Calendario</div>
-              <div class="tv-cal-mini" id="tvCalMini"></div>
             </div>
           </div>
         </div>
@@ -1930,7 +1930,9 @@ function toggleTheme(){
 // ------------------------------------------------------------
 // Roles: 'calidad' (acceso total, incluido el Maestro y gestión de
 // usuarios), 'administrativo' (puede cargar y editar entregas, pero
-// no entra al Maestro), 'vendedor' (solo puede ver, no editar nada).
+// no entra al Maestro), 'logistica' (igual que administrativo: puede
+// editar entregas — preparación de accesorios, kit, regalos, etc.),
+// 'vendedor' (solo puede ver, no editar nada).
 // ============================================================
 function sesionActual(){
   try{
@@ -1959,9 +1961,9 @@ function rolActual(){ var s=sesionActual(); return s ? s.rol : null; }
 // La autoridad real de Maestro también la puede dar el módulo "maestro" (ver modulosUsuarioActual()).
 function modulosUsuarioActual(){ var s=sesionActual(); return (s && s.modulos) || []; }
 function esCalidad(){ var r=rolActual(); return r==='calidad' || r==='maestro' || modulosUsuarioActual().indexOf('maestro')>-1; }
-function puedeEditar(){ var r=rolActual(); return esCalidad() || r==='administrativo' || r==='supervisor' || r==='recepcion'; }
+function puedeEditar(){ var r=rolActual(); return esCalidad() || r==='administrativo' || r==='supervisor' || r==='recepcion' || r==='logistica'; }
 function etiquetaRol_(r){
-  var etiquetas = {calidad:'Calidad', maestro:'Maestro', administrativo:'Administrativo', vendedor:'Vendedor', tv:'TV Recepción', recepcion:'Recepción', supervisor:'Supervisor'};
+  var etiquetas = {calidad:'Calidad', maestro:'Maestro', administrativo:'Administrativo', vendedor:'Vendedor', tv:'TV Recepción', recepcion:'Recepción', supervisor:'Supervisor', logistica:'Logística'};
   return etiquetas[r] || r;
 }
 function esTvRecepcion(){ return rolActual()==='tv'; }
@@ -2595,7 +2597,6 @@ function tvRenderSingleCard(){
 function renderModoTV(){
   var hoyList = document.getElementById('tvHoyList');
   var proxList = document.getElementById('tvProximasList');
-  var calMini = document.getElementById('tvCalMini');
   if(!hoyList) return; // la vista no está montada
 
   var rows = pendientesTv_();
@@ -2626,8 +2627,6 @@ function renderModoTV(){
     : proximas.map(function(r){
         return '<div class="tv-prox-card"><span class="tv-prox-fecha">'+r.fecha+' · '+r.hora+'</span><span class="tv-prox-cli">'+r.cliente+'</span></div>';
       }).join('');
-
-  renderCalMiniTV_(calMini, rows);
 }
 // Todas las entregas pendientes de todas las marcas y sucursales (el modo TV no filtra por pestaña).
 function pendientesTv_(){
@@ -3088,28 +3087,29 @@ function renderHeroProximaEntrega_(r){
   var hoyStr = fmtFecha(new Date());
   var esHoy = r.fecha===hoyStr;
 
+  var puedeHero = puedeEditar();
   var controles = '';
   if(r.accesorios){
-    controles += '<button class="hero-chip '+(r.accesoriosColocado?'ok':'warn')+'" onclick="heroToggleAccesorio(\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">build</span>Accesorio: '+(r.accesoriosColocado?'Colocado':'Pendiente')+'</button>';
+    controles += '<button class="hero-chip '+(r.accesoriosColocado?'ok':'warn')+(puedeHero?'':' readonly')+'" '+(puedeHero?'onclick="heroToggleAccesorio(\''+r.marca+'\',\''+r.id+'\')"':'')+'><span class="material-symbols-outlined">build</span>Accesorio: '+(r.accesoriosColocado?'Colocado':'Pendiente')+'</button>';
   }
   if(r.campanaTexto){
-    controles += '<button class="hero-chip '+(r.campanaControlada?'ok':'warn')+'" onclick="heroToggleCampana(\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">campaign</span>Campaña: '+(r.campanaControlada?'Controlada':'Pendiente')+'</button>';
+    controles += '<button class="hero-chip '+(r.campanaControlada?'ok':'warn')+(puedeHero?'':' readonly')+'" '+(puedeHero?'onclick="heroToggleCampana(\''+r.marca+'\',\''+r.id+'\')"':'')+'><span class="material-symbols-outlined">campaign</span>Campaña: '+(r.campanaControlada?'Controlada':'Pendiente')+'</button>';
   }
   if(b.onstar){
     var pasosOk = ONSTAR_PASOS.filter(function(p){return r[p.key];}).length;
     controles += '<button class="hero-chip '+(pasosOk===ONSTAR_PASOS.length?'ok':'warn')+'" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">satellite_alt</span>OnStar: '+pasosOk+'/'+ONSTAR_PASOS.length+'</button>';
   }
   if(r.llaveDuplicada){
-    controles += '<button class="hero-chip '+(r.llaveDuplicadaEntregada?'ok':'warn')+'" onclick="heroToggleLlave(\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">key</span>Llave: '+(r.llaveDuplicadaEntregada?'Entregada':'Pendiente')+'</button>';
+    controles += '<button class="hero-chip '+(r.llaveDuplicadaEntregada?'ok':'warn')+(puedeHero?'':' readonly')+'" '+(puedeHero?'onclick="heroToggleLlave(\''+r.marca+'\',\''+r.id+'\')"':'')+'><span class="material-symbols-outlined">key</span>Llave: '+(r.llaveDuplicadaEntregada?'Entregada':'Pendiente')+'</button>';
   }
   if(r.kitSeguridad){
-    controles += '<button class="hero-chip '+(r.kitSeguridadColocado?'ok':'warn')+'" onclick="heroToggleKit(\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">health_and_safety</span>Kit de seguridad: '+(r.kitSeguridadColocado?'Colocado':'Pendiente')+'</button>';
+    controles += '<button class="hero-chip '+(r.kitSeguridadColocado?'ok':'warn')+(puedeHero?'':' readonly')+'" '+(puedeHero?'onclick="heroToggleKit(\''+r.marca+'\',\''+r.id+'\')"':'')+'><span class="material-symbols-outlined">health_and_safety</span>Kit de seguridad: '+(r.kitSeguridadColocado?'Colocado':'Pendiente')+'</button>';
   }
   if(r.manual){
-    controles += '<button class="hero-chip '+(r.manualEntregado?'ok':'warn')+'" onclick="heroToggleManual(\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">menu_book</span>Manual: '+(r.manualEntregado?'Entregado':'Pendiente')+'</button>';
+    controles += '<button class="hero-chip '+(r.manualEntregado?'ok':'warn')+(puedeHero?'':' readonly')+'" '+(puedeHero?'onclick="heroToggleManual(\''+r.marca+'\',\''+r.id+'\')"':'')+'><span class="material-symbols-outlined">menu_book</span>Manual: '+(r.manualEntregado?'Entregado':'Pendiente')+'</button>';
   }
   if(r.regaloCorporativo){
-    controles += '<button class="hero-chip '+(r.regaloEstado==='Entregado'?'ok':'warn')+'" onclick="heroToggleRegalo(\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">redeem</span>Regalo: '+(r.regaloEstado==='Entregado'?'Entregado':'Pendiente')+'</button>';
+    controles += '<button class="hero-chip '+(r.regaloEstado==='Entregado'?'ok':'warn')+(puedeHero?'':' readonly')+'" '+(puedeHero?'onclick="heroToggleRegalo(\''+r.marca+'\',\''+r.id+'\')"':'')+'><span class="material-symbols-outlined">redeem</span>Regalo: '+(r.regaloEstado==='Entregado'?'Entregado':'Pendiente')+'</button>';
   }
 
   el.innerHTML =
@@ -3130,6 +3130,7 @@ function renderHeroProximaEntrega_(r){
     '</div>';
 }
 function heroToggleAccesorio(marca,id){
+  if(!puedeEditar()){ showToast('Tu usuario no tiene permiso para editar.'); return; }
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r) return;
   r.accesoriosColocado=!r.accesoriosColocado;
@@ -3140,6 +3141,7 @@ function heroToggleAccesorio(marca,id){
   renderResumenHoyManana(); renderAll();
 }
 function heroToggleCampana(marca,id){
+  if(!puedeEditar()){ showToast('Tu usuario no tiene permiso para editar.'); return; }
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r) return;
   r.campanaControlada=!r.campanaControlada;
@@ -3150,6 +3152,7 @@ function heroToggleCampana(marca,id){
   renderResumenHoyManana(); renderAll();
 }
 function heroToggleLlave(marca,id){
+  if(!puedeEditar()){ showToast('Tu usuario no tiene permiso para editar.'); return; }
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r) return;
   r.llaveDuplicadaEntregada=!r.llaveDuplicadaEntregada;
@@ -3160,6 +3163,7 @@ function heroToggleLlave(marca,id){
   renderResumenHoyManana(); renderAll();
 }
 function heroToggleKit(marca,id){
+  if(!puedeEditar()){ showToast('Tu usuario no tiene permiso para editar.'); return; }
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r) return;
   r.kitSeguridadColocado=!r.kitSeguridadColocado;
@@ -3170,6 +3174,7 @@ function heroToggleKit(marca,id){
   renderResumenHoyManana(); renderAll();
 }
 function heroToggleManual(marca,id){
+  if(!puedeEditar()){ showToast('Tu usuario no tiene permiso para editar.'); return; }
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r) return;
   r.manualEntregado=!r.manualEntregado;
@@ -3180,6 +3185,7 @@ function heroToggleManual(marca,id){
   renderResumenHoyManana(); renderAll();
 }
 function heroToggleRegalo(marca,id){
+  if(!puedeEditar()){ showToast('Tu usuario no tiene permiso para editar.'); return; }
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r) return;
   var entregado = r.regaloEstado==='Entregado';
@@ -3221,15 +3227,31 @@ function renderResumenHoyManana(){
 
   var deHoy = rows.filter(function(r){ return r.fecha===hoyStr; });
   var deManana = rows.filter(function(r){ return r.fecha===mananaStr; });
+  var hoyDateObj = parseFechaDDMMYYYY_(hoyStr);
 
   var etiquetaProxima = 'Mañana';
   if(deManana.length===0){
-    var futuras = rows.filter(function(r){ return r.fecha > hoyStr && r.fecha !== mananaStr; })
-      .sort(function(a,b){ return parseFechaDDMMYYYY_(a.fecha) - parseFechaDDMMYYYY_(b.fecha); });
+    // 1) Próxima fecha futura (después de mañana), comparando fechas reales, no texto
+    var futuras = rows.filter(function(r){
+      var d = parseFechaDDMMYYYY_(r.fecha);
+      return d > hoyDateObj && r.fecha !== mananaStr;
+    }).sort(function(a,b){ return parseFechaDDMMYYYY_(a.fecha) - parseFechaDDMMYYYY_(b.fecha); });
+
     if(futuras.length){
       var proxFecha = futuras[0].fecha;
       deManana = futuras.filter(function(r){ return r.fecha===proxFecha; });
       etiquetaProxima = etiquetaCortaFecha_(proxFecha);
+    } else {
+      // 2) No hay nada futuro cargado: mostramos lo más urgente atrasado (no entregado), si existe
+      var atrasadas = rows.filter(function(r){
+        var d = parseFechaDDMMYYYY_(r.fecha);
+        return d < hoyDateObj;
+      }).sort(function(a,b){ return parseFechaDDMMYYYY_(b.fecha) - parseFechaDDMMYYYY_(a.fecha); }); // más reciente primero
+      if(atrasadas.length){
+        var atrFecha = atrasadas[0].fecha;
+        deManana = atrasadas.filter(function(r){ return r.fecha===atrFecha; });
+        etiquetaProxima = '⚠ Atrasada · '+etiquetaCortaFecha_(atrFecha);
+      }
     }
   }
 
@@ -3520,7 +3542,7 @@ function renderHorariosDia_(){
   document.getElementById('horariosDiaTitulo').textContent = diaSemana.charAt(0).toUpperCase()+diaSemana.slice(1)+' · '+fechaStr;
 
   var toggleEl = document.getElementById('horariosDiaVistaToggle');
-  var esRecepcion = rolActual()==='recepcion';
+  var esRecepcion = rolActual()==='recepcion' || rolActual()==='vendedor';
   if(toggleEl) toggleEl.style.display = esRecepcion ? 'none' : 'flex';
 
   if(feriado || (regla && regla.desde==='00:00')){
