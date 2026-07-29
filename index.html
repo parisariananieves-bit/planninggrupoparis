@@ -309,6 +309,8 @@
   .xlsx-btn{background:var(--ok-soft);color:var(--ok);border:1px solid var(--ok);border-radius:9px;padding:9px 15px;font-weight:700;font-size:12px;cursor:pointer;margin-top:13px;transition:background .15s;}
   .xlsx-btn:hover{background:rgba(63,191,136,.25);}
   .email-preview{background:#fff;color:#1a1a1a;border-radius:9px;padding:20px 22px;font-size:12.5px;line-height:1.6;}
+  .whatsapp-preview{background:#e5ddd5;color:#111;border-radius:9px;padding:16px;font-size:12.5px;line-height:1.55;white-space:pre-wrap;max-height:50vh;overflow-y:auto;}
+  .whatsapp-preview .bubble{background:#dcf8c6;border-radius:0 10px 10px 10px;padding:12px 14px;box-shadow:0 1px 2px rgba(0,0,0,.15);}
   .email-action-btn{background:var(--accent);color:var(--bg);border:none;border-radius:8px;padding:10px 15px;font-weight:700;font-size:12.5px;cursor:pointer;width:100%;margin-top:13px;}
   .email-action-btn:disabled{opacity:.45;}
   .tpl-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
@@ -661,7 +663,7 @@
   .tv-mode-toggle{background:transparent;border:1px solid rgba(255,255,255,.15);color:#9099ac;padding:7px 13px;border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;margin-right:6px;}
   .tv-mode-toggle-row{display:flex;align-items:center;}
   .tv-mode-toggle.active{background:rgba(255,255,255,.09);color:#fff;border-color:rgba(255,255,255,.3);}
-  .tv-single-wrap{background:#05070C;border:1px solid #12161f;border-radius:18px;overflow:hidden;}
+  .tv-single-wrap{background:#05070C;border:1px solid #12161f;border-radius:18px;overflow:hidden;width:100%;box-sizing:border-box;}
   .tv-single-top{display:flex;justify-content:space-between;align-items:center;padding:26px 40px;border-bottom:1px solid rgba(255,255,255,.08);}
   .tv-single-brand{display:flex;align-items:center;gap:14px;}
   .tv-single-brand img{height:32px;width:auto;object-fit:contain;background:#fff;border-radius:8px;padding:3px 6px;}
@@ -756,7 +758,8 @@
   body.tv-mode header.topbar{display:none;}
   body.tv-mode .main-shell{margin-left:0;}
   body.tv-mode .app-content{padding:0;}
-  body.tv-mode #viewTv{margin:0;min-height:100vh;}
+  body.tv-mode #viewTv{margin:0;min-height:100vh;width:100%;}
+  body.tv-mode .app-shell,body.tv-mode .main-shell,body.tv-mode .app-content{width:100%;}
   body.role-tv .sidebar{display:none;}
   body.role-tv header.topbar{display:none;}
   body.role-tv .main-shell{margin-left:0;}
@@ -1472,6 +1475,10 @@
     </div>
     <div id="paneMaestroPermisos" style="display:none;padding:10px 0;">
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:12px;">Cada persona entra con su propio usuario y contraseña. <b>Maestro</b>: acceso total (incluido este Panel Maestro). <b>Administrativo</b>: puede cargar y editar entregas, no entra al Maestro. <b>Vendedor</b>: solo puede ver, no puede editar nada.</div>
+      <div style="position:relative;max-width:340px;margin-bottom:12px;">
+        <span class="material-symbols-outlined" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--text-faint);">search</span>
+        <input id="buscarUsuarioInput" placeholder="Buscar por nombre, usuario o email..." oninput="filtrarUsuariosTabla_()" style="width:100%;box-sizing:border-box;padding:8px 10px 8px 34px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);font-size:12px;">
+      </div>
       <div class="report-wrap" style="max-height:280px;margin-bottom:14px;">
         <table class="report-table" id="tablaUsuarios"></table>
       </div>
@@ -1583,6 +1590,12 @@
   </div>
   <div class="drawer-body">
     <button class="entrega-toggle pending" id="dEntregaToggle" onclick="toggleEntregada()">🚗 Marcar unidad como entregada</button>
+
+    <div class="section">
+      <div class="section-title">Mensaje de bienvenida (postventa)</div>
+      <div id="dBienvenidaEstado" style="display:none;font-size:12px;color:var(--ok);background:var(--ok-soft);padding:9px 11px;border-radius:7px;margin-bottom:8px;"></div>
+      <button class="comms-btn" onclick="abrirModalBienvenida()"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">forum</span> Ver / enviar mensaje de bienvenida</button>
+    </div>
 
     <div class="section">
       <div class="section-title">Datos del cliente</div>
@@ -1755,6 +1768,21 @@
   <div class="modal-body">
     <div class="email-preview" id="emailPreviewContent"></div>
     <button class="email-action-btn" id="emailActionBtn" onclick="confirmarEnvioEmail()">—</button>
+  </div>
+</div>
+
+<div class="modal" id="bienvenidaModal">
+  <div class="modal-head" id="bienvenidaModalHead">
+    <div><h3 id="bienvenidaModalTitle">—</h3><div class="sub">Mensaje de bienvenida — mandalo por WhatsApp al cliente.</div></div>
+    <button class="close" onclick="cerrarModalBienvenida()">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="whatsapp-preview" id="bienvenidaPreviewContent"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+      <button class="email-action-btn" style="flex:1;min-width:160px;" onclick="copiarMensajeBienvenida()">📋 Copiar mensaje</button>
+      <a class="email-action-btn" id="bienvenidaWhatsappLink" style="flex:1;min-width:160px;text-align:center;text-decoration:none;display:none;" href="#" target="_blank">💬 Abrir WhatsApp</a>
+    </div>
+    <button class="email-action-btn" id="bienvenidaMarcarBtn" style="margin-top:8px;background:var(--ok-soft);color:var(--ok);" onclick="marcarBienvenidaEnviada()">✓ Marcar como enviado</button>
   </div>
 </div>
 
@@ -2068,7 +2096,7 @@ function renderUsuariosTabla_(){
     (res.usuarios||[]).forEach(function(u){
       var nombreEsc = u.nombre.replace(/'/g,"\\'");
       var modulosUsuario = u.modulos || [];
-      html += '<tr>'+
+      html += '<tr data-buscar="'+(u.nombre+' '+u.usuario+' '+(u.email||'')).toLowerCase().replace(/"/g,'')+'">'+
         '<td><div class="user-cell"><div class="user-avatar'+(u.activo?'':' inactivo')+'" style="position:relative;">'+iniciales_(u.nombre)+'<span class="online-dot'+(u.online?' online':'')+'" title="'+(u.online?'Online':'Offline')+'"></span></div><div><div class="user-name">'+u.nombre+'</div><div class="user-username">@'+u.usuario+'</div></div></div></td>'+
         '<td>'+(u.email||'<span style="color:var(--text-faint);">—</span>')+'</td>'+
         '<td>'+etiquetaRol_(u.rol)+'</td>'+
@@ -2095,8 +2123,18 @@ function renderUsuariosTabla_(){
       '</tr>';
     });
     tabla.innerHTML = html;
+    filtrarUsuariosTabla_();
   }).catch(function(){
     tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">No se pudo conectar.</th></tr>';
+  });
+}
+function filtrarUsuariosTabla_(){
+  var input = document.getElementById('buscarUsuarioInput');
+  var tabla = document.getElementById('tablaUsuarios');
+  if(!input || !tabla) return;
+  var q = input.value.trim().toLowerCase();
+  Array.prototype.slice.call(tabla.querySelectorAll('tr[data-buscar]')).forEach(function(tr){
+    tr.style.display = (!q || tr.getAttribute('data-buscar').indexOf(q)>-1) ? '' : 'none';
   });
 }
 function mostrarUltimoIngreso_(nombre, ultimoIngreso){
@@ -2181,7 +2219,11 @@ function crearUsuarioUI(){
   gasPost('crearUsuario',{actorUsuario:s.usuario, actorPassword:pass, nombre:nombre, usuario:usuario, password:password, rol:rol, email:email, modulos:modulos}).then(function(res){
     if(res.error){ showToast(res.error); return; }
     cancelarEdicionUsuarioUI();
-    showToast('Usuario "'+nombre+'" creado'+(email?' — le mandamos el mail con sus datos':''));
+    if(res.mailError){
+      showToast('Usuario "'+nombre+'" creado, pero el mail FALLÓ: '+res.mailError);
+    } else {
+      showToast('Usuario "'+nombre+'" creado'+(email?' — le mandamos el mail con sus datos':''));
+    }
     renderUsuariosTabla_();
   });
 }
@@ -2193,7 +2235,7 @@ function resetPasswordUsuarioUI(usuarioObjetivo){
   if(pass===null) return;
   gasPost('resetPassword',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuarioObjetivo, passwordNueva:nueva.trim()}).then(function(res){
     if(res.error){ showToast(res.error); return; }
-    showToast('Contraseña de "'+usuarioObjetivo+'" actualizada');
+    showToast(res.mailError ? 'Contraseña actualizada, pero el mail FALLÓ: '+res.mailError : 'Contraseña de "'+usuarioObjetivo+'" actualizada');
   });
 }
 function toggleActivoUsuarioUI(usuarioObjetivo, nuevoActivo){
@@ -2213,7 +2255,7 @@ function reenviarCredencialesUI(usuarioObjetivo){
   if(pass===null) return;
   gasPost('reenviarCredenciales',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuarioObjetivo}).then(function(res){
     if(res.error){ showToast(res.error); return; }
-    showToast('Mail reenviado a "'+usuarioObjetivo+'"');
+    showToast(res.mailError ? 'FALLÓ el reenvío: '+res.mailError : 'Mail reenviado a "'+usuarioObjetivo+'"');
   });
 }
 function eliminarUsuarioUI(usuarioObjetivo, nombre){
@@ -3708,6 +3750,7 @@ function openDetail(marca, id){
   document.getElementById('dHeadSub').textContent=r.fecha+' · '+r.hora+' · '+r.modelo;
   updateEntregaToggleUI(r);
   renderEstadoComunicaciones(r);
+  renderEstadoBienvenida_(r);
   document.getElementById('dCliente').value=r.cliente;
   document.getElementById('dTelefono').value=r.telefono||'';
   document.getElementById('dEmail').value=r.email||'';
@@ -4437,6 +4480,85 @@ function openEmailPreview(tipo, marca, id){
   });
 }
 function closeEmailPreview(){ document.getElementById('overlay').classList.remove('show'); document.getElementById('emailModal').classList.remove('show'); }
+
+function construirMensajeBienvenida_(r){
+  var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
+  var postventa = (CONFIG.postventaWhatsapp && CONFIG.postventaWhatsapp[r.marca]) || '';
+  var calidad = CONFIG.telefonoContacto || '';
+  var asesor = r.vendedor || '—';
+  return '🚗 ¡Bienvenido/a a Grupo París!\n\n'+
+    '📲 WhatsApp de Postventa '+b.label+': '+(postventa||'—')+'\n'+
+    'Guardá este número en tus contactos. Será nuestro principal canal de comunicación para acompañarte durante toda la vida útil de tu vehículo.\n\n'+
+    'La entrega de tu vehículo es solo el comienzo. A partir de hoy contás con un equipo preparado para acompañarte cada vez que lo necesites.\n\n'+
+    'Nuestro objetivo es brindarte una excelente experiencia, no solo en la compra, sino también en el cuidado y mantenimiento de tu vehículo.\n\n'+
+    'A través de nuestro equipo de Postventa podrás:\n'+
+    '✔️ Solicitar turnos para los servicios de mantenimiento.\n'+
+    '✔️ Consultar sobre mantenimientos y garantías.\n'+
+    '✔️ Recibir asesoramiento y resolver cualquier duda sobre tu vehículo.\n'+
+    '✔️ Coordinar revisiones y asistencia cuando lo necesites.\n\n'+
+    'Tus contactos\n'+
+    '🚗 Asesor de Ventas: '+asesor+'\n'+
+    '🔧 Postventa: '+(postventa||'—')+'\n'+
+    '⭐ Calidad: '+(calidad||'—')+'\n\n'+
+    'Gracias por confiar en Grupo París. Esperamos seguir acompañándote en cada etapa para que disfrutes tu vehículo con la tranquilidad de contar siempre con nuestro equipo.';
+}
+
+function abrirModalBienvenida(){
+  if(!detailId) return;
+  var r = ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  if(!r) return;
+  var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
+  var mensaje = construirMensajeBienvenida_(r);
+  document.getElementById('bienvenidaModalTitle').textContent = 'Bienvenida — '+r.cliente;
+  document.getElementById('bienvenidaModalHead').style.borderBottom = '3px solid var('+b.color+')';
+  document.getElementById('bienvenidaPreviewContent').innerHTML = '<div class="bubble">'+mensaje.replace(/\n/g,'<br>')+'</div>';
+  window._bienvenidaTextoActual = mensaje;
+  var linkBtn = document.getElementById('bienvenidaWhatsappLink');
+  if(r.telefono){
+    var telLimpio = String(r.telefono).replace(/[^0-9]/g,'');
+    linkBtn.href = 'https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje);
+    linkBtn.style.display = '';
+  } else {
+    linkBtn.style.display = 'none';
+  }
+  document.getElementById('bienvenidaMarcarBtn').textContent = r.bienvenidaEnviada ? '✓ Ya marcado como enviado' : '✓ Marcar como enviado';
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('bienvenidaModal').classList.add('show');
+}
+function cerrarModalBienvenida(){
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('bienvenidaModal').classList.remove('show');
+}
+function copiarMensajeBienvenida(){
+  var texto = window._bienvenidaTextoActual || '';
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(texto).then(function(){ showToast('Mensaje copiado'); });
+  } else {
+    showToast('No se pudo copiar automáticamente — seleccioná el texto a mano.');
+  }
+}
+function marcarBienvenidaEnviada(){
+  if(!detailId) return;
+  var r = ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  if(!r) return;
+  r.bienvenidaEnviada = true;
+  r.bienvenidaFecha = fechaHoraAhora_();
+  gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{bienvenidaEnviada:true, bienvenidaFecha:r.bienvenidaFecha}});
+  logHistorial_(detailMarca, detailId, 'Mensaje de bienvenida marcado como enviado');
+  showToast('Mensaje de bienvenida marcado como enviado');
+  cerrarModalBienvenida();
+  renderEstadoBienvenida_(r);
+}
+function renderEstadoBienvenida_(r){
+  var el = document.getElementById('dBienvenidaEstado');
+  if(!el) return;
+  if(r && r.bienvenidaEnviada){
+    el.style.display = 'block';
+    el.textContent = '✓ Enviado el '+(r.bienvenidaFecha||'');
+  } else {
+    el.style.display = 'none';
+  }
+}
 function confirmarEnvioEmail(){
   var r=ENTREGAS.find(function(x){return x.marca===emailCtx.marca && x.id===emailCtx.id;});
   var btn=document.getElementById('emailActionBtn');
@@ -4649,6 +4771,7 @@ function openConfig(){
   renderBloqueoTags();
   renderDireccionesUI();
   document.getElementById('cfgTelefono').value = CONFIG.telefonoContacto || '';
+  renderPostventaWhatsappInputs_();
   document.getElementById('cfgAccesoLibrePassword').value = CONFIG.accesoLibrePassword || '';
   var requierePass = !!CONFIG.accesoLibrePassword;
   document.getElementById('cfgAccesoLibreRequierePassword').checked = requierePass;
@@ -4861,6 +4984,23 @@ function actualizarUIAccesoLibreSwitch_(requierePass){
 function onCambioAccesoLibreSwitch(){
   var on = document.getElementById('cfgAccesoLibreRequierePassword').checked;
   actualizarUIAccesoLibreSwitch_(on);
+}
+function renderPostventaWhatsappInputs_(){
+  var cont = document.getElementById('postventaWhatsappContainer');
+  if(!cont) return;
+  var actuales = CONFIG.postventaWhatsapp || {};
+  cont.innerHTML = BRANDS.map(function(b){
+    return '<div class="form-field"><label>'+b.label+'</label><input id="cfgPostventa_'+b.id+'" value="'+(actuales[b.id]||'')+'" placeholder="Ej: 2664001040"></div>';
+  }).join('');
+}
+function guardarPostventaWhatsapp(){
+  var nuevo = {};
+  BRANDS.forEach(function(b){
+    var el = document.getElementById('cfgPostventa_'+b.id);
+    if(el) nuevo[b.id] = el.value.trim();
+  });
+  CONFIG.postventaWhatsapp = nuevo;
+  persistirConfig('Números de Postventa actualizados');
 }
 function guardarModulosActivos(){
   var activos = {};
