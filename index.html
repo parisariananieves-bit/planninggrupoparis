@@ -3913,7 +3913,7 @@ function renderHorariosDia_(){
       return min>=inicio && min<fin;
     });
     if(ocupante){
-      var etiquetaMarcaCal = (ocupante.marca!==currentBrand) ? ' ('+(BRANDS.find(function(x){return x.id===ocupante.marca;})||{}).label+')' : '';
+      var etiquetaMarcaCal = (currentBrands.indexOf(ocupante.marca)===-1) ? ' ('+(BRANDS.find(function(x){return x.id===ocupante.marca;})||{}).label+')' : '';
       html += '<div class="horario-slot ocupado" onclick="openDetail(\''+ocupante.marca+'\',\''+ocupante.id+'\')">'+
         '<span class="hora">'+horaSlot+'</span><span class="info">🔴 '+ocupante.cliente+' · '+ocupante.modelo+etiquetaMarcaCal+'</span></div>';
     } else {
