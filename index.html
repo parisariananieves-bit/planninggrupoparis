@@ -757,7 +757,9 @@
     .main-shell{margin-left:48px;}
     .sidebar:hover ~ .main-shell,.sidebar.pinned ~ .main-shell{margin-left:48px;}
   }
-  .topbar{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--hairline);z-index:50;padding:10px 20px;display:flex;flex-direction:column;gap:8px;}
+  .topbar{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--hairline);z-index:50;padding:10px 20px;display:flex;flex-direction:column;gap:0;}
+  #topbarBrandsRow{max-height:200px;overflow:hidden;transition:max-height .25s ease,opacity .2s ease,margin-bottom .25s ease;opacity:1;margin-bottom:8px;}
+  #topbarBrandsRow.tb-hidden{max-height:0;opacity:0;margin-bottom:0;}
   .topbar-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .topbar-row-brands{flex-wrap:wrap;row-gap:8px;padding-bottom:2px;}
   .topbar-search{position:relative;flex:1;min-width:260px;max-width:560px;}
@@ -7185,6 +7187,25 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('/sw.js').catch(function(){});
   });
 }
+(function(){
+  var lastScrollY = 0;
+  var umbral = 12; // píxeles mínimos de scroll antes de reaccionar, para que no titile
+  function obtenerScrollY(){
+    return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+  }
+  function manejarScroll(){
+    var fila = document.getElementById('topbarBrandsRow');
+    if(!fila) return;
+    var y = obtenerScrollY();
+    if(y < 40){ fila.classList.remove('tb-hidden'); lastScrollY = y; return; } // siempre visible arriba de todo
+    if(Math.abs(y - lastScrollY) < umbral) return;
+    if(y > lastScrollY){ fila.classList.add('tb-hidden'); } // bajando → esconder
+    else { fila.classList.remove('tb-hidden'); } // subiendo → mostrar
+    lastScrollY = y;
+  }
+  window.addEventListener('scroll', manejarScroll, {passive:true});
+  document.addEventListener('scroll', manejarScroll, {passive:true, capture:true});
+})();
 init();
 </script>
 </body>
