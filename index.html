@@ -84,6 +84,12 @@
   .refresh-btn{background:var(--panel);border:1px solid var(--hairline);color:var(--text-dim);padding:8px 13px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;}
   .switcher{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
   .brand-tab{padding:8px 15px;border-radius:9px;border:1px solid var(--hairline);background:var(--panel);color:var(--text-dim);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;}
+  @media(max-width:640px){
+    .brand-tab{padding:7px 10px;font-size:11.5px;gap:5px;flex:1 1 auto;justify-content:center;}
+    .brand-tab .brand-logo-chip,.brand-tab .dot{width:16px;height:16px;}
+    .switcher{gap:6px;}
+    .sucursal-chip{padding:5px 9px;font-size:10.5px;}
+  }
   #branchToggle{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
   .sucursal-chip{padding:5px 12px;border-radius:20px;border:1px solid var(--hairline);background:var(--panel);color:var(--text-dim);font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;transition:border-color .12s,color .12s,background .12s;}
   .sucursal-chip:hover{border-color:var(--accent);color:var(--text);}
@@ -685,9 +691,15 @@
 <style>
   .app-shell{display:flex;min-height:100vh;}
   .sidebar{position:fixed;left:0;top:0;bottom:0;width:64px;background:#0A0D16;border-right:1px solid var(--hairline);z-index:65;display:flex;flex-direction:column;padding:16px 0 14px;overflow:hidden;transition:width .16s ease;}
+  .bottom-nav{display:none;position:fixed;left:0;right:0;bottom:0;height:58px;background:#0A0D16;border-top:1px solid var(--hairline);z-index:70;align-items:stretch;justify-content:space-around;padding-bottom:env(safe-area-inset-bottom);}
+  .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:9.5px;font-weight:700;}
+  .bn-item .material-symbols-outlined{font-size:21px;}
+  .bn-item.active{color:var(--accent);}
   @media(max-width:640px){
-    .sidebar{width:48px;}
-    .sidebar:hover, .sidebar.pinned{width:210px;}
+    .sidebar{width:0;border:none;}
+    .sidebar.pinned{width:210px;border-right:1px solid var(--hairline);}
+    .main-shell{margin-left:0 !important;padding-bottom:64px;}
+    .bottom-nav{display:flex;}
   }
   .sidebar:hover,.sidebar.pinned{width:216px;overflow:visible;box-shadow:6px 0 24px rgba(0,0,0,.5);}
   .sidebar-pin{position:absolute;top:14px;right:10px;background:none;border:none;color:var(--text-faint);cursor:pointer;padding:4px;border-radius:6px;opacity:0;transition:opacity .12s;}
@@ -1026,6 +1038,14 @@
         </div>
       </div>
     </aside>
+
+    <nav class="bottom-nav" id="bottomNav">
+      <button class="bn-item" id="bnDashboard" onclick="setAppView('dashboard')"><span class="material-symbols-outlined">dashboard</span><span>Inicio</span></button>
+      <button class="bn-item" id="bnNuevaentrega" onclick="openNewDelivery()"><span class="material-symbols-outlined">add_circle</span><span>Nueva</span></button>
+      <button class="bn-item" id="bnCalendario" onclick="setAppView('calendario')"><span class="material-symbols-outlined">calendar_today</span><span>Agenda</span></button>
+      <button class="bn-item" id="bnLista" onclick="setAppView('lista')"><span class="material-symbols-outlined">list_alt</span><span>Lista</span></button>
+      <button class="bn-item" id="bnMas" onclick="toggleSidebarPin()"><span class="material-symbols-outlined">menu</span><span>Más</span></button>
+    </nav>
 
     <div id="rolPreviewBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:var(--invertido);color:#fff;text-align:center;padding:7px;font-size:12.5px;font-weight:700;">
       📦 Estás viendo la app como otro rol para probarla — <button onclick="salirRolPreview()" style="background:rgba(255,255,255,.25);border:none;color:#fff;padding:3px 10px;border-radius:6px;font-weight:700;cursor:pointer;margin-left:6px;">Volver a mi vista</button>
@@ -2300,6 +2320,8 @@ function aplicarPermisosUI(){
     if(modulosUsuario) visible = modulosUsuario.indexOf(mod)>-1;
     if(modulosGlobales[mod]===false) visible = false;
     el.style.display = visible ? '' : 'none';
+    var bnEl = document.getElementById('bn'+mod.charAt(0).toUpperCase()+mod.slice(1));
+    if(bnEl) bnEl.style.display = visible ? '' : 'none';
   });
   document.body.classList.toggle('role-tv', esTvRecepcion());
 }
@@ -2957,6 +2979,8 @@ function setAppView(view){
     if(el) el.classList.toggle('active', v===view);
     var nav = document.getElementById('nav'+v.charAt(0).toUpperCase()+v.slice(1));
     if(nav) nav.classList.toggle('active', v===view);
+    var bn = document.getElementById('bn'+v.charAt(0).toUpperCase()+v.slice(1));
+    if(bn) bn.classList.toggle('active', v===view);
   });
   if(view!=='maestro'){
     var subR = document.getElementById('submenuReportes'); if(subR) subR.style.display='none';
