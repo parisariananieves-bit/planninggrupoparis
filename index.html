@@ -28,6 +28,7 @@
     --pending:#6B7385; --pending-soft:rgba(107,115,133,0.16);
     --invertido:#8B7CF6; --invertido-soft:rgba(139,124,246,0.14);
     --invertido2:#2DD4BF; --invertido2-soft:rgba(45,212,191,0.14);
+    --suc-sanjuan:#E8B23D; --suc-sanluis:#8B7CF6; --suc-villamercedes:#2DD4BF; --suc-merlo:#EC6BA6;
     --accent: var(--chevrolet); --accent-soft: var(--chevrolet-soft);
   }
   body.light-mode{
@@ -145,6 +146,16 @@
   .filter-bar .filter-field input{background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;}
   .filter-bar-sep{width:1px;align-self:stretch;background:var(--hairline);margin:2px 2px;}
   .mini-search-wrap{position:relative;max-width:320px;margin-bottom:10px;}
+  .kanban-col{background:var(--panel);border:1px solid var(--hairline);border-radius:12px;min-width:270px;max-width:270px;flex-shrink:0;display:flex;flex-direction:column;max-height:calc(100vh - 260px);}
+  .kanban-col-header{padding:12px 14px;border-bottom:1px solid var(--hairline);font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--panel);border-radius:12px 12px 0 0;}
+  .kanban-col-header .cant{background:var(--panel-2);border-radius:20px;padding:2px 9px;font-size:11px;color:var(--text-dim);}
+  .kanban-col-body{padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+  .kanban-col.sin-asignar .kanban-col-header{color:var(--warn);border-bottom-color:var(--warn);}
+  .kanban-card{background:var(--panel-2);border:1px solid var(--hairline);border-radius:10px;padding:10px 11px;cursor:default;}
+  .kanban-card .cli{font-weight:700;font-size:12.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .kanban-card .veh{font-size:11px;color:var(--text-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .kanban-card .fecha{font-size:10.5px;color:var(--text-faint);margin-top:4px;font-family:'IBM Plex Mono',monospace;}
+  .kanban-card select{width:100%;margin-top:8px;background:var(--panel);border:1px solid var(--hairline);border-radius:6px;color:var(--text);padding:6px 7px;font-size:11px;font-family:'Inter',sans-serif;}
   body.rol-preview-activo{padding-top:36px;}
   body.rol-preview-activo .sidebar{top:36px;}
   .mini-search-wrap .material-symbols-outlined{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-faint);}
@@ -930,6 +941,7 @@
         <button class="nav-item nav-item-highlight" id="navNuevaentrega" title="Nueva Entrega" onclick="openNewDelivery()"><span class="material-symbols-outlined">add_circle</span><span class="nav-label">Nueva Entrega</span></button>
         <button class="nav-item" id="navCalendario" title="Calendario" onclick="setAppView('calendario')"><span class="material-symbols-outlined">calendar_today</span><span class="nav-label">Calendario</span></button>
         <button class="nav-item" id="navLista" title="Lista de Entregas" onclick="setAppView('lista')"><span class="material-symbols-outlined">list_alt</span><span class="nav-label">Lista de Entregas</span></button>
+        <button class="nav-item" id="navKanban" title="Asignación Logística" onclick="setAppView('kanban')"><span class="material-symbols-outlined">view_kanban</span><span class="nav-label">Asignación Logística</span></button>
         <button class="nav-item" id="navReportes" title="Reportes" onclick="irAReportes()"><span class="material-symbols-outlined">analytics</span><span class="nav-label">Reportes</span></button>
         <div class="nav-submenu" id="submenuReportes" style="display:none;">
           <button class="nav-subitem" id="subReportesDashboard" onclick="setMaestroTab('dashboard')">Dashboard</button>
@@ -1220,6 +1232,12 @@
               <tbody id="tbody"></tbody>
             </table>
           </div>
+        </div>
+
+        <div class="app-view" id="viewKanban">
+          <div class="view-header"><h2>Asignación Logística</h2><p>Arrastrá — o usá el botón "Asignar a..." — para repartir cada entrega entre los responsables de logística.</p></div>
+          <div class="filter-bar" id="kanbanCanalToggle" style="margin-bottom:14px;"></div>
+          <div id="kanbanBoard" style="display:flex;gap:14px;overflow-x:auto;padding-bottom:10px;align-items:flex-start;"></div>
         </div>
 
 
@@ -1647,6 +1665,7 @@
             <option value="vendedor">Vendedor</option>
             <option value="administrativo">Administrativo</option>
             <option value="logistica">Logística</option>
+            <option value="supervisor_logistica">Supervisor de Logística</option>
             <option value="recepcion">Recepción</option>
             <option value="supervisor">Supervisor</option>
             <option value="calidad">Calidad</option>
@@ -2101,9 +2120,10 @@ function modulosUsuarioActual(){
   var s=sesionActual(); return (s && s.modulos) || [];
 }
 function esCalidad(){ var r=rolActual(); return r==='calidad' || r==='maestro' || modulosUsuarioActual().indexOf('maestro')>-1; }
-function puedeEditar(){ var r=rolActual(); return esCalidad() || r==='administrativo' || r==='supervisor' || r==='recepcion' || r==='logistica'; }
+function puedeEditar(){ var r=rolActual(); return esCalidad() || r==='administrativo' || r==='supervisor' || r==='recepcion' || r==='logistica' || r==='supervisor_logistica'; }
+function esSupervisorLogistica(){ return rolActual()==='supervisor_logistica'; }
 function etiquetaRol_(r){
-  var etiquetas = {calidad:'Calidad', maestro:'Maestro', administrativo:'Administrativo', vendedor:'Vendedor', tv:'TV Recepción', recepcion:'Recepción', supervisor:'Supervisor', logistica:'Logística'};
+  var etiquetas = {calidad:'Calidad', maestro:'Maestro', administrativo:'Administrativo', vendedor:'Vendedor', tv:'TV Recepción', recepcion:'Recepción', supervisor:'Supervisor', logistica:'Logística', supervisor_logistica:'Supervisor de Logística'};
   return etiquetas[r] || r;
 }
 function esTvRecepcion(){ return rolActual()==='tv'; }
@@ -2206,8 +2226,8 @@ function olvidePasswordUI(){
 }
 // Oculta/deshabilita lo que el rol actual no puede tocar. Se llama al loguearse
 // y cada vez que se renderiza la tabla o se abre el detalle de una entrega.
-var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','reportes','maestro','tv'];
-var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', reportes:'navReportes', maestro:'navMaestro', tv:'navTv'};
+var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','kanban','reportes','maestro','tv'];
+var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'navKanban', reportes:'navReportes', maestro:'navMaestro', tv:'navTv'};
 function aplicarPermisosUI(){
   var puede = puedeEditar();
   var modulosDelUsuario = modulosUsuarioActual();
@@ -2218,6 +2238,7 @@ function aplicarPermisosUI(){
     if(!el) return;
     var visible;
     if(mod==='maestro') visible = esCalidad();
+    else if(mod==='kanban') visible = esSupervisorLogistica() || esCalidad();
     else if(mod==='nuevaentrega' || mod==='reportes') visible = puede;
     else visible = true;
     if(modulosUsuario) visible = modulosUsuario.indexOf(mod)>-1;
@@ -2621,7 +2642,7 @@ function activarVistaPrevia(){
 // ============================================================
 // NAVEGACIÓN POR VISTAS (Dashboard / Calendario / Lista / Maestro)
 // ============================================================
-var VISTAS_APP = ['dashboard','calendario','lista','maestro','nuevaentrega','tv'];
+var VISTAS_APP = ['dashboard','calendario','lista','kanban','maestro','nuevaentrega','tv'];
 // ============================================================
 // MODO TV — pantalla de solo lectura para monitor de la concesionaria.
 // Se actualiza sola (usa el mismo refresco silencioso de cada 25s que
@@ -2892,6 +2913,7 @@ function setAppView(view){
   if(filaMarcas) filaMarcas.style.display = (view==='maestro') ? 'none' : 'flex';
   if(view==='calendario'){ calMonthDate=new Date(currentDate); renderCalendar(); if(calVistaActual==='linea') renderTimelineActiva_(); }
   if(view==='lista' || view==='dashboard') renderAll();
+  if(view==='kanban') renderKanban();
 }
 
 function fmtFecha(d){ var dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0'); return dd+'/'+mm+'/'+d.getFullYear(); }
@@ -3441,6 +3463,10 @@ function heroToggleRegalo(marca,id){
   showToast(r.regaloEstado==='Entregado'?'Regalo entregado':'Regalo pendiente');
   renderResumenHoyManana(); renderAll();
 }
+function colorSucursal_(suc){
+  var map = {'San Juan':'--suc-sanjuan','San Luis':'--suc-sanluis','Villa Mercedes':'--suc-villamercedes','Merlo':'--suc-merlo'};
+  return map[suc] || '--hairline';
+}
 function renderProximasHoras_(resto, etiquetaDia, tituloSeccion){
   var el = document.getElementById('proximasHorasWrap');
   if(!el) return;
@@ -3452,7 +3478,8 @@ function renderProximasHoras_(resto, etiquetaDia, tituloSeccion){
     '<div class="proximas-horas-grid">'+
       resto.map(function(r){
         var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
-        return '<div class="proxima-hora-card hoy-naranja" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
+        var estiloSuc = currentBranches.length>1 ? ' style="border-left:4px solid var('+colorSucursal_(r.sucursal)+') !important;"' : '';
+        return '<div class="proxima-hora-card hoy-naranja"'+estiloSuc+' onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
           '<div class="hora-box"><span class="dia">'+etiquetaDia+'</span>'+r.hora+'</div>'+
           '<div class="info">'+
             '<div class="cli">'+r.cliente+'</div>'+
@@ -3512,7 +3539,8 @@ function renderResumenHoyManana(){
     tituloEl.textContent = 'Próximas entregas · '+etiquetaProxima;
     mananaEl.innerHTML = '<div class="proximas-horas-grid manana-grande">' + proximas.map(function(r){
       var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
-      return '<div class="proxima-hora-card manana-azul" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
+      var estiloSuc = currentBranches.length>1 ? ' style="border-left:4px solid var('+colorSucursal_(r.sucursal)+') !important;"' : '';
+      return '<div class="proxima-hora-card manana-azul"'+estiloSuc+' onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
         '<div class="hora-box"><span class="dia">'+etiquetaProxima+'</span>'+r.hora+'</div>'+
         '<div class="info">'+
           '<div class="cli">'+r.cliente+'</div>'+
@@ -3534,7 +3562,7 @@ function renderAll(){
 }
 function renderCanalToggle(){
   var htmlFiltros =
-    '<select onchange="filterCanal=this.value||null;renderAll();if(typeof renderDashboard===\'function\')renderDashboard();" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 12px;font-family:\'Inter\',sans-serif;font-size:12px;max-width:220px;">'+
+    '<select onchange="filterCanal=this.value||null;renderAll();if(typeof renderDashboard===\'function\')renderDashboard();if(currentAppView===\'kanban\')renderKanban();" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 12px;font-family:\'Inter\',sans-serif;font-size:12px;max-width:220px;">'+
       '<option value="" '+(filterCanal===null?'selected':'')+'>Todos los canales</option>'+
       '<option value="pda" '+(filterCanal==='pda'?'selected':'')+'>Solo PDA</option>'+
       '<option value="tradicional" '+(filterCanal==='tradicional'?'selected':'')+'>Solo Tradicional</option>'+
@@ -3544,7 +3572,7 @@ function renderCanalToggle(){
       '<option value="OKM" '+(filterTipo==='OKM'?'selected':'')+'>Solo 0KM</option>'+
       '<option value="USADO" '+(filterTipo==='USADO'?'selected':'')+'>Solo Usados</option>'+
     '</select>';
-  ['canalToggle','dashCanalToggleFiltro','calCanalToggle'].forEach(function(id){
+  ['canalToggle','dashCanalToggleFiltro','calCanalToggle','kanbanCanalToggle'].forEach(function(id){
     var el=document.getElementById(id);
     if(el) el.innerHTML = htmlFiltros;
   });
@@ -3630,8 +3658,58 @@ function diasDeLaSemanaTimeline_(){
   for(var i=0;i<7;i++){ var x=new Date(lunes); x.setDate(lunes.getDate()+i); dias.push(x); }
   return dias;
 }
+function renderKanban(){
+  var board = document.getElementById('kanbanBoard');
+  if(!board) return;
+  var rows = entregasContexto().filter(function(r){
+    return !r.entregada && (filterTipo==='todos'||r.tipoVenta===filterTipo) && pasaFiltroCanal_(r);
+  }).sort(function(a,b){
+    var fa=parsearFecha_(a.fecha), fb=parsearFecha_(b.fecha);
+    if(fa && fb && fa.getTime()!==fb.getTime()) return fa.getTime()-fb.getTime();
+    return (a.hora||'').localeCompare(b.hora||'');
+  });
+
+  var responsables = ((CONFIG.maestros && CONFIG.maestros.responsables) || []).map(function(r){return r.nombre;});
+  var opcionesSelect = '<option value="">Asignar a...</option>' + responsables.map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join('');
+
+  function tarjeta(r){
+    var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
+    return '<div class="kanban-card">'+
+      '<div class="cli" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')" style="cursor:pointer;">'+r.cliente+'</div>'+
+      '<div class="veh">'+b.label+' '+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+'</div>'+
+      '<div class="fecha">'+r.fecha+' · '+r.hora+' hs · '+r.sucursal+'</div>'+
+      '<select onchange="asignarResponsableKanban(\''+r.marca+'\',\''+r.id+'\',this.value)">'+opcionesSelect.replace('value="'+(r.responsableEntrega||'\u0000')+'"','value="'+(r.responsableEntrega||'')+'" selected')+'</select>'+
+    '</div>';
+  }
+
+  var sinAsignar = rows.filter(function(r){ return !r.responsableEntrega; });
+  var html = '<div class="kanban-col sin-asignar"><div class="kanban-col-header"><span>⚠ Sin asignar</span><span class="cant">'+sinAsignar.length+'</span></div><div class="kanban-col-body">'+
+    (sinAsignar.length ? sinAsignar.map(tarjeta).join('') : '<div style="color:var(--text-faint);font-size:11.5px;text-align:center;padding:14px;">Nadie sin asignar 🎉</div>') +
+  '</div></div>';
+
+  responsables.forEach(function(nombre){
+    var suyas = rows.filter(function(r){ return r.responsableEntrega===nombre; });
+    html += '<div class="kanban-col"><div class="kanban-col-header"><span>'+nombre+'</span><span class="cant">'+suyas.length+'</span></div><div class="kanban-col-body">'+
+      (suyas.length ? suyas.map(tarjeta).join('') : '<div style="color:var(--text-faint);font-size:11.5px;text-align:center;padding:14px;">Sin entregas asignadas.</div>') +
+    '</div></div>';
+  });
+
+  board.innerHTML = html;
+}
+function asignarResponsableKanban(marca, id, nombre){
+  var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
+  if(!r) return;
+  var anterior = r.responsableEntrega || 'sin asignar';
+  r.responsableEntrega = nombre;
+  gasPost('updateEntregaFields',{marca:marca,id:id,fields:{responsableEntrega:nombre}});
+  logHistorial_(marca, id, '📋 Reasignada de "'+anterior+'" a "'+(nombre||'sin asignar')+'" desde el tablero de Logística');
+  showToast(nombre ? 'Asignada a '+nombre : 'Quedó sin asignar');
+  renderKanban();
+  renderAll();
+}
 function ordenAdministrativos_(nombres){
-  var ordenMaestro = ((CONFIG.maestros && CONFIG.maestros.administrativos) || []).map(function(a){return a.nombre;});
+  var lista = rolActual()==='logistica' ? ((CONFIG.maestros && CONFIG.maestros.responsables) || []) : ((CONFIG.maestros && CONFIG.maestros.administrativos) || []);
+  var ordenMaestro = lista.map(function(a){return a.nombre;});
   return nombres.slice().sort(function(a,b){
     var ia=ordenMaestro.indexOf(a), ib=ordenMaestro.indexOf(b);
     if(ia===-1) ia=999; if(ib===-1) ib=999;
@@ -3640,6 +3718,12 @@ function ordenAdministrativos_(nombres){
 }
 
 // ---- Vista por día: columnas = administrativos, con hora real en el eje vertical ----
+function campoAgrupacionTimeline_(){
+  return rolActual()==='logistica' ? 'responsableEntrega' : 'administrativo';
+}
+function etiquetaAgrupacionTimeline_(){
+  return rolActual()==='logistica' ? 'Sin responsable de entrega asignado' : 'Sin administrativo asignado';
+}
 function renderTimelinePorAdminDia_(){
   var grid = document.getElementById('timelineAdminGrid');
   if(!grid) return;
@@ -3649,10 +3733,11 @@ function renderTimelinePorAdminDia_(){
   if(tituloEl) tituloEl.textContent = DIAS[fecha.getDay()]+' '+fechaStr;
 
   var rows = entregasContexto().filter(function(r){ return r.fecha===fechaStr; });
+  var campo = campoAgrupacionTimeline_(), sinAsignar = etiquetaAgrupacionTimeline_();
 
   var administrativos = [];
   rows.forEach(function(r){
-    var nombre = r.administrativo || 'Sin administrativo asignado';
+    var nombre = r[campo] || sinAsignar;
     if(administrativos.indexOf(nombre)===-1) administrativos.push(nombre);
   });
   administrativos = ordenAdministrativos_(administrativos);
@@ -3668,7 +3753,7 @@ function renderTimelinePorAdminDia_(){
   var alturaTotalPx = (horaHastaH-horaDesdeH)*64;
 
   var cols = administrativos.map(function(nombre){
-    var entregasAdmin = rows.filter(function(r){ return (r.administrativo||'Sin administrativo asignado')===nombre; });
+    var entregasAdmin = rows.filter(function(r){ return (r[campo]||sinAsignar)===nombre; });
     var barsHtml = entregasAdmin.map(function(r){
       var inicio = horaAMinutos_(r.hora);
       var dur = r.duracionMinutos || 60;
@@ -3700,10 +3785,11 @@ function renderTimelinePorAdminSemana_(){
   if(tituloEl) tituloEl.textContent = 'Semana del '+fechasSemana[0]+' al '+fechasSemana[6];
 
   var rows = entregasContexto().filter(function(r){ return fechasSemana.indexOf(r.fecha)>-1; });
+  var campo = campoAgrupacionTimeline_(), sinAsignar = etiquetaAgrupacionTimeline_();
 
   var administrativosConEntregas = [];
   rows.forEach(function(r){
-    var nombre = r.administrativo || 'Sin administrativo asignado';
+    var nombre = r[campo] || sinAsignar;
     if(administrativosConEntregas.indexOf(nombre)===-1) administrativosConEntregas.push(nombre);
   });
   administrativosConEntregas = ordenAdministrativos_(administrativosConEntregas);
@@ -3714,7 +3800,7 @@ function renderTimelinePorAdminSemana_(){
   }
 
   var cols = administrativosConEntregas.map(function(nombre){
-    var entregasAdmin = rows.filter(function(r){ return (r.administrativo||'Sin administrativo asignado')===nombre; })
+    var entregasAdmin = rows.filter(function(r){ return (r[campo]||sinAsignar)===nombre; })
       .sort(function(a,b){
         var fa=parsearFecha_(a.fecha), fb=parsearFecha_(b.fecha);
         if(fa && fb && fa.getTime()!==fb.getTime()) return fa.getTime()-fb.getTime();
@@ -3766,8 +3852,8 @@ function renderListaClientesDia_(rows){
   return rowsOrdenadas.length
     ? rowsOrdenadas.map(function(r){
         var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
-        return '<div class="horario-slot ocupado" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
-          '<span class="hora">'+r.hora+'</span><span class="info">'+r.cliente+' · '+b.label+' '+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+'</span></div>';
+        return '<div class="horario-slot ocupado" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')" style="border-left:4px solid var('+b.color+');background:var('+b.soft+');">'+
+          '<span class="hora" style="color:var('+b.color+');">'+r.hora+'</span><span class="info">'+r.cliente+' · '+b.label+' '+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+'</span></div>';
       }).join('')
     : '<div style="color:var(--text-faint);font-size:12.5px;padding:14px;text-align:center;">No hay clientes agendados para este día.</div>';
 }
