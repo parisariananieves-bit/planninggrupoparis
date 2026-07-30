@@ -1306,6 +1306,8 @@
         <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
       </div>
       <div class="stats-grid" id="dashIndicadores"></div>
+      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido);">star</span>Encuestas NPS (Peugeot / Citroën)</div>
+      <div class="costos-grid" id="dashNPS" style="margin-bottom:18px;"></div>
 
       <div id="detalleFiltradoInline" style="display:none;margin-top:16px;background:var(--panel);border:1px solid var(--hairline);border-radius:12px;max-height:min(480px,55vh);overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:16px 16px 12px;position:sticky;top:0;background:var(--panel);z-index:2;border-bottom:1px solid var(--hairline);">
@@ -5987,6 +5989,26 @@ function renderDashboard(){
     return '<div class="stat-chip '+c.cls+'" style="cursor:pointer;min-width:150px;" onclick="abrirDetalleFiltradoDashboard('+i+')"><div class="icon-badge"><span class="material-symbols-outlined">'+c.icon+'</span></div><div class="n">'+c.n+'</div><div class="l">'+c.l+'</div></div>';
   }).join('') + renderChipAlertaStock_();
   window._dashChipsFiltros = chips;
+
+  // --- NPS (Peugeot / Citroën) ---
+  var conNPS = entregasContexto().filter(function(r){ return (r.marca==='peugeot'||r.marca==='citroen') && typeof r.npsScore==='number' && (filterTipo==='todos'||r.tipoVenta===filterTipo) && pasaFiltroCanal_(r); });
+  var elNPS = document.getElementById('dashNPS');
+  if(elNPS){
+    if(conNPS.length===0){
+      elNPS.innerHTML = '<div style="grid-column:1/-1;color:var(--text-faint);font-size:12px;padding:14px;text-align:center;background:var(--panel);border:1px dashed var(--hairline);border-radius:12px;">Todavía no hay respuestas de NPS cargadas.</div>';
+    } else {
+      var promotores = conNPS.filter(function(r){return r.npsScore>=9;}).length;
+      var pasivos = conNPS.filter(function(r){return r.npsScore===7||r.npsScore===8;}).length;
+      var detractores = conNPS.filter(function(r){return r.npsScore<=6;}).length;
+      var total = conNPS.length;
+      var npsValor = Math.round((promotores/total - detractores/total)*100);
+      elNPS.innerHTML =
+        '<div class="costo-card '+(npsValor>=50?'ok':(npsValor>=0?'ambar':'morado'))+'"><div class="icon-badge"><span class="material-symbols-outlined">insights</span></div><div class="valor" style="'+(npsValor<0?'color:var(--danger);':'')+'">'+(npsValor>0?'+':'')+npsValor+'</div><div class="label">NPS general</div><div class="sub">'+total+' respuesta'+(total>1?'s':'')+'</div></div>'+
+        '<div class="costo-card ok"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_very_satisfied</span></div><div class="valor">'+promotores+'</div><div class="label">Promotores (9-10)</div><div class="sub">'+Math.round(promotores/total*100)+'% del total</div></div>'+
+        '<div class="costo-card ambar"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_neutral</span></div><div class="valor">'+pasivos+'</div><div class="label">Pasivos (7-8)</div><div class="sub">'+Math.round(pasivos/total*100)+'% del total</div></div>'+
+        '<div class="costo-card"><div class="icon-badge" style="background:var(--danger-soft);color:var(--danger);"><span class="material-symbols-outlined">sentiment_dissatisfied</span></div><div class="valor" style="color:var(--danger);">'+detractores+'</div><div class="label">Detractores (0-6)</div><div class="sub">'+Math.round(detractores/total*100)+'% del total</div></div>';
+    }
+  }
 
   // --- Desglose por administrativo ---
   var porAdmin = {};
