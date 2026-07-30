@@ -110,17 +110,13 @@
   .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:14px;}
   .stats-grid .stat-chip{min-width:0;}
   .stat-chip{flex:1;min-width:120px;background:linear-gradient(160deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid var(--hairline);border-radius:14px;padding:14px 15px;position:relative;overflow:hidden;transition:transform .18s cubic-bezier(.2,.8,.2,1),border-color .18s,box-shadow .18s;}
-  .stat-chip::before{content:'';position:absolute;top:-24px;right:-24px;width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,var(--glow-color,var(--accent)) 0%,transparent 72%);opacity:.2;pointer-events:none;transition:opacity .18s,transform .3s;}
   .stat-chip:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.2);box-shadow:0 12px 24px -14px rgba(0,0,0,.4);}
-  .stat-chip:hover::before{opacity:.32;transform:scale(1.15);}
   .stat-chip .icon-badge,.stat-chip .n,.stat-chip .l{position:relative;z-index:1;}
   .stat-chip.ok{--glow-color:var(--ok);} .stat-chip.warn{--glow-color:var(--warn);} .stat-chip.danger{--glow-color:var(--danger);} .stat-chip.pending{--glow-color:var(--pending);}
   .costos-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
   .costo-card{background:linear-gradient(160deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid var(--hairline);border-radius:16px;padding:18px 20px;position:relative;overflow:hidden;transition:transform .18s cubic-bezier(.2,.8,.2,1),border-color .18s,box-shadow .18s;}
-  .costo-card::before{content:'';position:absolute;top:-30px;right:-30px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,var(--glow-color,var(--accent)) 0%,transparent 72%);opacity:.22;pointer-events:none;transition:opacity .18s,transform .3s;}
   .costo-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--glow-color,var(--accent));opacity:0;transition:opacity .18s;}
   .costo-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.2);box-shadow:0 14px 28px -14px rgba(0,0,0,.45);}
-  .costo-card:hover::before{opacity:.34;transform:scale(1.15);}
   .costo-card:hover::after{opacity:1;}
   .costo-card .icon-badge{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;position:relative;z-index:1;}
   .costo-card .icon-badge .material-symbols-outlined{font-size:21px;}
@@ -477,7 +473,6 @@
 
   /* ---- Dashboard: hero "próxima entrega" + próximas horas ---- */
   .hero-proxima{position:relative;background:linear-gradient(120deg,#12151d,#1a1e29);border:1px solid var(--hairline);border-left:4px solid var(--accent);border-radius:16px;padding:22px 26px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;overflow:hidden;}
-  .hero-proxima::before{content:'';position:absolute;top:-60%;left:15%;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(232,178,61,.10) 0%,transparent 68%);pointer-events:none;}
   .hero-proxima .tag-top{display:flex;align-items:center;gap:7px;color:var(--accent);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;position:relative;z-index:1;}
   .hero-proxima .tag-top .material-symbols-outlined{animation:bolt-pulse 2.2s ease-in-out infinite;}
   @media(prefers-reduced-motion:reduce){ .hero-proxima .tag-top .material-symbols-outlined{animation:none;} }
