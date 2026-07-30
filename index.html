@@ -766,6 +766,27 @@
   .app-content{padding:20px 24px 60px;}
   @media(max-width:640px){ .app-content{padding:14px 12px 50px;} }
   .app-view{display:none;}
+  /* --- Feedback táctil global: que se sienta "de app" al tocar --- */
+  button, .kanban-card, .proxima-hora-card, .cal-day, .brand-tab, .sucursal-chip,
+  .filter-pill, .horario-slot, .bn-item, .nav-item, .maestro-list-row, .stat-chip, .costo-card{
+    transition: transform .12s cubic-bezier(.2,.8,.2,1), filter .12s, opacity .12s, box-shadow .12s, border-color .12s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:active, .kanban-card:active, .proxima-hora-card:active, .cal-day:active, .brand-tab:active,
+  .sucursal-chip:active, .filter-pill:active, .horario-slot:active, .bn-item:active, .nav-item:active,
+  .maestro-list-row:active, .stat-chip:active, .costo-card:active{
+    transform: scale(.96);
+    filter: brightness(.94);
+  }
+  .bn-item{transition: color .15s, transform .12s;}
+  .bn-item.active .material-symbols-outlined{transform: translateY(-2px) scale(1.08);}
+  .bn-item .material-symbols-outlined{transition: transform .18s cubic-bezier(.3,1.4,.5,1);}
+  @keyframes app-view-fade-in{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .app-view.active{ animation: app-view-fade-in .22s ease-out; }
+  @media(prefers-reduced-motion:reduce){
+    .app-view.active{animation:none;}
+    button, .kanban-card, .proxima-hora-card, .cal-day, .brand-tab, .sucursal-chip, .filter-pill, .horario-slot, .bn-item, .nav-item{transition:none;}
+  }
   .app-view.active{display:block;}
   .view-header{margin-bottom:14px;}
   .view-header h2{font-family:'Space Grotesk',sans-serif;font-size:19px;margin:0 0 3px;}
