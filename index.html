@@ -140,6 +140,10 @@
   .filter-bar .filter-field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-faint);font-weight:700;margin-bottom:4px;}
   .filter-bar .filter-field input{background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;}
   .filter-bar-sep{width:1px;align-self:stretch;background:var(--hairline);margin:2px 2px;}
+  .mini-search-wrap{position:relative;max-width:320px;margin-bottom:10px;}
+  .mini-search-wrap .material-symbols-outlined{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-faint);}
+  .mini-search-input{width:100%;box-sizing:border-box;padding:8px 10px 8px 32px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);font-size:12.5px;}
+  .mini-search-input:focus{outline:none;border-color:var(--accent);}
   .two-col-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
   @media(max-width:820px){ .two-col-grid{grid-template-columns:1fr;} }
   .chart-icon .material-symbols-outlined{font-size:15px;}
@@ -1481,6 +1485,7 @@
 
     <div class="maestro-block">
       <div class="section-title">Vendedores</div>
+      <div class="mini-search-wrap"><span class="material-symbols-outlined">search</span><input type="text" class="mini-search-input" placeholder="Buscar vendedor..." oninput="filtrarMaestroLista(this,'tagsVendedores')"></div>
       <div class="maestro-tags" id="tagsVendedores"></div>
       <div class="maestro-add">
         <input id="inVendedorNombre" placeholder="Nombre..." onkeydown="if(event.key==='Enter'){addMaestro('vendedores','inVendedor');}">
@@ -1493,6 +1498,7 @@
     <div class="maestro-block">
       <div class="section-title">Administrativos (con N° de flota, email y teléfono)</div>
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:8px;">El email se usa para mandarle copia de las confirmaciones y recordatorios de sus propias entregas.</div>
+      <div class="mini-search-wrap"><span class="material-symbols-outlined">search</span><input type="text" class="mini-search-input" placeholder="Buscar administrativo..." oninput="filtrarMaestroLista(this,'tagsAdministrativos')"></div>
       <div class="maestro-tags" id="tagsAdministrativos"></div>
       <div class="maestro-add">
         <input id="inAdministrativo" placeholder="Nombre..." onkeydown="if(event.key==='Enter'){addAdministrativo();}">
@@ -1504,6 +1510,7 @@
     </div>
     <div class="maestro-block">
       <div class="section-title">Responsables de entrega (Logística)</div>
+      <div class="mini-search-wrap"><span class="material-symbols-outlined">search</span><input type="text" class="mini-search-input" placeholder="Buscar responsable..." oninput="filtrarMaestroLista(this,'tagsResponsables')"></div>
       <div class="maestro-tags" id="tagsResponsables"></div>
       <div class="maestro-add">
         <input id="inResponsableNombre" placeholder="Nombre..." onkeydown="if(event.key==='Enter'){addMaestro('responsables','inResponsable');}">
@@ -1703,6 +1710,8 @@
   </div>
   <div class="drawer-body">
     <button class="entrega-toggle pending" id="dEntregaToggle" onclick="toggleEntregada()">🚗 Marcar unidad como entregada</button>
+    <div id="dTrasladoBadge" style="display:none;margin-top:8px;background:var(--invertido-soft);border:1px solid var(--invertido);border-radius:8px;padding:9px 11px;font-size:12px;color:var(--invertido);"></div>
+    <button class="toggle-btn" id="dTrasladoBtn" style="margin-top:8px;width:100%;" onclick="toggleTraslado()">📦 Marcar unidad para traslado a otra sucursal</button>
 
     <div class="section">
       <div class="section-title">Mensaje de bienvenida (postventa)</div>
@@ -3055,6 +3064,8 @@ function checkBloqueado(){
 }
 
 function estadoTag(r){
+  if(r.traslado && !r.trasladoCompletado) return '<span class="tag" style="background:var(--invertido-soft);color:var(--invertido);" title="'+(r.trasladoObs||'')+'">📦 Traslado a '+(r.trasladoDestino||'')+'</span>';
+  if(r.traslado && r.trasladoCompletado) return '<span class="tag ok" title="'+(r.trasladoObs||'')+'">✓ Trasladada a '+(r.trasladoDestino||'')+'</span>';
   if(r.entregada) return '<span class="tag ok">Entregada</span>';
   var map={ok:['ok','OK para entregar'],warn:['warn','Riesgo de retraso'],danger:['danger','Retrasada'],pending:['pending','Pendiente']};
   var m=map[r.estado]||map.pending;
@@ -3126,6 +3137,16 @@ function renderStats(){
   if(conPendienteReal>0){
     html+='<div class="stat-chip danger" style="cursor:pointer;box-shadow:inset 0 0 0 2px var(--danger);'+(filterAlertaPendientes?'background:var(--danger-soft);':'')+'" onclick="toggleFilterAlertaPendientes()"><div class="icon-badge"><span class="material-symbols-outlined">warning</span></div><div class="n" style="color:var(--danger);">'+conPendienteReal+'</div><div class="l">Entregadas con pendientes</div></div>';
   }
+
+  // --- Alerta para Logística: unidades marcadas para traslado a otra sucursal ---
+  var totalTraslado = rows.filter(function(r){ return r.traslado; });
+  var trasladoCompletados = totalTraslado.filter(function(r){ return r.trasladoCompletado; }).length;
+  var trasladoPendientes = totalTraslado.length - trasladoCompletados;
+  if(totalTraslado.length>0){
+    var esUrgente = trasladoPendientes>0;
+    html+='<div class="stat-chip'+(esUrgente?' danger':' ok')+'" style="cursor:pointer;'+(esUrgente?'box-shadow:inset 0 0 0 2px var(--danger);':'')+'" onclick="mostrarDetalleFiltrado(\'Unidades para traslado\', totalTraslado_snapshot, {header:\'Destino\', pendiente:function(r){return r.traslado && !r.trasladoCompletado;}}, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">local_shipping</span></div><div class="n" style="'+(esUrgente?'color:var(--danger);':'')+'">'+trasladoCompletados+' / '+totalTraslado.length+'</div><div class="l">Trasladados'+(esUrgente?' — '+trasladoPendientes+' pendiente'+(trasladoPendientes>1?'s':''):'')+'</div></div>';
+  }
+  window.totalTraslado_snapshot = totalTraslado;
 
   html+='<div class="stat-chip ok" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'0KM cargados\', entregasContexto().filter(function(r){return r.tipoVenta===\'OKM\';}), null, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">directions_car</span></div><div class="n">'+okm+'</div><div class="l">0KM cargados</div></div>'+
            '<div class="stat-chip pending" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Usados cargados\', entregasContexto().filter(function(r){return r.tipoVenta===\'USADO\';}), null, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">sync_alt</span></div><div class="n">'+usado+'</div><div class="l">Usados cargados</div></div>';
@@ -3942,6 +3963,55 @@ function toggleEntregadaId(marca,id){
   showToast(r.entregada?'Unidad entregada a '+r.cliente:'Se desmarcó como entregada');
 }
 function toggleEntregada(){ if(detailId) toggleEntregadaId(detailMarca, detailId); }
+function toggleTraslado(){
+  if(!detailId) return;
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  if(!r) return;
+  if(r.traslado && !r.trasladoCompletado){
+    if(!confirm('¿Marcar el traslado como completado (unidad ya preparada/enviada)? Va a quedar registrado en el historial.')) return;
+    r.trasladoCompletado=true;
+    gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{trasladoCompletado:true}});
+    logHistorial_(detailMarca, detailId, '✓ Traslado completado — a "'+(r.trasladoDestino||'sin especificar')+'"');
+    showToast('Traslado marcado como completado');
+  } else if(r.traslado && r.trasladoCompletado){
+    if(!confirm('¿Reabrir este traslado como pendiente de nuevo?')) return;
+    r.trasladoCompletado=false;
+    gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{trasladoCompletado:false}});
+    logHistorial_(detailMarca, detailId, '↺ Traslado reabierto — a "'+(r.trasladoDestino||'sin especificar')+'"');
+    showToast('Traslado reabierto');
+  } else {
+    var opciones = ['San Juan','San Luis','Villa Mercedes','Merlo'].filter(function(s){return s!==r.sucursal;});
+    var destino = prompt('¿A qué sucursal hay que trasladar esta unidad?\n\nOpciones: '+opciones.join(', '));
+    if(destino===null) return;
+    destino = destino.trim();
+    if(!destino){ showToast('Necesitás indicar a qué sucursal se traslada'); return; }
+    var obs = prompt('¿Alguna observación para Logística? (opcional)') || '';
+    r.traslado=true; r.trasladoCompletado=false; r.trasladoDestino=destino; r.trasladoObs=obs.trim(); r.trasladoFecha=fechaHoraAhora_(); r.trasladoUsuario=usuarioActual()||'Sin identificar';
+    gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{traslado:true, trasladoCompletado:false, trasladoDestino:destino, trasladoObs:r.trasladoObs, trasladoFecha:r.trasladoFecha, trasladoUsuario:r.trasladoUsuario}});
+    logHistorial_(detailMarca, detailId, '📦 Marcada para traslado a "'+destino+'"'+(r.trasladoObs?' — '+r.trasladoObs:''));
+    showToast('Marcada para traslado a '+destino);
+  }
+  updateTrasladoUI(r);
+  renderAll();
+}
+function updateTrasladoUI(r){
+  var btn=document.getElementById('dTrasladoBtn');
+  var badge=document.getElementById('dTrasladoBadge');
+  if(r.traslado){
+    btn.textContent = r.trasladoCompletado ? '↺ Reabrir como pendiente' : '✓ Marcar traslado como completado';
+    btn.className='toggle-btn '+(r.trasladoCompletado?'':'done');
+    badge.style.display='block';
+    badge.style.background = r.trasladoCompletado ? 'var(--ok-soft)' : 'var(--invertido-soft)';
+    badge.style.borderColor = r.trasladoCompletado ? 'var(--ok)' : 'var(--invertido)';
+    badge.style.color = r.trasladoCompletado ? 'var(--ok)' : 'var(--invertido)';
+    badge.innerHTML='<b>'+(r.trasladoCompletado?'✓ Trasladada a ':'📦 Trasladar a ')+(r.trasladoDestino||'')+'</b>'+(r.trasladoObs?'<br>'+r.trasladoObs:'')+'<br><span style="opacity:.75;font-size:11px;">'+(r.trasladoFecha||'')+(r.trasladoUsuario?' · '+r.trasladoUsuario:'')+'</span>';
+  } else {
+    btn.textContent='📦 Marcar unidad para traslado a otra sucursal';
+    btn.className='toggle-btn';
+    badge.style.display='none';
+    badge.innerHTML='';
+  }
+}
 function updateEntregaToggleUI(r){
   var btn=document.getElementById('dEntregaToggle');
   btn.textContent=r.entregada?'✓ Unidad entregada':'🚗 Marcar unidad como entregada';
@@ -4019,6 +4089,7 @@ function openDetail(marca, id){
   document.getElementById('dHeadName').textContent=r.cliente;
   document.getElementById('dHeadSub').textContent=r.fecha+' · '+r.hora+' · '+r.modelo;
   updateEntregaToggleUI(r);
+  updateTrasladoUI(r);
   renderEstadoComunicaciones(r);
   renderEstadoBienvenida_(r);
   document.getElementById('dCliente').value=r.cliente;
@@ -5069,6 +5140,35 @@ function guardarAlertaAccesorios(){
     if(el) CONFIG.alertaAccesoriosEmails[b.id] = el.value.trim();
   });
   persistirConfig('Emails de alerta de accesorios guardados');
+}
+function filtrarMaestroLista(inputEl, containerId){
+  var q = inputEl.value.trim().toLowerCase();
+  var cont = document.getElementById(containerId);
+  if(!cont) return;
+  var filas = cont.querySelectorAll('.maestro-list-row');
+  var visibles = 0;
+  filas.forEach(function(fila){
+    var nameEl = fila.querySelector('.maestro-list-name');
+    var nombre = nameEl ? nameEl.textContent.toLowerCase() : '';
+    var match = q==='' || nombre.indexOf(q)>-1;
+    fila.style.display = match ? '' : 'none';
+    if(match) visibles++;
+  });
+  var vacio = cont.querySelector('.mini-search-sin-resultados');
+  if(visibles===0 && filas.length>0){
+    if(!vacio){
+      vacio = document.createElement('div');
+      vacio.className = 'mini-search-sin-resultados';
+      vacio.style.cssText = 'grid-column:1/-1;color:var(--text-faint);font-size:12px;padding:8px;';
+      vacio.textContent = 'Sin resultados para "'+inputEl.value.trim()+'".';
+      cont.appendChild(vacio);
+    } else {
+      vacio.textContent = 'Sin resultados para "'+inputEl.value.trim()+'".';
+      vacio.style.display = '';
+    }
+  } else if(vacio){
+    vacio.style.display = 'none';
+  }
 }
 function renderMaestroTags(tipo, elId){
   var el = document.getElementById(elId);
