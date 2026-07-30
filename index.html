@@ -147,6 +147,7 @@
   .filter-bar-sep{width:1px;align-self:stretch;background:var(--hairline);margin:2px 2px;}
   .mini-search-wrap{position:relative;max-width:320px;margin-bottom:10px;}
   .kanban-col{background:var(--panel);border:1px solid var(--hairline);border-radius:12px;min-width:270px;max-width:270px;flex-shrink:0;display:flex;flex-direction:column;max-height:calc(100vh - 260px);}
+  @media(max-width:640px){ .kanban-col{min-width:240px;max-width:240px;} }
   .kanban-col-header{padding:12px 14px;border-bottom:1px solid var(--hairline);font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--panel);border-radius:12px 12px 0 0;}
   .kanban-col-header .cant{background:var(--panel-2);border-radius:20px;padding:2px 9px;font-size:11px;color:var(--text-dim);}
   .kanban-col-body{padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
@@ -156,6 +157,22 @@
   .kanban-card .veh{font-size:11px;color:var(--text-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .kanban-card .fecha{font-size:10.5px;color:var(--text-faint);margin-top:4px;font-family:'IBM Plex Mono',monospace;}
   .kanban-card select{width:100%;margin-top:8px;background:var(--panel);border:1px solid var(--hairline);border-radius:6px;color:var(--text);padding:6px 7px;font-size:11px;font-family:'Inter',sans-serif;}
+  .nps-modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:210;background:var(--panel);border:1px solid var(--hairline);border-radius:16px;padding:28px 26px;max-width:440px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,.5);text-align:center;}
+  .nps-modal.show{display:block;}
+  #npsOverlay{z-index:205;}
+  .nps-modal-icon{font-size:32px;margin-bottom:8px;}
+  .nps-modal h3{font-family:'Space Grotesk',sans-serif;font-size:16px;margin:0 0 18px;color:var(--text);}
+  .nps-scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px;}
+  .nps-btn{aspect-ratio:1;border-radius:9px;border:2px solid transparent;background:var(--panel-2);color:var(--text-dim);font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:16px;cursor:pointer;transition:transform .12s,border-color .12s;}
+  .nps-btn:hover{transform:translateY(-2px);}
+  .nps-btn.low{color:var(--danger);}
+  .nps-btn.mid{color:var(--warn);}
+  .nps-btn.high{color:var(--ok);}
+  .nps-btn.selected.low{background:var(--danger-soft);border-color:var(--danger);}
+  .nps-btn.selected.mid{background:var(--warn-soft);border-color:var(--warn);}
+  .nps-btn.selected.high{background:var(--ok-soft);border-color:var(--ok);}
+  .nps-scale-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text-faint);margin-bottom:16px;padding:0 2px;}
+  #npsComentario{width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'Inter',sans-serif;font-size:12.5px;resize:vertical;}
   body.rol-preview-activo{padding-top:36px;}
   body.rol-preview-activo .sidebar{top:36px;}
   .mini-search-wrap .material-symbols-outlined{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-faint);}
@@ -267,6 +284,7 @@
   .section-title{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--text);font-weight:800;margin-bottom:8px;padding-left:9px;padding-right:18px;border-left:3px solid var(--accent);}
   .block-title{font-family:'Space Grotesk',sans-serif;font-size:13.5px;font-weight:700;color:var(--accent);margin:22px 0 6px;padding-bottom:6px;border-bottom:2px solid var(--accent);}
   .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 12px;}
+  @media(max-width:640px){ .field-grid{grid-template-columns:1fr;} }
   .field{background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;padding:8px 10px;}
   .field.full{grid-column:1/-1;}
   .field .l{font-size:9.5px;color:var(--text-faint);text-transform:uppercase;margin-bottom:4px;}
@@ -326,6 +344,7 @@
   .modal-head .close{background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;}
   .modal-body{padding:16px 20px 22px;}
   .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 12px;margin-bottom:6px;}
+  @media(max-width:640px){ .form-grid{grid-template-columns:1fr;} }
   .form-field{display:flex;flex-direction:column;gap:4px;}
   .form-field.full{grid-column:1/-1;}
   .form-field label{font-size:11px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:.02em;}
@@ -577,6 +596,7 @@
   .cal-day .count{margin-top:7px;font-size:9.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:20px;padding:2px 7px;display:inline-flex;align-items:center;gap:4px;}
   .cal-day .count .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);}
   @media(max-width:640px){ .cal-grid{grid-auto-rows:78px;} .cal-day{padding:5px;} .cal-day-cliente{font-size:8.5px;} .cal-legend{display:none;} }
+  @media(max-width:640px){ #topbarBrandsRow{flex-wrap:wrap !important;} #branchToggle{flex-shrink:1 !important;max-width:100%;} }
 
   /* ---- Calendario: vista línea de tiempo ---- */
   .timeline-header{display:flex;position:sticky;top:0;background:var(--panel);z-index:3;border-bottom:2px solid var(--hairline);}
@@ -656,6 +676,10 @@
 <style>
   .app-shell{display:flex;min-height:100vh;}
   .sidebar{position:fixed;left:0;top:0;bottom:0;width:64px;background:#0A0D16;border-right:1px solid var(--hairline);z-index:65;display:flex;flex-direction:column;padding:16px 0 14px;overflow:hidden;transition:width .16s ease;}
+  @media(max-width:640px){
+    .sidebar{width:48px;}
+    .sidebar:hover, .sidebar.pinned{width:210px;}
+  }
   .sidebar:hover,.sidebar.pinned{width:216px;overflow:visible;box-shadow:6px 0 24px rgba(0,0,0,.5);}
   .sidebar-pin{position:absolute;top:14px;right:10px;background:none;border:none;color:var(--text-faint);cursor:pointer;padding:4px;border-radius:6px;opacity:0;transition:opacity .12s;}
   .sidebar:hover .sidebar-pin,.sidebar.pinned .sidebar-pin{opacity:1;}
@@ -707,6 +731,10 @@
   #mainShell{flex:1;min-width:0;}
   .main-shell{margin-left:64px;flex:1;min-width:0;transition:margin-left .16s ease;}
   .sidebar:hover ~ .main-shell,.sidebar.pinned ~ .main-shell{margin-left:216px;}
+  @media(max-width:640px){
+    .main-shell{margin-left:48px;}
+    .sidebar:hover ~ .main-shell,.sidebar.pinned ~ .main-shell{margin-left:48px;}
+  }
   .topbar{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--hairline);z-index:50;padding:10px 20px;display:flex;flex-direction:column;gap:8px;}
   .topbar-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .topbar-row-brands{flex-wrap:wrap;row-gap:8px;padding-bottom:2px;}
@@ -714,6 +742,7 @@
   .topbar-search input{width:100%;background:var(--panel);border:1px solid var(--hairline);border-radius:9px;padding:9px 12px 9px 34px;color:var(--text);font-size:13px;}
   .topbar-search .material-symbols-outlined{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--text-faint);}
   .app-content{padding:20px 24px 60px;}
+  @media(max-width:640px){ .app-content{padding:14px 12px 50px;} }
   .app-view{display:none;}
   .app-view.active{display:block;}
   .view-header{margin-bottom:14px;}
@@ -1754,6 +1783,20 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<div class="overlay" id="npsOverlay" onclick="if(event.target===this)cerrarEncuestaNPS_(true)"></div>
+<div class="nps-modal" id="npsModal">
+  <button class="close" onclick="cerrarEncuestaNPS_(true)" style="position:absolute;top:14px;right:16px;">✕</button>
+  <div class="nps-modal-icon">⭐</div>
+  <h3>¿Qué tan probable es que recomiende Grupo París a un familiar o amigo?</h3>
+  <div class="nps-scale" id="npsScale"></div>
+  <div class="nps-scale-labels"><span>Nada probable</span><span>Muy probable</span></div>
+  <textarea id="npsComentario" placeholder="¿Algún comentario del cliente sobre la entrega? (opcional)" rows="3"></textarea>
+  <div style="display:flex;gap:10px;margin-top:14px;">
+    <button class="view-btn" style="flex:1;" onclick="cerrarEncuestaNPS_(true)">Omitir por ahora</button>
+    <button class="save-btn" style="flex:1;margin:0;" onclick="guardarEncuestaNPS_()">Guardar respuesta</button>
+  </div>
+</div>
 <div class="overlay" id="overlay" onclick="closeAll()"></div>
 
 <div class="drawer" id="drawer">
@@ -3889,7 +3932,7 @@ function renderHorariosDia_(){
     return;
   }
 
-  var marcasAgenda = marcasCompartenAgenda_(currentBrand);
+  var marcasAgenda = currentBrands.reduce(function(acc, m){ return acc.concat(marcasCompartenAgenda_(m)); }, []);
   var rows = ENTREGAS.filter(function(r){
     return marcasAgenda.indexOf(r.marca)>-1 && (currentBranches.length===0 || currentBranches.indexOf(r.sucursal)>-1) && r.fecha===fechaStr;
   });
@@ -4190,8 +4233,52 @@ function toggleEntregadaId(marca,id){
   if(detailId===id) updateEntregaToggleUI(r);
   renderAll();
   showToast(r.entregada?'Unidad entregada a '+r.cliente:'Se desmarcó como entregada');
+  if(r.entregada && (marca==='peugeot' || marca==='citroen') && !r.npsScore){
+    abrirEncuestaNPS_(marca, id);
+  }
 }
 function toggleEntregada(){ if(detailId) toggleEntregadaId(detailMarca, detailId); }
+var npsContexto_ = null;
+function abrirEncuestaNPS_(marca, id){
+  npsContexto_ = {marca:marca, id:id, puntaje:null};
+  var scale = document.getElementById('npsScale');
+  var html = '';
+  for(var i=1;i<=10;i++){
+    var cls = i<=6 ? 'low' : (i<=8 ? 'mid' : 'high');
+    html += '<button type="button" class="nps-btn '+cls+'" onclick="elegirPuntajeNPS_('+i+',this)">'+i+'</button>';
+  }
+  scale.innerHTML = html;
+  document.getElementById('npsComentario').value = '';
+  document.getElementById('npsOverlay').classList.add('show');
+  document.getElementById('npsModal').classList.add('show');
+}
+function elegirPuntajeNPS_(n, btn){
+  npsContexto_.puntaje = n;
+  document.querySelectorAll('.nps-btn').forEach(function(b){ b.classList.remove('selected'); });
+  btn.classList.add('selected');
+}
+function cerrarEncuestaNPS_(silencioso){
+  document.getElementById('npsOverlay').classList.remove('show');
+  document.getElementById('npsModal').classList.remove('show');
+  if(!silencioso) showToast('Encuesta guardada');
+  npsContexto_ = null;
+}
+function guardarEncuestaNPS_(){
+  if(!npsContexto_){ return; }
+  if(npsContexto_.puntaje===null){ showToast('Elegí un puntaje del 1 al 10'); return; }
+  var marca=npsContexto_.marca, id=npsContexto_.id, puntaje=npsContexto_.puntaje;
+  var comentario = document.getElementById('npsComentario').value.trim();
+  var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
+  if(r){
+    r.npsScore = puntaje;
+    r.npsComentario = comentario;
+    r.npsFecha = fechaHoraAhora_();
+    gasPost('updateEntregaFields',{marca:marca,id:id,fields:{npsScore:puntaje, npsComentario:comentario, npsFecha:r.npsFecha}});
+    var categoria = puntaje<=6 ? 'Detractor' : (puntaje<=8 ? 'Pasivo' : 'Promotor');
+    logHistorial_(marca, id, '⭐ Encuesta NPS: '+puntaje+'/10 ('+categoria+')'+(comentario?' — "'+comentario+'"':''));
+  }
+  cerrarEncuestaNPS_(false);
+}
 function toggleTraslado(){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
