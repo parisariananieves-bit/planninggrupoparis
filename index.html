@@ -625,6 +625,8 @@
   .horario-slot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 11px;border-radius:8px;margin-bottom:4px;cursor:pointer;font-size:12px;transition:background .12s;}
   .horario-slot .hora{font-family:'IBM Plex Mono',monospace;font-weight:700;flex-shrink:0;}
   .horario-slot .info{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;}
+  .horario-slot.ocupado .info{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.4;}
+  .horario-slot.ocupado{align-items:flex-start;}
   .horario-slot.libre{background:var(--ok-soft);color:var(--ok);}
   .horario-slot.libre:hover{background:rgba(63,191,136,.28);}
   .horario-slot.seleccionado{background:var(--accent);color:#1a1206;font-weight:800;box-shadow:0 0 0 2px var(--accent) inset;}
@@ -3478,7 +3480,8 @@ function renderProximasHoras_(resto, etiquetaDia, tituloSeccion){
     '<div class="proximas-horas-grid">'+
       resto.map(function(r){
         var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
-        var estiloSuc = currentBranches.length>1 ? ' style="border-left:4px solid var('+colorSucursal_(r.sucursal)+') !important;"' : '';
+        var colorFranja = currentBrands.length>1 ? 'var('+b.color+')' : (currentBranches.length>1 ? 'var('+colorSucursal_(r.sucursal)+')' : null);
+        var estiloSuc = colorFranja ? ' style="border-left:4px solid '+colorFranja+' !important;"' : '';
         return '<div class="proxima-hora-card hoy-naranja"'+estiloSuc+' onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
           '<div class="hora-box"><span class="dia">'+etiquetaDia+'</span>'+r.hora+'</div>'+
           '<div class="info">'+
@@ -3539,7 +3542,8 @@ function renderResumenHoyManana(){
     tituloEl.textContent = 'Próximas entregas · '+etiquetaProxima;
     mananaEl.innerHTML = '<div class="proximas-horas-grid manana-grande">' + proximas.map(function(r){
       var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
-      var estiloSuc = currentBranches.length>1 ? ' style="border-left:4px solid var('+colorSucursal_(r.sucursal)+') !important;"' : '';
+      var colorFranja = currentBrands.length>1 ? 'var('+b.color+')' : (currentBranches.length>1 ? 'var('+colorSucursal_(r.sucursal)+')' : null);
+      var estiloSuc = colorFranja ? ' style="border-left:4px solid '+colorFranja+' !important;"' : '';
       return '<div class="proxima-hora-card manana-azul"'+estiloSuc+' onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
         '<div class="hora-box"><span class="dia">'+etiquetaProxima+'</span>'+r.hora+'</div>'+
         '<div class="info">'+
@@ -3808,7 +3812,8 @@ function renderTimelinePorAdminSemana_(){
       });
     var itemsHtml = entregasAdmin.map(function(r){
       var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
-      var diaCorto = DIAS[parsearFecha_(r.fecha).getDay()].slice(0,3).toUpperCase();
+      var fechaObj = parsearFecha_(r.fecha);
+      var diaCorto = DIAS[fechaObj.getDay()].slice(0,3).toUpperCase()+' '+String(fechaObj.getDate()).padStart(2,'0');
       var cls = 'tl-admin-item'+(r.entregada?' entregada':(r.confirmado?' confirmada':''));
       return '<div class="'+cls+'" style="--tl-color:var('+b.color+');" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')" title="'+r.cliente+' · '+r.fecha+' '+r.hora+' hs · '+r.modelo+'">'+
         '<div class="tl-admin-item-fecha">'+diaCorto+' '+r.hora+'</div>'+
