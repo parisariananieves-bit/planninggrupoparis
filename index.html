@@ -3382,9 +3382,9 @@ function renderHeroProximaEntrega_(r){
   }
 
   el.innerHTML =
-    '<div class="hero-proxima">'+
+    '<div class="hero-proxima" style="border-left-color:var('+b.color+');">'+
       '<div style="min-width:0;flex:1;">'+
-        '<div class="tag-top"><span class="material-symbols-outlined">bolt</span>Próxima entrega inminente</div>'+
+        '<div class="tag-top" style="color:var('+b.color+');"><span class="material-symbols-outlined">bolt</span>Próxima entrega inminente</div>'+
         '<h3>'+r.cliente+'</h3>'+
         '<div class="sub">'+(r.chasis?'<span class="vin">VIN: '+r.chasis+'</span>':'')+'<span>'+b.label+' '+r.modelo+'</span></div>'+
         '<div class="meta">'+
