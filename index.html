@@ -145,6 +145,8 @@
   .filter-bar .filter-field input{background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;}
   .filter-bar-sep{width:1px;align-self:stretch;background:var(--hairline);margin:2px 2px;}
   .mini-search-wrap{position:relative;max-width:320px;margin-bottom:10px;}
+  body.rol-preview-activo{padding-top:36px;}
+  body.rol-preview-activo .sidebar{top:36px;}
   .mini-search-wrap .material-symbols-outlined{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-faint);}
   .mini-search-input{width:100%;box-sizing:border-box;padding:8px 10px 8px 32px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);font-size:12.5px;}
   .mini-search-input:focus{outline:none;border-color:var(--accent);}
@@ -245,8 +247,8 @@
   .drawer-head h3{margin:0 0 3px;font-family:'Space Grotesk',sans-serif;font-size:16px;color:var(--text);}
   .drawer-head .sub{color:var(--text-dim);font-size:12px;}
   .drawer-body{padding:16px 20px 28px;}
-  .section{margin-bottom:20px;}
-  .section-title{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--accent);font-weight:800;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--hairline);}
+  .section{margin-bottom:14px;background:var(--panel);border:1px solid var(--hairline);border-radius:12px;padding:14px 16px;}
+  .section-title{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--accent);font-weight:800;margin-bottom:8px;}
   .block-title{font-family:'Space Grotesk',sans-serif;font-size:13.5px;font-weight:700;color:var(--accent);margin:22px 0 6px;padding-bottom:6px;border-bottom:2px solid var(--accent);}
   .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 12px;}
   .field{background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;padding:8px 10px;}
@@ -949,10 +951,26 @@
         <div class="sidebar-user-menu" id="menuUsuario" style="display:none;">
           <button onclick="toggleTheme()" id="themeToggleBtn"><span class="material-symbols-outlined">dark_mode</span>Modo oscuro/claro</button>
           <button onclick="cargarTodo()"><span class="material-symbols-outlined">refresh</span>Actualizar datos</button>
+          <div id="rolPreviewMenuWrap" style="display:none;">
+            <div style="padding:8px 12px 2px;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-faint);font-weight:700;">Vista previa (solo vos ves esto)</div>
+            <select id="rolPreviewSelect" onchange="activarRolPreview(this.value)" style="margin:4px 12px 8px;width:calc(100% - 24px);background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:7px 9px;font-size:12px;">
+              <option value="">Mi vista normal (Calidad/Maestro)</option>
+              <option value="administrativo">Ver como Administrativo</option>
+              <option value="recepcion">Ver como Recepción</option>
+              <option value="vendedor">Ver como Vendedor (Acceso libre)</option>
+              <option value="logistica">Ver como Logística</option>
+              <option value="supervisor">Ver como Supervisor</option>
+              <option value="tv">Ver como TV Recepción</option>
+            </select>
+          </div>
           <button onclick="cerrarSesion()" class="danger"><span class="material-symbols-outlined">logout</span>Cerrar sesión</button>
         </div>
       </div>
     </aside>
+
+    <div id="rolPreviewBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:var(--invertido);color:#fff;text-align:center;padding:7px;font-size:12.5px;font-weight:700;">
+      📦 Estás viendo la app como otro rol para probarla — <button onclick="salirRolPreview()" style="background:rgba(255,255,255,.25);border:none;color:#fff;padding:3px 10px;border-radius:6px;font-weight:700;cursor:pointer;margin-left:6px;">Volver a mi vista</button>
+    </div>
 
     <div class="main-shell">
       <header class="topbar">
@@ -977,7 +995,7 @@
         <div class="app-view active" id="viewDashboard">
           <div class="view-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
             <div><h2>Dashboard</h2><p>Filtrá el resumen general, o mirá directo la próxima entrega y las que siguen.</p></div>
-            <select id="dashFiltroAdministrativo" onchange="setFilterAdministrativo(this.value)" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 12px;font-family:'IBM Plex Mono',monospace;font-size:12px;max-width:220px;"></select>
+            <select id="dashFiltroAdministrativo" onchange="setFilterAdministrativo(this.value)" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;color:var(--text-dim);padding:6px 12px;font-family:'Inter',sans-serif;font-weight:600;font-size:11.5px;max-width:170px;cursor:pointer;"></select>
           </div>
 
           <div id="heroProximaEntrega" style="display:none;"></div>
@@ -1008,7 +1026,7 @@
             <button class="filter-pill active" id="calVistaBtnMensual" onclick="setCalendarioVista('mensual')">Vista mensual</button>
             <button class="filter-pill" id="calVistaBtnLinea" onclick="setCalendarioVista('linea')">Vista línea de tiempo</button>
           </div>
-          <div id="calCanalToggle" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;"></div>
+          <div class="filter-bar" id="calCanalToggle" style="margin-bottom:14px;"></div>
 
           <div id="calVistaMensual">
           <div id="calLayoutWrap" style="display:grid;grid-template-columns:1fr;gap:16px;align-items:start;width:100%;">
@@ -2059,10 +2077,13 @@ function cerrarSesion(){
   location.reload();
 }
 function usuarioActual(){ var s=sesionActual(); return s ? s.nombre : ''; }
-function rolActual(){ var s=sesionActual(); return s ? s.rol : null; }
+var rolPreview = null;
+function rolActualReal_(){ var s=sesionActual(); return s ? s.rol : null; }
+function esCalidadReal_(){ var r=rolActualReal_(); var s=sesionActual(); return r==='calidad' || r==='maestro' || (s && (s.modulos||[]).indexOf('maestro')>-1); }
+function rolActual(){ if(rolPreview) return rolPreview; var s=sesionActual(); return s ? s.rol : null; }
 // El rol ya no "encierra" los permisos por sí solo — es una etiqueta descriptiva.
 // La autoridad real de Maestro también la puede dar el módulo "maestro" (ver modulosUsuarioActual()).
-function modulosUsuarioActual(){ var s=sesionActual(); return (s && s.modulos) || []; }
+function modulosUsuarioActual(){ if(rolPreview) return []; var s=sesionActual(); return (s && s.modulos) || []; }
 function esCalidad(){ var r=rolActual(); return r==='calidad' || r==='maestro' || modulosUsuarioActual().indexOf('maestro')>-1; }
 function puedeEditar(){ var r=rolActual(); return esCalidad() || r==='administrativo' || r==='supervisor' || r==='recepcion' || r==='logistica'; }
 function etiquetaRol_(r){
@@ -2076,6 +2097,28 @@ function actualizarBotonUsuario(){
   var rolEl=document.getElementById('sidebarUserRole');
   if(nombreEl) nombreEl.textContent = s ? s.nombre : '—';
   if(rolEl) rolEl.textContent = s ? etiquetaRol_(s.rol) : '';
+  var wrap = document.getElementById('rolPreviewMenuWrap');
+  if(wrap) wrap.style.display = esCalidadReal_() ? 'block' : 'none';
+}
+function activarRolPreview(rol){
+  rolPreview = rol || null;
+  var banner = document.getElementById('rolPreviewBanner');
+  if(rolPreview){
+    banner.style.display='block';
+    document.body.classList.add('rol-preview-activo');
+  } else {
+    banner.style.display='none';
+    document.body.classList.remove('rol-preview-activo');
+  }
+  toggleMenuUsuario();
+  renderSwitcher(); updateDayLabel(); checkBloqueado(); renderAll(); renderDatalists();
+  aplicarPermisosUI();
+  setAppView('dashboard');
+  showToast(rolPreview ? 'Viendo la app como: '+etiquetaRol_(rolPreview) : 'Volviste a tu vista normal');
+}
+function salirRolPreview(){
+  document.getElementById('rolPreviewSelect').value='';
+  activarRolPreview(null);
 }
 function toggleMenuUsuario(){
   var menu=document.getElementById('menuUsuario');
@@ -3512,7 +3555,8 @@ function renderCalendar(){
     if(feriado || (regla && regla.desde==='00:00')) cls+=' blocked';
     var MAX_MOSTRAR = 3;
     var clientesHtml = entregasDia.slice(0,MAX_MOSTRAR).map(function(r){
-      return '<div class="cal-day-cliente" onclick="event.stopPropagation();openDetail(\''+r.marca+'\',\''+r.id+'\')" title="'+r.hora+' hs · '+r.cliente+'">'+r.hora+' '+r.cliente+'</div>';
+      var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
+      return '<div class="cal-day-cliente" onclick="event.stopPropagation();openDetail(\''+r.marca+'\',\''+r.id+'\')" title="'+r.hora+' hs · '+r.cliente+' · '+b.label+'" style="background:var('+b.soft+');color:var('+b.color+');border-left:3px solid var('+b.color+');">'+r.hora+' '+r.cliente+'</div>';
     }).join('');
     var resto = entregasDia.length - MAX_MOSTRAR;
     if(resto>0) clientesHtml += '<div class="cal-day-cliente mas">+'+resto+' más</div>';
