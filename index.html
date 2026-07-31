@@ -2533,7 +2533,7 @@ function renderUsuariosTabla_(){
     if(res.error){ tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">'+res.error+'</th></tr>'; return; }
     window._ultimaPasswordActor = pass; // se reusa para las acciones de esta sesión de la pestaña
     window._usuariosCache = res.usuarios||[];
-    var iconos = {dashboard:'dashboard', nuevaentrega:'add_circle', calendario:'calendar_today', lista:'list_alt', reportes:'analytics', maestro:'settings', tv:'tv'};
+    var iconos = {dashboard:'dashboard', nuevaentrega:'add_circle', calendario:'calendar_today', lista:'list_alt', kanban:'view_kanban', reportes:'analytics', historialcoms:'forum', maestro:'settings', tv:'tv'};
     var html = '<tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th><th>Módulos</th><th>Acciones</th></tr>';
     (res.usuarios||[]).forEach(function(u){
       var nombreEsc = u.nombre.replace(/'/g,"\\'");
