@@ -148,6 +148,16 @@
   .costo-card.teal{--glow-color:var(--invertido2);}
   .costo-card.ambar{--glow-color:var(--warn);}
   .costo-card.ok{--glow-color:var(--ok);}
+  .ranking-row{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--hairline);border-radius:10px;padding:10px 14px;margin-bottom:8px;}
+  .ranking-pos{width:26px;height:26px;border-radius:50%;background:var(--panel-2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:var(--text-dim);flex-shrink:0;}
+  .ranking-row.top1 .ranking-pos{background:linear-gradient(135deg,#FFD700,#E8B23D);color:#1a1206;}
+  .ranking-row.top2 .ranking-pos{background:linear-gradient(135deg,#D8D8D8,#A8A8A8);color:#1a1206;}
+  .ranking-row.top3 .ranking-pos{background:linear-gradient(135deg,#CD7F32,#A85C28);color:#fff;}
+  .ranking-nombre{font-weight:700;font-size:13px;min-width:150px;flex-shrink:0;}
+  .ranking-bar-wrap{flex:1;background:var(--panel-2);border-radius:20px;height:18px;overflow:hidden;position:relative;}
+  .ranking-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),#c98f2e);border-radius:20px;transition:width .4s ease;}
+  .ranking-nums{display:flex;gap:10px;align-items:center;flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);min-width:110px;justify-content:flex-end;}
+  .ranking-nums b{color:var(--text);font-size:14px;}
   .costo-card.morado .icon-badge{background:var(--invertido-soft);color:var(--invertido);}
   .costo-card.teal .icon-badge{background:var(--invertido2-soft);color:var(--invertido2);}
   .costo-card.ambar .icon-badge{background:var(--warn-soft);color:var(--warn);}
@@ -763,8 +773,7 @@
     .sidebar:hover ~ .main-shell,.sidebar.pinned ~ .main-shell{margin-left:48px;}
   }
   .topbar{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--hairline);z-index:50;padding:10px 20px;display:flex;flex-direction:column;gap:0;}
-  #topbarBrandsRow{max-height:200px;overflow:hidden;transition:max-height .25s ease,opacity .2s ease,margin-bottom .25s ease;opacity:1;margin-bottom:8px;}
-  #topbarBrandsRow.tb-hidden{max-height:0;opacity:0;margin-bottom:0;}
+  #topbarBrandsRow{margin-bottom:8px;}
   .topbar-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .topbar-row-brands{flex-wrap:wrap;row-gap:8px;padding-bottom:2px;}
   .topbar-search{position:relative;flex:1;min-width:260px;max-width:560px;}
@@ -1030,9 +1039,11 @@
           <button class="nav-subitem" id="subReportesKit" onclick="setMaestroTab('kit')">Kit de Seguridad</button>
           <button class="nav-subitem" id="subReportesBuscador" onclick="setMaestroTab('reportes')">Buscador de reportes</button>
         </div>
+        <button class="nav-item" id="navHistorialComs" title="Historial de Comunicaciones" onclick="setAppView('historialcoms')"><span class="material-symbols-outlined">forum</span><span class="nav-label">Historial de Comunicaciones</span></button>
         <button class="nav-item" id="navMaestro" title="Maestro (Config)" onclick="irAMaestro()"><span class="material-symbols-outlined">settings</span><span class="nav-label">Maestro (Config)</span></button>
         <div class="nav-submenu" id="submenuMaestro" style="display:none;">
           <button class="nav-subitem" id="subMaestroConfig" onclick="setMaestroTab('config')">Configuración</button>
+          <button class="nav-subitem" id="subMaestroAutomatizaciones" onclick="setMaestroTab('automatizaciones')">Automatizaciones</button>
           <button class="nav-subitem" id="subMaestroPlantillas" onclick="setMaestroTab('plantillas')">Plantillas de mail</button>
           <button class="nav-subitem" id="subMaestroPermisos" onclick="setMaestroTab('permisos')">Permisos y usuarios</button>
           <button class="nav-subitem" id="subMaestroCargas" onclick="setMaestroTab('cargas')">Cargas masivas</button>
@@ -1237,10 +1248,11 @@
           <option value="120">2 horas</option>
         </select>
       </div>
-      <div class="form-field"><label>¿Regalo corporativo?</label><select id="nRegaloCorp"><option value="No">No</option><option value="Sí">Sí</option></select></div>
-      <div class="form-field"><label>¿Kit de seguridad?</label><select id="nKitSeguridad"><option value="No">No</option><option value="Sí">Sí</option></select></div>
-      <div class="form-field"><label>¿Manual del vehículo?</label><select id="nManual"><option value="No">No</option><option value="Sí">Sí</option></select></div>
-      <div class="form-field"><label>¿Llave duplicada?</label><select id="nLlaveDuplicada"><option value="No">No</option><option value="Sí">Sí</option></select></div>
+      <div class="form-field"><label>¿Regalo corporativo?</label><select id="nRegaloCorp"><option value="Sí" selected>Sí</option><option value="No">No</option></select></div>
+      <div class="form-field"><label>¿Kit de seguridad?</label><select id="nKitSeguridad"><option value="Sí" selected>Sí</option><option value="No">No</option></select></div>
+      <div class="form-field"><label>¿Manual del vehículo?</label><select id="nManual"><option value="Sí" selected>Sí</option><option value="No">No</option></select></div>
+      <div class="form-field"><label>¿Llave duplicada?</label><select id="nLlaveDuplicada"><option value="Sí" selected>Sí</option><option value="No">No</option></select></div>
+      <div class="form-field"><label>¿Alfombras?</label><select id="nAlfombras"><option value="Sí" selected>Sí</option><option value="No">No</option></select></div>
       <div class="form-field full">
         <label>Accesorios (vacío si no lleva)</label>
         <input id="nAccesorios" placeholder="Ej: Polarizado intermedio + cubre cárter">
@@ -1325,6 +1337,11 @@
               <tbody id="tbody"></tbody>
             </table>
           </div>
+
+          <div class="section-title" style="margin-top:24px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido);">insights</span>Predicción y desempeño del mes</div>
+          <div class="costos-grid" id="dashPrediccionCards" style="margin-bottom:18px;"></div>
+          <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">military_tech</span>Ranking de vendedores del mes</div>
+          <div id="dashRankingVendedores" style="margin-bottom:10px;"></div>
         </div>
 
         <div class="app-view" id="viewKanban">
@@ -1333,7 +1350,23 @@
           <div id="kanbanBoard" style="display:flex;gap:14px;overflow-x:auto;padding-bottom:10px;align-items:flex-start;"></div>
         </div>
 
-
+        <div class="app-view" id="viewHistorialcoms">
+          <div class="view-header"><h2>Historial de Comunicaciones</h2><p>WhatsApp y Email automáticos enviados después de cada entrega.</p></div>
+          <div class="costos-grid" id="historialComsStats" style="margin-bottom:16px;"></div>
+          <div class="filter-bar" style="flex-wrap:wrap;gap:10px;">
+            <div class="filter-field"><label>Buscar</label><input type="text" id="historialComsBuscar" placeholder="Cliente, patente, VIN o teléfono..." oninput="renderHistorialComs()" style="min-width:220px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"></div>
+            <select id="historialComsCanal" onchange="renderHistorialComs()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;">
+              <option value="">Todos los canales</option><option value="whatsapp">WhatsApp</option><option value="email">Email</option>
+            </select>
+            <select id="historialComsEstado" onchange="renderHistorialComs()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;">
+              <option value="">Todos los estados</option><option value="Pendiente">Pendiente</option><option value="Programada">Programada</option><option value="Enviada">Enviada</option><option value="Error">Error</option><option value="Cancelada">Cancelada</option>
+            </select>
+            <button class="print-btn" style="margin:0;" onclick="reenviarTodasLasPendientesComs_()"><span class="material-symbols-outlined">refresh</span> Reenviar todas las pendientes</button>
+          </div>
+          <div class="report-wrap" style="margin-top:14px;max-height:60vh;">
+            <table class="report-table" id="historialComsTabla"></table>
+          </div>
+        </div>
 
         <div class="app-view" id="viewMaestro">
   <div class="view-header"><h2 id="maestroTituloPagina">Panel Maestro</h2><p id="maestroSubtituloPagina">Dashboard, Reportes, Configuración y Permisos.</p></div>
@@ -1344,6 +1377,7 @@
       <button class="tpl-tab" id="tabMaestroKit" onclick="setMaestroTab('kit')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">health_and_safety</span> Kit de Seguridad</button>
       <button class="tpl-tab" id="tabMaestroReportes" onclick="setMaestroTab('reportes')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">bar_chart</span> Reportes</button>
       <button class="tpl-tab" id="tabMaestroConfig" onclick="setMaestroTab('config')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">settings</span> Configuración</button>
+      <button class="tpl-tab" id="tabMaestroAutomatizaciones" onclick="setMaestroTab('automatizaciones')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">forum</span> Automatizaciones</button>
       <button class="tpl-tab" id="tabMaestroPlantillas" onclick="setMaestroTab('plantillas')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">mail</span> Plantillas</button>
       <button class="tpl-tab" id="tabMaestroPermisos" onclick="setMaestroTab('permisos')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">key</span> Permisos</button>
       <button class="tpl-tab" id="tabMaestroCargas" onclick="setMaestroTab('cargas')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">upload_file</span> Cargas masivas</button>
@@ -1627,6 +1661,68 @@
     <div id="paneMaestroPlantillas" style="display:none;padding:30px 0;text-align:center;">
       <button class="save-btn" style="max-width:260px;margin:0 auto;" onclick="closeMaestro();openPlantillas();">Abrir editor de plantillas</button>
     </div>
+
+    <div id="paneMaestroAutomatizaciones" style="display:none;padding:10px 0;">
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--ok);">forum</span>WhatsApp — Mensaje post-entrega (24 hs)</div>
+      <div class="section" style="margin-bottom:18px;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin-bottom:12px;">
+          <input type="checkbox" id="autoWhatsappActivo" onchange="guardarAutomatizaciones_()" style="width:16px;height:16px;"> Activar envío automático de WhatsApp
+        </label>
+        <div class="form-grid">
+          <div class="form-field"><label>Horas después de la entrega</label><input type="number" id="autoWhatsappHoras" value="24" onchange="guardarAutomatizaciones_()"></div>
+          <div class="form-field"><label>Máx. reintentos si falla</label><input type="number" id="autoWhatsappReintentos" value="3" onchange="guardarAutomatizaciones_()"></div>
+        </div>
+        <div style="margin:12px 0;">
+          <label style="font-size:11px;text-transform:uppercase;color:var(--text-faint);font-weight:700;">Marcas habilitadas</label>
+          <div id="autoWhatsappMarcas" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;"></div>
+        </div>
+        <div class="form-field" style="margin-bottom:12px;">
+          <label>Plantilla del mensaje — variables: {Nombre} {Apellido} {NombreCompleto} {Marca} {Modelo} {Versión} {Patente} {VIN} {FechaEntrega} {Vendedor} {Sucursal} {Celular} {Email}</label>
+          <textarea id="autoWhatsappTemplate" rows="10" onchange="guardarAutomatizaciones_()" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:10px;font-family:'Inter',sans-serif;font-size:12.5px;"></textarea>
+        </div>
+        <div class="section-title" style="margin-top:6px;">Conexión con tu WhatsApp (proveedor)</div>
+        <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Funciona con cualquier proveedor de WhatsApp API (Meta Business, Twilio, Evolution API, 360dialog). Pedile los datos a quien te dé el servicio y pegalos acá — no hace falta tocar código.</div>
+        <div class="form-grid">
+          <div class="form-field"><label>Proveedor</label>
+            <select id="autoWhatsappProveedor" onchange="guardarAutomatizaciones_()">
+              <option value="">Sin definir todavía</option>
+              <option value="meta">Meta WhatsApp Business API</option>
+              <option value="twilio">Twilio</option>
+              <option value="evolution">Evolution API</option>
+              <option value="360dialog">360dialog</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          <div class="form-field"><label>Número remitente</label><input id="autoWhatsappNumero" placeholder="Ej: 2664123456" onchange="guardarAutomatizaciones_()"></div>
+          <div class="form-field"><label>URL de la API</label><input id="autoWhatsappUrl" placeholder="https://..." onchange="guardarAutomatizaciones_()"></div>
+          <div class="form-field"><label>Token</label><input id="autoWhatsappToken" type="password" placeholder="••••••••" onchange="guardarAutomatizaciones_()"></div>
+          <div class="form-field"><label>API Key (si aplica)</label><input id="autoWhatsappApiKey" type="password" placeholder="••••••••" onchange="guardarAutomatizaciones_()"></div>
+        </div>
+      </div>
+
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">mail</span>Email — Encuesta post-entrega (48 hs, solo Chevrolet)</div>
+      <div class="section" style="margin-bottom:18px;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin-bottom:12px;">
+          <input type="checkbox" id="autoEmailActivo" onchange="guardarAutomatizaciones_()" style="width:16px;height:16px;"> Activar envío automático de Email
+        </label>
+        <div class="form-grid">
+          <div class="form-field"><label>Horas después de la entrega</label><input type="number" id="autoEmailHoras" value="48" onchange="guardarAutomatizaciones_()"></div>
+          <div class="form-field"><label>Máx. reintentos si falla</label><input type="number" id="autoEmailReintentos" value="3" onchange="guardarAutomatizaciones_()"></div>
+        </div>
+        <div style="margin:12px 0;">
+          <label style="font-size:11px;text-transform:uppercase;color:var(--text-faint);font-weight:700;">Marcas habilitadas</label>
+          <div id="autoEmailMarcas" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;"></div>
+        </div>
+        <div class="form-field">
+          <label>Asunto</label><input id="autoEmailAsunto" placeholder="{NombreCompleto}, tu experiencia en París Cars" onchange="guardarAutomatizaciones_()">
+        </div>
+        <div class="form-field" style="margin-top:12px;">
+          <label>Link de la encuesta (Google Form, Typeform, etc. — el botón del mail apunta acá)</label><input id="autoEmailFormUrl" placeholder="https://..." onchange="guardarAutomatizaciones_()">
+        </div>
+        <div style="font-size:11.5px;color:var(--text-dim);margin-top:10px;">El HTML del correo ya aprobado (logos, colores, botón hacia el formulario) no se toca desde acá — sigue igual, solo cambian los datos del cliente que se completan solos.</div>
+      </div>
+    </div>
+
     <div id="paneMaestroConfig" style="display:none;padding:10px 0;">
 
     <div class="maestro-block">
@@ -1726,10 +1822,17 @@
     </div>
 
     <div class="maestro-block">
-      <div class="section-title">WhatsApp de Postventa por marca</div>
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><svg width="14" height="14" viewBox="0 0 24 24" style="flex-shrink:0;"><path fill="#25D366" d="M12 0C5.373 0 0 5.373 0 12c0 2.121.554 4.113 1.523 5.842L0 24l6.335-1.492A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>WhatsApp de Postventa por marca</div>
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Se usa en el mensaje de bienvenida que se manda cuando se entrega el vehículo.</div>
       <div class="form-grid" id="postventaWhatsappContainer"></div>
       <button class="save-btn" style="margin-top:10px;" onclick="guardarPostventaWhatsapp()">Guardar números de Postventa</button>
+    </div>
+
+    <div class="maestro-block">
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">build</span>Repuestos y Servicio por marca</div>
+      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Se usa en el mensaje de bienvenida que se manda cuando se entrega el vehículo.</div>
+      <div class="form-grid" id="repuestosServicioContainer"></div>
+      <button class="save-btn" style="margin-top:10px;" onclick="guardarRepuestosServicio()">Guardar números de Repuestos y Servicio</button>
     </div>
 
     <div class="maestro-block">
@@ -1855,6 +1958,7 @@
   <h3>¿Qué tan probable es que recomiende Grupo París a un familiar o amigo?</h3>
   <div class="nps-scale" id="npsScale"></div>
   <div class="nps-scale-labels"><span>Nada probable</span><span>Muy probable</span></div>
+  <div id="npsError" style="display:none;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:8px 10px;font-size:12px;font-weight:600;margin:10px 0;text-align:left;"></div>
   <textarea id="npsComentario" placeholder="¿Algún comentario del cliente sobre la entrega? (opcional)" rows="3"></textarea>
   <div style="display:flex;gap:10px;margin-top:14px;">
     <button class="view-btn" style="flex:1;" onclick="cerrarEncuestaNPS_(true)">Omitir por ahora</button>
@@ -1928,6 +2032,15 @@
         <option value="Sí">Sí, corresponde</option>
       </select>
       <button class="toggle-btn pending" id="dLlaveDuplicadaToggle" onclick="toggleLlaveDuplicada()" style="display:none;"></button>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Alfombras</div>
+      <select id="dAlfombras" onchange="cambiarAlfombras(this.value)" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'Inter',sans-serif;font-size:12.5px;margin-bottom:8px;">
+        <option value="No">No corresponde</option>
+        <option value="Sí">Sí, corresponde</option>
+      </select>
+      <button class="toggle-btn pending" id="dAlfombrasToggle" onclick="toggleAlfombras()" style="display:none;"></button>
     </div>
 
     <div class="section">
@@ -2033,6 +2146,12 @@
     </div>
 
     <div class="section">
+      <div class="section-title">Comunicaciones</div>
+      <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:7px;">WhatsApp y Email automáticos enviados a este cliente después de la entrega.</div>
+      <div id="dComunicaciones"></div>
+    </div>
+
+    <div class="section">
       <div class="section-title">Comentarios</div>
       <div id="dComentarios"></div>
       <div class="comment-add">
@@ -2064,8 +2183,8 @@
   <div class="modal-body">
     <div class="whatsapp-preview" id="bienvenidaPreviewContent"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
-      <button class="email-action-btn" style="flex:1;min-width:160px;" onclick="copiarMensajeBienvenida()">📋 Copiar mensaje</button>
-      <a class="email-action-btn" id="bienvenidaWhatsappLink" style="flex:1;min-width:160px;text-align:center;text-decoration:none;display:none;" href="#" target="_blank">💬 Abrir WhatsApp</a>
+      <button class="email-action-btn" style="flex:1;min-width:160px;" onclick="copiarMensajeBienvenida()"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">content_copy</span> Copiar mensaje</button>
+      <a class="email-action-btn" id="bienvenidaWhatsappLink" style="flex:1;min-width:160px;text-align:center;text-decoration:none;display:none;align-items:center;justify-content:center;gap:6px;" href="#" target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" style="vertical-align:-3px;"><path fill="#25D366" d="M12 0C5.373 0 0 5.373 0 12c0 2.121.554 4.113 1.523 5.842L0 24l6.335-1.492A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg> Abrir WhatsApp</a>
     </div>
     <button class="email-action-btn" id="bienvenidaMarcarBtn" style="margin-top:8px;background:var(--ok-soft);color:var(--ok);" onclick="marcarBienvenidaEnviada()">✓ Marcar como enviado</button>
   </div>
@@ -2164,6 +2283,7 @@ var BRANDS = [
 var MARCA_LABEL = {chevrolet:'Chevrolet', peugeot:'Peugeot', citroen:'Citroën', honda:'Honda', dfsk:'DFSK / Jetour', usados:'Usados'};
 
 var ENTREGAS = [];
+var COMUNICACIONES = [];
 var CONFIG = {maestros:{vendedores:[],administrativos:[],responsables:[]}, bloqueos:{semanales:[],feriados:[]}, direcciones:{}, apps:{}, telefonoContacto:'', historicoRegalos:[], historicoKit:[]};
 var PLANTILLAS = {};
 var tplTabActual = 'recordatorio';
@@ -2335,8 +2455,8 @@ function olvidePasswordUI(){
 }
 // Oculta/deshabilita lo que el rol actual no puede tocar. Se llama al loguearse
 // y cada vez que se renderiza la tabla o se abre el detalle de una entrega.
-var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','kanban','reportes','maestro','tv'];
-var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'navKanban', reportes:'navReportes', maestro:'navMaestro', tv:'navTv'};
+var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','kanban','reportes','historialcoms','maestro','tv'];
+var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'navKanban', reportes:'navReportes', historialcoms:'navHistorialComs', maestro:'navMaestro', tv:'navTv'};
 function aplicarPermisosUI(){
   var puede = puedeEditar();
   var modulosDelUsuario = modulosUsuarioActual();
@@ -2348,6 +2468,7 @@ function aplicarPermisosUI(){
     var visible;
     if(mod==='maestro') visible = esCalidad();
     else if(mod==='kanban') visible = esSupervisorLogistica() || esCalidad();
+    else if(mod==='historialcoms') visible = esCalidad();
     else if(mod==='nuevaentrega' || mod==='reportes') visible = puede;
     else visible = true;
     if(modulosUsuario) visible = modulosUsuario.indexOf(mod)>-1;
@@ -2442,7 +2563,7 @@ function renderUsuariosTabla_(){
     if(res.error){ tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">'+res.error+'</th></tr>'; return; }
     window._ultimaPasswordActor = pass; // se reusa para las acciones de esta sesión de la pestaña
     window._usuariosCache = res.usuarios||[];
-    var iconos = {dashboard:'dashboard', nuevaentrega:'add_circle', calendario:'calendar_today', lista:'list_alt', reportes:'analytics', maestro:'settings', tv:'tv'};
+    var iconos = {dashboard:'dashboard', nuevaentrega:'add_circle', calendario:'calendar_today', lista:'list_alt', kanban:'view_kanban', reportes:'analytics', historialcoms:'forum', maestro:'settings', tv:'tv'};
     var html = '<tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th><th>Módulos</th><th>Acciones</th></tr>';
     (res.usuarios||[]).forEach(function(u){
       var nombreEsc = u.nombre.replace(/'/g,"\\'");
@@ -2733,7 +2854,10 @@ function cargarTodo(){
     restaurarFiltroPreferido_();
     renderSwitcher(); updateDayLabel(); checkBloqueado(); renderAll(); renderDatalists();
     aplicarPermisosUI();
-    if(esTvRecepcion()){ abrirModoTV(); } else { setAppView('dashboard'); }
+    if(esTvRecepcion() && primeraCargaApp_){ abrirModoTV(); }
+    else if(primeraCargaApp_){ setAppView('dashboard'); }
+    else { setAppView(currentAppView); showToast('Datos actualizados'); }
+    primeraCargaApp_ = false;
   }).catch(function(err){
     document.getElementById('loadingMsg').textContent = 'No se pudo conectar con la planilla. Revisá la URL guardada.';
   });
@@ -2753,7 +2877,7 @@ function activarVistaPrevia(){
 // ============================================================
 // NAVEGACIÓN POR VISTAS (Dashboard / Calendario / Lista / Maestro)
 // ============================================================
-var VISTAS_APP = ['dashboard','calendario','lista','kanban','maestro','nuevaentrega','tv'];
+var VISTAS_APP = ['dashboard','calendario','lista','kanban','historialcoms','maestro','nuevaentrega','tv'];
 // ============================================================
 // MODO TV — pantalla de solo lectura para monitor de la concesionaria.
 // Se actualiza sola (usa el mismo refresco silencioso de cada 25s que
@@ -3005,6 +3129,7 @@ function toggleSidebarPin(){
 })();
 // Nueva Entrega desde el menú: openNewDelivery() ya te lleva a la página y muestra la disponibilidad.
 var currentAppView = 'dashboard';
+var primeraCargaApp_ = true;
 function setAppView(view){
   currentAppView = view;
   VISTAS_APP.forEach(function(v){
@@ -3027,6 +3152,7 @@ function setAppView(view){
   if(view==='calendario'){ calMonthDate=new Date(currentDate); renderCalendar(); if(calVistaActual==='linea') renderTimelineActiva_(); }
   if(view==='lista' || view==='dashboard') renderAll();
   if(view==='kanban') renderKanban();
+  if(view==='historialcoms'){ cargarComunicacionesSiHaceFalta_().then(renderHistorialComs); }
 }
 
 function fmtFecha(d){ var dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0'); return dd+'/'+mm+'/'+d.getFullYear(); }
@@ -3388,6 +3514,76 @@ function renderTable(){
   }).join('');
 }
 
+// --- Predicción de ventas del mes + Ranking de vendedores (Dashboard) ---
+function editarObjetivoMensual_(){
+  var actual = (CONFIG.objetivoMensualVentas!=null) ? CONFIG.objetivoMensualVentas : '';
+  var nuevo = prompt('¿Cuál es el objetivo de entregas para este mes?', actual);
+  if(nuevo===null) return;
+  var n = Number(nuevo);
+  if(isNaN(n) || n<0){ showToast('Ingresá un número válido'); return; }
+  CONFIG.objetivoMensualVentas = n;
+  gasPost('guardarConfig',{config:CONFIG}).then(function(){
+    showToast('Objetivo guardado');
+    renderPrediccionVentas_();
+  });
+}
+function renderPrediccionVentas_(){
+  var el = document.getElementById('dashPrediccionCards');
+  if(!el) return;
+  var hoy = new Date();
+  var inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+  var diasDelMes = new Date(hoy.getFullYear(), hoy.getMonth()+1, 0).getDate();
+  var diaActual = hoy.getDate();
+
+  var rows = entregasContexto().filter(function(r){
+    var f = parsearFecha_(r.fecha);
+    return f && f.getFullYear()===hoy.getFullYear() && f.getMonth()===hoy.getMonth();
+  });
+  var entregadosMes = rows.filter(function(r){ return r.entregada; }).length;
+  var prediccion = diaActual>0 ? Math.round((entregadosMes/diaActual)*diasDelMes) : 0;
+  var objetivo = CONFIG.objetivoMensualVentas || 0;
+  var cumplimiento = objetivo>0 ? Math.round((entregadosMes/objetivo)*100) : null;
+
+  el.innerHTML =
+    '<div class="costo-card morado"><div class="icon-badge"><span class="material-symbols-outlined">trending_up</span></div><div class="valor">'+prediccion+'</div><div class="label">Predicción del mes</div><div class="sub">Según el ritmo de los primeros '+diaActual+' días</div></div>'+
+    '<div class="costo-card ok"><div class="icon-badge"><span class="material-symbols-outlined">local_shipping</span></div><div class="valor">'+entregadosMes+'</div><div class="label">Vehículos entregados</div><div class="sub">En lo que va del mes</div></div>'+
+    '<div class="costo-card" style="cursor:pointer;" onclick="editarObjetivoMensual_()" title="Tocá para cambiar el objetivo"><div class="icon-badge" style="background:var(--accent-soft);color:var(--accent);"><span class="material-symbols-outlined">flag</span></div><div class="valor">'+(objetivo>0?objetivo:'—')+'</div><div class="label">Objetivo mensual</div><div class="sub">'+(objetivo>0?'Tocá para cambiarlo':'Tocá para definirlo')+'</div></div>'+
+    '<div class="costo-card '+(cumplimiento===null?'':(cumplimiento>=100?'ok':(cumplimiento>=70?'ambar':'')))+'"><div class="icon-badge" style="'+(cumplimiento!==null&&cumplimiento<70?'background:var(--danger-soft);color:var(--danger);':'')+'"><span class="material-symbols-outlined">percent</span></div><div class="valor" style="'+(cumplimiento!==null&&cumplimiento<70?'color:var(--danger);':'')+'">'+(cumplimiento===null?'—':cumplimiento+'%')+'</div><div class="label">% de cumplimiento</div><div class="sub">'+(cumplimiento===null?'Definí un objetivo para verlo':'sobre el objetivo del mes')+'</div></div>';
+}
+function renderRankingVendedores_(){
+  var el = document.getElementById('dashRankingVendedores');
+  if(!el) return;
+  var hoy = new Date();
+  var rows = entregasContexto().filter(function(r){
+    var f = parsearFecha_(r.fecha);
+    return r.entregada && f && f.getFullYear()===hoy.getFullYear() && f.getMonth()===hoy.getMonth();
+  });
+  var totalEntregado = rows.length;
+  var porVendedor = {};
+  rows.forEach(function(r){
+    var v = r.vendedor || 'Sin asignar';
+    porVendedor[v] = (porVendedor[v]||0) + 1;
+  });
+  var ranking = Object.keys(porVendedor).map(function(v){ return {nombre:v, cant:porVendedor[v]}; })
+    .sort(function(a,b){ return b.cant-a.cant; }).slice(0,8);
+
+  if(ranking.length===0){
+    el.innerHTML = '<div style="color:var(--text-faint);font-size:12px;padding:14px;text-align:center;background:var(--panel);border:1px dashed var(--hairline);border-radius:12px;">Todavía no hay entregas completadas este mes.</div>';
+    return;
+  }
+  var maxCant = ranking[0].cant;
+  el.innerHTML = ranking.map(function(r,i){
+    var pct = totalEntregado>0 ? Math.round((r.cant/totalEntregado)*100) : 0;
+    var anchoBarra = maxCant>0 ? Math.round((r.cant/maxCant)*100) : 0;
+    var claseTop = i===0?'top1':(i===1?'top2':(i===2?'top3':''));
+    return '<div class="ranking-row '+claseTop+'">'+
+      '<div class="ranking-pos">'+(i+1)+'</div>'+
+      '<div class="ranking-nombre">'+r.nombre+'</div>'+
+      '<div class="ranking-bar-wrap"><div class="ranking-bar-fill" style="width:'+anchoBarra+'%;"></div></div>'+
+      '<div class="ranking-nums"><b>'+r.cant+'</b> entregas · '+pct+'%</div>'+
+    '</div>';
+  }).join('');
+}
 function renderStats(){
   var rows=entregasContexto().filter(function(r){
     if(filterTipo!=='todos' && r.tipoVenta!==filterTipo) return false;
@@ -3670,10 +3866,12 @@ function renderResumenHoyManana(){
 
 function renderAll(){
   renderTable(); renderStats(); renderResumenHoyManana(); renderCanalToggle(); renderFiltroAdministrativo(); renderListaResumenCards();
+  renderPrediccionVentas_(); renderRankingVendedores_();
   if(currentView==='mes' || currentAppView==='calendario') renderCalendar();
   if(currentAppView==='calendario' && calVistaActual==='linea') renderTimelineActiva_();
   if(typeof renderHorariosDia_==='function' && diaSeleccionadoCalendario) renderHorariosDia_();
   if(currentAppView==='tv') renderModoTV();
+  if(currentAppView==='kanban') renderKanban();
 }
 function renderCanalToggle(){
   var htmlFiltros =
@@ -3772,6 +3970,123 @@ function diasDeLaSemanaTimeline_(){
   var dias = [];
   for(var i=0;i<7;i++){ var x=new Date(lunes); x.setDate(lunes.getDate()+i); dias.push(x); }
   return dias;
+}
+var _comunicacionesCargadas_ = false;
+function cargarComunicacionesSiHaceFalta_(){
+  if(_comunicacionesCargadas_) return Promise.resolve();
+  return gasGet('comunicaciones').then(function(res){
+    COMUNICACIONES = res || [];
+    _comunicacionesCargadas_ = true;
+  }).catch(function(){ COMUNICACIONES = []; _comunicacionesCargadas_ = true; });
+}
+function renderHistorialComs(){
+  var stats = document.getElementById('historialComsStats');
+  var tabla = document.getElementById('historialComsTabla');
+  if(!stats || !tabla) return;
+
+  var buscar = (document.getElementById('historialComsBuscar').value||'').toLowerCase();
+  var canalF = document.getElementById('historialComsCanal').value;
+  var estadoF = document.getElementById('historialComsEstado').value;
+
+  var rows = COMUNICACIONES.filter(function(c){
+    if(canalF && c.canal!==canalF) return false;
+    if(estadoF && c.estado!==estadoF) return false;
+    if(buscar){
+      var texto = ((c.cliente||'')+' '+(c.patente||'')+' '+(c.vin||'')+' '+(c.telefono||'')).toLowerCase();
+      if(texto.indexOf(buscar)===-1) return false;
+    }
+    return true;
+  }).sort(function(a,b){ return (b.fechaHoraProgramada||'').localeCompare(a.fechaHoraProgramada||''); });
+
+  var hoyStr = fmtFecha(new Date());
+  var wpp = COMUNICACIONES.filter(function(c){return c.canal==='whatsapp' && c.estado==='Enviada';}).length;
+  var mail = COMUNICACIONES.filter(function(c){return c.canal==='email' && c.estado==='Enviada';}).length;
+  var pend = COMUNICACIONES.filter(function(c){return c.estado==='Pendiente'||c.estado==='Programada';}).length;
+  var err = COMUNICACIONES.filter(function(c){return c.estado==='Error';}).length;
+  var hoyCount = COMUNICACIONES.filter(function(c){return c.estado==='Enviada' && (c.fechaHoraEnvio||'').indexOf(hoyStr)===0;}).length;
+  var total = COMUNICACIONES.length;
+  var exito = total>0 ? Math.round((COMUNICACIONES.filter(function(c){return c.estado==='Enviada';}).length/total)*100) : 0;
+
+  stats.innerHTML =
+    '<div class="costo-card ok"><div class="icon-badge"><span class="material-symbols-outlined">forum</span></div><div class="valor">'+wpp+'</div><div class="label">WhatsApp enviados</div></div>'+
+    '<div class="costo-card"><div class="icon-badge" style="background:var(--accent-soft);color:var(--accent);"><span class="material-symbols-outlined">mail</span></div><div class="valor">'+mail+'</div><div class="label">Emails enviados</div></div>'+
+    '<div class="costo-card ambar"><div class="icon-badge"><span class="material-symbols-outlined">schedule</span></div><div class="valor">'+pend+'</div><div class="label">Pendientes</div></div>'+
+    '<div class="costo-card"><div class="icon-badge" style="background:var(--danger-soft);color:var(--danger);"><span class="material-symbols-outlined">error</span></div><div class="valor" style="color:var(--danger);">'+err+'</div><div class="label">Errores</div></div>'+
+    '<div class="costo-card morado"><div class="icon-badge"><span class="material-symbols-outlined">today</span></div><div class="valor">'+hoyCount+'</div><div class="label">Enviados hoy</div></div>'+
+    '<div class="costo-card ok"><div class="icon-badge"><span class="material-symbols-outlined">check_circle</span></div><div class="valor">'+exito+'%</div><div class="label">% de éxito</div></div>';
+
+  if(rows.length===0){
+    tabla.innerHTML = '<tr><td style="text-align:center;color:var(--text-faint);padding:24px;">No hay comunicaciones cargadas todavía. En cuanto el motor de Apps Script empiece a enviar, van a aparecer acá.</td></tr>';
+    return;
+  }
+
+  var html = '<tr><th>Cliente</th><th>Marca / Modelo</th><th>Patente</th><th>Canal</th><th>Programado</th><th>Enviado</th><th>Estado</th><th>Intentos</th><th>Acciones</th></tr>';
+  rows.forEach(function(c){
+    var estadoCls = {Enviada:'ok', Error:'danger', Pendiente:'pending', Programada:'pending', Cancelada:'pending'}[c.estado] || 'pending';
+    html += '<tr>'+
+      '<td>'+c.cliente+'</td>'+
+      '<td>'+c.marca+' '+c.modelo+'</td>'+
+      '<td>'+(c.patente||'')+'</td>'+
+      '<td>'+(c.canal==='whatsapp'?'📱 WhatsApp':'✉️ Email')+'</td>'+
+      '<td>'+(c.fechaHoraProgramada||'')+'</td>'+
+      '<td>'+(c.fechaHoraEnvio||'—')+'</td>'+
+      '<td><span class="tag '+estadoCls+'" title="'+(c.motivoError||'')+'">'+c.estado+'</span></td>'+
+      '<td>'+(c.intentos||0)+'</td>'+
+      '<td>'+
+        '<button class="del-btn" style="width:auto;padding:3px 8px;margin:0 3px 0 0;" title="Ver mensaje" onclick="verMensajeComunicacion_(\''+c.id+'\')">👁</button>'+
+        (c.estado==='Error'||c.estado==='Pendiente' ? '<button class="del-btn" style="width:auto;padding:3px 8px;margin:0 3px 0 0;" title="Reenviar" onclick="reenviarComunicacion_(\''+c.marca+'\',\''+c.entregaId+'\',\''+c.canal+'\')">🔁</button>' : '') +
+        (c.estado==='Pendiente'||c.estado==='Programada' ? '<button class="del-btn" style="width:auto;padding:3px 8px;margin:0;" title="Cancelar" onclick="cancelarComunicacion_(\''+c.marca+'\',\''+c.entregaId+'\',\''+c.canal+'\')">✕</button>' : '') +
+      '</td>'+
+    '</tr>';
+  });
+  tabla.innerHTML = html;
+}
+function verMensajeComunicacion_(id){
+  var c = COMUNICACIONES.find(function(x){return x.id===id;});
+  if(!c) return;
+  alert((c.canal==='whatsapp' ? 'Mensaje de WhatsApp enviado a '+c.cliente+':\n\n' : 'Email enviado a '+c.cliente+'\n\n')+(c.mensajeEnviado||'(sin contenido guardado)'));
+}
+function reenviarComunicacion_(marca, entregaId, canal){
+  if(!confirm('¿Reenviar esta comunicación ahora?')) return;
+  gasPost('reenviarComunicacion',{marca:marca, entregaId:entregaId, canal:canal}).then(function(res){
+    showToast(res && res.ok ? 'Reenviado' : 'No se pudo reenviar');
+    _comunicacionesCargadas_ = false;
+    cargarComunicacionesSiHaceFalta_().then(renderHistorialComs);
+  });
+}
+function cancelarComunicacion_(marca, entregaId, canal){
+  if(!confirm('¿Cancelar este envío pendiente?')) return;
+  gasPost('cancelarComunicacion',{marca:marca, entregaId:entregaId, canal:canal}).then(function(res){
+    showToast(res && res.ok ? 'Cancelada' : 'No se pudo cancelar');
+    _comunicacionesCargadas_ = false;
+    cargarComunicacionesSiHaceFalta_().then(renderHistorialComs);
+  });
+}
+function reenviarTodasLasPendientesComs_(){
+  var pendientes = COMUNICACIONES.filter(function(c){return c.estado==='Pendiente'||c.estado==='Error';});
+  if(pendientes.length===0){ showToast('No hay pendientes para reenviar'); return; }
+  if(!confirm('¿Reenviar las '+pendientes.length+' comunicaciones pendientes/con error?')) return;
+  Promise.all(pendientes.map(function(c){
+    return gasPost('reenviarComunicacion',{marca:c.marca, entregaId:c.entregaId, canal:c.canal});
+  })).then(function(){
+    showToast('Reenvíos disparados');
+    _comunicacionesCargadas_ = false;
+    cargarComunicacionesSiHaceFalta_().then(renderHistorialComs);
+  });
+}
+function renderComunicacionesDetalle_(r){
+  var el = document.getElementById('dComunicaciones');
+  if(!el) return;
+  var lista = COMUNICACIONES.filter(function(c){ return c.marca===r.marca && String(c.entregaId)===String(r.id); })
+    .sort(function(a,b){ return (a.fechaHoraProgramada||'').localeCompare(b.fechaHoraProgramada||''); });
+  if(lista.length===0){
+    el.innerHTML = '<div style="color:var(--text-faint);font-size:11.5px;">Todavía no se envió ninguna comunicación automática a este cliente.</div>';
+    return;
+  }
+  el.innerHTML = lista.map(function(c){
+    var estadoCls = {Enviada:'ok', Error:'danger', Pendiente:'pending', Programada:'pending', Cancelada:'pending'}[c.estado] || 'pending';
+    return '<div class="history-item"><span class="history-fecha">'+(c.fechaHoraEnvio||c.fechaHoraProgramada||'')+'</span><span class="history-texto">'+(c.canal==='whatsapp'?'📱 WhatsApp':'✉️ Email')+' — <span class="tag '+estadoCls+'" style="margin-left:4px;">'+c.estado+'</span>'+(c.motivoError?' ('+c.motivoError+')':'')+'</span></div>';
+  }).join('');
 }
 function renderKanban(){
   var board = document.getElementById('kanbanBoard');
@@ -4304,15 +4619,34 @@ function actualizacionSilenciosa(){
 }
 setInterval(actualizacionSilenciosa, 25000);
 
+function itemsPendientesParaEntregar_(r){
+  var faltan = [];
+  if(r.accesorios && !r.accesoriosColocado) faltan.push('Accesorios');
+  if(r.kitSeguridad && !r.kitSeguridadColocado) faltan.push('Kit de seguridad');
+  if(r.manual && !r.manualEntregado) faltan.push('Manual del vehículo');
+  if(r.llaveDuplicada && !r.llaveDuplicadaEntregada) faltan.push('Llave duplicada');
+  if(r.alfombras && !r.alfombrasColocadas) faltan.push('Alfombras');
+  if(r.regaloCorporativo && r.regaloEstado!=='Entregado') faltan.push('Regalo corporativo');
+  if(r.campanaTexto && !r.campanaControlada) faltan.push('Campaña ("'+r.campanaTexto+'")');
+  // OnStar queda afuera a propósito: no bloquea la entrega.
+  return faltan;
+}
 function toggleEntregadaId(marca,id){
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
+  if(!r.entregada){
+    var faltan = itemsPendientesParaEntregar_(r);
+    if(faltan.length>0){
+      var seguir = confirm('⚠ Todavía falta completar:\n\n• '+faltan.join('\n• ')+'\n\n¿Marcar como entregada igual?');
+      if(!seguir) return;
+    }
+  }
   r.entregada=!r.entregada;
   gasPost('updateEntregaFields',{marca:marca,id:id,fields:{entregada:r.entregada}});
   logHistorial_(marca, id, r.entregada ? '🚗 Unidad marcada como entregada' : 'Se desmarcó como entregada');
   if(detailId===id) updateEntregaToggleUI(r);
   renderAll();
   showToast(r.entregada?'Unidad entregada a '+r.cliente:'Se desmarcó como entregada');
-  if(r.entregada && (marca==='peugeot' || marca==='citroen') && !r.npsScore){
+  if(r.entregada && !r.npsScore){
     abrirEncuestaNPS_(marca, id);
   }
 }
@@ -4328,11 +4662,13 @@ function abrirEncuestaNPS_(marca, id){
   }
   scale.innerHTML = html;
   document.getElementById('npsComentario').value = '';
+  ocultarErrorNPS_();
   document.getElementById('npsOverlay').classList.add('show');
   document.getElementById('npsModal').classList.add('show');
 }
 function elegirPuntajeNPS_(n, btn){
   npsContexto_.puntaje = n;
+  ocultarErrorNPS_();
   document.querySelectorAll('.nps-btn').forEach(function(b){ b.classList.remove('selected'); });
   btn.classList.add('selected');
 }
@@ -4342,20 +4678,46 @@ function cerrarEncuestaNPS_(silencioso){
   if(!silencioso) showToast('Encuesta guardada');
   npsContexto_ = null;
 }
+function mostrarErrorNPS_(msg){
+  var el = document.getElementById('npsError');
+  el.textContent = '⚠ '+msg;
+  el.style.display = 'block';
+}
+function ocultarErrorNPS_(){
+  document.getElementById('npsError').style.display = 'none';
+}
 function guardarEncuestaNPS_(){
-  if(!npsContexto_){ return; }
-  if(npsContexto_.puntaje===null){ showToast('Elegí un puntaje del 1 al 10'); return; }
-  var marca=npsContexto_.marca, id=npsContexto_.id, puntaje=npsContexto_.puntaje;
-  var comentario = document.getElementById('npsComentario').value.trim();
-  var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
-  if(r){
-    r.npsScore = puntaje;
-    r.npsComentario = comentario;
-    r.npsFecha = fechaHoraAhora_();
-    gasPost('updateEntregaFields',{marca:marca,id:id,fields:{npsScore:puntaje, npsComentario:comentario, npsFecha:r.npsFecha}});
-    var categoria = puntaje<=6 ? 'Detractor' : (puntaje<=8 ? 'Pasivo' : 'Promotor');
-    logHistorial_(marca, id, '⭐ Encuesta NPS: '+puntaje+'/10 ('+categoria+')'+(comentario?' — "'+comentario+'"':''));
+  ocultarErrorNPS_();
+  // Campo obligatorio faltante
+  if(!npsContexto_){ mostrarErrorNPS_('No se encontró el contexto de la entrega. Cerrá y volvé a intentar.'); return; }
+  if(npsContexto_.puntaje===null || npsContexto_.puntaje===undefined){
+    mostrarErrorNPS_('Elegí un puntaje del 1 al 10 antes de guardar.');
+    return;
   }
+  var marca=npsContexto_.marca, id=npsContexto_.id, puntaje=Number(npsContexto_.puntaje);
+  // Dato inconsistente: puntaje fuera de rango o no numérico
+  if(isNaN(puntaje) || puntaje<1 || puntaje>10){
+    mostrarErrorNPS_('El puntaje tiene que ser un número entre 1 y 10.');
+    return;
+  }
+  // Información faltante: falta marca o id de la entrega
+  if(!marca || !id){
+    mostrarErrorNPS_('Faltan datos de la entrega (marca o ID). No se puede guardar.');
+    return;
+  }
+  var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
+  // Dato inconsistente: la entrega ya no existe en el sistema
+  if(!r){
+    mostrarErrorNPS_('Esta entrega ya no existe en el sistema. No se puede guardar la encuesta.');
+    return;
+  }
+  var comentario = document.getElementById('npsComentario').value.trim();
+  r.npsScore = puntaje;
+  r.npsComentario = comentario;
+  r.npsFecha = fechaHoraAhora_();
+  gasPost('updateEntregaFields',{marca:marca,id:id,fields:{npsScore:puntaje, npsComentario:comentario, npsFecha:r.npsFecha}});
+  var categoria = puntaje<=6 ? 'Detractor' : (puntaje<=8 ? 'Pasivo' : 'Promotor');
+  logHistorial_(marca, id, '⭐ Encuesta NPS: '+puntaje+'/10 ('+categoria+')'+(comentario?' — "'+comentario+'"':''));
   cerrarEncuestaNPS_(false);
 }
 function toggleTraslado(){
@@ -4531,6 +4893,7 @@ function openDetail(marca, id){
   renderRegaloUI(r);
   renderKitSeguridadUI(r);
   renderLlaveDuplicadaUI(r);
+  renderAlfombrasUI(r);
   renderManualUI(r);
   document.getElementById('dObservaciones').value=r.observaciones||'';
   var parts=(r.fecha||'').split('/');
@@ -4540,6 +4903,8 @@ function openDetail(marca, id){
   document.getElementById('rMotivoPreset').value='';
   document.getElementById('rWarning').style.display='none';
   renderHistorialUI(r); renderComentariosUI(r);
+  cargarComunicacionesSiHaceFalta_().then(function(){ renderComunicacionesDetalle_(r); });
+  renderComunicacionesDetalle_(r);
   aplicarSoloLecturaDrawer_();
   inicializarAcordeonDrawer_();
   document.getElementById('overlay').classList.add('show');
@@ -4769,6 +5134,39 @@ function toggleLlaveDuplicada(){
   logHistorial_(detailMarca, detailId, r.llaveDuplicadaEntregada ? '🔑 Llave duplicada marcada como entregada' : 'Llave duplicada marcada como pendiente');
   renderLlaveDuplicadaUI(r); renderAll();
   showToast(r.llaveDuplicadaEntregada?'Llave duplicada entregada':'Llave duplicada pendiente');
+}
+
+function renderAlfombrasUI(r){
+  document.getElementById('dAlfombras').value = r.alfombras ? 'Sí' : 'No';
+  var btn=document.getElementById('dAlfombrasToggle');
+  if(r.alfombras){
+    btn.style.display='block';
+    var hecho = !!r.alfombrasColocadas;
+    btn.textContent = hecho ? ('✓ Alfombras ' + 'colocadas' + (r.alfombrasColocadasFecha ? ' — '+r.alfombrasColocadasFecha : '')) : '🚗 Pendiente de colocar';
+    btn.className = 'toggle-btn '+(hecho?'done':'pending');
+  } else {
+    btn.style.display='none';
+  }
+}
+function cambiarAlfombras(valor){
+  if(!detailId) return;
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  r.alfombras = (valor==='Sí');
+  if(!r.alfombras){ r.alfombrasColocadas=false; r.alfombrasColocadasFecha=''; }
+  gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{alfombras:r.alfombras, alfombrasColocadas:r.alfombrasColocadas, alfombrasColocadasFecha:r.alfombrasColocadasFecha||''}});
+  logHistorial_(detailMarca, detailId, r.alfombras ? 'Alfombras: pasó a corresponder' : 'Alfombras: pasó a NO corresponder');
+  renderAlfombrasUI(r); renderAll();
+  showToast('Actualizado');
+}
+function toggleAlfombras(){
+  if(!detailId) return;
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  r.alfombrasColocadas = !r.alfombrasColocadas;
+  r.alfombrasColocadasFecha = r.alfombrasColocadas ? fechaHoraAhora_() : '';
+  gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{alfombrasColocadas:r.alfombrasColocadas, alfombrasColocadasFecha:r.alfombrasColocadasFecha}});
+  logHistorial_(detailMarca, detailId, r.alfombrasColocadas ? '🚗 Alfombras marcadas como colocadas' : 'Alfombras marcadas como pendiente');
+  renderAlfombrasUI(r); renderAll();
+  showToast(r.alfombrasColocadas?'Alfombras colocadas':'Alfombras pendiente');
 }
 function renderManualUI(r){
   document.getElementById('dManual').value = r.manual ? 'Sí' : 'No';
@@ -5032,10 +5430,11 @@ function openNewDelivery(){
   document.getElementById('nHora').value='';
   var duracionDefault = Math.max(15, Math.min(120, Math.round((CONFIG.duracionEntrega||60)/15)*15));
   document.getElementById('nDuracion').value = duracionDefault;
-  document.getElementById('nRegaloCorp').value = 'No';
-  document.getElementById('nKitSeguridad').value = 'No';
-  document.getElementById('nManual').value = 'No';
-  document.getElementById('nLlaveDuplicada').value = 'No';
+  document.getElementById('nRegaloCorp').value = 'Sí';
+  document.getElementById('nKitSeguridad').value = 'Sí';
+  document.getElementById('nManual').value = 'Sí';
+  document.getElementById('nLlaveDuplicada').value = 'Sí';
+  document.getElementById('nAlfombras').value = 'Sí';
   document.getElementById('nTipoVenta').value='OKM';
   document.getElementById('nUsado').value='No';
   actualizarSucursalYContextoNuevaEntrega_(brand);
@@ -5207,6 +5606,8 @@ function submitNewDelivery(){
     manualEntregado:false, manualEntregadoFecha:'',
     llaveDuplicada: document.getElementById('nLlaveDuplicada').value==='Sí',
     llaveDuplicadaEntregada:false, llaveDuplicadaEntregadaFecha:'',
+    alfombras: document.getElementById('nAlfombras').value==='Sí',
+    alfombrasColocadas:false, alfombrasColocadasFecha:'',
     accesorios:accesorios, accesoriosColocado: accesorios?window.nAccState:false, accesoriosColocadoFecha: (accesorios&&window.nAccState)?fechaHoraAhora_():'',
     campanaTexto:campana, campanaControlada: campana?window.nCampanaState:false, campanaControladaFecha: (campana&&window.nCampanaState)?fechaHoraAhora_():'',
     lugar:document.getElementById('nLugar').value.trim(), observaciones:document.getElementById('nObservaciones').value.trim(),
@@ -5244,8 +5645,8 @@ function openEmailPreview(tipo, marca, id){
   gasGet('previsualizarPlantilla',{tipo:tipo,marca:useMarca,id:useId}).then(function(render){
     document.getElementById('emailPreviewContent').innerHTML = render.cuerpo;
     var btn=document.getElementById('emailActionBtn');
-    if(tipo==='confirmacion'){ btn.textContent=r.confirmado?'↻ Reenviar confirmación':'Enviar confirmación ahora'; btn.disabled=false; }
-    else { btn.textContent='Reenviar recordatorio ahora'; btn.disabled=false; }
+    if(tipo==='confirmacion'){ btn.innerHTML=(r.confirmado?'<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">refresh</span> Reenviar confirmación':'<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">mail</span> Enviar confirmación ahora'); btn.disabled=false; }
+    else { btn.innerHTML='<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">mail</span> Reenviar recordatorio ahora'; btn.disabled=false; }
   });
 }
 function closeEmailPreview(){ document.getElementById('overlay').classList.remove('show'); document.getElementById('emailModal').classList.remove('show'); }
@@ -5253,6 +5654,7 @@ function closeEmailPreview(){ document.getElementById('overlay').classList.remov
 function construirMensajeBienvenida_(r){
   var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
   var postventa = (CONFIG.postventaWhatsapp && CONFIG.postventaWhatsapp[r.marca]) || '';
+  var repuestosServicio = (CONFIG.repuestosServicio && CONFIG.repuestosServicio[r.marca]) || '';
   var calidad = CONFIG.telefonoContacto || '';
   var asesor = r.vendedor || '—';
   return '🚗 ¡Bienvenido/a a Grupo París!\n\n'+
@@ -5267,6 +5669,7 @@ function construirMensajeBienvenida_(r){
     '✔️ Coordinar revisiones y asistencia cuando lo necesites.\n\n'+
     'Tus contactos\n'+
     '🚗 Asesor de Ventas: '+asesor+'\n'+
+    '🔩 Repuestos y Servicio: '+(repuestosServicio||'—')+'\n'+
     '🔧 Postventa: '+(postventa||'—')+'\n'+
     '⭐ Calidad: '+(calidad||'—')+'\n\n'+
     'Gracias por confiar en Grupo París. Esperamos seguir acompañándote en cada etapa para que disfrutes tu vehículo con la tranquilidad de contar siempre con nuestro equipo.';
@@ -5541,6 +5944,7 @@ function openConfig(){
   renderDireccionesUI();
   document.getElementById('cfgTelefono').value = CONFIG.telefonoContacto || '';
   renderPostventaWhatsappInputs_();
+  renderRepuestosServicioInputs_();
   document.getElementById('cfgAccesoLibrePassword').value = CONFIG.accesoLibrePassword || '';
   var requierePass = !!CONFIG.accesoLibrePassword;
   document.getElementById('cfgAccesoLibreRequierePassword').checked = requierePass;
@@ -5800,6 +6204,23 @@ function guardarPostventaWhatsapp(){
   CONFIG.postventaWhatsapp = nuevo;
   persistirConfig('Números de Postventa actualizados');
 }
+function renderRepuestosServicioInputs_(){
+  var cont = document.getElementById('repuestosServicioContainer');
+  if(!cont) return;
+  var actuales = CONFIG.repuestosServicio || {};
+  cont.innerHTML = BRANDS.map(function(b){
+    return '<div class="form-field"><label>'+b.label+'</label><input id="cfgRepuestosServicio_'+b.id+'" value="'+(actuales[b.id]||'')+'" placeholder="Ej: 2664001040"></div>';
+  }).join('');
+}
+function guardarRepuestosServicio(){
+  var nuevo = {};
+  BRANDS.forEach(function(b){
+    var el = document.getElementById('cfgRepuestosServicio_'+b.id);
+    if(el) nuevo[b.id] = el.value.trim();
+  });
+  CONFIG.repuestosServicio = nuevo;
+  persistirConfig('Números de Repuestos y Servicio actualizados');
+}
 function guardarModulosActivos(){
   var activos = {};
   document.querySelectorAll('#cfgModulosRow input').forEach(function(c){ activos[c.value] = c.checked; });
@@ -5955,13 +6376,95 @@ function irAMaestro(){
 }
 function closeMaestro(){ /* ya no es modal — no hace falta cerrar nada */ }
 
+var PLANTILLA_WHATSAPP_DEFAULT = 'Buenos días, {Nombre}! 👋😊\n\nMi nombre es Milagros y me comunico desde Grupo París, del sector de Calidad.\n\nAntes que nada, quería felicitarte por tu nueva {Marca} {Modelo} 🚗🎉 y agradecerte por habernos elegido. Esperamos que la estés disfrutando.\n\nDesde nuestro sector nos interesa conocer cómo fue tu experiencia durante todo el proceso de compra, para asegurarnos de que haya sido clara, ágil y satisfactoria.\n\nSi tenés unos minutos, nos gustaría que nos cuentes cómo fue tu experiencia. Podés comentarnos libremente sobre cualquier etapa del proceso: la atención del vendedor, administración, entrega del vehículo o cualquier otro aspecto que consideres importante.\n\nValoramos muchísimo tanto los comentarios positivos como las oportunidades de mejora, ya que nos ayudan a seguir creciendo y brindando un mejor servicio. 💙\n\nAdemás, si podés, nos ayudaría mucho que respondieras estas tres consultas:\n\n⭐ Del 1 al 10, ¿con qué nota recomendarías a Grupo París?\n\n🚘 ¿Entregaste un vehículo usado en parte de pago?\n\n📋 Si la respuesta es sí, ¿podrías indicarnos la patente de la unidad entregada?\n\nDesde ya, ¡muchísimas gracias por tu tiempo! 😊\n\nQuedo a disposición por cualquier consulta o duda que tengas.\n\nMilagros\nSector de Calidad | Grupo París';
+
+function automatizacionesDefault_(){
+  return {
+    whatsapp: {activo:false, horas:24, reintentos:3, marcas:BRANDS.map(function(b){return b.id;}), template:PLANTILLA_WHATSAPP_DEFAULT, proveedor:'', numero:'', url:'', token:'', apiKey:''},
+    email: {activo:false, horas:48, reintentos:3, marcas:['chevrolet'], asunto:'{NombreCompleto}, tu experiencia en París Cars', formUrl:''}
+  };
+}
+function renderAutomatizacionesUI_(){
+  if(!CONFIG.automatizaciones) CONFIG.automatizaciones = automatizacionesDefault_();
+  var a = CONFIG.automatizaciones;
+
+  document.getElementById('autoWhatsappActivo').checked = !!a.whatsapp.activo;
+  document.getElementById('autoWhatsappHoras').value = a.whatsapp.horas;
+  document.getElementById('autoWhatsappReintentos').value = a.whatsapp.reintentos;
+  document.getElementById('autoWhatsappTemplate').value = a.whatsapp.template;
+  document.getElementById('autoWhatsappProveedor').value = a.whatsapp.proveedor||'';
+  document.getElementById('autoWhatsappNumero').value = a.whatsapp.numero||'';
+  document.getElementById('autoWhatsappUrl').value = a.whatsapp.url||'';
+  document.getElementById('autoWhatsappToken').value = a.whatsapp.token||'';
+  document.getElementById('autoWhatsappApiKey').value = a.whatsapp.apiKey||'';
+  document.getElementById('autoWhatsappMarcas').innerHTML = BRANDS.map(function(b){
+    var on = a.whatsapp.marcas.indexOf(b.id)>-1;
+    return '<label class="filter-pill'+(on?' active':'')+'" style="cursor:pointer;"><input type="checkbox" data-canal="whatsapp" data-marca="'+b.id+'" '+(on?'checked':'')+' onchange="toggleMarcaAutomatizacion_(this)" style="margin-right:5px;">'+b.label+'</label>';
+  }).join('');
+
+  document.getElementById('autoEmailActivo').checked = !!a.email.activo;
+  document.getElementById('autoEmailHoras').value = a.email.horas;
+  document.getElementById('autoEmailReintentos').value = a.email.reintentos;
+  document.getElementById('autoEmailAsunto').value = a.email.asunto;
+  document.getElementById('autoEmailFormUrl').value = a.email.formUrl||'';
+  document.getElementById('autoEmailMarcas').innerHTML = BRANDS.map(function(b){
+    var on = a.email.marcas.indexOf(b.id)>-1;
+    return '<label class="filter-pill'+(on?' active':'')+'" style="cursor:pointer;"><input type="checkbox" data-canal="email" data-marca="'+b.id+'" '+(on?'checked':'')+' onchange="toggleMarcaAutomatizacion_(this)" style="margin-right:5px;">'+b.label+'</label>';
+  }).join('');
+}
+function toggleMarcaAutomatizacion_(chk){
+  var canal = chk.getAttribute('data-canal'), marca = chk.getAttribute('data-marca');
+  var a = CONFIG.automatizaciones;
+  var idx = a[canal].marcas.indexOf(marca);
+  if(chk.checked && idx===-1) a[canal].marcas.push(marca);
+  if(!chk.checked && idx>-1) a[canal].marcas.splice(idx,1);
+  chk.closest('label').classList.toggle('active', chk.checked);
+  guardarAutomatizaciones_(true);
+}
+function guardarAutomatizaciones_(yaActualizado){
+  var a = CONFIG.automatizaciones;
+  if(!yaActualizado){
+    a.whatsapp.activo = document.getElementById('autoWhatsappActivo').checked;
+    a.whatsapp.horas = Number(document.getElementById('autoWhatsappHoras').value)||24;
+    a.whatsapp.reintentos = Number(document.getElementById('autoWhatsappReintentos').value)||3;
+    a.whatsapp.template = document.getElementById('autoWhatsappTemplate').value;
+    a.whatsapp.proveedor = document.getElementById('autoWhatsappProveedor').value;
+    a.whatsapp.numero = document.getElementById('autoWhatsappNumero').value;
+    a.whatsapp.url = document.getElementById('autoWhatsappUrl').value;
+    a.whatsapp.token = document.getElementById('autoWhatsappToken').value;
+    a.whatsapp.apiKey = document.getElementById('autoWhatsappApiKey').value;
+    a.email.activo = document.getElementById('autoEmailActivo').checked;
+    a.email.horas = Number(document.getElementById('autoEmailHoras').value)||48;
+    a.email.reintentos = Number(document.getElementById('autoEmailReintentos').value)||3;
+    a.email.asunto = document.getElementById('autoEmailAsunto').value;
+    a.email.formUrl = document.getElementById('autoEmailFormUrl').value;
+  }
+  gasPost('guardarConfig',{config:CONFIG}).then(function(){
+    showToast('Automatizaciones guardadas');
+  });
+}
+function reemplazarVariables_(texto, r){
+  var partesNombre = (r.cliente||'').trim().split(' ');
+  var nombre = partesNombre[0]||'';
+  var apellido = partesNombre.slice(1).join(' ')||'';
+  var b = BRANDS.find(function(x){return x.id===r.marca;}) || {label:r.marca};
+  var mapa = {
+    '{Nombre}':nombre, '{Apellido}':apellido, '{NombreCompleto}':r.cliente||'',
+    '{Marca}':b.label, '{Modelo}':r.modelo||'', '{Versión}':r.version||'', '{Patente}':r.dominio||'',
+    '{VIN}':r.chasis||'', '{FechaEntrega}':r.fecha||'', '{Vendedor}':r.vendedor||'',
+    '{Sucursal}':r.sucursal||'', '{Celular}':r.telefono||'', '{Email}':r.email||''
+  };
+  var resultado = texto;
+  Object.keys(mapa).forEach(function(k){ resultado = resultado.split(k).join(mapa[k]); });
+  return resultado;
+}
 function setMaestroTab(tab){
   maestroTabActual = tab;
-  ['dashboard','regalos','kit','reportes','plantillas','config','permisos','cargas'].forEach(function(t){
+  ['dashboard','regalos','kit','reportes','plantillas','config','automatizaciones','permisos','cargas'].forEach(function(t){
     document.getElementById('tabMaestro'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active', t===tab);
     document.getElementById('paneMaestro'+t.charAt(0).toUpperCase()+t.slice(1)).style.display = (t===tab)?'block':'none';
   });
-  var SUBITEM_POR_TAB = {dashboard:'subReportesDashboard', regalos:'subReportesRegalos', kit:'subReportesKit', reportes:'subReportesBuscador', config:'subMaestroConfig', plantillas:'subMaestroPlantillas', permisos:'subMaestroPermisos', cargas:'subMaestroCargas'};
+  var SUBITEM_POR_TAB = {dashboard:'subReportesDashboard', regalos:'subReportesRegalos', kit:'subReportesKit', reportes:'subReportesBuscador', config:'subMaestroConfig', automatizaciones:'subMaestroAutomatizaciones', plantillas:'subMaestroPlantillas', permisos:'subMaestroPermisos', cargas:'subMaestroCargas'};
   Object.keys(SUBITEM_POR_TAB).forEach(function(t){
     var el = document.getElementById(SUBITEM_POR_TAB[t]);
     if(el) el.classList.toggle('active', t===tab);
@@ -5973,6 +6476,7 @@ function setMaestroTab(tab){
     kit:['Kit de Seguridad', 'Proyección y stock del kit de seguridad.'],
     reportes:['Buscador de reportes', 'Filtrá entregas por cualquier combinación de datos.'],
     config:['Configurar equipo', 'Vendedores, administrativos, responsables, bloqueos y direcciones.'],
+    automatizaciones:['Automatizaciones', 'Comunicaciones automáticas post-entrega, sin tocar código.'],
     plantillas:['Plantillas de mail', 'Una plantilla distinta por marca y por tipo de mail.'],
     permisos:['Usuarios y Permisos', 'Altas, edición, contraseñas y roles de acceso.'],
     cargas:['Cargas masivas', 'Importar bases externas para actualizar entregas ya cargadas.']
@@ -5986,6 +6490,7 @@ function setMaestroTab(tab){
   if(tab==='regalos') renderRegalosPanel();
   if(tab==='kit') renderKitPanel();
   if(tab==='config') openConfig();
+  if(tab==='automatizaciones') renderAutomatizacionesUI_();
   if(tab==='permisos'){
     renderUsuariosTabla_();
     if(window._intervalUsuariosTabla) clearInterval(window._intervalUsuariosTabla);
@@ -7207,25 +7712,6 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('/sw.js').catch(function(){});
   });
 }
-(function(){
-  var lastScrollY = 0;
-  var umbral = 12; // píxeles mínimos de scroll antes de reaccionar, para que no titile
-  function obtenerScrollY(){
-    return window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
-  }
-  function manejarScroll(){
-    var fila = document.getElementById('topbarBrandsRow');
-    if(!fila) return;
-    var y = obtenerScrollY();
-    if(y < 40){ fila.classList.remove('tb-hidden'); lastScrollY = y; return; } // siempre visible arriba de todo
-    if(Math.abs(y - lastScrollY) < umbral) return;
-    if(y > lastScrollY){ fila.classList.add('tb-hidden'); } // bajando → esconder
-    else { fila.classList.remove('tb-hidden'); } // subiendo → mostrar
-    lastScrollY = y;
-  }
-  window.addEventListener('scroll', manejarScroll, {passive:true});
-  document.addEventListener('scroll', manejarScroll, {passive:true, capture:true});
-})();
 init();
 </script>
 </body>
