@@ -1707,7 +1707,7 @@
           <div id="autoEmailMarcas" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;"></div>
         </div>
         <div class="form-field">
-          <label>Asunto</label><input id="autoEmailAsunto" placeholder="{NombreCompleto}, tu experiencia en París Cars" onchange="guardarAutomatizaciones_()">
+          <label>Asunto — variables: {Nombre} {NombreCompleto} {Marca} {Entidad} (Paris Cars / Autos / Motos según la marca)</label><input id="autoEmailAsunto" placeholder="{NombreCompleto}, tu experiencia en {Entidad}" onchange="guardarAutomatizaciones_()">
         </div>
         <div class="form-field" style="margin-top:12px;">
           <label style="font-size:11px;text-transform:uppercase;color:var(--text-faint);font-weight:700;">Link de la encuesta por marca (Google Form, Typeform, etc. — cada marca su propio formulario)</label>
@@ -1767,7 +1767,8 @@
       <div class="maestro-tags" id="tagsBloqueosSemana"></div>
       <div class="maestro-add">
         <select id="inDiaSemana"><option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option><option>Viernes</option><option selected>Sábado</option><option>Domingo</option></select>
-        <select id="inDesdeHora"><option value="00:00">Todo el día</option><option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option><option selected>15:00</option><option>16:00</option><option>17:00</option></select>
+        <select id="inDesdeHora"><option value="00:00">Todo el día</option><option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option><option selected>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option></select>
+        <select id="inHastaHora"><option value="18:00">18:00</option><option>13:00</option><option>14:00</option><option selected>15:00</option><option>16:00</option><option>17:00</option><option>19:00</option><option>20:00</option></select>
         <button onclick="addBloqueoSemanal()">Agregar</button>
       </div>
     </div>
@@ -1946,6 +1947,18 @@
 <div class="toast" id="toast"></div>
 
 <div class="overlay" id="pendientesOverlay" onclick="if(event.target===this)cerrarPendientesEntrega_()"></div>
+<div class="overlay" id="motivoOverlay"></div>
+<div class="nps-modal" id="motivoModal" style="max-width:420px;">
+  <div class="nps-modal-icon">📝</div>
+  <h3 id="motivoModalTitulo">¿Por qué queda pendiente?</h3>
+  <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:12px;">Este motivo va a quedar guardado en el Historial de la entrega.</div>
+  <textarea id="motivoModalInput" rows="3" placeholder="Ej: no había stock, se pidió al proveedor..." style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'Inter',sans-serif;font-size:13px;resize:vertical;margin-bottom:14px;"></textarea>
+  <div style="display:flex;gap:10px;">
+    <button class="view-btn" style="flex:1;" onclick="cerrarModalMotivo_(null)">Cancelar</button>
+    <button class="save-btn" style="flex:1;margin:0;" onclick="cerrarModalMotivo_(document.getElementById('motivoModalInput').value)">Aceptar</button>
+  </div>
+</div>
+
 <div class="nps-modal" id="pendientesModal" style="max-width:420px;">
   <button class="close" onclick="cerrarPendientesEntrega_()" style="position:absolute;top:14px;right:16px;">✕</button>
   <div class="nps-modal-icon">⚠️</div>
@@ -1975,8 +1988,9 @@
     <button class="close" onclick="closeDetail()">✕</button>
     <h3 id="dHeadName">—</h3>
     <div class="sub" id="dHeadSub">—</div>
-    <div id="dObservacionesAlerta" style="display:none;margin-top:8px;background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionObservaciones_()"><span class="material-symbols-outlined" style="font-size:15px;">sticky_note_2</span>Esta entrega tiene observaciones cargadas</div>
-    <div id="dAccesorioAlerta" style="display:none;margin-top:8px;background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionAccesorio_()"><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
+    <div id="dObservacionesAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionObservaciones_()"><span class="material-symbols-outlined" style="font-size:15px;">sticky_note_2</span>Esta entrega tiene observaciones cargadas</div>
+    <div id="dAccesorioAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionAccesorio_()"><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
+    <div id="dOnstarAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionOnstar_()"><span class="material-symbols-outlined" style="font-size:15px;">directions_car</span></div>
   </div>
   <div class="drawer-body">
     <button class="entrega-toggle pending" id="dEntregaToggle" onclick="toggleEntregada()">🚗 Marcar unidad como entregada</button>
@@ -3454,7 +3468,7 @@ function toggleBrandSeleccion(id){
     currentBrands.push(id);
   }
   currentBrand = currentBrands[0];
-  currentBranches=['San Juan']; filterOnstar=null;
+  filterOnstar=null;
   guardarFiltroPreferido();
   renderSwitcher(); renderAll();
 }
@@ -3485,7 +3499,7 @@ function checkBloqueado(){
   var f=esFeriado(fmtFecha(currentDate)), r=reglaDia(DIAS[currentDate.getDay()]);
   if(f){ banner.style.display='block'; banner.textContent='🚫 Feriado — '+f.motivo+'.'; if(addBtn) addBtn.disabled=true; }
   else if(r && r.desde==='00:00'){ banner.style.display='block'; banner.textContent='🚫 '+DIAS[currentDate.getDay()]+' bloqueado todo el día.'; if(addBtn) addBtn.disabled=true; }
-  else if(r){ banner.style.display='block'; banner.textContent='⚠ No se agenda desde las '+r.desde+'.'; if(addBtn) addBtn.disabled=false; }
+  else if(r){ banner.style.display='block'; banner.textContent='⚠ No se agenda de '+r.desde+' a '+(r.hasta||'18:00')+'.'; if(addBtn) addBtn.disabled=false; }
   else { banner.style.display='none'; if(addBtn) addBtn.disabled=false; }
 }
 
@@ -3793,14 +3807,17 @@ function heroToggleRegalo(marca,id){
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r) return;
   var entregado = r.regaloEstado==='Entregado';
-  var motivo = '';
-  if(entregado){ motivo = pedirObservacionPendiente_('Regalo corporativo'); if(motivo===null) return; }
-  r.regaloEstado = entregado ? 'Pendiente' : 'Entregado';
-  r.regaloFecha = entregado ? '' : fechaHoraAhora_();
-  gasPost('updateEntregaFields',{marca:marca,id:id,fields:{regaloEstado:r.regaloEstado, regaloFecha:r.regaloFecha}});
-  logHistorial_(marca, id, r.regaloEstado==='Entregado' ? 'Regalo corporativo marcado como entregado' : ('Regalo corporativo marcado como pendiente — Motivo: '+motivo));
-  showToast(r.regaloEstado==='Entregado'?'Regalo entregado':'Regalo pendiente');
-  renderResumenHoyManana(); renderAll();
+  function aplicar(motivo){
+    r.regaloEstado = entregado ? 'Pendiente' : 'Entregado';
+    r.regaloFecha = entregado ? '' : fechaHoraAhora_();
+    r.regaloObservaciones = entregado ? (motivo||'') : '';
+    gasPost('updateEntregaFields',{marca:marca,id:id,fields:{regaloEstado:r.regaloEstado, regaloFecha:r.regaloFecha, regaloObservaciones:r.regaloObservaciones}});
+    logHistorial_(marca, id, r.regaloEstado==='Entregado' ? 'Regalo corporativo marcado como entregado' : ('Regalo corporativo marcado como pendiente — Motivo: '+motivo));
+    showToast(r.regaloEstado==='Entregado'?'Regalo entregado':'Regalo pendiente');
+    renderResumenHoyManana(); renderAll();
+  }
+  if(entregado){ pedirObservacionPendiente_('Regalo corporativo', function(motivo){ if(motivo!==null) aplicar(motivo); }); }
+  else { aplicar(''); }
 }
 function colorSucursal_(suc){
   var map = {'San Juan':'--suc-sanjuan','San Luis':'--suc-sanluis','Villa Mercedes':'--suc-villamercedes','Merlo':'--suc-merlo'};
@@ -4009,6 +4026,16 @@ function cargarComunicacionesSiHaceFalta_(){
     _comunicacionesCargadas_ = true;
   }).catch(function(){ COMUNICACIONES = []; _comunicacionesCargadas_ = true; });
 }
+function fmtFechaComs_(valor){
+  if(!valor) return '—';
+  var d = new Date(valor);
+  if(isNaN(d.getTime())) return String(valor); // por si ya viene como texto plano
+  var dd = String(d.getDate()).padStart(2,'0');
+  var mm = String(d.getMonth()+1).padStart(2,'0');
+  var hh = String(d.getHours()).padStart(2,'0');
+  var mi = String(d.getMinutes()).padStart(2,'0');
+  return dd+'/'+mm+'/'+d.getFullYear()+' '+hh+':'+mi;
+}
 function renderHistorialComs(){
   var stats = document.getElementById('historialComsStats');
   var tabla = document.getElementById('historialComsTabla');
@@ -4058,9 +4085,9 @@ function renderHistorialComs(){
       '<td>'+c.marca+' '+c.modelo+'</td>'+
       '<td>'+(c.patente||'')+'</td>'+
       '<td>'+(c.canal==='whatsapp'?'📱 WhatsApp':'✉️ Email')+'</td>'+
-      '<td>'+(c.fechaHoraProgramada||'')+'</td>'+
-      '<td>'+(c.fechaHoraEnvio||'—')+'</td>'+
-      '<td><span class="tag '+estadoCls+'" title="'+(c.motivoError||'')+'">'+c.estado+'</span></td>'+
+      '<td style="white-space:nowrap;">'+fmtFechaComs_(c.fechaHoraProgramada)+'</td>'+
+      '<td style="white-space:nowrap;">'+(c.fechaHoraEnvio ? fmtFechaComs_(c.fechaHoraEnvio) : '—')+'</td>'+
+      '<td style="white-space:nowrap;padding-left:10px;"><span class="tag '+estadoCls+'" title="'+(c.motivoError||'')+'">'+c.estado+'</span></td>'+
       '<td>'+(c.intentos||0)+'</td>'+
       '<td>'+
         '<button class="del-btn" style="width:auto;padding:3px 8px;margin:0 3px 0 0;" title="Ver mensaje" onclick="verMensajeComunicacion_(\''+c.id+'\')">👁</button>'+
@@ -4331,6 +4358,15 @@ function cerrarHorariosDia(){
   document.getElementById('calLayoutWrap').style.gridTemplateColumns = '1fr';
 }
 function horaAMinutos_(h){ var p=h.split(':'); return Number(p[0])*60+Number(p[1]); }
+// true si el horario (en minutos) cae DENTRO del rango bloqueado por la regla del día.
+// Compatible con reglas viejas que no tenían "hasta" (las trata como bloqueadas hasta el cierre).
+function minutoBloqueadoPorRegla_(min, regla){
+  if(!regla) return false;
+  if(regla.desde==='00:00') return true; // todo el día
+  var desdeMin = horaAMinutos_(regla.desde);
+  var hastaMin = regla.hasta ? horaAMinutos_(regla.hasta) : horaAMinutos_('18:00');
+  return min>=desdeMin && min<hastaMin;
+}
 function minutosAHora_(min){ var h=Math.floor(min/60), m=min%60; return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'); }
 // Dos entregas "se pisan" si sus rangos [hora, hora+duración) se superponen en algún punto,
 // no solo si empiezan exactamente a la misma hora.
@@ -4388,12 +4424,17 @@ function renderHorariosDia_(){
     return;
   }
 
-  var desdeMin = regla ? horaAMinutos_(regla.desde) : horaAMinutos_('09:00');
+  var desdeMin = horaAMinutos_('09:00');
   var hastaMin = horaAMinutos_('18:00');
   var PASO = 15;
   var html = '';
   for(var min=desdeMin; min<hastaMin; min+=PASO){
     var horaSlot = minutosAHora_(min);
+    if(minutoBloqueadoPorRegla_(min, regla)){
+      html += '<div class="horario-slot bloqueado" style="opacity:.5;cursor:not-allowed;">'+
+        '<span class="hora">'+horaSlot+'</span><span class="info">🚫 Bloqueado ('+regla.desde+' a '+(regla.hasta||'18:00')+')</span></div>';
+      continue;
+    }
     var ocupante = rows.find(function(r){
       var inicio = horaAMinutos_(r.hora);
       var fin = inicio + (r.duracionMinutos || 60);
@@ -4671,14 +4712,15 @@ setInterval(actualizacionSilenciosa, 25000);
 
 function itemsPendientesParaEntregar_(r){
   var faltan = [];
-  if(r.accesorios && !r.accesoriosColocado) faltan.push('Accesorios');
-  if(r.kitSeguridad && !r.kitSeguridadColocado) faltan.push('Kit de seguridad');
-  if(r.manual && !r.manualEntregado) faltan.push('Manual del vehículo');
-  if(r.llaveDuplicada && !r.llaveDuplicadaEntregada) faltan.push('Llave duplicada');
-  if(r.alfombras && !r.alfombrasColocadas) faltan.push('Alfombras');
-  if(r.regaloCorporativo && r.regaloEstado!=='Entregado') faltan.push('Regalo corporativo');
+  if(r.accesorios && !r.accesoriosColocado && !r.accesoriosMotivo) faltan.push('Accesorios');
+  if(r.kitSeguridad && !r.kitSeguridadColocado && !r.kitSeguridadMotivo) faltan.push('Kit de seguridad');
+  if(r.manual && !r.manualEntregado && !r.manualMotivo) faltan.push('Manual del vehículo');
+  if(r.llaveDuplicada && !r.llaveDuplicadaEntregada && !r.llaveDuplicadaMotivo) faltan.push('Llave duplicada');
+  if(r.alfombras && !r.alfombrasColocadas && !r.alfombrasMotivo) faltan.push('Alfombras');
+  if(r.regaloCorporativo && r.regaloEstado!=='Entregado' && !r.regaloObservaciones) faltan.push('Regalo corporativo');
   if(r.campanaTexto && !r.campanaControlada) faltan.push('Campaña ("'+r.campanaTexto+'")');
   // OnStar queda afuera a propósito: no bloquea la entrega.
+  // Si un ítem quedó "no colocado" pero tiene un motivo/observación cargado, no bloquea — ya está justificado.
   return faltan;
 }
 function mostrarPendientesEntrega_(marca, id, faltan){
@@ -4965,12 +5007,27 @@ function openDetail(marca, id){
     if(r.accesorios && r.accesorios.trim()){
       var pendiente = !r.accesoriosColocado;
       alertaAcc.style.display = 'flex';
-      alertaAcc.style.background = pendiente ? 'var(--warn-soft)' : 'var(--ok-soft)';
-      alertaAcc.style.color = pendiente ? 'var(--warn)' : 'var(--ok)';
-      alertaAcc.style.borderColor = pendiente ? 'var(--warn)' : 'var(--ok)';
+      alertaAcc.style.background = pendiente ? 'var(--danger-soft)' : 'var(--ok-soft)';
+      alertaAcc.style.color = pendiente ? 'var(--danger)' : 'var(--ok)';
+      alertaAcc.style.borderColor = pendiente ? 'var(--danger)' : 'var(--ok)';
       alertaAcc.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">build</span>Esta entrega tiene accesorio: "'+r.accesorios+'"'+(pendiente?' — pendiente de colocar':' — ya colocado');
     } else {
       alertaAcc.style.display = 'none';
+    }
+  }
+  var alertaOnstar = document.getElementById('dOnstarAlerta');
+  var bMarcaOnstar = BRANDS.find(function(x){return x.id===r.marca;});
+  if(alertaOnstar){
+    var esUsado = r.usado==='Sí';
+    if(bMarcaOnstar && bMarcaOnstar.onstar && !esUsado){
+      var activado = r.onstar==='ok';
+      alertaOnstar.style.display = 'flex';
+      alertaOnstar.style.background = activado ? 'var(--ok-soft)' : 'var(--danger-soft)';
+      alertaOnstar.style.color = activado ? 'var(--ok)' : 'var(--danger)';
+      alertaOnstar.style.borderColor = activado ? 'var(--ok)' : 'var(--danger)';
+      alertaOnstar.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">directions_car</span>Esta entrega tiene OnStar'+(activado?' — ya activado':' — todavía sin activar');
+    } else {
+      alertaOnstar.style.display = 'none';
     }
   }
   var parts=(r.fecha||'').split('/');
@@ -4995,6 +5052,10 @@ function abrirSeccionObservaciones_(){
 function abrirSeccionAccesorio_(){
   var wrap = document.getElementById('dAccesoriosToggleWrap');
   var seccion = wrap ? wrap.closest('.section') : null;
+  if(seccion){ seccion.classList.remove('collapsed'); seccion.scrollIntoView({behavior:'smooth', block:'center'}); }
+}
+function abrirSeccionOnstar_(){
+  var seccion = document.getElementById('dOnstarSection');
   if(seccion){ seccion.classList.remove('collapsed'); seccion.scrollIntoView({behavior:'smooth', block:'center'}); }
 }
 function inicializarAcordeonDrawer_(r){
@@ -5109,11 +5170,11 @@ function guardarAccesorioTexto(valor){
 
 // Configuración genérica de los 5 ítems "colocado / no colocado" con botones lado a lado.
 var ITEMS_COLOCADO_CONFIG_ = {
-  kitSeguridad:   {corresponde:'kitSeguridad',   colocado:'kitSeguridadColocado',        fecha:'kitSeguridadColocadoFecha',        label:'Kit de seguridad',   render:'renderKitSeguridadUI'},
-  manual:         {corresponde:'manual',         colocado:'manualEntregado',             fecha:'manualEntregadoFecha',             label:'Manual del vehículo', render:'renderManualUI'},
-  llaveDuplicada: {corresponde:'llaveDuplicada', colocado:'llaveDuplicadaEntregada',      fecha:'llaveDuplicadaEntregadaFecha',     label:'Llave duplicada',    render:'renderLlaveDuplicadaUI'},
-  alfombras:      {corresponde:'alfombras',      colocado:'alfombrasColocadas',           fecha:'alfombrasColocadasFecha',          label:'Alfombras',          render:'renderAlfombrasUI'},
-  accesorios:     {corresponde:'accesorios',     colocado:'accesoriosColocado',           fecha:'accesoriosColocadoFecha',          label:'Accesorio',          render:'renderAccDualUI_'}
+  kitSeguridad:   {corresponde:'kitSeguridad',   colocado:'kitSeguridadColocado',        fecha:'kitSeguridadColocadoFecha',        motivo:'kitSeguridadMotivo',   label:'Kit de seguridad',   render:'renderKitSeguridadUI'},
+  manual:         {corresponde:'manual',         colocado:'manualEntregado',             fecha:'manualEntregadoFecha',             motivo:'manualMotivo',         label:'Manual del vehículo', render:'renderManualUI'},
+  llaveDuplicada: {corresponde:'llaveDuplicada', colocado:'llaveDuplicadaEntregada',      fecha:'llaveDuplicadaEntregadaFecha',     motivo:'llaveDuplicadaMotivo', label:'Llave duplicada',    render:'renderLlaveDuplicadaUI'},
+  alfombras:      {corresponde:'alfombras',      colocado:'alfombrasColocadas',           fecha:'alfombrasColocadasFecha',          motivo:'alfombrasMotivo',      label:'Alfombras',          render:'renderAlfombrasUI'},
+  accesorios:     {corresponde:'accesorios',     colocado:'accesoriosColocado',           fecha:'accesoriosColocadoFecha',          motivo:'accesoriosMotivo',     label:'Accesorio',          render:'renderAccDualUI_'}
 };
 function renderDualToggleUI_(itemKey, r){
   var cfg = ITEMS_COLOCADO_CONFIG_[itemKey];
@@ -5128,43 +5189,53 @@ function renderDualToggleUI_(itemKey, r){
   btnSi.classList.toggle('active', colocado);
   btnNo.classList.toggle('active', !colocado);
   var fechaEl = wrap.parentElement.querySelector('.dual-toggle-fecha');
-  if(fechaEl) fechaEl.textContent = (colocado && r[cfg.fecha]) ? ('Colocado — '+r[cfg.fecha]) : '';
+  if(fechaEl){
+    if(colocado && r[cfg.fecha]) fechaEl.textContent = 'Colocado — '+r[cfg.fecha];
+    else if(!colocado && r[cfg.motivo]) fechaEl.textContent = 'Motivo: '+r[cfg.motivo];
+    else fechaEl.textContent = '';
+  }
 }
 function marcarColocadoDual_(itemKey, nuevoValor){
   if(!detailId) return;
   var cfg = ITEMS_COLOCADO_CONFIG_[itemKey];
-  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  var marca=detailMarca, id=detailId;
+  var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(r[cfg.colocado] === nuevoValor) return; // ya estaba en ese estado, no repetir
-  var motivo = '';
-  if(!nuevoValor){ motivo = pedirObservacionPendiente_(cfg.label); if(motivo===null) return; }
-  r[cfg.colocado] = nuevoValor;
-  r[cfg.fecha] = nuevoValor ? fechaHoraAhora_() : '';
-  var fields = {}; fields[cfg.colocado]=r[cfg.colocado]; fields[cfg.fecha]=r[cfg.fecha];
-  gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:fields});
-  logHistorial_(detailMarca, detailId, nuevoValor ? (cfg.label+' marcado como colocado') : (cfg.label+' marcado como pendiente — Motivo: '+motivo));
-  window[cfg.render](r);
-  renderAll();
-  showToast(nuevoValor?(cfg.label+' colocado'):(cfg.label+' pendiente'));
+  function aplicar(motivo){
+    r[cfg.colocado] = nuevoValor;
+    r[cfg.fecha] = nuevoValor ? fechaHoraAhora_() : '';
+    r[cfg.motivo] = nuevoValor ? '' : motivo;
+    var fields = {}; fields[cfg.colocado]=r[cfg.colocado]; fields[cfg.fecha]=r[cfg.fecha]; fields[cfg.motivo]=r[cfg.motivo];
+    gasPost('updateEntregaFields',{marca:marca,id:id,fields:fields});
+    logHistorial_(marca, id, nuevoValor ? (cfg.label+' marcado como colocado') : (cfg.label+' marcado como pendiente — Motivo: '+motivo));
+    window[cfg.render](r);
+    renderAll();
+    showToast(nuevoValor?(cfg.label+' colocado'):(cfg.label+' pendiente'));
+  }
+  if(!nuevoValor){ pedirObservacionPendiente_(cfg.label, function(motivo){ if(motivo!==null) aplicar(motivo); }); }
+  else { aplicar(''); }
 }
 function renderAccDualUI_(r){ renderDualToggleUI_('accesorios', r); }
-function pedirObservacionPendiente_(itemLabel){
-  var motivo = prompt('¿Por qué "'+itemLabel+'" queda como pendiente/no colocado?\n\n(Este motivo va a quedar guardado en el Historial de la entrega)');
-  if(motivo===null) return null; // canceló
-  return motivo.trim() || '(sin motivo especificado)';
+var _motivoCallback_ = null;
+function pedirObservacionPendiente_(itemLabel, callback){
+  _motivoCallback_ = callback;
+  document.getElementById('motivoModalTitulo').textContent = '¿Por qué "'+itemLabel+'" queda como pendiente/no colocado?';
+  document.getElementById('motivoModalInput').value = '';
+  document.getElementById('motivoOverlay').classList.add('show');
+  document.getElementById('motivoModal').classList.add('show');
+  document.getElementById('motivoModalInput').focus();
 }
-function toggleAcc(){
-  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
-  var nuevoEstado = !r.accesoriosColocado;
-  var motivo = '';
-  if(!nuevoEstado){ motivo = pedirObservacionPendiente_('Accesorio'); if(motivo===null) return; }
-  r.accesoriosColocado = nuevoEstado;
-  r.accesoriosColocadoFecha = r.accesoriosColocado ? fechaHoraAhora_() : '';
-  gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{accesoriosColocado:r.accesoriosColocado, accesoriosColocadoFecha:r.accesoriosColocadoFecha}});
-  logHistorial_(detailMarca, detailId, r.accesoriosColocado ? '🔧 Accesorio marcado como colocado' : ('Accesorio marcado como pendiente — Motivo: '+motivo));
-  openDetail(detailMarca, detailId); renderAll();
-  showToast(r.accesoriosColocado?'Accesorio colocado':'Accesorio pendiente');
+function cerrarModalMotivo_(valor){
+  document.getElementById('motivoOverlay').classList.remove('show');
+  document.getElementById('motivoModal').classList.remove('show');
+  var cb = _motivoCallback_;
+  _motivoCallback_ = null;
+  if(cb){
+    if(valor===null){ cb(null); return; }
+    var texto = String(valor).trim();
+    cb(texto || '(sin motivo especificado)');
+  }
 }
-
 function guardarCampanaTexto(valor){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
@@ -5343,16 +5414,20 @@ function cambiarRegaloCorp(valor){
 }
 function toggleRegaloEntregado(){
   if(!detailId) return;
-  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  var marca=detailMarca, id=detailId;
+  var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   var entregado = r.regaloEstado==='Entregado';
-  var motivo = '';
-  if(entregado){ motivo = pedirObservacionPendiente_('Regalo corporativo'); if(motivo===null) return; }
-  r.regaloEstado = entregado ? 'Pendiente' : 'Entregado';
-  r.regaloFecha = entregado ? '' : fechaHoraAhora_();
-  gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{regaloEstado:r.regaloEstado, regaloFecha:r.regaloFecha}});
-  logHistorial_(detailMarca, detailId, r.regaloEstado==='Entregado' ? '🎁 Regalo corporativo marcado como entregado' : ('Regalo corporativo marcado como pendiente — Motivo: '+motivo));
-  renderRegaloUI(r); renderAll();
-  showToast(r.regaloEstado==='Entregado'?'Regalo entregado':'Regalo pendiente');
+  function aplicar(motivo){
+    r.regaloEstado = entregado ? 'Pendiente' : 'Entregado';
+    r.regaloFecha = entregado ? '' : fechaHoraAhora_();
+    r.regaloObservaciones = entregado ? (motivo||'') : '';
+    gasPost('updateEntregaFields',{marca:marca,id:id,fields:{regaloEstado:r.regaloEstado, regaloFecha:r.regaloFecha, regaloObservaciones:r.regaloObservaciones}});
+    logHistorial_(marca, id, r.regaloEstado==='Entregado' ? '🎁 Regalo corporativo marcado como entregado' : ('Regalo corporativo marcado como pendiente — Motivo: '+motivo));
+    renderRegaloUI(r); renderAll();
+    showToast(r.regaloEstado==='Entregado'?'Regalo entregado':'Regalo pendiente');
+  }
+  if(entregado){ pedirObservacionPendiente_('Regalo corporativo', function(motivo){ if(motivo!==null) aplicar(motivo); }); }
+  else { aplicar(''); }
 }
 
 var ONSTAR_PASOS=[{key:'onstarEnvio',label:'Invitación de activación enviada'},{key:'onstarApp',label:'Cliente instaló My Chevrolet'},{key:'onstarLlamado',label:'Llamado de bienvenida realizado'},{key:'onstarUso',label:'Uso confirmado de My Chevrolet'}];
@@ -5380,6 +5455,15 @@ function renderOnstarPasos(r){
   if(detailMarca!=='chevrolet'){ section.style.display='none'; return; } // OnStar solo existe para Chevrolet
   section.style.display='block';
   var banner=document.getElementById('dOnstarBanner');
+
+  if(r.usado==='Sí'){
+    // Vehículo usado: OnStar queda deshabilitado directamente, no corresponde activación.
+    banner.className='onstar-banner pending';
+    banner.textContent='✕ Vehículo usado — no tiene OnStar';
+    document.getElementById('dOnstarPasos').innerHTML =
+      '<div style="font-size:11px;color:var(--text-faint);">Esta entrega está marcada como "Usado", así que no corresponde el seguimiento de activación de OnStar.</div>';
+    return;
+  }
 
   if(r.onstar===null||r.onstar===''){
     // Este vehículo está marcado como "no aplica" (no tiene OnStar de fábrica)
@@ -5630,11 +5714,15 @@ function renderDisponibilidadNuevaEntrega(){
   var sucursalSel = (brand && brand.branches) ? document.getElementById('nSucursal').value : 'default';
   var marcasAgenda = marcasCompartenAgenda_(marcaSel);
   var rows = ENTREGAS.filter(function(r){ return marcasAgenda.indexOf(r.marca)>-1 && r.sucursal===sucursalSel && r.fecha===fechaStr; });
-  var desdeMin = regla ? horaAMinutos_(regla.desde) : horaAMinutos_('09:00');
+  var desdeMin = horaAMinutos_('09:00');
   var hastaMin = horaAMinutos_('18:00');
   var html='';
   for(var min=desdeMin; min<hastaMin; min+=15){
     var horaSlot = minutosAHora_(min);
+    if(minutoBloqueadoPorRegla_(min, regla)){
+      html += '<div class="horario-slot bloqueado" style="opacity:.5;cursor:not-allowed;"><span class="hora">'+horaSlot+'</span><span class="info">🚫 Bloqueado</span></div>';
+      continue;
+    }
     var ocupante = rows.find(function(r){
       var inicio=horaAMinutos_(r.hora), fin=inicio+(r.duracionMinutos||60);
       return min>=inicio && min<fin;
@@ -5679,7 +5767,7 @@ function checkNewDeliveryDate(){
   var f=esFeriado(fechaStr), r=reglaDia(dia);
   if(f){ warning.style.display='block'; warning.textContent='🚫 Feriado ('+f.motivo+').'; saveBtn.disabled=true; }
   else if(r&&r.desde==='00:00'){ warning.style.display='block'; warning.textContent='🚫 '+dia+' bloqueado todo el día.'; saveBtn.disabled=true; }
-  else if(r){ warning.style.display='block'; warning.textContent='⚠ '+dia+' sin agenda desde las '+r.desde+'.'; saveBtn.disabled=false; }
+  else if(r){ warning.style.display='block'; warning.textContent='⚠ '+dia+' sin agenda de '+r.desde+' a '+(r.hasta||'18:00')+'.'; saveBtn.disabled=false; }
   else { warning.style.display='none'; saveBtn.disabled=false; }
 }
 
@@ -5849,6 +5937,13 @@ function marcarBienvenidaEnviada(){
   r.bienvenidaFecha = fechaHoraAhora_();
   gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{bienvenidaEnviada:true, bienvenidaFecha:r.bienvenidaFecha}});
   logHistorial_(detailMarca, detailId, 'Mensaje de bienvenida marcado como enviado');
+  gasPost('registrarComunicacionManual',{
+    marca:detailMarca, entregaId:detailId, cliente:r.cliente, modelo:r.modelo, patente:r.dominio, vin:r.chasis,
+    vendedor:r.vendedor, sucursal:r.sucursal, fechaEntrega:r.fecha, canal:'whatsapp', tipo:'Bienvenida'
+  }).then(function(){
+    _comunicacionesCargadas_ = false;
+    if(currentAppView==='historialcoms') cargarComunicacionesSiHaceFalta_().then(renderHistorialComs);
+  });
   showToast('Mensaje de bienvenida marcado como enviado');
   cerrarModalBienvenida();
   renderEstadoBienvenida_(r);
@@ -6237,7 +6332,8 @@ function removeUsuarioAutorizado(i){
 }
 function renderBloqueoTags(){
   document.getElementById('tagsBloqueosSemana').innerHTML = CONFIG.bloqueos.semanales.map(function(b,i){
-    return '<span class="maestro-tag block">'+b.dia+(b.desde==='00:00'?' · todo el día':' · desde las '+b.desde)+'<button onclick="removeBloqueoSemanal('+i+')">✕</button></span>';
+    var texto = b.desde==='00:00' ? ' · todo el día' : ' · '+b.desde+' a '+(b.hasta||'18:00');
+    return '<span class="maestro-tag block">'+b.dia+texto+'<button onclick="removeBloqueoSemanal('+i+')">✕</button></span>';
   }).join('') || '<span style="color:var(--text-faint);font-size:12px;">Sin bloqueos.</span>';
   document.getElementById('tagsFeriados').innerHTML = CONFIG.bloqueos.feriados.map(function(f,i){
     return '<span class="maestro-tag block">'+f.fecha+' · '+f.motivo+'<button onclick="removeFeriado('+i+')">✕</button></span>';
@@ -6305,8 +6401,10 @@ function removeAdministrativo(i){
 function addBloqueoSemanal(){
   var dia=document.getElementById('inDiaSemana').value;
   var desde=document.getElementById('inDesdeHora').value;
-  if(CONFIG.bloqueos.semanales.some(function(b){return b.dia===dia && b.desde===desde;})){ showToast('Esa regla ya existe'); return; }
-  CONFIG.bloqueos.semanales.push({dia:dia, desde:desde});
+  var hasta = desde==='00:00' ? '23:59' : document.getElementById('inHastaHora').value;
+  if(desde!=='00:00' && horaAMinutos_(hasta)<=horaAMinutos_(desde)){ showToast('El horario "hasta" tiene que ser después del "desde"'); return; }
+  if(CONFIG.bloqueos.semanales.some(function(b){return b.dia===dia && b.desde===desde && b.hasta===hasta;})){ showToast('Esa regla ya existe'); return; }
+  CONFIG.bloqueos.semanales.push({dia:dia, desde:desde, hasta:hasta});
   renderBloqueoTags();
   checkBloqueado();
   persistirConfig('Bloqueo agregado');
@@ -6526,7 +6624,7 @@ var PLANTILLA_WHATSAPP_DEFAULT = 'Buenos días, {Nombre}! 👋😊\n\nMi nombre 
 function automatizacionesDefault_(){
   return {
     whatsapp: {marcas:BRANDS.map(function(b){return b.id;}), template:PLANTILLA_WHATSAPP_DEFAULT},
-    email: {activo:false, horas:48, reintentos:3, marcas:['chevrolet'], asunto:'{NombreCompleto}, tu experiencia en París Cars', formUrl:{}}
+    email: {activo:false, horas:48, reintentos:3, marcas:['chevrolet'], asunto:'{NombreCompleto}, tu experiencia en {Entidad}', formUrl:{}}
   };
 }
 function renderAutomatizacionesUI_(){
@@ -6585,11 +6683,13 @@ function reemplazarVariables_(texto, r){
   var nombre = partesNombre[0]||'';
   var apellido = partesNombre.slice(1).join(' ')||'';
   var b = BRANDS.find(function(x){return x.id===r.marca;}) || {label:r.marca};
+  var entidad = r.marca==='chevrolet' ? 'Paris Cars' : (r.marca==='honda' ? 'Paris Motos' : 'Paris Autos');
   var mapa = {
     '{Nombre}':nombre, '{Apellido}':apellido, '{NombreCompleto}':r.cliente||'',
     '{Marca}':b.label, '{Modelo}':r.modelo||'', '{Versión}':r.version||'', '{Patente}':r.dominio||'',
     '{VIN}':r.chasis||'', '{FechaEntrega}':r.fecha||'', '{Vendedor}':r.vendedor||'',
-    '{Sucursal}':r.sucursal||'', '{Celular}':r.telefono||'', '{Email}':r.email||''
+    '{Sucursal}':r.sucursal||'', '{Celular}':r.telefono||'', '{Email}':r.email||'',
+    '{Entidad}':entidad
   };
   var resultado = texto;
   Object.keys(mapa).forEach(function(k){ resultado = resultado.split(k).join(mapa[k]); });
