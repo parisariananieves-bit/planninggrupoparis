@@ -502,7 +502,12 @@
   .login-error{color:#ff9a9a;font-size:12.5px;margin-top:14px;background:rgba(232,93,93,.14);border:1px solid rgba(232,93,93,.3);border-radius:10px;padding:9px 11px;}
   .login-foot{margin-top:22px;font-size:11px;color:rgba(255,255,255,.4);}
   .setup-box input{width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;margin:10px 0;}
-  .maestro-block{margin-bottom:14px;}
+  .maestro-block{margin-bottom:14px;background:var(--panel);border:1px solid var(--hairline);border-radius:12px;padding:14px 16px;}
+  #paneMaestroConfig .section-title{cursor:pointer;user-select:none;position:relative;padding-right:18px;}
+  #paneMaestroConfig .section-title::after{content:'▾';position:absolute;right:0;top:0;font-size:10px;color:var(--text-faint);transition:transform .15s;}
+  #paneMaestroConfig .maestro-block.collapsed{padding-bottom:14px;}
+  #paneMaestroConfig .maestro-block.collapsed > *:not(.section-title){display:none;}
+  #paneMaestroConfig .maestro-block.collapsed .section-title::after{transform:rotate(-90deg);}
   .maestro-tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px;}
   .maestro-tag{display:flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 8px 5px 12px;font-size:12px;}
   .maestro-tag button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;}
@@ -718,7 +723,9 @@
     .bottom-nav{display:flex;}
   }
   .sidebar:hover,.sidebar.pinned{width:216px;overflow:visible;box-shadow:6px 0 24px rgba(0,0,0,.5);}
-  .sidebar-pin{position:absolute;top:14px;right:10px;background:none;border:none;color:var(--text-faint);cursor:pointer;padding:4px;border-radius:6px;opacity:0;transition:opacity .12s;}
+  .sidebar-pin{position:absolute;top:14px;right:10px;background:none;border:none;color:var(--text-faint);cursor:pointer;padding:3px;border-radius:6px;opacity:0;transition:opacity .12s,color .12s;font-size:15px;}
+  .sidebar-pin .material-symbols-outlined{font-size:15px;}
+  .sidebar-pin:hover{color:var(--text-dim);}
   .sidebar:hover .sidebar-pin,.sidebar.pinned .sidebar-pin{opacity:1;}
   .sidebar.pinned .sidebar-pin{color:var(--accent);}
   .sidebar-pin .material-symbols-outlined{font-size:16px;display:block;}
@@ -733,7 +740,7 @@
   .sidebar:hover .nav-label,.sidebar.pinned .nav-label,
   .sidebar:hover .sidebar-user-toggle .info,.sidebar.pinned .sidebar-user-toggle .info{opacity:1;max-width:160px;}
   .sidebar-nav{padding:0 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;min-height:0;flex:1 1 auto;}
-  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:9px;color:#9099ac;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;text-align:left;width:100%;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;white-space:nowrap;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:9px;color:#9099ac;font-size:11.5px;font-weight:600;cursor:pointer;border:none;background:none;text-align:left;width:100%;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;white-space:nowrap;}
   .sidebar:not(:hover):not(.pinned) .nav-item{justify-content:center;padding-left:0;padding-right:0;}
   .nav-item .material-symbols-outlined{font-size:21px;flex-shrink:0;}
   .nav-item:hover{background:#161b28;color:#fff;}
@@ -1402,8 +1409,12 @@
         <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
       </div>
       <div class="stats-grid" id="dashIndicadores"></div>
-      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido);">star</span>Encuestas NPS (Peugeot / Citroën)</div>
-      <div class="costos-grid" id="dashNPS" style="margin-bottom:18px;"></div>
+      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;cursor:pointer;" onclick="toggleSeccionNPS_()"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido);">star</span>Encuestas NPS (todas las marcas)<span class="material-symbols-outlined" id="npsAccordionIcon" style="font-size:14px;margin-left:auto;transition:transform .15s;">expand_more</span></div>
+      <div id="npsSeccionCuerpo" style="margin-bottom:18px;">
+        <div class="costos-grid" id="dashNPS" style="margin-bottom:14px;"></div>
+        <div class="section-title" style="margin-top:4px;">NPS por sucursal</div>
+        <div id="dashNPSPorSucursal" style="margin-bottom:6px;"></div>
+      </div>
 
       <div id="detalleFiltradoInline" style="display:none;margin-top:16px;background:var(--panel);border:1px solid var(--hairline);border-radius:12px;max-height:min(480px,55vh);overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:16px 16px 12px;position:sticky;top:0;background:var(--panel);z-index:2;border-bottom:1px solid var(--hairline);">
@@ -1663,44 +1674,20 @@
     </div>
 
     <div id="paneMaestroAutomatizaciones" style="display:none;padding:10px 0;">
-      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--ok);">forum</span>WhatsApp — Mensaje post-entrega (24 hs)</div>
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><svg width="14" height="14" viewBox="0 0 24 24"><path fill="#25D366" d="M12 0C5.373 0 0 5.373 0 12c0 2.121.554 4.113 1.523 5.842L0 24l6.335-1.492A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>WhatsApp — Encuesta post-entrega (manual)</div>
       <div class="section" style="margin-bottom:18px;">
-        <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin-bottom:12px;">
-          <input type="checkbox" id="autoWhatsappActivo" onchange="guardarAutomatizaciones_()" style="width:16px;height:16px;"> Activar envío automático de WhatsApp
-        </label>
-        <div class="form-grid">
-          <div class="form-field"><label>Horas después de la entrega</label><input type="number" id="autoWhatsappHoras" value="24" onchange="guardarAutomatizaciones_()"></div>
-          <div class="form-field"><label>Máx. reintentos si falla</label><input type="number" id="autoWhatsappReintentos" value="3" onchange="guardarAutomatizaciones_()"></div>
-        </div>
+        <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:12px;">Este mensaje <b>no se manda solo</b> — le sale un botón con el logo de WhatsApp en el Detalle de cada entrega, con el mensaje ya armado. Vos (o quien esté a cargo) lo tocás y lo enviás desde tu propio WhatsApp.</div>
         <div style="margin:12px 0;">
-          <label style="font-size:11px;text-transform:uppercase;color:var(--text-faint);font-weight:700;">Marcas habilitadas</label>
+          <label style="font-size:11px;text-transform:uppercase;color:var(--text-faint);font-weight:700;">Marcas en las que aparece el botón</label>
           <div id="autoWhatsappMarcas" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;"></div>
         </div>
-        <div class="form-field" style="margin-bottom:12px;">
+        <div class="form-field">
           <label>Plantilla del mensaje — variables: {Nombre} {Apellido} {NombreCompleto} {Marca} {Modelo} {Versión} {Patente} {VIN} {FechaEntrega} {Vendedor} {Sucursal} {Celular} {Email}</label>
-          <textarea id="autoWhatsappTemplate" rows="10" onchange="guardarAutomatizaciones_()" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:10px;font-family:'Inter',sans-serif;font-size:12.5px;"></textarea>
-        </div>
-        <div class="section-title" style="margin-top:6px;">Conexión con tu WhatsApp (proveedor)</div>
-        <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Funciona con cualquier proveedor de WhatsApp API (Meta Business, Twilio, Evolution API, 360dialog). Pedile los datos a quien te dé el servicio y pegalos acá — no hace falta tocar código.</div>
-        <div class="form-grid">
-          <div class="form-field"><label>Proveedor</label>
-            <select id="autoWhatsappProveedor" onchange="guardarAutomatizaciones_()">
-              <option value="">Sin definir todavía</option>
-              <option value="meta">Meta WhatsApp Business API</option>
-              <option value="twilio">Twilio</option>
-              <option value="evolution">Evolution API</option>
-              <option value="360dialog">360dialog</option>
-              <option value="otro">Otro</option>
-            </select>
-          </div>
-          <div class="form-field"><label>Número remitente</label><input id="autoWhatsappNumero" placeholder="Ej: 2664123456" onchange="guardarAutomatizaciones_()"></div>
-          <div class="form-field"><label>URL de la API</label><input id="autoWhatsappUrl" placeholder="https://..." onchange="guardarAutomatizaciones_()"></div>
-          <div class="form-field"><label>Token</label><input id="autoWhatsappToken" type="password" placeholder="••••••••" onchange="guardarAutomatizaciones_()"></div>
-          <div class="form-field"><label>API Key (si aplica)</label><input id="autoWhatsappApiKey" type="password" placeholder="••••••••" onchange="guardarAutomatizaciones_()"></div>
+          <textarea id="autoWhatsappTemplate" rows="10" onchange="guardarAutomatizaciones_()" style="width:100%;min-height:120px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:10px;font-family:'Inter',sans-serif;font-size:12.5px;resize:vertical;"></textarea>
         </div>
       </div>
 
-      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">mail</span>Email — Encuesta post-entrega (48 hs, solo Chevrolet)</div>
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">mail</span>Email — Encuesta post-entrega (automático + botón manual)</div>
       <div class="section" style="margin-bottom:18px;">
         <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin-bottom:12px;">
           <input type="checkbox" id="autoEmailActivo" onchange="guardarAutomatizaciones_()" style="width:16px;height:16px;"> Activar envío automático de Email
@@ -1717,7 +1704,8 @@
           <label>Asunto</label><input id="autoEmailAsunto" placeholder="{NombreCompleto}, tu experiencia en París Cars" onchange="guardarAutomatizaciones_()">
         </div>
         <div class="form-field" style="margin-top:12px;">
-          <label>Link de la encuesta (Google Form, Typeform, etc. — el botón del mail apunta acá)</label><input id="autoEmailFormUrl" placeholder="https://..." onchange="guardarAutomatizaciones_()">
+          <label style="font-size:11px;text-transform:uppercase;color:var(--text-faint);font-weight:700;">Link de la encuesta por marca (Google Form, Typeform, etc. — cada marca su propio formulario)</label>
+          <div class="form-grid" id="autoEmailFormUrlContainer" style="margin-top:6px;"></div>
         </div>
         <div style="font-size:11.5px;color:var(--text-dim);margin-top:10px;">El HTML del correo ya aprobado (logos, colores, botón hacia el formulario) no se toca desde acá — sigue igual, solo cambian los datos del cliente que se completan solos.</div>
       </div>
@@ -1849,7 +1837,7 @@
         <span class="material-symbols-outlined" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--text-faint);">search</span>
         <input id="buscarUsuarioInput" placeholder="Buscar por nombre, usuario o email..." oninput="filtrarUsuariosTabla_()" style="width:100%;box-sizing:border-box;padding:8px 10px 8px 34px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);font-size:12px;">
       </div>
-      <div class="report-wrap" style="max-height:280px;margin-bottom:14px;">
+      <div class="report-wrap" style="max-height:280px;min-height:120px;margin-bottom:14px;resize:vertical;overflow:auto;">
         <table class="report-table" id="tablaUsuarios"></table>
       </div>
       <div id="uFormTitulo" style="font-weight:700;font-size:12.5px;margin-bottom:8px;">Crear usuario nuevo</div>
@@ -3416,7 +3404,14 @@ function limpiarSucursales(){
   renderSwitcher();
   renderAll();
 }
-function selectBrand(id){ currentBrands=[id]; currentBrand=id; currentBranches=['San Juan']; filterOnstar=null; guardarFiltroPreferido(); renderSwitcher(); renderAll(); }
+function selectBrand(id){
+  currentBrands=[id]; currentBrand=id; filterOnstar=null;
+  var b = BRANDS.find(function(x){return x.id===id;});
+  var sucursalesValidas = (b && b.branches) ? SUCURSALES : SUCURSALES;
+  currentBranches = currentBranches.filter(function(s){ return sucursalesValidas.indexOf(s)>-1; });
+  if(currentBranches.length===0) currentBranches=['San Juan'];
+  guardarFiltroPreferido(); renderSwitcher(); renderAll();
+}
 function toggleBrandSeleccion(id){
   var idx = currentBrands.indexOf(id);
   if(idx>-1){
@@ -4077,16 +4072,36 @@ function reenviarTodasLasPendientesComs_(){
 function renderComunicacionesDetalle_(r){
   var el = document.getElementById('dComunicaciones');
   if(!el) return;
+  var a = CONFIG.automatizaciones || automatizacionesDefault_();
+
+  var botonesHtml = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">';
+  if(r.telefono){
+    var mensaje = reemplazarVariables_(a.whatsapp.template || PLANTILLA_WHATSAPP_DEFAULT, r);
+    var telLimpio = String(r.telefono).replace(/[^0-9]/g,'');
+    botonesHtml += '<a class="email-action-btn" style="flex:1;min-width:160px;text-align:center;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;" href="https://wa.me/'+telLimpio+'?text='+encodeURIComponent(mensaje)+'" target="_blank" onclick="marcarWhatsappEncuestaEnviado_(\''+r.marca+'\',\''+r.id+'\')"><svg width="16" height="16" viewBox="0 0 24 24" style="vertical-align:-3px;"><path fill="#25D366" d="M12 0C5.373 0 0 5.373 0 12c0 2.121.554 4.113 1.523 5.842L0 24l6.335-1.492A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg> Enviar encuesta por WhatsApp</a>';
+  } else {
+    botonesHtml += '<div style="flex:1;min-width:160px;font-size:11px;color:var(--text-faint);">Sin teléfono cargado — no se puede enviar por WhatsApp.</div>';
+  }
+  if(r.email){
+    botonesHtml += '<button class="email-action-btn" style="flex:1;min-width:160px;" onclick="reenviarComunicacion_(\''+r.marca+'\',\''+r.id+'\',\'email\')"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">mail</span> Enviar encuesta por Email ahora</button>';
+  } else {
+    botonesHtml += '<div style="flex:1;min-width:160px;font-size:11px;color:var(--text-faint);">Sin email cargado.</div>';
+  }
+  botonesHtml += '</div>';
+
   var lista = COMUNICACIONES.filter(function(c){ return c.marca===r.marca && String(c.entregaId)===String(r.id); })
     .sort(function(a,b){ return (a.fechaHoraProgramada||'').localeCompare(b.fechaHoraProgramada||''); });
-  if(lista.length===0){
-    el.innerHTML = '<div style="color:var(--text-faint);font-size:11.5px;">Todavía no se envió ninguna comunicación automática a este cliente.</div>';
-    return;
-  }
-  el.innerHTML = lista.map(function(c){
-    var estadoCls = {Enviada:'ok', Error:'danger', Pendiente:'pending', Programada:'pending', Cancelada:'pending'}[c.estado] || 'pending';
-    return '<div class="history-item"><span class="history-fecha">'+(c.fechaHoraEnvio||c.fechaHoraProgramada||'')+'</span><span class="history-texto">'+(c.canal==='whatsapp'?'📱 WhatsApp':'✉️ Email')+' — <span class="tag '+estadoCls+'" style="margin-left:4px;">'+c.estado+'</span>'+(c.motivoError?' ('+c.motivoError+')':'')+'</span></div>';
-  }).join('');
+  var historialHtml = lista.length===0
+    ? '<div style="color:var(--text-faint);font-size:11.5px;">Todavía no se envió ninguna comunicación a este cliente.</div>'
+    : lista.map(function(c){
+        var estadoCls = {Enviada:'ok', Error:'danger', Pendiente:'pending', Programada:'pending', Cancelada:'pending'}[c.estado] || 'pending';
+        return '<div class="history-item"><span class="history-fecha">'+(c.fechaHoraEnvio||c.fechaHoraProgramada||'')+'</span><span class="history-texto">'+(c.canal==='whatsapp'?'📱 WhatsApp':'✉️ Email')+' — <span class="tag '+estadoCls+'" style="margin-left:4px;">'+c.estado+'</span>'+(c.motivoError?' ('+c.motivoError+')':'')+'</span></div>';
+      }).join('');
+
+  el.innerHTML = botonesHtml + historialHtml;
+}
+function marcarWhatsappEncuestaEnviado_(marca, id){
+  logHistorial_(marca, id, '📱 Se abrió WhatsApp para mandar la encuesta (envío manual)');
 }
 function renderKanban(){
   var board = document.getElementById('kanbanBoard');
@@ -5954,7 +5969,20 @@ function openConfig(){
   document.getElementById('cfgCopiaA').value = CONFIG.copiaSiempreA || '';
   document.getElementById('cfgDuracion').value = CONFIG.duracionEntrega || 60;
   renderAlertaAccesoriosUI();
+  inicializarAcordeonConfig_();
 }
+var _acordeonConfigInicializado_ = false;
+function inicializarAcordeonConfig_(){
+  if(_acordeonConfigInicializado_) return;
+  _acordeonConfigInicializado_ = true;
+  document.querySelectorAll('#paneMaestroConfig .maestro-block').forEach(function(bloque){
+    bloque.classList.add('collapsed');
+  });
+}
+document.addEventListener('click', function(ev){
+  var titulo = ev.target.closest('#paneMaestroConfig .maestro-block > .section-title');
+  if(titulo){ titulo.closest('.maestro-block').classList.toggle('collapsed'); }
+});
 function closeConfig(){ /* ya no es modal — no hace falta cerrar nada */ }
 function renderAlertaAccesoriosUI(){
   var cont = document.getElementById('alertaAccesoriosContainer');
@@ -6380,23 +6408,16 @@ var PLANTILLA_WHATSAPP_DEFAULT = 'Buenos días, {Nombre}! 👋😊\n\nMi nombre 
 
 function automatizacionesDefault_(){
   return {
-    whatsapp: {activo:false, horas:24, reintentos:3, marcas:BRANDS.map(function(b){return b.id;}), template:PLANTILLA_WHATSAPP_DEFAULT, proveedor:'', numero:'', url:'', token:'', apiKey:''},
-    email: {activo:false, horas:48, reintentos:3, marcas:['chevrolet'], asunto:'{NombreCompleto}, tu experiencia en París Cars', formUrl:''}
+    whatsapp: {marcas:BRANDS.map(function(b){return b.id;}), template:PLANTILLA_WHATSAPP_DEFAULT},
+    email: {activo:false, horas:48, reintentos:3, marcas:['chevrolet'], asunto:'{NombreCompleto}, tu experiencia en París Cars', formUrl:{}}
   };
 }
 function renderAutomatizacionesUI_(){
   if(!CONFIG.automatizaciones) CONFIG.automatizaciones = automatizacionesDefault_();
   var a = CONFIG.automatizaciones;
+  if(!a.whatsapp) a.whatsapp = automatizacionesDefault_().whatsapp;
 
-  document.getElementById('autoWhatsappActivo').checked = !!a.whatsapp.activo;
-  document.getElementById('autoWhatsappHoras').value = a.whatsapp.horas;
-  document.getElementById('autoWhatsappReintentos').value = a.whatsapp.reintentos;
   document.getElementById('autoWhatsappTemplate').value = a.whatsapp.template;
-  document.getElementById('autoWhatsappProveedor').value = a.whatsapp.proveedor||'';
-  document.getElementById('autoWhatsappNumero').value = a.whatsapp.numero||'';
-  document.getElementById('autoWhatsappUrl').value = a.whatsapp.url||'';
-  document.getElementById('autoWhatsappToken').value = a.whatsapp.token||'';
-  document.getElementById('autoWhatsappApiKey').value = a.whatsapp.apiKey||'';
   document.getElementById('autoWhatsappMarcas').innerHTML = BRANDS.map(function(b){
     var on = a.whatsapp.marcas.indexOf(b.id)>-1;
     return '<label class="filter-pill'+(on?' active':'')+'" style="cursor:pointer;"><input type="checkbox" data-canal="whatsapp" data-marca="'+b.id+'" '+(on?'checked':'')+' onchange="toggleMarcaAutomatizacion_(this)" style="margin-right:5px;">'+b.label+'</label>';
@@ -6406,7 +6427,10 @@ function renderAutomatizacionesUI_(){
   document.getElementById('autoEmailHoras').value = a.email.horas;
   document.getElementById('autoEmailReintentos').value = a.email.reintentos;
   document.getElementById('autoEmailAsunto').value = a.email.asunto;
-  document.getElementById('autoEmailFormUrl').value = a.email.formUrl||'';
+  if(typeof a.email.formUrl === 'string') a.email.formUrl = {}; // migración de versiones viejas (link único)
+  document.getElementById('autoEmailFormUrlContainer').innerHTML = BRANDS.map(function(b){
+    return '<div class="form-field"><label>'+b.label+'</label><input id="autoEmailFormUrl_'+b.id+'" value="'+(a.email.formUrl[b.id]||'')+'" placeholder="https://..." onchange="guardarAutomatizaciones_()"></div>';
+  }).join('');
   document.getElementById('autoEmailMarcas').innerHTML = BRANDS.map(function(b){
     var on = a.email.marcas.indexOf(b.id)>-1;
     return '<label class="filter-pill'+(on?' active':'')+'" style="cursor:pointer;"><input type="checkbox" data-canal="email" data-marca="'+b.id+'" '+(on?'checked':'')+' onchange="toggleMarcaAutomatizacion_(this)" style="margin-right:5px;">'+b.label+'</label>';
@@ -6424,20 +6448,16 @@ function toggleMarcaAutomatizacion_(chk){
 function guardarAutomatizaciones_(yaActualizado){
   var a = CONFIG.automatizaciones;
   if(!yaActualizado){
-    a.whatsapp.activo = document.getElementById('autoWhatsappActivo').checked;
-    a.whatsapp.horas = Number(document.getElementById('autoWhatsappHoras').value)||24;
-    a.whatsapp.reintentos = Number(document.getElementById('autoWhatsappReintentos').value)||3;
     a.whatsapp.template = document.getElementById('autoWhatsappTemplate').value;
-    a.whatsapp.proveedor = document.getElementById('autoWhatsappProveedor').value;
-    a.whatsapp.numero = document.getElementById('autoWhatsappNumero').value;
-    a.whatsapp.url = document.getElementById('autoWhatsappUrl').value;
-    a.whatsapp.token = document.getElementById('autoWhatsappToken').value;
-    a.whatsapp.apiKey = document.getElementById('autoWhatsappApiKey').value;
     a.email.activo = document.getElementById('autoEmailActivo').checked;
     a.email.horas = Number(document.getElementById('autoEmailHoras').value)||48;
     a.email.reintentos = Number(document.getElementById('autoEmailReintentos').value)||3;
     a.email.asunto = document.getElementById('autoEmailAsunto').value;
-    a.email.formUrl = document.getElementById('autoEmailFormUrl').value;
+    a.email.formUrl = {};
+    BRANDS.forEach(function(b){
+      var el = document.getElementById('autoEmailFormUrl_'+b.id);
+      if(el) a.email.formUrl[b.id] = el.value.trim();
+    });
   }
   gasPost('guardarConfig',{config:CONFIG}).then(function(){
     showToast('Automatizaciones guardadas');
@@ -6572,8 +6592,8 @@ function renderDashboard(){
   }).join('') + renderChipAlertaStock_();
   window._dashChipsFiltros = chips;
 
-  // --- NPS (Peugeot / Citroën) ---
-  var conNPS = entregasContexto().filter(function(r){ return (r.marca==='peugeot'||r.marca==='citroen') && typeof r.npsScore==='number' && (filterTipo==='todos'||r.tipoVenta===filterTipo) && pasaFiltroCanal_(r); });
+  // --- NPS (todas las marcas) ---
+  var conNPS = entregasContexto().filter(function(r){ return typeof r.npsScore==='number' && (filterTipo==='todos'||r.tipoVenta===filterTipo) && pasaFiltroCanal_(r); });
   var elNPS = document.getElementById('dashNPS');
   if(elNPS){
     if(conNPS.length===0){
@@ -6589,6 +6609,30 @@ function renderDashboard(){
         '<div class="costo-card ok"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_very_satisfied</span></div><div class="valor">'+promotores+'</div><div class="label">Promotores (9-10)</div><div class="sub">'+Math.round(promotores/total*100)+'% del total</div></div>'+
         '<div class="costo-card ambar"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_neutral</span></div><div class="valor">'+pasivos+'</div><div class="label">Pasivos (7-8)</div><div class="sub">'+Math.round(pasivos/total*100)+'% del total</div></div>'+
         '<div class="costo-card"><div class="icon-badge" style="background:var(--danger-soft);color:var(--danger);"><span class="material-symbols-outlined">sentiment_dissatisfied</span></div><div class="valor" style="color:var(--danger);">'+detractores+'</div><div class="label">Detractores (0-6)</div><div class="sub">'+Math.round(detractores/total*100)+'% del total</div></div>';
+    }
+  }
+  // --- NPS por sucursal (todas, para poder comparar — no respeta el filtro de sucursal del topbar) ---
+  var elNPSSuc = document.getElementById('dashNPSPorSucursal');
+  if(elNPSSuc){
+    var conNPStodas = ENTREGAS.filter(function(r){ return currentBrands.indexOf(r.marca)>-1 && typeof r.npsScore==='number'; });
+    if(conNPStodas.length===0){
+      elNPSSuc.innerHTML = '<div style="color:var(--text-faint);font-size:11.5px;padding:10px;">Sin datos todavía.</div>';
+    } else {
+      var htmlSuc = SUCURSALES.map(function(suc){
+        var deEsta = conNPStodas.filter(function(r){ return r.sucursal===suc; });
+        if(deEsta.length===0){
+          return '<div class="ranking-row"><div class="ranking-nombre" style="min-width:120px;">'+suc+'</div><div style="flex:1;color:var(--text-faint);font-size:11.5px;">Sin respuestas todavía.</div></div>';
+        }
+        var p = deEsta.filter(function(r){return r.npsScore>=9;}).length;
+        var d = deEsta.filter(function(r){return r.npsScore<=6;}).length;
+        var npsSuc = Math.round((p/deEsta.length - d/deEsta.length)*100);
+        var colorSuc = npsSuc>=50 ? 'var(--ok)' : (npsSuc>=0 ? 'var(--warn)' : 'var(--danger)');
+        var anchoBarra = Math.max(0, Math.min(100, (npsSuc+100)/2));
+        return '<div class="ranking-row"><div class="ranking-nombre" style="min-width:120px;">'+suc+'</div>'+
+          '<div class="ranking-bar-wrap"><div class="ranking-bar-fill" style="width:'+anchoBarra+'%;background:'+colorSuc+';"></div></div>'+
+          '<div class="ranking-nums" style="color:'+colorSuc+';min-width:150px;"><b>'+(npsSuc>0?'+':'')+npsSuc+'</b> · '+deEsta.length+' resp.</div></div>';
+      }).join('');
+      elNPSSuc.innerHTML = htmlSuc;
     }
   }
 
@@ -6617,6 +6661,13 @@ function renderDashboard(){
   document.getElementById('dashPorAdmin').innerHTML = htmlAdmin;
   window._dashPorAdminData = porAdmin;
   renderDashboardCharts(rows);
+  if(!_npsSeccionInicializada_){
+    _npsSeccionInicializada_ = true;
+    var cuerpoNPS = document.getElementById('npsSeccionCuerpo');
+    var iconoNPS = document.getElementById('npsAccordionIcon');
+    if(cuerpoNPS){ cuerpoNPS.style.display='none'; }
+    if(iconoNPS){ iconoNPS.style.transform='rotate(-90deg)'; }
+  }
 }
 
 var _dashCharts = {};
@@ -6677,6 +6728,14 @@ document.addEventListener('click', function(ev){
     var el=document.getElementById(id); if(el) el.style.display='none';
   });
 });
+var _npsSeccionInicializada_ = false;
+function toggleSeccionNPS_(){
+  var cuerpo = document.getElementById('npsSeccionCuerpo');
+  var icono = document.getElementById('npsAccordionIcon');
+  var abierto = cuerpo.style.display !== 'none';
+  cuerpo.style.display = abierto ? 'none' : 'block';
+  icono.style.transform = abierto ? 'rotate(-90deg)' : 'rotate(0deg)';
+}
 function renderDashboardCharts(rows){
   if(typeof Chart==='undefined'){
     ['chartPorMarca','chartPorVendedor','chartPorAdmin','chartEstado','chartCumplimiento'].forEach(function(id){
