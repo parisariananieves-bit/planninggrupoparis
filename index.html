@@ -1939,18 +1939,27 @@
 
 <div class="toast" id="toast"></div>
 
-<div class="overlay" id="npsOverlay" onclick="if(event.target===this)cerrarEncuestaNPS_(true)"></div>
+<div class="overlay" id="pendientesOverlay" onclick="if(event.target===this)cerrarPendientesEntrega_()"></div>
+<div class="nps-modal" id="pendientesModal" style="max-width:420px;">
+  <button class="close" onclick="cerrarPendientesEntrega_()" style="position:absolute;top:14px;right:16px;">✕</button>
+  <div class="nps-modal-icon">⚠️</div>
+  <h3>Todavía falta completar</h3>
+  <div style="font-size:12.5px;color:var(--text-dim);margin-bottom:14px;">No podés marcar la unidad como entregada hasta que decidas cada uno de estos ítems (colocado, o marcado como "no corresponde"):</div>
+  <div id="pendientesLista" style="text-align:left;background:var(--panel-2);border-radius:10px;padding:10px 14px;margin-bottom:16px;"></div>
+  <button class="save-btn" style="margin:0;" onclick="cerrarPendientesEntrega_()">Entendido, lo completo</button>
+</div>
+
+<div class="overlay" id="npsOverlay"></div>
 <div class="nps-modal" id="npsModal">
-  <button class="close" onclick="cerrarEncuestaNPS_(true)" style="position:absolute;top:14px;right:16px;">✕</button>
   <div class="nps-modal-icon">⭐</div>
   <h3>¿Qué tan probable es que recomiende Grupo París a un familiar o amigo?</h3>
+  <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Hace falta completar esta encuesta para poder marcar la unidad como entregada.</div>
   <div class="nps-scale" id="npsScale"></div>
   <div class="nps-scale-labels"><span>Nada probable</span><span>Muy probable</span></div>
   <div id="npsError" style="display:none;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:8px 10px;font-size:12px;font-weight:600;margin:10px 0;text-align:left;"></div>
   <textarea id="npsComentario" placeholder="¿Algún comentario del cliente sobre la entrega? (opcional)" rows="3"></textarea>
   <div style="display:flex;gap:10px;margin-top:14px;">
-    <button class="view-btn" style="flex:1;" onclick="cerrarEncuestaNPS_(true)">Omitir por ahora</button>
-    <button class="save-btn" style="flex:1;margin:0;" onclick="guardarEncuestaNPS_()">Guardar respuesta</button>
+    <button class="save-btn" style="flex:1;margin:0;" onclick="guardarEncuestaNPS_()">Guardar y marcar como entregada</button>
   </div>
 </div>
 <div class="overlay" id="overlay" onclick="closeAll()"></div>
@@ -3633,8 +3642,8 @@ function renderStats(){
   if(brand.onstar){
     var ok=rows.filter(function(r){return r.onstar==='ok';}).length;
     var pend=rows.filter(function(r){return r.onstar==='pending' || r.onstar==='warn';}).length;
-    html+='<div class="stat-chip ok" style="cursor:pointer;'+(filterOnstar==='ok'?'box-shadow:inset 0 0 0 2px var(--ok);':'')+'" onclick="filterOnstar=\'ok\';renderAll();"><div class="n">'+ok+'</div><div class="l">OnStar activados</div></div>'+
-          '<div class="stat-chip pending" style="cursor:pointer;'+(filterOnstar==='pending'?'box-shadow:inset 0 0 0 2px var(--pending);':'')+'" onclick="filterOnstar=\'pending\';renderAll();"><div class="n">'+pend+'</div><div class="l">OnStar sin activar</div></div>';
+    html+='<div class="stat-chip ok" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'OnStar activados\', entregasContexto().filter(function(r){return r.onstar===\'ok\';}), {header:\'OnStar\'}, \'statsStrip\')"><div class="n">'+ok+'</div><div class="l">OnStar activados</div></div>'+
+          '<div class="stat-chip pending" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'OnStar sin activar\', entregasContexto().filter(function(r){return r.onstar===\'pending\' || r.onstar===\'warn\';}), {header:\'OnStar\'}, \'statsStrip\')"><div class="n">'+pend+'</div><div class="l">OnStar sin activar</div></div>';
   }
   if(filterOnstar || filterAlertaPendientes){
     html+='<button onclick="limpiarFiltroOnstar()" style="background:var(--panel-2);border:1px solid var(--hairline);color:var(--text-dim);border-radius:10px;padding:0 14px;font-size:12px;cursor:pointer;">✕ Quitar filtro</button>';
@@ -3760,10 +3769,12 @@ function heroToggleRegalo(marca,id){
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r) return;
   var entregado = r.regaloEstado==='Entregado';
+  var motivo = '';
+  if(entregado){ motivo = pedirObservacionPendiente_('Regalo corporativo'); if(motivo===null) return; }
   r.regaloEstado = entregado ? 'Pendiente' : 'Entregado';
   r.regaloFecha = entregado ? '' : fechaHoraAhora_();
   gasPost('updateEntregaFields',{marca:marca,id:id,fields:{regaloEstado:r.regaloEstado, regaloFecha:r.regaloFecha}});
-  logHistorial_(marca, id, r.regaloEstado==='Entregado' ? 'Regalo corporativo marcado como entregado' : 'Regalo corporativo marcado como pendiente');
+  logHistorial_(marca, id, r.regaloEstado==='Entregado' ? 'Regalo corporativo marcado como entregado' : ('Regalo corporativo marcado como pendiente — Motivo: '+motivo));
   showToast(r.regaloEstado==='Entregado'?'Regalo entregado':'Regalo pendiente');
   renderResumenHoyManana(); renderAll();
 }
@@ -4646,29 +4657,44 @@ function itemsPendientesParaEntregar_(r){
   // OnStar queda afuera a propósito: no bloquea la entrega.
   return faltan;
 }
+function mostrarPendientesEntrega_(marca, id, faltan){
+  document.getElementById('pendientesLista').innerHTML = faltan.map(function(item){
+    return '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12.5px;"><span class="material-symbols-outlined" style="font-size:15px;color:var(--warn);">radio_button_unchecked</span>'+item+'</div>';
+  }).join('');
+  document.getElementById('pendientesOverlay').classList.add('show');
+  document.getElementById('pendientesModal').classList.add('show');
+}
+function cerrarPendientesEntrega_(){
+  document.getElementById('pendientesOverlay').classList.remove('show');
+  document.getElementById('pendientesModal').classList.remove('show');
+}
 function toggleEntregadaId(marca,id){
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r.entregada){
     var faltan = itemsPendientesParaEntregar_(r);
     if(faltan.length>0){
-      var seguir = confirm('⚠ Todavía falta completar:\n\n• '+faltan.join('\n• ')+'\n\n¿Marcar como entregada igual?');
-      if(!seguir) return;
+      mostrarPendientesEntrega_(marca, id, faltan);
+      return;
+    }
+    if(!r.npsScore){
+      abrirEncuestaNPS_(marca, id, function(){ marcarEntregadaEfectiva_(marca, id, r); });
+      return;
     }
   }
+  marcarEntregadaEfectiva_(marca, id, r);
+}
+function marcarEntregadaEfectiva_(marca, id, r){
   r.entregada=!r.entregada;
   gasPost('updateEntregaFields',{marca:marca,id:id,fields:{entregada:r.entregada}});
   logHistorial_(marca, id, r.entregada ? '🚗 Unidad marcada como entregada' : 'Se desmarcó como entregada');
   if(detailId===id) updateEntregaToggleUI(r);
   renderAll();
   showToast(r.entregada?'Unidad entregada a '+r.cliente:'Se desmarcó como entregada');
-  if(r.entregada && !r.npsScore){
-    abrirEncuestaNPS_(marca, id);
-  }
 }
 function toggleEntregada(){ if(detailId) toggleEntregadaId(detailMarca, detailId); }
 var npsContexto_ = null;
-function abrirEncuestaNPS_(marca, id){
-  npsContexto_ = {marca:marca, id:id, puntaje:null};
+function abrirEncuestaNPS_(marca, id, alGuardar){
+  npsContexto_ = {marca:marca, id:id, puntaje:null, alGuardar:alGuardar||null};
   var scale = document.getElementById('npsScale');
   var html = '';
   for(var i=1;i<=10;i++){
@@ -4687,10 +4713,9 @@ function elegirPuntajeNPS_(n, btn){
   document.querySelectorAll('.nps-btn').forEach(function(b){ b.classList.remove('selected'); });
   btn.classList.add('selected');
 }
-function cerrarEncuestaNPS_(silencioso){
+function cerrarEncuestaNPS_(){
   document.getElementById('npsOverlay').classList.remove('show');
   document.getElementById('npsModal').classList.remove('show');
-  if(!silencioso) showToast('Encuesta guardada');
   npsContexto_ = null;
 }
 function mostrarErrorNPS_(msg){
@@ -4733,7 +4758,10 @@ function guardarEncuestaNPS_(){
   gasPost('updateEntregaFields',{marca:marca,id:id,fields:{npsScore:puntaje, npsComentario:comentario, npsFecha:r.npsFecha}});
   var categoria = puntaje<=6 ? 'Detractor' : (puntaje<=8 ? 'Pasivo' : 'Promotor');
   logHistorial_(marca, id, '⭐ Encuesta NPS: '+puntaje+'/10 ('+categoria+')'+(comentario?' — "'+comentario+'"':''));
-  cerrarEncuestaNPS_(false);
+  var callback = npsContexto_.alGuardar;
+  cerrarEncuestaNPS_();
+  showToast('Encuesta guardada');
+  if(callback) callback();
 }
 function toggleTraslado(){
   if(!detailId) return;
@@ -4921,18 +4949,32 @@ function openDetail(marca, id){
   cargarComunicacionesSiHaceFalta_().then(function(){ renderComunicacionesDetalle_(r); });
   renderComunicacionesDetalle_(r);
   aplicarSoloLecturaDrawer_();
-  inicializarAcordeonDrawer_();
+  inicializarAcordeonDrawer_(r);
   document.getElementById('overlay').classList.add('show');
   document.getElementById('drawer').classList.add('show');
 }
-function inicializarAcordeonDrawer_(){
+function inicializarAcordeonDrawer_(r){
   var secciones = document.querySelectorAll('.drawer-body > .section');
   secciones.forEach(function(sec, i){
-    // Dejamos abiertas las 2 primeras (Bienvenida y Datos del cliente), el resto arranca cerrado
-    sec.classList.toggle('collapsed', i>=2);
+    var titulo = (sec.querySelector('.section-title') && sec.querySelector('.section-title').textContent || '').trim();
+    var tieneContenido = seccionTieneContenido_(titulo, r);
+    // Dejamos abiertas las 2 primeras (Bienvenida y Datos del cliente) y cualquier sección con datos reales cargados; el resto arranca cerrado.
+    sec.classList.toggle('collapsed', !(i<2 || tieneContenido));
   });
   var btn = document.getElementById('dToggleTodasBtn');
   if(btn) btn.textContent = 'Expandir todo ▾';
+}
+function seccionTieneContenido_(titulo, r){
+  if(!r) return false;
+  if(titulo.indexOf('Accesorio')>-1) return !!r.accesorios;
+  if(titulo.indexOf('Campaña')>-1) return !!r.campanaTexto;
+  if(titulo.indexOf('Kit de Seguridad')>-1) return !!r.kitSeguridad;
+  if(titulo.indexOf('Manual')>-1) return !!r.manual;
+  if(titulo.indexOf('Llave Duplicada')>-1) return !!r.llaveDuplicada;
+  if(titulo.indexOf('Alfombras')>-1) return !!r.alfombras;
+  if(titulo.indexOf('Regalo')>-1) return !!r.regaloCorporativo;
+  if(titulo.indexOf('Traslado')>-1) return !!r.traslado;
+  return false;
 }
 function toggleSeccionDetalle_(tituloEl){
   var sec = tituloEl.closest('.section');
@@ -5020,12 +5062,21 @@ function guardarAccesorioTexto(valor){
   showToast('Accesorios actualizados');
 }
 
+// Pide el motivo cuando se pasa un ítem a "no colocado/pendiente". Si cancela, no se aplica el cambio.
+function pedirObservacionPendiente_(itemLabel){
+  var motivo = prompt('¿Por qué "'+itemLabel+'" queda como pendiente/no colocado?\n\n(Este motivo va a quedar guardado en el Historial de la entrega)');
+  if(motivo===null) return null; // canceló
+  return motivo.trim() || '(sin motivo especificado)';
+}
 function toggleAcc(){
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
-  r.accesoriosColocado=!r.accesoriosColocado;
+  var nuevoEstado = !r.accesoriosColocado;
+  var motivo = '';
+  if(!nuevoEstado){ motivo = pedirObservacionPendiente_('Accesorio'); if(motivo===null) return; }
+  r.accesoriosColocado = nuevoEstado;
   r.accesoriosColocadoFecha = r.accesoriosColocado ? fechaHoraAhora_() : '';
   gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{accesoriosColocado:r.accesoriosColocado, accesoriosColocadoFecha:r.accesoriosColocadoFecha}});
-  logHistorial_(detailMarca, detailId, r.accesoriosColocado ? '🔧 Accesorio marcado como colocado' : 'Accesorio marcado como pendiente');
+  logHistorial_(detailMarca, detailId, r.accesoriosColocado ? '🔧 Accesorio marcado como colocado' : ('Accesorio marcado como pendiente — Motivo: '+motivo));
   openDetail(detailMarca, detailId); renderAll();
   showToast(r.accesoriosColocado?'Accesorio colocado':'Accesorio pendiente');
 }
@@ -5111,10 +5162,13 @@ function cambiarKitSeguridad(valor){
 function toggleKitSeguridad(){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
-  r.kitSeguridadColocado = !r.kitSeguridadColocado;
+  var nuevoEstado = !r.kitSeguridadColocado;
+  var motivo = '';
+  if(!nuevoEstado){ motivo = pedirObservacionPendiente_('Kit de seguridad'); if(motivo===null) return; }
+  r.kitSeguridadColocado = nuevoEstado;
   r.kitSeguridadColocadoFecha = r.kitSeguridadColocado ? fechaHoraAhora_() : '';
   gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{kitSeguridadColocado:r.kitSeguridadColocado, kitSeguridadColocadoFecha:r.kitSeguridadColocadoFecha}});
-  logHistorial_(detailMarca, detailId, r.kitSeguridadColocado ? '🦺 Kit de seguridad marcado como colocado' : 'Kit de seguridad marcado como pendiente');
+  logHistorial_(detailMarca, detailId, r.kitSeguridadColocado ? '🦺 Kit de seguridad marcado como colocado' : ('Kit de seguridad marcado como pendiente — Motivo: '+motivo));
   renderKitSeguridadUI(r); renderAll();
   showToast(r.kitSeguridadColocado?'Kit de seguridad colocado':'Kit de seguridad pendiente');
 }
@@ -5143,10 +5197,13 @@ function cambiarLlaveDuplicada(valor){
 function toggleLlaveDuplicada(){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
-  r.llaveDuplicadaEntregada = !r.llaveDuplicadaEntregada;
+  var nuevoEstado = !r.llaveDuplicadaEntregada;
+  var motivo = '';
+  if(!nuevoEstado){ motivo = pedirObservacionPendiente_('Llave duplicada'); if(motivo===null) return; }
+  r.llaveDuplicadaEntregada = nuevoEstado;
   r.llaveDuplicadaEntregadaFecha = r.llaveDuplicadaEntregada ? fechaHoraAhora_() : '';
   gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{llaveDuplicadaEntregada:r.llaveDuplicadaEntregada, llaveDuplicadaEntregadaFecha:r.llaveDuplicadaEntregadaFecha}});
-  logHistorial_(detailMarca, detailId, r.llaveDuplicadaEntregada ? '🔑 Llave duplicada marcada como entregada' : 'Llave duplicada marcada como pendiente');
+  logHistorial_(detailMarca, detailId, r.llaveDuplicadaEntregada ? '🔑 Llave duplicada marcada como entregada' : ('Llave duplicada marcada como pendiente — Motivo: '+motivo));
   renderLlaveDuplicadaUI(r); renderAll();
   showToast(r.llaveDuplicadaEntregada?'Llave duplicada entregada':'Llave duplicada pendiente');
 }
@@ -5176,10 +5233,13 @@ function cambiarAlfombras(valor){
 function toggleAlfombras(){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
-  r.alfombrasColocadas = !r.alfombrasColocadas;
+  var nuevoEstado = !r.alfombrasColocadas;
+  var motivo = '';
+  if(!nuevoEstado){ motivo = pedirObservacionPendiente_('Alfombras'); if(motivo===null) return; }
+  r.alfombrasColocadas = nuevoEstado;
   r.alfombrasColocadasFecha = r.alfombrasColocadas ? fechaHoraAhora_() : '';
   gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{alfombrasColocadas:r.alfombrasColocadas, alfombrasColocadasFecha:r.alfombrasColocadasFecha}});
-  logHistorial_(detailMarca, detailId, r.alfombrasColocadas ? '🚗 Alfombras marcadas como colocadas' : 'Alfombras marcadas como pendiente');
+  logHistorial_(detailMarca, detailId, r.alfombrasColocadas ? '🚗 Alfombras marcadas como colocadas' : ('Alfombras marcadas como pendiente — Motivo: '+motivo));
   renderAlfombrasUI(r); renderAll();
   showToast(r.alfombrasColocadas?'Alfombras colocadas':'Alfombras pendiente');
 }
@@ -5208,10 +5268,13 @@ function cambiarManual(valor){
 function toggleManual(){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
-  r.manualEntregado = !r.manualEntregado;
+  var nuevoEstado = !r.manualEntregado;
+  var motivo = '';
+  if(!nuevoEstado){ motivo = pedirObservacionPendiente_('Manual del vehículo'); if(motivo===null) return; }
+  r.manualEntregado = nuevoEstado;
   r.manualEntregadoFecha = r.manualEntregado ? fechaHoraAhora_() : '';
   gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{manualEntregado:r.manualEntregado, manualEntregadoFecha:r.manualEntregadoFecha}});
-  logHistorial_(detailMarca, detailId, r.manualEntregado ? '📘 Manual marcado como entregado' : 'Manual marcado como pendiente');
+  logHistorial_(detailMarca, detailId, r.manualEntregado ? '📘 Manual marcado como entregado' : ('Manual marcado como pendiente — Motivo: '+motivo));
   renderManualUI(r); renderAll();
   showToast(r.manualEntregado?'Manual entregado':'Manual pendiente');
 }
@@ -5230,10 +5293,12 @@ function toggleRegaloEntregado(){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
   var entregado = r.regaloEstado==='Entregado';
+  var motivo = '';
+  if(entregado){ motivo = pedirObservacionPendiente_('Regalo corporativo'); if(motivo===null) return; }
   r.regaloEstado = entregado ? 'Pendiente' : 'Entregado';
   r.regaloFecha = entregado ? '' : fechaHoraAhora_();
   gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{regaloEstado:r.regaloEstado, regaloFecha:r.regaloFecha}});
-  logHistorial_(detailMarca, detailId, r.regaloEstado==='Entregado' ? '🎁 Regalo corporativo marcado como entregado' : 'Regalo corporativo marcado como pendiente');
+  logHistorial_(detailMarca, detailId, r.regaloEstado==='Entregado' ? '🎁 Regalo corporativo marcado como entregado' : ('Regalo corporativo marcado como pendiente — Motivo: '+motivo));
   renderRegaloUI(r); renderAll();
   showToast(r.regaloEstado==='Entregado'?'Regalo entregado':'Regalo pendiente');
 }
@@ -7076,7 +7141,7 @@ function abrirDetalleFiltradoAdmin(nombre, tipo){
 }
 
 function mostrarDetalleFiltrado(titulo, filas, columnaExtra, contenedorId){
-  if(columnaExtra){
+  if(columnaExtra && typeof columnaExtra.pendiente==='function'){
     filas = filas.slice().sort(function(a,b){
       var pa = columnaExtra.pendiente(a) ? 0 : 1;
       var pb = columnaExtra.pendiente(b) ? 0 : 1;
@@ -7098,8 +7163,12 @@ function mostrarDetalleFiltrado(titulo, filas, columnaExtra, contenedorId){
     var b=BRANDS.find(function(x){return x.id===r.marca;});
     html += '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')" title="Ver detalle de esta entrega"><td>'+(b?b.label:r.marca)+'</td><td>'+(r.sucursal==='default'?'—':r.sucursal)+'</td><td>'+r.fecha+'</td><td>'+r.hora+'</td><td>'+r.cliente+'</td><td>'+r.modelo+'</td><td>'+(r.chasis||'—')+'</td><td>'+r.dominio+'</td><td>'+r.vendedor+'</td><td>'+r.administrativo+'</td><td>'+r.estado+'</td>';
     if(columnaExtra){
-      var pend = columnaExtra.pendiente(r);
-      html += '<td style="font-weight:700;color:'+(pend?'var(--warn)':'var(--ok)')+';">'+(pend?'Pendiente':'Colocado')+'</td>';
+      if(typeof columnaExtra.pendiente==='function'){
+        var pend = columnaExtra.pendiente(r);
+        html += '<td style="font-weight:700;color:'+(pend?'var(--warn)':'var(--ok)')+';">'+(pend?'Pendiente':'Colocado')+'</td>';
+      } else {
+        html += '<td>—</td>';
+      }
     }
     html += '</tr>';
   });
@@ -7775,3 +7844,5 @@ init();
 </script>
 </body>
 </html>
+
+                
