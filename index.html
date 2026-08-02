@@ -333,6 +333,12 @@
   .acc-box{background:var(--warn-soft);border:1px solid rgba(232,178,61,.35);border-radius:9px;padding:10px 12px;font-size:12.5px;}
   .acc-box.empty{color:var(--text-faint);background:var(--panel-2);border-color:var(--hairline);font-style:italic;}
   .toggle-btn{margin-top:7px;width:100%;padding:8px 10px;border-radius:7px;border:1px solid var(--hairline);background:var(--panel-2);color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;}
+  .dual-toggle-wrap{display:flex;gap:8px;margin-top:7px;}
+  .dual-toggle-btn{flex:1;padding:9px 8px;border-radius:8px;border:1.5px solid var(--hairline);background:var(--panel-2);color:var(--text-dim);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;}
+  .dual-toggle-btn .material-symbols-outlined{font-size:15px;}
+  .dual-toggle-btn.si.active{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);}
+  .dual-toggle-btn.no.active{background:var(--danger-soft);border-color:var(--danger);color:var(--danger);}
+  .dual-toggle-fecha{font-size:10px;color:var(--text-faint);margin-top:4px;text-align:center;}
   .toggle-btn.done{border-color:var(--ok);color:var(--ok);background:var(--ok-soft);}
   .toggle-btn.pending{border-color:var(--warn);color:var(--warn);background:var(--warn-soft);}
   .entrega-toggle{width:100%;padding:12px 13px;border-radius:10px;border:2px solid var(--hairline);background:var(--panel-2);color:var(--text-dim);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:6px;}
@@ -1969,6 +1975,8 @@
     <button class="close" onclick="closeDetail()">✕</button>
     <h3 id="dHeadName">—</h3>
     <div class="sub" id="dHeadSub">—</div>
+    <div id="dObservacionesAlerta" style="display:none;margin-top:8px;background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionObservaciones_()"><span class="material-symbols-outlined" style="font-size:15px;">sticky_note_2</span>Esta entrega tiene observaciones cargadas</div>
+    <div id="dAccesorioAlerta" style="display:none;margin-top:8px;background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionAccesorio_()"><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
   </div>
   <div class="drawer-body">
     <button class="entrega-toggle pending" id="dEntregaToggle" onclick="toggleEntregada()">🚗 Marcar unidad como entregada</button>
@@ -1976,12 +1984,6 @@
     <button class="toggle-btn" id="dTrasladoBtn" style="margin-top:8px;width:100%;" onclick="toggleTraslado()">📦 Marcar unidad para traslado a otra sucursal</button>
 
     <button onclick="toggleTodasLasSecciones()" id="dToggleTodasBtn" style="width:100%;margin-top:12px;background:transparent;border:1px dashed var(--hairline);border-radius:8px;padding:7px;font-size:11px;color:var(--text-dim);cursor:pointer;font-weight:700;">Expandir todo ▾</button>
-
-    <div class="section">
-      <div class="section-title">Mensaje de bienvenida (postventa)</div>
-      <div id="dBienvenidaEstado" style="display:none;font-size:12px;color:var(--ok);background:var(--ok-soft);padding:9px 11px;border-radius:7px;margin-bottom:8px;"></div>
-      <button class="comms-btn" onclick="abrirModalBienvenida()"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">forum</span> Ver / enviar mensaje de bienvenida</button>
-    </div>
 
     <div class="section">
       <div class="section-title">Datos del cliente</div>
@@ -2019,7 +2021,11 @@
     <div class="section">
       <div class="section-title">Accesorios</div>
       <input id="dAccesoriosInput" placeholder="Ej: Polarizado intermedio + cubre cárter (vacío si no lleva)" onchange="guardarAccesorioTexto(this.value)" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;">
-      <button class="toggle-btn" id="dAccToggle" onclick="toggleAcc()" style="display:none;"></button>
+      <div class="dual-toggle-wrap" id="dAccesoriosToggleWrap" style="display:none;">
+        <button class="dual-toggle-btn si" id="dAccesoriosBtnSi" onclick="marcarColocadoDual_('accesorios', true)"><span class="material-symbols-outlined">check_circle</span>Colocado</button>
+        <button class="dual-toggle-btn no" id="dAccesoriosBtnNo" onclick="marcarColocadoDual_('accesorios', false)"><span class="material-symbols-outlined">cancel</span>No colocado</button>
+      </div>
+      <div class="dual-toggle-fecha"></div>
     </div>
 
     <div class="section">
@@ -2028,7 +2034,11 @@
         <option value="No">No corresponde</option>
         <option value="Sí">Sí, corresponde</option>
       </select>
-      <button class="toggle-btn pending" id="dLlaveDuplicadaToggle" onclick="toggleLlaveDuplicada()" style="display:none;"></button>
+      <div class="dual-toggle-wrap" id="dLlaveDuplicadaToggleWrap" style="display:none;">
+        <button class="dual-toggle-btn si" id="dLlaveDuplicadaBtnSi" onclick="marcarColocadoDual_('llaveDuplicada', true)"><span class="material-symbols-outlined">check_circle</span>Colocado</button>
+        <button class="dual-toggle-btn no" id="dLlaveDuplicadaBtnNo" onclick="marcarColocadoDual_('llaveDuplicada', false)"><span class="material-symbols-outlined">cancel</span>No colocado</button>
+      </div>
+      <div class="dual-toggle-fecha"></div>
     </div>
 
     <div class="section">
@@ -2037,7 +2047,11 @@
         <option value="No">No corresponde</option>
         <option value="Sí">Sí, corresponde</option>
       </select>
-      <button class="toggle-btn pending" id="dAlfombrasToggle" onclick="toggleAlfombras()" style="display:none;"></button>
+      <div class="dual-toggle-wrap" id="dAlfombrasToggleWrap" style="display:none;">
+        <button class="dual-toggle-btn si" id="dAlfombrasBtnSi" onclick="marcarColocadoDual_('alfombras', true)"><span class="material-symbols-outlined">check_circle</span>Colocado</button>
+        <button class="dual-toggle-btn no" id="dAlfombrasBtnNo" onclick="marcarColocadoDual_('alfombras', false)"><span class="material-symbols-outlined">cancel</span>No colocado</button>
+      </div>
+      <div class="dual-toggle-fecha"></div>
     </div>
 
     <div class="section">
@@ -2046,7 +2060,11 @@
         <option value="No">No corresponde</option>
         <option value="Sí">Sí, corresponde</option>
       </select>
-      <button class="toggle-btn pending" id="dKitSeguridadToggle" onclick="toggleKitSeguridad()" style="display:none;"></button>
+      <div class="dual-toggle-wrap" id="dKitSeguridadToggleWrap" style="display:none;">
+        <button class="dual-toggle-btn si" id="dKitSeguridadBtnSi" onclick="marcarColocadoDual_('kitSeguridad', true)"><span class="material-symbols-outlined">check_circle</span>Colocado</button>
+        <button class="dual-toggle-btn no" id="dKitSeguridadBtnNo" onclick="marcarColocadoDual_('kitSeguridad', false)"><span class="material-symbols-outlined">cancel</span>No colocado</button>
+      </div>
+      <div class="dual-toggle-fecha"></div>
     </div>
 
     <div class="section" id="dCampanaSection" style="display:none;">
@@ -2073,7 +2091,11 @@
         <option value="No">No corresponde</option>
         <option value="Sí">Sí, corresponde</option>
       </select>
-      <button class="toggle-btn pending" id="dManualToggle" onclick="toggleManual()" style="display:none;"></button>
+      <div class="dual-toggle-wrap" id="dManualToggleWrap" style="display:none;">
+        <button class="dual-toggle-btn si" id="dManualBtnSi" onclick="marcarColocadoDual_('manual', true)"><span class="material-symbols-outlined">check_circle</span>Entregado</button>
+        <button class="dual-toggle-btn no" id="dManualBtnNo" onclick="marcarColocadoDual_('manual', false)"><span class="material-symbols-outlined">cancel</span>No entregado</button>
+      </div>
+      <div class="dual-toggle-fecha"></div>
     </div>
 
     <div class="section" id="dOnstarSection">
@@ -2083,7 +2105,7 @@
     </div>
 
     <div class="section">
-      <div class="section-title">Comunicaciones</div>
+      <div class="section-title">Confirmación y Recordatorio (pre-entrega)</div>
       <div id="dConfirmacionEstado" style="display:none;font-size:12px;color:var(--ok);background:var(--ok-soft);padding:9px 11px;border-radius:7px;margin-bottom:8px;"></div>
       <button class="comms-btn" id="dBtnPreviewConf" onclick="openEmailPreview('confirmacion')">👁 Vista previa de la confirmación</button>
       <button class="comms-btn primary" id="dBtnEnviarConf" onclick="enviarConfirmacionDirecta()">✅ Enviar confirmación ahora</button>
@@ -2143,8 +2165,10 @@
     </div>
 
     <div class="section">
-      <div class="section-title">Comunicaciones</div>
-      <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:7px;">WhatsApp y Email automáticos enviados a este cliente después de la entrega.</div>
+      <div class="section-title">Comunicaciones (post-entrega)</div>
+      <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:10px;">Mensaje de bienvenida y encuesta post-entrega — por WhatsApp o Email.</div>
+      <div id="dBienvenidaEstado" style="display:none;font-size:12px;color:var(--ok);background:var(--ok-soft);padding:9px 11px;border-radius:7px;margin-bottom:8px;"></div>
+      <button class="comms-btn" onclick="abrirModalBienvenida()" style="margin-bottom:14px;"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">forum</span> Ver / enviar mensaje de bienvenida</button>
       <div id="dComunicaciones"></div>
     </div>
 
@@ -4905,12 +4929,7 @@ function openDetail(marca, id){
   document.getElementById('dFechaTexto').textContent = r.fecha || '—';
   document.getElementById('dHoraTexto').textContent = r.hora || '—';
   document.getElementById('dAccesoriosInput').value = r.accesorios || '';
-  var accBtn=document.getElementById('dAccToggle');
-  if(r.accesorios){
-    accBtn.style.display='block';
-    accBtn.textContent = r.accesoriosColocado ? ('✓ Colocado'+(r.accesoriosColocadoFecha?' — '+r.accesoriosColocadoFecha:'')) : '🔧 Pendiente de colocar';
-    accBtn.className='toggle-btn '+(r.accesoriosColocado?'done':'pending');
-  } else { accBtn.style.display='none'; }
+  renderAccDualUI_(r);
   var campanaSection=document.getElementById('dCampanaSection');
   campanaSection.style.display='block';
   document.getElementById('dCampanaInput').value = r.campanaTexto || '';
@@ -4939,6 +4958,21 @@ function openDetail(marca, id){
   renderAlfombrasUI(r);
   renderManualUI(r);
   document.getElementById('dObservaciones').value=r.observaciones||'';
+  var alertaObs = document.getElementById('dObservacionesAlerta');
+  if(alertaObs) alertaObs.style.display = (r.observaciones && r.observaciones.trim()) ? 'flex' : 'none';
+  var alertaAcc = document.getElementById('dAccesorioAlerta');
+  if(alertaAcc){
+    if(r.accesorios && r.accesorios.trim()){
+      var pendiente = !r.accesoriosColocado;
+      alertaAcc.style.display = 'flex';
+      alertaAcc.style.background = pendiente ? 'var(--warn-soft)' : 'var(--ok-soft)';
+      alertaAcc.style.color = pendiente ? 'var(--warn)' : 'var(--ok)';
+      alertaAcc.style.borderColor = pendiente ? 'var(--warn)' : 'var(--ok)';
+      alertaAcc.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">build</span>Esta entrega tiene accesorio: "'+r.accesorios+'"'+(pendiente?' — pendiente de colocar':' — ya colocado');
+    } else {
+      alertaAcc.style.display = 'none';
+    }
+  }
   var parts=(r.fecha||'').split('/');
   if(parts.length===3) document.getElementById('rFecha').value=parts[2]+'-'+parts[1]+'-'+parts[0];
   document.getElementById('rHora').value=r.hora;
@@ -4952,6 +4986,16 @@ function openDetail(marca, id){
   inicializarAcordeonDrawer_(r);
   document.getElementById('overlay').classList.add('show');
   document.getElementById('drawer').classList.add('show');
+}
+function abrirSeccionObservaciones_(){
+  var textarea = document.getElementById('dObservaciones');
+  var seccion = textarea.closest('.section');
+  if(seccion){ seccion.classList.remove('collapsed'); seccion.scrollIntoView({behavior:'smooth', block:'center'}); }
+}
+function abrirSeccionAccesorio_(){
+  var wrap = document.getElementById('dAccesoriosToggleWrap');
+  var seccion = wrap ? wrap.closest('.section') : null;
+  if(seccion){ seccion.classList.remove('collapsed'); seccion.scrollIntoView({behavior:'smooth', block:'center'}); }
 }
 function inicializarAcordeonDrawer_(r){
   var secciones = document.querySelectorAll('.drawer-body > .section');
@@ -4974,6 +5018,7 @@ function seccionTieneContenido_(titulo, r){
   if(titulo.indexOf('Alfombras')>-1) return !!r.alfombras;
   if(titulo.indexOf('Regalo')>-1) return !!r.regaloCorporativo;
   if(titulo.indexOf('Traslado')>-1) return !!r.traslado;
+  if(titulo==='Observaciones') return !!(r.observaciones && r.observaciones.trim());
   return false;
 }
 function toggleSeccionDetalle_(tituloEl){
@@ -4994,7 +5039,7 @@ function aplicarSoloLecturaDrawer_(){
   var soloLectura = !puedeEditar();
   var esLogisticaLimitada = rolActual()==='logistica';
   var drawer = document.getElementById('drawer');
-  var permitidosLogistica = ['dAccToggle','dLlaveDuplicadaToggle','dKitSeguridadToggle','dCampanaToggle','dManualToggle','dRegaloToggle','dEntregaToggle','dTrasladoBtn','dResponsable'];
+  var permitidosLogistica = ['dAccesoriosBtnSi','dAccesoriosBtnNo','dLlaveDuplicadaBtnSi','dLlaveDuplicadaBtnNo','dKitSeguridadBtnSi','dKitSeguridadBtnNo','dCampanaToggle','dManualBtnSi','dManualBtnNo','dRegaloToggle','dEntregaToggle','dTrasladoBtn','dResponsable'];
   drawer.querySelectorAll('input, select, textarea, button').forEach(function(el){
     if(el.classList.contains('close')) return;
     if(esLogisticaLimitada){
@@ -5062,7 +5107,46 @@ function guardarAccesorioTexto(valor){
   showToast('Accesorios actualizados');
 }
 
-// Pide el motivo cuando se pasa un ítem a "no colocado/pendiente". Si cancela, no se aplica el cambio.
+// Configuración genérica de los 5 ítems "colocado / no colocado" con botones lado a lado.
+var ITEMS_COLOCADO_CONFIG_ = {
+  kitSeguridad:   {corresponde:'kitSeguridad',   colocado:'kitSeguridadColocado',        fecha:'kitSeguridadColocadoFecha',        label:'Kit de seguridad',   render:'renderKitSeguridadUI'},
+  manual:         {corresponde:'manual',         colocado:'manualEntregado',             fecha:'manualEntregadoFecha',             label:'Manual del vehículo', render:'renderManualUI'},
+  llaveDuplicada: {corresponde:'llaveDuplicada', colocado:'llaveDuplicadaEntregada',      fecha:'llaveDuplicadaEntregadaFecha',     label:'Llave duplicada',    render:'renderLlaveDuplicadaUI'},
+  alfombras:      {corresponde:'alfombras',      colocado:'alfombrasColocadas',           fecha:'alfombrasColocadasFecha',          label:'Alfombras',          render:'renderAlfombrasUI'},
+  accesorios:     {corresponde:'accesorios',     colocado:'accesoriosColocado',           fecha:'accesoriosColocadoFecha',          label:'Accesorio',          render:'renderAccDualUI_'}
+};
+function renderDualToggleUI_(itemKey, r){
+  var cfg = ITEMS_COLOCADO_CONFIG_[itemKey];
+  var wrap = document.getElementById('d'+itemKey.charAt(0).toUpperCase()+itemKey.slice(1)+'ToggleWrap');
+  if(!wrap) return;
+  var corresponde = itemKey==='accesorios' ? !!r.accesorios : !!r[cfg.corresponde];
+  if(!corresponde){ wrap.style.display='none'; return; }
+  wrap.style.display='flex';
+  var colocado = !!r[cfg.colocado];
+  var btnSi = wrap.querySelector('.dual-toggle-btn.si');
+  var btnNo = wrap.querySelector('.dual-toggle-btn.no');
+  btnSi.classList.toggle('active', colocado);
+  btnNo.classList.toggle('active', !colocado);
+  var fechaEl = wrap.parentElement.querySelector('.dual-toggle-fecha');
+  if(fechaEl) fechaEl.textContent = (colocado && r[cfg.fecha]) ? ('Colocado — '+r[cfg.fecha]) : '';
+}
+function marcarColocadoDual_(itemKey, nuevoValor){
+  if(!detailId) return;
+  var cfg = ITEMS_COLOCADO_CONFIG_[itemKey];
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  if(r[cfg.colocado] === nuevoValor) return; // ya estaba en ese estado, no repetir
+  var motivo = '';
+  if(!nuevoValor){ motivo = pedirObservacionPendiente_(cfg.label); if(motivo===null) return; }
+  r[cfg.colocado] = nuevoValor;
+  r[cfg.fecha] = nuevoValor ? fechaHoraAhora_() : '';
+  var fields = {}; fields[cfg.colocado]=r[cfg.colocado]; fields[cfg.fecha]=r[cfg.fecha];
+  gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:fields});
+  logHistorial_(detailMarca, detailId, nuevoValor ? (cfg.label+' marcado como colocado') : (cfg.label+' marcado como pendiente — Motivo: '+motivo));
+  window[cfg.render](r);
+  renderAll();
+  showToast(nuevoValor?(cfg.label+' colocado'):(cfg.label+' pendiente'));
+}
+function renderAccDualUI_(r){ renderDualToggleUI_('accesorios', r); }
 function pedirObservacionPendiente_(itemLabel){
   var motivo = prompt('¿Por qué "'+itemLabel+'" queda como pendiente/no colocado?\n\n(Este motivo va a quedar guardado en el Historial de la entrega)');
   if(motivo===null) return null; // canceló
@@ -5139,15 +5223,7 @@ function guardarRegaloItems(){
 }
 function renderKitSeguridadUI(r){
   document.getElementById('dKitSeguridad').value = r.kitSeguridad ? 'Sí' : 'No';
-  var btn=document.getElementById('dKitSeguridadToggle');
-  if(r.kitSeguridad){
-    btn.style.display='block';
-    var colocado = !!r.kitSeguridadColocado;
-    btn.textContent = colocado ? ('✓ Colocado'+(r.kitSeguridadColocadoFecha?' — '+r.kitSeguridadColocadoFecha:'')) : '🦺 Pendiente de colocar';
-    btn.className = 'toggle-btn '+(colocado?'done':'pending');
-  } else {
-    btn.style.display='none';
-  }
+  renderDualToggleUI_('kitSeguridad', r);
 }
 function cambiarKitSeguridad(valor){
   if(!detailId) return;
@@ -5174,15 +5250,7 @@ function toggleKitSeguridad(){
 }
 function renderLlaveDuplicadaUI(r){
   document.getElementById('dLlaveDuplicada').value = r.llaveDuplicada ? 'Sí' : 'No';
-  var btn=document.getElementById('dLlaveDuplicadaToggle');
-  if(r.llaveDuplicada){
-    btn.style.display='block';
-    var entregada = !!r.llaveDuplicadaEntregada;
-    btn.textContent = entregada ? ('✓ Entregada'+(r.llaveDuplicadaEntregadaFecha?' — '+r.llaveDuplicadaEntregadaFecha:'')) : '🔑 Pendiente de entregar';
-    btn.className = 'toggle-btn '+(entregada?'done':'pending');
-  } else {
-    btn.style.display='none';
-  }
+  renderDualToggleUI_('llaveDuplicada', r);
 }
 function cambiarLlaveDuplicada(valor){
   if(!detailId) return;
@@ -5210,15 +5278,7 @@ function toggleLlaveDuplicada(){
 
 function renderAlfombrasUI(r){
   document.getElementById('dAlfombras').value = r.alfombras ? 'Sí' : 'No';
-  var btn=document.getElementById('dAlfombrasToggle');
-  if(r.alfombras){
-    btn.style.display='block';
-    var hecho = !!r.alfombrasColocadas;
-    btn.textContent = hecho ? ('✓ Alfombras ' + 'colocadas' + (r.alfombrasColocadasFecha ? ' — '+r.alfombrasColocadasFecha : '')) : '🚗 Pendiente de colocar';
-    btn.className = 'toggle-btn '+(hecho?'done':'pending');
-  } else {
-    btn.style.display='none';
-  }
+  renderDualToggleUI_('alfombras', r);
 }
 function cambiarAlfombras(valor){
   if(!detailId) return;
@@ -5245,15 +5305,7 @@ function toggleAlfombras(){
 }
 function renderManualUI(r){
   document.getElementById('dManual').value = r.manual ? 'Sí' : 'No';
-  var btn=document.getElementById('dManualToggle');
-  if(r.manual){
-    btn.style.display='block';
-    var entregado = !!r.manualEntregado;
-    btn.textContent = entregado ? ('✓ Entregado'+(r.manualEntregadoFecha?' — '+r.manualEntregadoFecha:'')) : '📘 Pendiente de entregar';
-    btn.className = 'toggle-btn '+(entregado?'done':'pending');
-  } else {
-    btn.style.display='none';
-  }
+  renderDualToggleUI_('manual', r);
 }
 function cambiarManual(valor){
   if(!detailId) return;
@@ -5679,7 +5731,7 @@ function submitNewDelivery(){
     duracionMinutos: Number(document.getElementById('nDuracion').value) || 60,
     regaloCorporativo: document.getElementById('nRegaloCorp').value==='Sí',
     regaloEstado: document.getElementById('nRegaloCorp').value==='Sí' ? 'Pendiente' : '',
-    regaloFecha:'', regaloResponsable:'', regaloObservaciones:'', regaloItems:'',
+    regaloFecha:'', regaloResponsable:'', regaloObservaciones:'', regaloItems: document.getElementById('nRegaloCorp').value==='Sí' ? 'Mate, Llavero, Portadocumentos' : '',
     kitSeguridad: document.getElementById('nKitSeguridad').value==='Sí',
     kitSeguridadColocado:false, kitSeguridadColocadoFecha:'',
     manual: document.getElementById('nManual').value==='Sí',
@@ -7844,5 +7896,3 @@ init();
 </script>
 </body>
 </html>
-
-                
