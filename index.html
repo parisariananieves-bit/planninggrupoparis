@@ -1075,7 +1075,6 @@
         <div class="nav-submenu" id="submenuMaestro" style="display:none;">
           <button class="nav-subitem" id="subMaestroConfig" onclick="setMaestroTab('config')">Configuración</button>
           <button class="nav-subitem" id="subMaestroAutomatizaciones" onclick="setMaestroTab('automatizaciones')">Automatizaciones</button>
-          <button class="nav-subitem" id="subMaestroAlertaTemprana" onclick="setMaestroTab('alertatemprana')">Alerta Temprana</button>
           <button class="nav-subitem" id="subMaestroPlantillas" onclick="setMaestroTab('plantillas')">Plantillas de mail</button>
           <button class="nav-subitem" id="subMaestroPermisos" onclick="setMaestroTab('permisos')">Permisos y usuarios</button>
           <button class="nav-subitem" id="subMaestroCargas" onclick="setMaestroTab('cargas')">Cargas masivas</button>
@@ -1410,7 +1409,6 @@
       <button class="tpl-tab" id="tabMaestroReportes" onclick="setMaestroTab('reportes')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">bar_chart</span> Reportes</button>
       <button class="tpl-tab" id="tabMaestroConfig" onclick="setMaestroTab('config')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">settings</span> Configuración</button>
       <button class="tpl-tab" id="tabMaestroAutomatizaciones" onclick="setMaestroTab('automatizaciones')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">forum</span> Automatizaciones</button>
-      <button class="tpl-tab" id="tabMaestroAlertatemprana" onclick="setMaestroTab('alertatemprana')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">campaign</span> Alerta Temprana</button>
       <button class="tpl-tab" id="tabMaestroPlantillas" onclick="setMaestroTab('plantillas')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">mail</span> Plantillas</button>
       <button class="tpl-tab" id="tabMaestroPermisos" onclick="setMaestroTab('permisos')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">key</span> Permisos</button>
       <button class="tpl-tab" id="tabMaestroCargas" onclick="setMaestroTab('cargas')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">upload_file</span> Cargas masivas</button>
@@ -1735,37 +1733,6 @@
         </div>
         <div style="font-size:11.5px;color:var(--text-dim);margin-top:10px;">El HTML del correo ya aprobado (logos, colores, botón hacia el formulario) no se toca desde acá — sigue igual, solo cambian los datos del cliente que se completan solos.</div>
       </div>
-    </div>
-
-    <div id="paneMaestroAlertatemprana" style="display:none;padding:10px 0;">
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:14px;">Encuesta de Alerta Temprana — por ahora solo Chevrolet.</div>
-
-      <div class="filter-bar" style="flex-wrap:wrap;gap:10px;margin-bottom:16px;">
-        <div class="filter-field"><label>Desde</label><input type="date" id="atRepFechaDesde" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"></div>
-        <div class="filter-field"><label>Hasta</label><input type="date" id="atRepFechaHasta" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"></div>
-        <select id="atRepSucursal" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
-        <select id="atRepVendedor" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todos los vendedores</option></select>
-        <select id="atRepEstado" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;">
-          <option value="">Todos los estados</option><option value="Respondida">Respondida</option><option value="Cliente no desea responder">No respondida</option><option value="">Sin encuesta todavía</option>
-        </select>
-        <button class="print-btn" style="margin:0;" onclick="limpiarFiltrosAlertaTemprana_()">Limpiar filtros</button>
-      </div>
-
-      <div class="costos-grid" id="atRepIndicadores" style="margin-bottom:20px;"></div>
-
-      <div class="section-title">Evolución mensual del NPS</div>
-      <div class="chart-panel" style="margin-bottom:18px;"><canvas id="atChartEvolucion" height="90"></canvas></div>
-
-      <div class="two-col-grid" style="margin-bottom:18px;">
-        <div class="chart-panel"><div class="section-title" style="margin-top:0;">NPS por sucursal</div><canvas id="atChartSucursal"></canvas></div>
-        <div class="chart-panel"><div class="section-title" style="margin-top:0;">Motivos de rechazo</div><canvas id="atChartRechazo"></canvas></div>
-      </div>
-
-      <div class="section-title">Ranking de vendedores por NPS</div>
-      <div id="atRankingVendedores" style="margin-bottom:18px;"></div>
-
-      <div class="section-title">Activación de OnStar / MyChevrolet</div>
-      <div class="costos-grid" id="atRepOnstar" style="margin-bottom:10px;"></div>
     </div>
 
     <div id="paneMaestroConfig" style="display:none;padding:10px 0;">
@@ -7039,11 +7006,11 @@ function reemplazarVariables_(texto, r){
 }
 function setMaestroTab(tab){
   maestroTabActual = tab;
-  ['dashboard','regalos','kit','reportes','plantillas','config','automatizaciones','alertatemprana','permisos','cargas'].forEach(function(t){
+  ['dashboard','regalos','kit','reportes','plantillas','config','automatizaciones','permisos','cargas'].forEach(function(t){
     document.getElementById('tabMaestro'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active', t===tab);
     document.getElementById('paneMaestro'+t.charAt(0).toUpperCase()+t.slice(1)).style.display = (t===tab)?'block':'none';
   });
-  var SUBITEM_POR_TAB = {dashboard:'subReportesDashboard', regalos:'subReportesRegalos', kit:'subReportesKit', reportes:'subReportesBuscador', config:'subMaestroConfig', automatizaciones:'subMaestroAutomatizaciones', alertatemprana:'subMaestroAlertaTemprana', plantillas:'subMaestroPlantillas', permisos:'subMaestroPermisos', cargas:'subMaestroCargas'};
+  var SUBITEM_POR_TAB = {dashboard:'subReportesDashboard', regalos:'subReportesRegalos', kit:'subReportesKit', reportes:'subReportesBuscador', config:'subMaestroConfig', automatizaciones:'subMaestroAutomatizaciones', plantillas:'subMaestroPlantillas', permisos:'subMaestroPermisos', cargas:'subMaestroCargas'};
   Object.keys(SUBITEM_POR_TAB).forEach(function(t){
     var el = document.getElementById(SUBITEM_POR_TAB[t]);
     if(el) el.classList.toggle('active', t===tab);
@@ -7056,7 +7023,6 @@ function setMaestroTab(tab){
     reportes:['Buscador de reportes', 'Filtrá entregas por cualquier combinación de datos.'],
     config:['Configurar equipo', 'Vendedores, administrativos, responsables, bloqueos y direcciones.'],
     automatizaciones:['Automatizaciones', 'Comunicaciones automáticas post-entrega, sin tocar código.'],
-    alertatemprana:['Alerta Temprana', 'Reporte de la encuesta de satisfacción post-entrega (Chevrolet).'],
     plantillas:['Plantillas de mail', 'Una plantilla distinta por marca y por tipo de mail.'],
     permisos:['Usuarios y Permisos', 'Altas, edición, contraseñas y roles de acceso.'],
     cargas:['Cargas masivas', 'Importar bases externas para actualizar entregas ya cargadas.']
@@ -7071,7 +7037,6 @@ function setMaestroTab(tab){
   if(tab==='kit') renderKitPanel();
   if(tab==='config') openConfig();
   if(tab==='automatizaciones') renderAutomatizacionesUI_();
-  if(tab==='alertatemprana') renderAlertaTempranaReporte_();
   if(tab==='permisos'){
     renderUsuariosTabla_();
     if(window._intervalUsuariosTabla) clearInterval(window._intervalUsuariosTabla);
@@ -7232,144 +7197,6 @@ function renderDashboard(){
 }
 
 var _dashCharts = {};
-function limpiarFiltrosAlertaTemprana_(){
-  document.getElementById('atRepFechaDesde').value='';
-  document.getElementById('atRepFechaHasta').value='';
-  document.getElementById('atRepSucursal').value='';
-  document.getElementById('atRepVendedor').value='';
-  document.getElementById('atRepEstado').value='';
-  renderAlertaTempranaReporte_();
-}
-function renderAlertaTempranaReporte_(){
-  var selSuc = document.getElementById('atRepSucursal');
-  var selVend = document.getElementById('atRepVendedor');
-  if(selSuc.options.length<=1){
-    selSuc.innerHTML = '<option value="">Todas las sucursales</option>' + SUCURSALES.map(function(s){return '<option>'+s+'</option>';}).join('');
-  }
-  if(selVend.options.length<=1){
-    var vends = (CONFIG.maestros.vendedores||[]).map(function(v){return v.nombre||v;});
-    selVend.innerHTML = '<option value="">Todos los vendedores</option>' + vends.map(function(v){return '<option>'+v+'</option>';}).join('');
-  }
-
-  var desde = document.getElementById('atRepFechaDesde').value;
-  var hasta = document.getElementById('atRepFechaHasta').value;
-  var sucF = document.getElementById('atRepSucursal').value;
-  var vendF = document.getElementById('atRepVendedor').value;
-  var estadoF = document.getElementById('atRepEstado').value;
-
-  var base = ENTREGAS.filter(function(r){
-    if(r.marca!=='chevrolet') return false;
-    var f = parsearFecha_(r.fecha);
-    if(desde && f && f < new Date(desde)) return false;
-    if(hasta && f && f > new Date(hasta+'T23:59:59')) return false;
-    if(sucF && r.sucursal!==sucF) return false;
-    if(vendF && r.vendedor!==vendF) return false;
-    if(estadoF && r.alertaTempranaEstado!==estadoF) return false;
-    return true;
-  });
-
-  var respondidas = base.filter(function(r){ return r.alertaTempranaEstado==='Respondida'; });
-  var rechazadas = base.filter(function(r){ return r.alertaTempranaEstado==='Cliente no desea responder'; });
-  var total = base.length;
-  var pctRespuesta = total>0 ? Math.round((respondidas.length/total)*100) : 0;
-
-  function promedio(arr, campo){
-    var vals = arr.map(function(r){return r[campo];}).filter(function(v){return typeof v==='number';});
-    if(vals.length===0) return null;
-    return Math.round((vals.reduce(function(a,b){return a+b;},0)/vals.length)*10)/10;
-  }
-  var promNps = promedio(respondidas, 'npsScore');
-  var promCompra = promedio(respondidas, 'alertaTempranaSatisfaccionCompra');
-  var promAtencion = promedio(respondidas, 'alertaTempranaSatisfaccionAtencion');
-  var promotores = respondidas.filter(function(r){return r.npsScore>=9;}).length;
-  var pasivos = respondidas.filter(function(r){return r.npsScore===7||r.npsScore===8;}).length;
-  var detractores = respondidas.filter(function(r){return r.npsScore<=6;}).length;
-
-  document.getElementById('atRepIndicadores').innerHTML =
-    '<div class="costo-card"><div class="icon-badge"><span class="material-symbols-outlined">directions_car</span></div><div class="valor">'+total+'</div><div class="label">Entregas Chevrolet</div></div>'+
-    '<div class="costo-card ok"><div class="icon-badge"><span class="material-symbols-outlined">task_alt</span></div><div class="valor">'+respondidas.length+'</div><div class="label">Respondidas</div></div>'+
-    '<div class="costo-card"><div class="icon-badge" style="background:var(--danger-soft);color:var(--danger);"><span class="material-symbols-outlined">block</span></div><div class="valor" style="color:var(--danger);">'+rechazadas.length+'</div><div class="label">No quisieron responder</div></div>'+
-    '<div class="costo-card ambar"><div class="icon-badge"><span class="material-symbols-outlined">percent</span></div><div class="valor">'+pctRespuesta+'%</div><div class="label">Tasa de respuesta</div></div>'+
-    '<div class="costo-card morado"><div class="icon-badge"><span class="material-symbols-outlined">insights</span></div><div class="valor">'+(promNps===null?'—':promNps)+'</div><div class="label">NPS promedio</div></div>'+
-    '<div class="costo-card"><div class="icon-badge"><span class="material-symbols-outlined">shopping_bag</span></div><div class="valor">'+(promCompra===null?'—':promCompra)+'</div><div class="label">Satisf. compra/entrega</div></div>'+
-    '<div class="costo-card"><div class="icon-badge"><span class="material-symbols-outlined">support_agent</span></div><div class="valor">'+(promAtencion===null?'—':promAtencion)+'</div><div class="label">Satisf. atención</div></div>'+
-    '<div class="costo-card ok"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_very_satisfied</span></div><div class="valor">'+promotores+'</div><div class="label">Promotores</div></div>'+
-    '<div class="costo-card ambar"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_neutral</span></div><div class="valor">'+pasivos+'</div><div class="label">Pasivos</div></div>'+
-    '<div class="costo-card"><div class="icon-badge" style="background:var(--danger-soft);color:var(--danger);"><span class="material-symbols-outlined">sentiment_dissatisfied</span></div><div class="valor" style="color:var(--danger);">'+detractores+'</div><div class="label">Detractores</div></div>';
-
-  // OnStar
-  var conOnstarDato = respondidas.filter(function(r){ return typeof r.alertaTempranaOnstarActivado==='boolean'; });
-  var onstarSi = conOnstarDato.filter(function(r){ return r.alertaTempranaOnstarActivado===true; }).length;
-  var pctOnstar = conOnstarDato.length>0 ? Math.round((onstarSi/conOnstarDato.length)*100) : 0;
-  document.getElementById('atRepOnstar').innerHTML =
-    '<div class="costo-card ok"><div class="icon-badge"><span class="material-symbols-outlined">check_circle</span></div><div class="valor">'+pctOnstar+'%</div><div class="label">Activado en la entrega</div><div class="sub">'+onstarSi+' de '+conOnstarDato.length+' respuestas</div></div>';
-
-  if(typeof Chart==='undefined') return; // sin internet no se pueden dibujar los gráficos, el resto ya se ve bien
-
-  // Evolución mensual del NPS
-  var porMes = {};
-  respondidas.forEach(function(r){
-    var f = parsearFecha_(r.fecha); if(!f) return;
-    var clave = f.getFullYear()+'-'+String(f.getMonth()+1).padStart(2,'0');
-    if(!porMes[clave]) porMes[clave] = [];
-    porMes[clave].push(r.npsScore);
-  });
-  var mesesOrdenados = Object.keys(porMes).sort();
-  destroyChart_('atEvolucion');
-  _dashCharts.atEvolucion = new Chart(document.getElementById('atChartEvolucion'), {
-    type:'line',
-    data:{ labels: mesesOrdenados, datasets:[{ label:'NPS promedio', data: mesesOrdenados.map(function(m){ var arr=porMes[m]; return Math.round((arr.reduce(function(a,b){return a+b;},0)/arr.length)*10)/10; }), borderColor:'#E8B23D', backgroundColor:'rgba(232,178,61,.15)', fill:true, tension:.3 }] },
-    options:{ plugins:{legend:{display:false}}, scales:{y:{min:-100,max:100}} }
-  });
-
-  // NPS por sucursal
-  var porSucursal = {};
-  SUCURSALES.forEach(function(s){ porSucursal[s]=[]; });
-  respondidas.forEach(function(r){ if(porSucursal[r.sucursal]) porSucursal[r.sucursal].push(r.npsScore); });
-  destroyChart_('atSucursal');
-  _dashCharts.atSucursal = new Chart(document.getElementById('atChartSucursal'), {
-    type:'bar',
-    data:{ labels:SUCURSALES, datasets:[{ data: SUCURSALES.map(function(s){ var arr=porSucursal[s]; return arr.length? Math.round((arr.reduce(function(a,b){return a+b;},0)/arr.length)*10)/10 : 0; }), backgroundColor:'#3E67CE' }] },
-    options:{ plugins:{legend:{display:false}}, scales:{y:{min:-100,max:100}} }
-  });
-
-  // Motivos de rechazo
-  var porMotivo = {};
-  rechazadas.forEach(function(r){ var m=(r.alertaTempranaMotivoRechazo||'Sin especificar').split(' — ')[0]; porMotivo[m]=(porMotivo[m]||0)+1; });
-  var motivosKeys = Object.keys(porMotivo);
-  destroyChart_('atRechazo');
-  if(motivosKeys.length===0){
-    document.getElementById('atChartRechazo').parentElement.innerHTML = '<div class="section-title" style="margin-top:0;">Motivos de rechazo</div><div style="color:var(--text-faint);font-size:12px;padding:20px 0;text-align:center;">Sin rechazos en este período. 🎉</div>';
-  } else {
-    _dashCharts.atRechazo = new Chart(document.getElementById('atChartRechazo'), {
-      type:'doughnut',
-      data:{ labels:motivosKeys, datasets:[{ data:motivosKeys.map(function(k){return porMotivo[k];}), backgroundColor:['#D6304A','#E8B23D','#8B7CF6','#2DD4BF','#9099ac'] }] },
-      options:{ plugins:{legend:{position:'bottom', labels:{boxWidth:10,font:{size:10}}}} }
-    });
-  }
-
-  // Ranking de vendedores por NPS promedio
-  var porVendedor = {};
-  respondidas.forEach(function(r){ var v=r.vendedor||'(sin asignar)'; if(!porVendedor[v]) porVendedor[v]=[]; porVendedor[v].push(r.npsScore); });
-  var rankingVend = Object.keys(porVendedor).map(function(v){
-    var arr = porVendedor[v];
-    return { nombre:v, prom: Math.round((arr.reduce(function(a,b){return a+b;},0)/arr.length)*10)/10, cant: arr.length };
-  }).sort(function(a,b){ return b.prom-a.prom; });
-  var elRanking = document.getElementById('atRankingVendedores');
-  if(rankingVend.length===0){
-    elRanking.innerHTML = '<div style="color:var(--text-faint);font-size:12px;padding:14px;text-align:center;background:var(--panel);border:1px dashed var(--hairline);border-radius:12px;">Todavía no hay encuestas respondidas en este período.</div>';
-  } else {
-    var maxProm = Math.max.apply(null, rankingVend.map(function(v){return Math.abs(v.prom);})) || 1;
-    elRanking.innerHTML = rankingVend.map(function(v,i){
-      var anchoBarra = Math.max(4, Math.round((v.prom+100)/2));
-      var colorBarra = v.prom>=50 ? 'var(--ok)' : (v.prom>=0 ? 'var(--warn)' : 'var(--danger)');
-      var claseTop = i===0?'top1':(i===1?'top2':(i===2?'top3':''));
-      return '<div class="ranking-row '+claseTop+'"><div class="ranking-pos">'+(i+1)+'</div><div class="ranking-nombre">'+v.nombre+'</div>'+
-        '<div class="ranking-bar-wrap"><div class="ranking-bar-fill" style="width:'+anchoBarra+'%;background:'+colorBarra+';"></div></div>'+
-        '<div class="ranking-nums"><b>'+v.prom+'</b> · '+v.cant+' resp.</div></div>';
-    }).join('');
-  }
-}
 var filtroNombresSeleccionados = {vendedor:[], admin:[]}; // array vacío = mostrar todos
 function destroyChart_(key){ if(_dashCharts[key]){ _dashCharts[key].destroy(); delete _dashCharts[key]; } }
 function pctCumplimiento_(a,b){ return b>0 ? Math.round(a/b*100) : 0; }
