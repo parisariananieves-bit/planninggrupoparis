@@ -183,24 +183,6 @@
   .kanban-card .fecha{font-size:10.5px;color:var(--text-faint);margin-top:4px;font-family:'IBM Plex Mono',monospace;}
   .kanban-card select{width:100%;margin-top:8px;background:var(--panel);border:1px solid var(--hairline);border-radius:6px;color:var(--text);padding:6px 7px;font-size:11px;font-family:'Inter',sans-serif;}
   .nps-modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:210;background:var(--panel);border:1px solid var(--hairline);border-radius:16px;padding:28px 26px;max-width:440px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,.5);text-align:center;}
-  .at-modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:220;background:var(--panel);border:1px solid var(--hairline);border-radius:18px;padding:0;max-width:480px;width:92%;box-shadow:0 24px 70px rgba(0,0,0,.55);max-height:88vh;display:flex;flex-direction:column;}
-  .at-modal.show{display:flex;}
-  .at-head{padding:20px 24px 14px;border-bottom:1px solid var(--hairline);}
-  .at-head-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-  .at-indicador{font-size:11px;font-weight:800;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;}
-  .at-omitir-link{font-size:10.5px;color:var(--text-faint);text-decoration:underline;cursor:pointer;background:none;border:none;}
-  .at-progreso-track{height:5px;background:var(--panel-2);border-radius:10px;overflow:hidden;}
-  .at-progreso-fill{height:100%;background:linear-gradient(90deg,var(--accent),#c98f2e);border-radius:10px;transition:width .3s ease;}
-  .at-body{padding:26px 24px;overflow-y:auto;flex:1;}
-  .at-pregunta{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:18px;text-align:center;}
-  .at-foot{padding:16px 24px 22px;display:flex;gap:10px;border-top:1px solid var(--hairline);}
-  .at-scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:6px;}
-  .at-scale-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text-faint);margin-top:2px;}
-  .at-si-no{display:flex;gap:10px;}
-  .at-si-no button{flex:1;padding:16px;border-radius:10px;border:1.5px solid var(--hairline);background:var(--panel-2);color:var(--text-dim);font-weight:700;font-size:13px;cursor:pointer;}
-  .at-si-no button.active.si{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);}
-  .at-si-no button.active.no{background:var(--danger-soft);border-color:var(--danger);color:var(--danger);}
-  .at-error{background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:8px 10px;font-size:11.5px;font-weight:600;margin-top:10px;text-align:left;}
   .nps-modal.show{display:block;}
   #npsOverlay{z-index:205;}
   .nps-modal-icon{font-size:32px;margin-bottom:8px;}
@@ -1986,41 +1968,6 @@
   <button class="save-btn" style="margin:0;" onclick="cerrarPendientesEntrega_()">Entendido, lo completo</button>
 </div>
 
-<div class="overlay" id="atOverlay"></div>
-<div class="at-modal" id="atModal">
-  <div class="at-head">
-    <div class="at-head-top">
-      <span class="at-indicador" id="atIndicador">Pregunta 1 de 7</span>
-      <button class="at-omitir-link" id="atOmitirBtn" onclick="atMostrarOmitir_()">El cliente no desea responder</button>
-    </div>
-    <div class="at-progreso-track"><div class="at-progreso-fill" id="atProgresoFill" style="width:14%;"></div></div>
-  </div>
-  <div class="at-body" id="atBody"></div>
-  <div class="at-foot">
-    <button class="view-btn" id="atVolverBtn" style="flex:1;" onclick="atVolver_()">Volver</button>
-    <button class="save-btn" id="atSiguienteBtn" style="flex:2;margin:0;" onclick="atSiguiente_()">Siguiente</button>
-  </div>
-</div>
-
-<div class="overlay" id="atOmitirOverlay"></div>
-<div class="nps-modal" id="atOmitirModal" style="max-width:400px;">
-  <div class="nps-modal-icon">🤷</div>
-  <h3>¿El cliente no quiere responder la encuesta?</h3>
-  <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:14px;">Elegí el motivo — igual vas a poder finalizar la entrega.</div>
-  <select id="atMotivoSelect" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-size:13px;margin-bottom:10px;">
-    <option value="No desea responder">No desea responder</option>
-    <option value="No tiene tiempo">No tiene tiempo</option>
-    <option value="Ya se retiró">Ya se retiró</option>
-    <option value="Rechazó la encuesta">Rechazó la encuesta</option>
-    <option value="Otro">Otro</option>
-  </select>
-  <textarea id="atMotivoObs" placeholder="Observación (opcional)" rows="2" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:12.5px;resize:vertical;margin-bottom:14px;"></textarea>
-  <div style="display:flex;gap:10px;">
-    <button class="view-btn" style="flex:1;" onclick="atCerrarOmitir_(false)">Cancelar</button>
-    <button class="save-btn" style="flex:1;margin:0;background:var(--danger);" onclick="atCerrarOmitir_(true)">Confirmar</button>
-  </div>
-</div>
-
 <div class="overlay" id="npsOverlay"></div>
 <div class="nps-modal" id="npsModal">
   <div class="nps-modal-icon">⭐</div>
@@ -2044,9 +1991,6 @@
     <div id="dObservacionesAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionObservaciones_()"><span class="material-symbols-outlined" style="font-size:15px;">sticky_note_2</span>Esta entrega tiene observaciones cargadas</div>
     <div id="dAccesorioAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionAccesorio_()"><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
     <div id="dOnstarAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionOnstar_()"><span class="material-symbols-outlined" style="font-size:15px;">directions_car</span></div>
-    <div id="dTrasladoAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">local_shipping</span></div>
-    <div id="dComentariosAlerta" style="display:none;margin-top:8px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionComentarios_()"><span class="material-symbols-outlined" style="font-size:15px;">chat</span></div>
-    <div id="dNpsAlerta" style="display:none;margin-top:8px;border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">star</span></div>
   </div>
   <div class="drawer-body">
     <button class="entrega-toggle pending" id="dEntregaToggle" onclick="toggleEntregada()">🚗 Marcar unidad como entregada</button>
@@ -4798,12 +4742,7 @@ function toggleEntregadaId(marca,id){
       mostrarPendientesEntrega_(marca, id, faltan);
       return;
     }
-    var yaRespondioAlgo = !!r.npsScore || r.alertaTempranaEstado==='Cliente no desea responder' || r.alertaTempranaEstado==='Respondida';
-    if(marca==='chevrolet' && !yaRespondioAlgo){
-      abrirAlertaTemprana_(marca, id, function(){ marcarEntregadaEfectiva_(marca, id, r); });
-      return;
-    }
-    if(marca!=='chevrolet' && !r.npsScore){
+    if(!r.npsScore){
       abrirEncuestaNPS_(marca, id, function(){ marcarEntregadaEfectiva_(marca, id, r); });
       return;
     }
@@ -4820,202 +4759,6 @@ function marcarEntregadaEfectiva_(marca, id, r){
 }
 function toggleEntregada(){ if(detailId) toggleEntregadaId(detailMarca, detailId); }
 var npsContexto_ = null;
-// ============================================================
-// ALERTA TEMPRANA (Chevrolet) — asistente paso a paso, una pregunta por pantalla
-// ============================================================
-var _atContexto_ = null;
-var AT_TOTAL_PASOS = 7;
-function abrirAlertaTemprana_(marca, id, alFinalizar){
-  var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
-  _atContexto_ = {
-    marca:marca, id:id, paso:1, alFinalizar:alFinalizar,
-    respuestas:{nps:null, satisfaccionCompra:null, satisfaccionAtencion:null, onstarActivado:null, comentario:'', email:(r?r.email:'')||'', fechaNacimiento:''}
-  };
-  document.getElementById('atOverlay').classList.add('show');
-  document.getElementById('atModal').classList.add('show');
-  atRenderPaso_();
-}
-function atEscala1a10Html_(campo, valorActual){
-  var html = '<div class="at-scale">';
-  for(var i=1;i<=10;i++){
-    var cls = i<=6?'low':(i<=8?'mid':'high');
-    var sel = (valorActual===i) ? ' selected' : '';
-    html += '<button type="button" class="nps-btn '+cls+sel+'" onclick="atElegirEscala_(\''+campo+'\','+i+',this)">'+i+'</button>';
-  }
-  html += '</div><div class="at-scale-labels"><span>Nada probable</span><span>Muy probable</span></div>';
-  return html;
-}
-function atElegirEscala_(campo, valor, btn){
-  _atContexto_.respuestas[campo] = valor;
-  btn.closest('.at-scale').querySelectorAll('.nps-btn').forEach(function(b){ b.classList.remove('selected'); });
-  btn.classList.add('selected');
-  document.getElementById('atError') && (document.getElementById('atError').style.display='none');
-}
-function atElegirSiNo_(campo, valor, btn){
-  _atContexto_.respuestas[campo] = valor;
-  btn.closest('.at-si-no').querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-}
-function atRenderPaso_(){
-  var c = _atContexto_;
-  var body = document.getElementById('atBody');
-  document.getElementById('atIndicador').textContent = 'Pregunta '+c.paso+' de '+AT_TOTAL_PASOS;
-  document.getElementById('atProgresoFill').style.width = Math.round((c.paso/AT_TOTAL_PASOS)*100)+'%';
-  document.getElementById('atVolverBtn').style.visibility = c.paso===1 ? 'hidden' : 'visible';
-  document.getElementById('atSiguienteBtn').textContent = c.paso===AT_TOTAL_PASOS ? 'Finalizar' : 'Siguiente';
-
-  var html = '';
-  if(c.paso===1){
-    html = '<div class="at-pregunta">¿Con qué probabilidad recomendaría Grupo París a un familiar o amigo?</div>'+atEscala1a10Html_('nps', c.respuestas.nps);
-  } else if(c.paso===2){
-    html = '<div class="at-pregunta">¿Qué tan satisfecho quedó con el proceso de compra y entrega?</div>'+atEscala1a10Html_('satisfaccionCompra', c.respuestas.satisfaccionCompra);
-  } else if(c.paso===3){
-    html = '<div class="at-pregunta">¿Qué tan satisfecho quedó con la atención del personal?</div>'+atEscala1a10Html_('satisfaccionAtencion', c.respuestas.satisfaccionAtencion);
-  } else if(c.paso===4){
-    html = '<div class="at-pregunta">¿Se realizó la activación de OnStar y configuración de MyChevrolet?</div>'+
-      '<div class="at-si-no">'+
-        '<button type="button" class="'+(c.respuestas.onstarActivado===true?'active si':'')+'" onclick="atElegirSiNo_(\'onstarActivado\',true,this)">✓ Sí</button>'+
-        '<button type="button" class="'+(c.respuestas.onstarActivado===false?'active no':'')+'" onclick="atElegirSiNo_(\'onstarActivado\',false,this)">✕ No</button>'+
-      '</div>';
-  } else if(c.paso===5){
-    var obligatorio = (c.respuestas.nps!==null && c.respuestas.nps<=8);
-    html = '<div class="at-pregunta">Comentarios'+(obligatorio?' <span style="color:var(--danger);">*</span>':' <span style="color:var(--text-faint);font-weight:400;font-size:12px;">(opcional)</span>')+'</div>'+
-      '<textarea id="atComentarioInput" rows="4" placeholder="Contanos más sobre la experiencia..." style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:10px;font-size:13px;resize:vertical;" oninput="_atContexto_.respuestas.comentario=this.value;">'+(c.respuestas.comentario||'')+'</textarea>';
-  } else if(c.paso===6){
-    html = '<div class="at-pregunta">Confirmación del correo electrónico</div>'+
-      '<div style="font-size:11.5px;color:var(--text-dim);margin-bottom:8px;text-align:center;">Este es el correo que tenemos registrado. Corregilo si hace falta.</div>'+
-      '<input type="email" id="atEmailInput" value="'+(c.respuestas.email||'')+'" placeholder="correo@ejemplo.com" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:10px;font-size:13px;text-align:center;" oninput="_atContexto_.respuestas.email=this.value;">';
-  } else if(c.paso===7){
-    html = '<div class="at-pregunta">Fecha de nacimiento <span style="color:var(--danger);">*</span></div>'+
-      '<div style="font-size:11.5px;color:var(--text-dim);margin-bottom:8px;text-align:center;">La guardamos para futuras gestiones de garantía.</div>'+
-      '<input type="date" id="atFechaNacInput" value="'+(c.respuestas.fechaNacimiento||'')+'" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:10px;font-size:13px;text-align:center;" onchange="_atContexto_.respuestas.fechaNacimiento=this.value;">';
-  }
-  html += '<div class="at-error" id="atError" style="display:none;"></div>';
-  body.innerHTML = html;
-}
-function atMostrarErrorPaso_(msg){
-  var el = document.getElementById('atError');
-  el.textContent = '⚠ '+msg;
-  el.style.display = 'block';
-}
-function atSiguiente_(){
-  var c = _atContexto_;
-  var r = c.paso;
-  if(r===1 && c.respuestas.nps===null){ atMostrarErrorPaso_('Elegí un puntaje del 1 al 10.'); return; }
-  if(r===2 && c.respuestas.satisfaccionCompra===null){ atMostrarErrorPaso_('Elegí un puntaje del 1 al 10.'); return; }
-  if(r===3 && c.respuestas.satisfaccionAtencion===null){ atMostrarErrorPaso_('Elegí un puntaje del 1 al 10.'); return; }
-  if(r===4 && c.respuestas.onstarActivado===null){ atMostrarErrorPaso_('Elegí Sí o No.'); return; }
-  if(r===5){
-    var val = document.getElementById('atComentarioInput').value.trim();
-    c.respuestas.comentario = val;
-    var obligatorio = (c.respuestas.nps!==null && c.respuestas.nps<=8);
-    if(obligatorio && !val){ atMostrarErrorPaso_('El comentario es obligatorio para este puntaje.'); return; }
-  }
-  if(r===6){
-    var email = document.getElementById('atEmailInput').value.trim();
-    c.respuestas.email = email;
-    if(!email || email.indexOf('@')===-1){ atMostrarErrorPaso_('Ingresá un correo válido.'); return; }
-  }
-  if(r===7){
-    var fnac = document.getElementById('atFechaNacInput').value;
-    c.respuestas.fechaNacimiento = fnac;
-    if(!fnac){ atMostrarErrorPaso_('La fecha de nacimiento es obligatoria.'); return; }
-    atFinalizar_();
-    return;
-  }
-  c.paso++;
-  atRenderPaso_();
-}
-function atVolver_(){
-  if(_atContexto_.paso<=1) return;
-  _atContexto_.paso--;
-  atRenderPaso_();
-}
-function atMostrarOmitir_(){
-  document.getElementById('atMotivoObs').value = '';
-  document.getElementById('atOmitirOverlay').classList.add('show');
-  document.getElementById('atOmitirModal').classList.add('show');
-}
-function atCerrarOmitir_(confirmado){
-  document.getElementById('atOmitirOverlay').classList.remove('show');
-  document.getElementById('atOmitirModal').classList.remove('show');
-  if(!confirmado) return;
-  var motivo = document.getElementById('atMotivoSelect').value;
-  var obs = document.getElementById('atMotivoObs').value.trim();
-  var c = _atContexto_;
-  var marca=c.marca, id=c.id;
-  var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
-  var ahora = fechaHoraAhora_();
-  r.alertaTempranaEstado = 'Cliente no desea responder';
-  r.alertaTempranaMotivoRechazo = motivo+(obs?' — '+obs:'');
-  r.alertaTempranaFechaRespuesta = ahora;
-  r.alertaTempranaUsuario = usuarioActual() || '';
-  gasPost('updateEntregaFields',{marca:marca,id:id,fields:{
-    alertaTempranaEstado:r.alertaTempranaEstado, alertaTempranaMotivoRechazo:r.alertaTempranaMotivoRechazo,
-    alertaTempranaFechaRespuesta:r.alertaTempranaFechaRespuesta, alertaTempranaUsuario:r.alertaTempranaUsuario
-  }});
-  logHistorial_(marca, id, '🚫 Alerta Temprana: el cliente no quiso responder — Motivo: '+motivo+(obs?' ('+obs+')':''));
-  document.getElementById('atOverlay').classList.remove('show');
-  document.getElementById('atModal').classList.remove('show');
-  var cb = c.alFinalizar;
-  _atContexto_ = null;
-  if(cb) cb();
-}
-function atFinalizar_(){
-  var c = _atContexto_;
-  var marca=c.marca, id=c.id, resp=c.respuestas;
-  var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
-  var ahora = fechaHoraAhora_();
-  r.npsScore = resp.nps;
-  r.npsComentario = resp.comentario;
-  r.npsFecha = ahora;
-  r.alertaTempranaSatisfaccionCompra = resp.satisfaccionCompra;
-  r.alertaTempranaSatisfaccionAtencion = resp.satisfaccionAtencion;
-  r.alertaTempranaOnstarActivado = resp.onstarActivado;
-  r.alertaTempranaComentario = resp.comentario;
-  r.alertaTempranaFechaNacimiento = resp.fechaNacimiento;
-  r.alertaTempranaEstado = 'Respondida';
-  r.alertaTempranaFechaRespuesta = ahora;
-  r.alertaTempranaUsuario = usuarioActual() || '';
-  var emailCambio = resp.email && resp.email!==(r.email||'');
-  if(emailCambio) r.email = resp.email;
-  var fields = {
-    npsScore:r.npsScore, npsComentario:r.npsComentario, npsFecha:r.npsFecha,
-    alertaTempranaSatisfaccionCompra:resp.satisfaccionCompra, alertaTempranaSatisfaccionAtencion:resp.satisfaccionAtencion,
-    alertaTempranaOnstarActivado:resp.onstarActivado, alertaTempranaComentario:resp.comentario,
-    alertaTempranaFechaNacimiento:resp.fechaNacimiento, alertaTempranaEstado:'Respondida',
-    alertaTempranaFechaRespuesta:ahora, alertaTempranaUsuario:r.alertaTempranaUsuario
-  };
-  if(emailCambio) fields.email = r.email;
-  gasPost('updateEntregaFields',{marca:marca,id:id,fields:fields});
-  var categoria = resp.nps<=6 ? 'Detractor' : (resp.nps<=8 ? 'Pasivo' : 'Promotor');
-  logHistorial_(marca, id, '⭐ Alerta Temprana respondida — NPS '+resp.nps+'/10 ('+categoria+')'+(emailCambio?' — Email actualizado':''));
-
-  // Pantalla de agradecimiento
-  document.getElementById('atIndicador').textContent = '';
-  document.getElementById('atProgresoFill').style.width = '100%';
-  document.getElementById('atOmitirBtn').style.display = 'none';
-  document.getElementById('atVolverBtn').style.display = 'none';
-  document.getElementById('atBody').innerHTML =
-    '<div style="text-align:center;padding:20px 0;">'+
-      '<div style="font-size:40px;margin-bottom:10px;">🎉</div>'+
-      '<div class="at-pregunta">¡Muchas gracias!</div>'+
-      '<div style="font-size:12.5px;color:var(--text-dim);">Encuesta registrada correctamente.</div>'+
-    '</div>';
-  var btnSig = document.getElementById('atSiguienteBtn');
-  btnSig.style.flex = '1';
-  btnSig.textContent = 'Finalizar entrega';
-  btnSig.onclick = function(){
-    document.getElementById('atOverlay').classList.remove('show');
-    document.getElementById('atModal').classList.remove('show');
-    document.getElementById('atOmitirBtn').style.display = 'block';
-    document.getElementById('atVolverBtn').style.display = 'block';
-    btnSig.style.flex = '2'; btnSig.textContent = 'Siguiente'; btnSig.onclick = atSiguiente_;
-    var cb = c.alFinalizar;
-    _atContexto_ = null;
-    if(cb) cb();
-  };
-}
 function abrirEncuestaNPS_(marca, id, alGuardar){
   npsContexto_ = {marca:marca, id:id, puntaje:null, alGuardar:alGuardar||null};
   var scale = document.getElementById('npsScale');
@@ -5276,8 +5019,7 @@ function openDetail(marca, id){
   var bMarcaOnstar = BRANDS.find(function(x){return x.id===r.marca;});
   if(alertaOnstar){
     var esUsado = r.usado==='Sí';
-    var noTieneDeFabrica = (r.onstar===null || r.onstar==='');
-    if(bMarcaOnstar && bMarcaOnstar.onstar && !esUsado && !noTieneDeFabrica){
+    if(bMarcaOnstar && bMarcaOnstar.onstar && !esUsado){
       var activado = r.onstar==='ok';
       alertaOnstar.style.display = 'flex';
       alertaOnstar.style.background = activado ? 'var(--ok-soft)' : 'var(--danger-soft)';
@@ -5286,45 +5028,6 @@ function openDetail(marca, id){
       alertaOnstar.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">directions_car</span>Esta entrega tiene OnStar'+(activado?' — ya activado':' — todavía sin activar');
     } else {
       alertaOnstar.style.display = 'none';
-    }
-  }
-  var alertaTraslado = document.getElementById('dTrasladoAlerta');
-  if(alertaTraslado){
-    if(r.traslado){
-      var completado = !!r.trasladoCompletado;
-      alertaTraslado.style.display = 'flex';
-      alertaTraslado.style.background = completado ? 'var(--ok-soft)' : 'var(--danger-soft)';
-      alertaTraslado.style.color = completado ? 'var(--ok)' : 'var(--danger)';
-      alertaTraslado.style.borderColor = completado ? 'var(--ok)' : 'var(--danger)';
-      alertaTraslado.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">local_shipping</span>Marcada para traslado a '+(r.trasladoDestino||'otra sucursal')+(completado?' — completado':' — pendiente');
-    } else {
-      alertaTraslado.style.display = 'none';
-    }
-  }
-  var alertaComentarios = document.getElementById('dComentariosAlerta');
-  if(alertaComentarios){
-    var cantComentarios = (r.comentarios||[]).length;
-    if(cantComentarios>0){
-      alertaComentarios.style.display = 'flex';
-      var ultimo = r.comentarios[r.comentarios.length-1];
-      alertaComentarios.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">chat</span>'+cantComentarios+' comentario'+(cantComentarios>1?'s':'')+' — último: "'+(ultimo.texto||'').slice(0,60)+(ultimo.texto&&ultimo.texto.length>60?'…':'')+'"';
-    } else {
-      alertaComentarios.style.display = 'none';
-    }
-  }
-  var alertaNps = document.getElementById('dNpsAlerta');
-  if(alertaNps){
-    if(typeof r.npsScore==='number'){
-      var categoriaNps = r.npsScore<=6 ? 'Detractor' : (r.npsScore<=8 ? 'Pasivo' : 'Promotor');
-      var colorNps = r.npsScore<=6 ? 'var(--danger)' : (r.npsScore<=8 ? '#E8B23D' : 'var(--ok)');
-      var colorNpsSoft = r.npsScore<=6 ? 'var(--danger-soft)' : (r.npsScore<=8 ? 'rgba(232,178,61,.14)' : 'var(--ok-soft)');
-      alertaNps.style.display = 'flex';
-      alertaNps.style.background = colorNpsSoft;
-      alertaNps.style.color = colorNps;
-      alertaNps.style.borderColor = colorNps;
-      alertaNps.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">star</span>NPS '+r.npsScore+'/10 — '+categoriaNps+(r.npsComentario?' — "'+r.npsComentario.slice(0,60)+(r.npsComentario.length>60?'…':'')+'"':'');
-    } else {
-      alertaNps.style.display = 'none';
     }
   }
   var parts=(r.fecha||'').split('/');
@@ -5355,17 +5058,6 @@ function abrirSeccionOnstar_(){
   var seccion = document.getElementById('dOnstarSection');
   if(seccion){ seccion.classList.remove('collapsed'); seccion.scrollIntoView({behavior:'smooth', block:'center'}); }
 }
-function abrirSeccionComentarios_(){
-  var titulos = document.querySelectorAll('.drawer-body .section-title');
-  for(var i=0;i<titulos.length;i++){
-    if(titulos[i].textContent.trim()==='Comentarios'){
-      var seccion = titulos[i].closest('.section');
-      seccion.classList.remove('collapsed');
-      seccion.scrollIntoView({behavior:'smooth', block:'center'});
-      return;
-    }
-  }
-}
 function inicializarAcordeonDrawer_(r){
   var secciones = document.querySelectorAll('.drawer-body > .section');
   secciones.forEach(function(sec, i){
@@ -5388,7 +5080,6 @@ function seccionTieneContenido_(titulo, r){
   if(titulo.indexOf('Regalo')>-1) return !!r.regaloCorporativo;
   if(titulo.indexOf('Traslado')>-1) return !!r.traslado;
   if(titulo==='Observaciones') return !!(r.observaciones && r.observaciones.trim());
-  if(titulo==='Comentarios') return !!(r.comentarios && r.comentarios.length>0);
   return false;
 }
 function toggleSeccionDetalle_(tituloEl){
