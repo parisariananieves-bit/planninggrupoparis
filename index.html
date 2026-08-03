@@ -1069,13 +1069,13 @@
           <button class="nav-subitem" id="subReportesRegalos" onclick="setMaestroTab('regalos')">Regalos Corporativos</button>
           <button class="nav-subitem" id="subReportesKit" onclick="setMaestroTab('kit')">Kit de Seguridad</button>
           <button class="nav-subitem" id="subReportesBuscador" onclick="setMaestroTab('reportes')">Buscador de reportes</button>
+          <button class="nav-subitem" id="subReportesAlertaTemprana" onclick="setMaestroTab('alertatemprana')">Alerta Temprana</button>
         </div>
         <button class="nav-item" id="navHistorialComs" title="Historial de Comunicaciones" onclick="setAppView('historialcoms')"><span class="material-symbols-outlined">forum</span><span class="nav-label">Historial de Comunicaciones</span></button>
         <button class="nav-item" id="navMaestro" title="Maestro (Config)" onclick="irAMaestro()"><span class="material-symbols-outlined">settings</span><span class="nav-label">Maestro (Config)</span></button>
         <div class="nav-submenu" id="submenuMaestro" style="display:none;">
           <button class="nav-subitem" id="subMaestroConfig" onclick="setMaestroTab('config')">Configuración</button>
           <button class="nav-subitem" id="subMaestroAutomatizaciones" onclick="setMaestroTab('automatizaciones')">Automatizaciones</button>
-          <button class="nav-subitem" id="subMaestroAlertaTemprana" onclick="setMaestroTab('alertatemprana')">Alerta Temprana</button>
           <button class="nav-subitem" id="subMaestroPlantillas" onclick="setMaestroTab('plantillas')">Plantillas de mail</button>
           <button class="nav-subitem" id="subMaestroPermisos" onclick="setMaestroTab('permisos')">Permisos y usuarios</button>
           <button class="nav-subitem" id="subMaestroCargas" onclick="setMaestroTab('cargas')">Cargas masivas</button>
@@ -3333,6 +3333,7 @@ function entregasContexto(){
   return ENTREGAS.filter(function(r){
     if(currentBrands.indexOf(r.marca)===-1) return false;
     if(filterAdministrativo && r.administrativo!==filterAdministrativo) return false;
+    if(filterTipo!=='todos' && r.tipoVenta!==filterTipo) return false;
     if(b.branches) { if(currentBranches.length>0 && currentBranches.indexOf(r.sucursal)===-1) return false; }
     return pasaFiltroCanal_(r);
   });
@@ -5347,22 +5348,7 @@ function openDetail(marca, id){
       alertaAcc.style.display = 'none';
     }
   }
-  var alertaOnstar = document.getElementById('dOnstarAlerta');
-  var bMarcaOnstar = BRANDS.find(function(x){return x.id===r.marca;});
-  if(alertaOnstar){
-    var esUsado = r.usado==='Sí';
-    var noTieneDeFabrica = (r.onstar===null || r.onstar==='');
-    if(bMarcaOnstar && bMarcaOnstar.onstar && !esUsado && !noTieneDeFabrica){
-      var activado = r.onstar==='ok';
-      alertaOnstar.style.display = 'flex';
-      alertaOnstar.style.background = activado ? 'var(--ok-soft)' : 'var(--danger-soft)';
-      alertaOnstar.style.color = activado ? 'var(--ok)' : 'var(--danger)';
-      alertaOnstar.style.borderColor = activado ? 'var(--ok)' : 'var(--danger)';
-      alertaOnstar.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">directions_car</span>Esta entrega tiene OnStar'+(activado?' — ya activado':' — todavía sin activar');
-    } else {
-      alertaOnstar.style.display = 'none';
-    }
-  }
+  renderAlertaOnstar_(r);
   var alertaTraslado = document.getElementById('dTrasladoAlerta');
   if(alertaTraslado){
     if(r.traslado){
@@ -5515,6 +5501,23 @@ function aplicarSoloLecturaDrawer_(){
 function closeDetail(){ document.getElementById('overlay').classList.remove('show'); document.getElementById('drawer').classList.remove('show'); detailId=null; detailMarca=null; }
 function closeAll(){ closeDetail(); closeNewDelivery(); closeReport(); closeEmailPreview(); closePlantillas(); closeConfig(); closeMaestro(); }
 
+function renderAlertaOnstar_(r){
+  var alertaOnstar = document.getElementById('dOnstarAlerta');
+  var bMarcaOnstar = BRANDS.find(function(x){return x.id===r.marca;});
+  if(!alertaOnstar) return;
+  var esUsado = r.tipoVenta==='USADO';
+  var noTieneDeFabrica = (r.onstar===null || r.onstar==='');
+  if(bMarcaOnstar && bMarcaOnstar.onstar && !esUsado && !noTieneDeFabrica){
+    var activado = r.onstar==='ok';
+    alertaOnstar.style.display = 'flex';
+    alertaOnstar.style.background = activado ? 'var(--ok-soft)' : 'var(--danger-soft)';
+    alertaOnstar.style.color = activado ? 'var(--ok)' : 'var(--danger)';
+    alertaOnstar.style.borderColor = activado ? 'var(--ok)' : 'var(--danger)';
+    alertaOnstar.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">directions_car</span>Esta entrega tiene OnStar'+(activado?' — ya activado':' — todavía sin activar');
+  } else {
+    alertaOnstar.style.display = 'none';
+  }
+}
 function guardarCampo(campo, valor, refrescarHead){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
@@ -5522,6 +5525,7 @@ function guardarCampo(campo, valor, refrescarHead){
   var fields={}; fields[campo]=valor;
   gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:fields});
   if(refrescarHead) document.getElementById('dHeadName').textContent=r.cliente;
+  if(campo==='tipoVenta'){ renderOnstarPasos(r); renderAlertaOnstar_(r); }
   renderAll();
   showToast('Actualizado');
 }
@@ -5840,12 +5844,12 @@ function renderOnstarPasos(r){
   section.style.display='block';
   var banner=document.getElementById('dOnstarBanner');
 
-  if(r.usado==='Sí'){
-    // Vehículo usado: OnStar queda deshabilitado directamente, no corresponde activación.
+  if(r.tipoVenta==='USADO'){
+    // Vehículo usado (así lo dice "Tipo de venta"): OnStar queda deshabilitado, no corresponde activación.
     banner.className='onstar-banner pending';
     banner.textContent='✕ Vehículo usado — no tiene OnStar';
     document.getElementById('dOnstarPasos').innerHTML =
-      '<div style="font-size:11px;color:var(--text-faint);">Esta entrega está marcada como "Usado", así que no corresponde el seguimiento de activación de OnStar.</div>';
+      '<div style="font-size:11px;color:var(--text-faint);">Esta entrega tiene "Tipo de venta: Usado", así que no corresponde el seguimiento de activación de OnStar.</div>';
     return;
   }
 
@@ -6967,8 +6971,8 @@ function limpiarDashboardFecha(){
 var detalleFiltradoFilas = [];
 var detalleFiltradoTitulo = '';
 
-var GRUPO_TABS_REPORTES = ['dashboard','regalos','kit','reportes'];
-var GRUPO_TABS_MAESTRO = ['config','plantillas','permisos','cargas'];
+var GRUPO_TABS_REPORTES = ['dashboard','regalos','kit','reportes','alertatemprana'];
+var GRUPO_TABS_MAESTRO = ['config','automatizaciones','plantillas','permisos','cargas'];
 
 function mostrarSubmenu_(grupo){
   var subReportes = document.getElementById('submenuReportes');
@@ -7091,7 +7095,7 @@ function setMaestroTab(tab){
     document.getElementById('tabMaestro'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active', t===tab);
     document.getElementById('paneMaestro'+t.charAt(0).toUpperCase()+t.slice(1)).style.display = (t===tab)?'block':'none';
   });
-  var SUBITEM_POR_TAB = {dashboard:'subReportesDashboard', regalos:'subReportesRegalos', kit:'subReportesKit', reportes:'subReportesBuscador', config:'subMaestroConfig', automatizaciones:'subMaestroAutomatizaciones', alertatemprana:'subMaestroAlertaTemprana', plantillas:'subMaestroPlantillas', permisos:'subMaestroPermisos', cargas:'subMaestroCargas'};
+  var SUBITEM_POR_TAB = {dashboard:'subReportesDashboard', regalos:'subReportesRegalos', kit:'subReportesKit', reportes:'subReportesBuscador', alertatemprana:'subReportesAlertaTemprana', config:'subMaestroConfig', automatizaciones:'subMaestroAutomatizaciones', plantillas:'subMaestroPlantillas', permisos:'subMaestroPermisos', cargas:'subMaestroCargas'};
   Object.keys(SUBITEM_POR_TAB).forEach(function(t){
     var el = document.getElementById(SUBITEM_POR_TAB[t]);
     if(el) el.classList.toggle('active', t===tab);
