@@ -4886,8 +4886,9 @@ function atElegirEscala_(campo, valor, btn){
 }
 function atElegirSiNo_(campo, valor, btn){
   _atContexto_.respuestas[campo] = valor;
-  btn.closest('.at-si-no').querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
+  btn.closest('.at-si-no').querySelectorAll('button').forEach(function(b){ b.classList.remove('active','si','no'); });
+  btn.classList.add('active', valor ? 'si' : 'no');
+  document.getElementById('atError') && (document.getElementById('atError').style.display='none');
 }
 function atRenderPaso_(){
   var c = _atContexto_;
@@ -5243,7 +5244,7 @@ function openDetail(marca, id){
   detailId=id; detailMarca=marca;
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   document.getElementById('dHeadName').textContent=r.cliente;
-  document.getElementById('dHeadSub').textContent=r.fecha+' · '+r.hora+' · '+r.modelo+(r.chasis?' · VIN '+r.chasis:'');
+  document.getElementById('dHeadSub').textContent=r.fecha+' · '+r.hora+' · '+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+(r.sucursal?' · '+r.sucursal:'')+(r.vendedor?' · Vend: '+r.vendedor:'')+(r.administrativo?' · Adm: '+r.administrativo:'');
   updateEntregaToggleUI(r);
   updateTrasladoUI(r);
   renderEstadoComunicaciones(r);
@@ -5442,7 +5443,7 @@ function aplicarSoloLecturaDrawer_(){
   var soloLectura = !puedeEditar();
   var esLogisticaLimitada = rolActual()==='logistica';
   var drawer = document.getElementById('drawer');
-  var permitidosLogistica = ['dAccesoriosBtnSi','dAccesoriosBtnNo','dLlaveDuplicadaBtnSi','dLlaveDuplicadaBtnNo','dKitSeguridadBtnSi','dKitSeguridadBtnNo','dCampanaToggle','dManualBtnSi','dManualBtnNo','dRegaloToggle','dEntregaToggle','dTrasladoBtn','dResponsable'];
+  var permitidosLogistica = ['dAccesoriosBtnSi','dAccesoriosBtnNo','dLlaveDuplicadaBtnSi','dLlaveDuplicadaBtnNo','dKitSeguridadBtnSi','dKitSeguridadBtnNo','dAlfombrasBtnSi','dAlfombrasBtnNo','dCampanaToggle','dManualBtnSi','dManualBtnNo','dRegaloToggle','dEntregaToggle','dTrasladoBtn','dResponsable'];
   drawer.querySelectorAll('input, select, textarea, button').forEach(function(el){
     if(el.classList.contains('close')) return;
     if(esLogisticaLimitada){
@@ -5898,7 +5899,7 @@ function reprogramar(){
   var texto='Reprogramada de '+anterior+' a '+nuevaFecha+' '+h+(motivo?'. Motivo: '+motivo:'');
   gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{fecha:nuevaFecha,hora:h,recordatorio:'programado'}});
   logHistorial_(detailMarca, detailId, texto);
-  document.getElementById('dHeadSub').textContent=r.fecha+' · '+r.hora+' · '+r.modelo+(r.chasis?' · VIN '+r.chasis:'');
+  document.getElementById('dHeadSub').textContent=r.fecha+' · '+r.hora+' · '+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+(r.sucursal?' · '+r.sucursal:'')+(r.vendedor?' · Vend: '+r.vendedor:'')+(r.administrativo?' · Adm: '+r.administrativo:'');
   document.getElementById('dFechaTexto').textContent=r.fecha;
   document.getElementById('dHoraTexto').textContent=r.hora;
   renderAll();
@@ -7172,10 +7173,11 @@ function renderDashboard(){
       var total = conNPS.length;
       var npsValor = Math.round((promotores/total - detractores/total)*100);
       elNPS.innerHTML =
-        '<div class="costo-card '+(npsValor>=50?'ok':(npsValor>=0?'ambar':'morado'))+'"><div class="icon-badge"><span class="material-symbols-outlined">insights</span></div><div class="valor" style="'+(npsValor<0?'color:var(--danger);':'')+'">'+(npsValor>0?'+':'')+npsValor+'</div><div class="label">NPS general</div><div class="sub">'+total+' respuesta'+(total>1?'s':'')+'</div></div>'+
-        '<div class="costo-card ok"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_very_satisfied</span></div><div class="valor">'+promotores+'</div><div class="label">Promotores (9-10)</div><div class="sub">'+Math.round(promotores/total*100)+'% del total</div></div>'+
-        '<div class="costo-card ambar"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_neutral</span></div><div class="valor">'+pasivos+'</div><div class="label">Pasivos (7-8)</div><div class="sub">'+Math.round(pasivos/total*100)+'% del total</div></div>'+
-        '<div class="costo-card"><div class="icon-badge" style="background:var(--danger-soft);color:var(--danger);"><span class="material-symbols-outlined">sentiment_dissatisfied</span></div><div class="valor" style="color:var(--danger);">'+detractores+'</div><div class="label">Detractores (0-6)</div><div class="sub">'+Math.round(detractores/total*100)+'% del total</div></div>';
+        '<div class="costo-card '+(npsValor>=50?'ok':(npsValor>=0?'ambar':'morado'))+'" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'NPS — todas las respuestas\', '+'window._conNPSActual, null, \'dashNPS\')"><div class="icon-badge"><span class="material-symbols-outlined">insights</span></div><div class="valor" style="'+(npsValor<0?'color:var(--danger);':'')+'">'+(npsValor>0?'+':'')+npsValor+'</div><div class="label">NPS general</div><div class="sub">'+total+' respuesta'+(total>1?'s':'')+'</div></div>'+
+        '<div class="costo-card ok" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Promotores (9-10)\', window._conNPSActual.filter(function(r){return r.npsScore>=9;}), null, \'dashNPS\')"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_very_satisfied</span></div><div class="valor">'+promotores+'</div><div class="label">Promotores (9-10)</div><div class="sub">'+Math.round(promotores/total*100)+'% del total</div></div>'+
+        '<div class="costo-card ambar" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Pasivos (7-8)\', window._conNPSActual.filter(function(r){return r.npsScore===7||r.npsScore===8;}), null, \'dashNPS\')"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_neutral</span></div><div class="valor">'+pasivos+'</div><div class="label">Pasivos (7-8)</div><div class="sub">'+Math.round(pasivos/total*100)+'% del total</div></div>'+
+        '<div class="costo-card" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Detractores (0-6)\', window._conNPSActual.filter(function(r){return r.npsScore<=6;}), null, \'dashNPS\')"><div class="icon-badge" style="background:var(--danger-soft);color:var(--danger);"><span class="material-symbols-outlined">sentiment_dissatisfied</span></div><div class="valor" style="color:var(--danger);">'+detractores+'</div><div class="label">Detractores (0-6)</div><div class="sub">'+Math.round(detractores/total*100)+'% del total</div></div>';
+      window._conNPSActual = conNPS;
     }
   }
   // --- NPS por sucursal (todas, para poder comparar — no respeta el filtro de sucursal del topbar) ---
