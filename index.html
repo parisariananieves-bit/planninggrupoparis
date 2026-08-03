@@ -7913,7 +7913,7 @@ function mostrarDetalleFiltrado(titulo, filas, columnaExtra, contenedorId){
   var html = '<tr>'+headers.map(function(h){return '<th>'+h+'</th>';}).join('')+'</tr>';
   filas.forEach(function(r){
     var b=BRANDS.find(function(x){return x.id===r.marca;});
-    html += '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')" title="Ver detalle de esta entrega"><td>'+(b?b.label:r.marca)+'</td><td>'+(r.sucursal==='default'?'—':r.sucursal)+'</td><td>'+r.fecha+'</td><td>'+r.hora+'</td><td>'+r.cliente+'</td><td>'+r.modelo+'</td><td>'+(r.chasis||'—')+'</td><td>'+r.dominio+'</td><td>'+r.vendedor+'</td><td>'+r.administrativo+'</td><td>'+r.estado+'</td>';
+    html += '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')" title="Ver detalle de esta entrega"><td>'+(b?b.label:r.marca)+'</td><td>'+(r.sucursal==='default'?'—':r.sucursal)+'</td><td>'+r.fecha+'</td><td>'+r.hora+'</td><td>'+r.cliente+'</td><td>'+r.modelo+'</td><td>'+(r.chasis||'—')+'</td><td>'+r.dominio+'</td><td>'+r.vendedor+'</td><td>'+r.administrativo+'</td><td style="font-weight:700;color:'+(r.entregada?'var(--ok)':'var(--warn)')+';">'+(r.entregada?'Entregado':('No entregado'+(r.entregaFallidaMotivo?' — '+r.entregaFallidaMotivo:'')))+'</td>';
     if(columnaExtra){
       if(typeof columnaExtra.pendiente==='function'){
         var pend = columnaExtra.pendiente(r);
@@ -7937,7 +7937,7 @@ function exportarDetalleFiltradoExcel(){
   if(detalleFiltradoColumnaExtra) headers.push(detalleFiltradoColumnaExtra.header);
   var datos = detalleFiltradoFilas.map(function(r){
     var b=BRANDS.find(function(x){return x.id===r.marca;});
-    var fila = [(b?b.label:r.marca), (r.sucursal==='default'?'—':r.sucursal), r.fecha, r.hora, r.cliente, r.modelo, (r.chasis||'—'), r.dominio, r.vendedor, r.administrativo, r.estado];
+    var fila = [(b?b.label:r.marca), (r.sucursal==='default'?'—':r.sucursal), r.fecha, r.hora, r.cliente, r.modelo, (r.chasis||'—'), r.dominio, r.vendedor, r.administrativo, (r.entregada?'Entregado':('No entregado'+(r.entregaFallidaMotivo?' — '+r.entregaFallidaMotivo:'')))];
     if(detalleFiltradoColumnaExtra) fila.push(detalleFiltradoColumnaExtra.pendiente(r) ? 'Pendiente' : 'Colocado');
     return fila;
   });
