@@ -1437,9 +1437,22 @@
       <div class="stats-grid" id="dashIndicadores"></div>
       <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;cursor:pointer;" onclick="toggleSeccionNPS_()"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido);">star</span>Encuestas NPS (todas las marcas)<span class="material-symbols-outlined" id="npsAccordionIcon" style="font-size:14px;margin-left:auto;transition:transform .15s;">expand_more</span></div>
       <div id="npsSeccionCuerpo" style="margin-bottom:18px;">
+        <div class="filter-bar" style="flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+          <select id="npsFiltroMarca" onchange="renderSeccionNPSCompleta_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todas las marcas</option></select>
+          <select id="npsFiltroSucursal" onchange="renderSeccionNPSCompleta_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
+          <select id="npsFiltroCanal" onchange="renderSeccionNPSCompleta_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;">
+            <option value="">Todos los canales</option><option value="pda">Solo PDA</option><option value="tradicional">Solo Tradicional</option>
+          </select>
+          <button class="print-btn" style="margin:0;" onclick="limpiarFiltrosSeccionNPS_()">Limpiar</button>
+        </div>
         <div class="costos-grid" id="dashNPS" style="margin-bottom:14px;"></div>
+        <div id="dashNPSChevroletExtra" style="margin-bottom:14px;"></div>
         <div class="section-title" style="margin-top:4px;">NPS por sucursal</div>
-        <div id="dashNPSPorSucursal" style="margin-bottom:6px;"></div>
+        <div id="dashNPSPorSucursal" style="margin-bottom:14px;"></div>
+        <div class="section-title" style="margin-top:4px;">NPS por canal (PDA / Tradicional)</div>
+        <div id="dashNPSPorCanal" style="margin-bottom:14px;"></div>
+        <div class="section-title" style="margin-top:4px;">NPS por vendedor</div>
+        <div id="dashNPSPorVendedor" style="margin-bottom:6px;"></div>
       </div>
 
       <div id="detalleFiltradoInline" style="display:none;margin-top:16px;background:var(--panel);border:1px solid var(--hairline);border-radius:12px;max-height:min(480px,55vh);overflow-y:auto;">
@@ -2083,6 +2096,8 @@
   </div>
   <div class="drawer-body">
     <button class="entrega-toggle pending" id="dEntregaToggle" onclick="toggleEntregada()">🚗 Marcar unidad como entregada</button>
+    <div id="dEntregaFallidaBadge" style="display:none;margin-top:8px;background:var(--danger-soft);border:1px solid var(--danger);border-radius:8px;padding:9px 11px;font-size:12px;color:var(--danger);"></div>
+    <button class="view-btn" id="dEntregaFallidaBtn" style="width:100%;margin-top:8px;font-size:11.5px;" onclick="marcarEntregaFallida_()">✕ No se pudo entregar — registrar motivo</button>
     <div id="dTrasladoBadge" style="display:none;margin-top:8px;background:var(--invertido-soft);border:1px solid var(--invertido);border-radius:8px;padding:9px 11px;font-size:12px;color:var(--invertido);"></div>
     <button class="toggle-btn" id="dTrasladoBtn" style="margin-top:8px;width:100%;" onclick="toggleTraslado()">📦 Marcar unidad para traslado a otra sucursal</button>
 
@@ -4823,6 +4838,31 @@ function cerrarPendientesEntrega_(){
   document.getElementById('pendientesOverlay').classList.remove('show');
   document.getElementById('pendientesModal').classList.remove('show');
 }
+function marcarEntregaFallida_(){
+  if(!detailId) return;
+  var marca=detailMarca, id=detailId;
+  var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
+  if(!r) return;
+  pedirObservacionPendiente_('Motivo por el que no se pudo entregar hoy', function(motivo){
+    if(motivo===null) return;
+    r.entregaFallidaMotivo = motivo;
+    r.entregaFallidaFecha = fechaHoraAhora_();
+    gasPost('updateEntregaFields',{marca:marca,id:id,fields:{entregaFallidaMotivo:motivo, entregaFallidaFecha:r.entregaFallidaFecha}});
+    logHistorial_(marca, id, '✕ No se pudo entregar — Motivo: '+motivo);
+    showToast('Quedó registrado el motivo');
+    renderEntregaFallidaBadge_(r);
+  });
+}
+function renderEntregaFallidaBadge_(r){
+  var el = document.getElementById('dEntregaFallidaBadge');
+  if(!el) return;
+  if(r.entregaFallidaMotivo && !r.entregada){
+    el.style.display = 'block';
+    el.innerHTML = '<b>No se pudo entregar</b> ('+r.entregaFallidaFecha+')<br>'+r.entregaFallidaMotivo;
+  } else {
+    el.style.display = 'none';
+  }
+}
 function toggleEntregadaId(marca,id){
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r.entregada){
@@ -5290,6 +5330,7 @@ function openDetail(marca, id){
   renderLlaveDuplicadaUI(r);
   renderAlfombrasUI(r);
   renderManualUI(r);
+  renderEntregaFallidaBadge_(r);
   document.getElementById('dObservaciones').value=r.observaciones||'';
   var alertaObs = document.getElementById('dObservacionesAlerta');
   if(alertaObs) alertaObs.style.display = (r.observaciones && r.observaciones.trim()) ? 'flex' : 'none';
@@ -7160,50 +7201,7 @@ function renderDashboard(){
   }).join('') + renderChipAlertaStock_();
   window._dashChipsFiltros = chips;
 
-  // --- NPS (todas las marcas) ---
-  var conNPS = entregasContexto().filter(function(r){ return typeof r.npsScore==='number' && (filterTipo==='todos'||r.tipoVenta===filterTipo) && pasaFiltroCanal_(r); });
-  var elNPS = document.getElementById('dashNPS');
-  if(elNPS){
-    if(conNPS.length===0){
-      elNPS.innerHTML = '<div style="grid-column:1/-1;color:var(--text-faint);font-size:12px;padding:14px;text-align:center;background:var(--panel);border:1px dashed var(--hairline);border-radius:12px;">Todavía no hay respuestas de NPS cargadas.</div>';
-    } else {
-      var promotores = conNPS.filter(function(r){return r.npsScore>=9;}).length;
-      var pasivos = conNPS.filter(function(r){return r.npsScore===7||r.npsScore===8;}).length;
-      var detractores = conNPS.filter(function(r){return r.npsScore<=6;}).length;
-      var total = conNPS.length;
-      var npsValor = Math.round((promotores/total - detractores/total)*100);
-      elNPS.innerHTML =
-        '<div class="costo-card '+(npsValor>=50?'ok':(npsValor>=0?'ambar':'morado'))+'" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'NPS — todas las respuestas\', '+'window._conNPSActual, null, \'dashNPS\')"><div class="icon-badge"><span class="material-symbols-outlined">insights</span></div><div class="valor" style="'+(npsValor<0?'color:var(--danger);':'')+'">'+(npsValor>0?'+':'')+npsValor+'</div><div class="label">NPS general</div><div class="sub">'+total+' respuesta'+(total>1?'s':'')+'</div></div>'+
-        '<div class="costo-card ok" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Promotores (9-10)\', window._conNPSActual.filter(function(r){return r.npsScore>=9;}), null, \'dashNPS\')"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_very_satisfied</span></div><div class="valor">'+promotores+'</div><div class="label">Promotores (9-10)</div><div class="sub">'+Math.round(promotores/total*100)+'% del total</div></div>'+
-        '<div class="costo-card ambar" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Pasivos (7-8)\', window._conNPSActual.filter(function(r){return r.npsScore===7||r.npsScore===8;}), null, \'dashNPS\')"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_neutral</span></div><div class="valor">'+pasivos+'</div><div class="label">Pasivos (7-8)</div><div class="sub">'+Math.round(pasivos/total*100)+'% del total</div></div>'+
-        '<div class="costo-card" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Detractores (0-6)\', window._conNPSActual.filter(function(r){return r.npsScore<=6;}), null, \'dashNPS\')"><div class="icon-badge" style="background:var(--danger-soft);color:var(--danger);"><span class="material-symbols-outlined">sentiment_dissatisfied</span></div><div class="valor" style="color:var(--danger);">'+detractores+'</div><div class="label">Detractores (0-6)</div><div class="sub">'+Math.round(detractores/total*100)+'% del total</div></div>';
-      window._conNPSActual = conNPS;
-    }
-  }
-  // --- NPS por sucursal (todas, para poder comparar — no respeta el filtro de sucursal del topbar) ---
-  var elNPSSuc = document.getElementById('dashNPSPorSucursal');
-  if(elNPSSuc){
-    var conNPStodas = ENTREGAS.filter(function(r){ return currentBrands.indexOf(r.marca)>-1 && typeof r.npsScore==='number'; });
-    if(conNPStodas.length===0){
-      elNPSSuc.innerHTML = '<div style="color:var(--text-faint);font-size:11.5px;padding:10px;">Sin datos todavía.</div>';
-    } else {
-      var htmlSuc = SUCURSALES.map(function(suc){
-        var deEsta = conNPStodas.filter(function(r){ return r.sucursal===suc; });
-        if(deEsta.length===0){
-          return '<div class="ranking-row"><div class="ranking-nombre" style="min-width:120px;">'+suc+'</div><div style="flex:1;color:var(--text-faint);font-size:11.5px;">Sin respuestas todavía.</div></div>';
-        }
-        var p = deEsta.filter(function(r){return r.npsScore>=9;}).length;
-        var d = deEsta.filter(function(r){return r.npsScore<=6;}).length;
-        var npsSuc = Math.round((p/deEsta.length - d/deEsta.length)*100);
-        var colorSuc = npsSuc>=50 ? 'var(--ok)' : (npsSuc>=0 ? 'var(--warn)' : 'var(--danger)');
-        var anchoBarra = Math.max(0, Math.min(100, (npsSuc+100)/2));
-        return '<div class="ranking-row"><div class="ranking-nombre" style="min-width:120px;">'+suc+'</div>'+
-          '<div class="ranking-bar-wrap"><div class="ranking-bar-fill" style="width:'+anchoBarra+'%;background:'+colorSuc+';"></div></div>'+
-          '<div class="ranking-nums" style="color:'+colorSuc+';min-width:150px;"><b>'+(npsSuc>0?'+':'')+npsSuc+'</b> · '+deEsta.length+' resp.</div></div>';
-      }).join('');
-      elNPSSuc.innerHTML = htmlSuc;
-    }
-  }
+  renderSeccionNPSCompleta_();
 
   // --- Desglose por administrativo ---
   var porAdmin = {};
@@ -7436,6 +7434,118 @@ document.addEventListener('click', function(ev){
   });
 });
 var _npsSeccionInicializada_ = false;
+var _npsGruposDetalle_ = {};
+function calcularNps_(rows){
+  if(rows.length===0) return null;
+  var p = rows.filter(function(r){return r.npsScore>=9;}).length;
+  var d = rows.filter(function(r){return r.npsScore<=6;}).length;
+  return Math.round((p/rows.length - d/rows.length)*100);
+}
+function limpiarFiltrosSeccionNPS_(){
+  document.getElementById('npsFiltroMarca').value='';
+  document.getElementById('npsFiltroSucursal').value='';
+  document.getElementById('npsFiltroCanal').value='';
+  renderSeccionNPSCompleta_();
+}
+function verGrupoNPS_(clave){
+  var rows = _npsGruposDetalle_[clave] || [];
+  mostrarDetalleFiltrado(clave, rows, null, 'dashNPS');
+}
+function renderFilaRankingNPS_(etiqueta, rows){
+  var clave = 'nps_'+etiqueta.replace(/[^a-zA-Z0-9]/g,'_')+'_'+Math.random().toString(36).slice(2,7);
+  _npsGruposDetalle_[clave] = rows;
+  if(rows.length===0){
+    return '<div class="ranking-row"><div class="ranking-nombre" style="min-width:120px;">'+etiqueta+'</div><div style="flex:1;color:var(--text-faint);font-size:11.5px;">Sin respuestas todavía.</div></div>';
+  }
+  var valor = calcularNps_(rows);
+  var color = valor>=50 ? 'var(--ok)' : (valor>=0 ? 'var(--warn)' : 'var(--danger)');
+  var ancho = Math.max(0, Math.min(100, (valor+100)/2));
+  return '<div class="ranking-row" style="cursor:pointer;" onclick="verGrupoNPS_(\''+clave+'\')">'+
+    '<div class="ranking-nombre" style="min-width:120px;">'+etiqueta+'</div>'+
+    '<div class="ranking-bar-wrap"><div class="ranking-bar-fill" style="width:'+ancho+'%;background:'+color+';"></div></div>'+
+    '<div class="ranking-nums" style="color:'+color+';min-width:150px;"><b>'+(valor>0?'+':'')+valor+'</b> · '+rows.length+' resp.</div></div>';
+}
+function renderSeccionNPSCompleta_(){
+  var selMarca = document.getElementById('npsFiltroMarca');
+  var selSuc = document.getElementById('npsFiltroSucursal');
+  if(!selMarca) return; // la sección no está en el DOM en este momento
+  if(selMarca.options.length<=1){
+    selMarca.innerHTML = '<option value="">Todas las marcas</option>' + BRANDS.map(function(b){return '<option value="'+b.id+'">'+b.label+'</option>';}).join('');
+  }
+  if(selSuc.options.length<=1){
+    selSuc.innerHTML = '<option value="">Todas las sucursales</option>' + SUCURSALES.map(function(s){return '<option>'+s+'</option>';}).join('');
+  }
+  var marcaF = selMarca.value;
+  var sucF = selSuc.value;
+  var canalF = document.getElementById('npsFiltroCanal').value;
+
+  var base = ENTREGAS.filter(function(r){
+    if(currentBrands.indexOf(r.marca)===-1) return false;
+    if(typeof r.npsScore!=='number') return false;
+    if(marcaF && r.marca!==marcaF) return false;
+    if(sucF && r.sucursal!==sucF) return false;
+    if(canalF){ var esPDA = esCanalPDA_(r); if(canalF==='pda' && !esPDA) return false; if(canalF==='tradicional' && esPDA) return false; }
+    return true;
+  });
+  window._conNPSActual = base;
+  _npsGruposDetalle_ = {};
+
+  var elNPS = document.getElementById('dashNPS');
+  if(base.length===0){
+    elNPS.innerHTML = '<div style="grid-column:1/-1;color:var(--text-faint);font-size:12px;padding:14px;text-align:center;background:var(--panel);border:1px dashed var(--hairline);border-radius:12px;">Todavía no hay respuestas de NPS que coincidan con estos filtros.</div>';
+  } else {
+    var promotores = base.filter(function(r){return r.npsScore>=9;}).length;
+    var pasivos = base.filter(function(r){return r.npsScore===7||r.npsScore===8;}).length;
+    var detractores = base.filter(function(r){return r.npsScore<=6;}).length;
+    var total = base.length;
+    var npsValor = calcularNps_(base);
+    elNPS.innerHTML =
+      '<div class="costo-card '+(npsValor>=50?'ok':(npsValor>=0?'ambar':'morado'))+'" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'NPS — todas las respuestas\', window._conNPSActual, null, \'dashNPS\')"><div class="icon-badge"><span class="material-symbols-outlined">insights</span></div><div class="valor" style="'+(npsValor<0?'color:var(--danger);':'')+'">'+(npsValor>0?'+':'')+npsValor+'</div><div class="label">NPS general</div><div class="sub">'+total+' respuesta'+(total>1?'s':'')+'</div></div>'+
+      '<div class="costo-card ok" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Promotores (9-10)\', window._conNPSActual.filter(function(r){return r.npsScore>=9;}), null, \'dashNPS\')"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_very_satisfied</span></div><div class="valor">'+promotores+'</div><div class="label">Promotores (9-10)</div><div class="sub">'+Math.round(promotores/total*100)+'% del total</div></div>'+
+      '<div class="costo-card ambar" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Pasivos (7-8)\', window._conNPSActual.filter(function(r){return r.npsScore===7||r.npsScore===8;}), null, \'dashNPS\')"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_neutral</span></div><div class="valor">'+pasivos+'</div><div class="label">Pasivos (7-8)</div><div class="sub">'+Math.round(pasivos/total*100)+'% del total</div></div>'+
+      '<div class="costo-card" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Detractores (0-6)\', window._conNPSActual.filter(function(r){return r.npsScore<=6;}), null, \'dashNPS\')"><div class="icon-badge" style="background:var(--danger-soft);color:var(--danger);"><span class="material-symbols-outlined">sentiment_dissatisfied</span></div><div class="valor" style="color:var(--danger);">'+detractores+'</div><div class="label">Detractores (0-6)</div><div class="sub">'+Math.round(detractores/total*100)+'% del total</div></div>';
+  }
+
+  // --- Preguntas extra de Chevrolet (Alerta Temprana), solo si hay datos en el conjunto filtrado ---
+  var elExtra = document.getElementById('dashNPSChevroletExtra');
+  var conAlertaTemprana = base.filter(function(r){ return r.marca==='chevrolet' && typeof r.alertaTempranaSatisfaccionCompra==='number'; });
+  if(conAlertaTemprana.length===0){
+    elExtra.innerHTML = '';
+  } else {
+    var promCompra = Math.round((conAlertaTemprana.reduce(function(a,r){return a+r.alertaTempranaSatisfaccionCompra;},0)/conAlertaTemprana.length)*10)/10;
+    var promAtencion = Math.round((conAlertaTemprana.reduce(function(a,r){return a+r.alertaTempranaSatisfaccionAtencion;},0)/conAlertaTemprana.length)*10)/10;
+    var onstarSi = conAlertaTemprana.filter(function(r){return r.alertaTempranaOnstarActivado===true;}).length;
+    elExtra.innerHTML = '<div class="section-title" style="margin-top:4px;">Preguntas extra (Chevrolet — Alerta Temprana)</div>'+
+      '<div class="costos-grid">'+
+        '<div class="costo-card"><div class="icon-badge"><span class="material-symbols-outlined">shopping_bag</span></div><div class="valor">'+promCompra+'</div><div class="label">Satisf. compra/entrega</div></div>'+
+        '<div class="costo-card"><div class="icon-badge"><span class="material-symbols-outlined">support_agent</span></div><div class="valor">'+promAtencion+'</div><div class="label">Satisf. atención</div></div>'+
+        '<div class="costo-card ok"><div class="icon-badge"><span class="material-symbols-outlined">check_circle</span></div><div class="valor">'+Math.round(onstarSi/conAlertaTemprana.length*100)+'%</div><div class="label">OnStar activado</div></div>'+
+      '</div>';
+  }
+
+  // --- Por sucursal ---
+  document.getElementById('dashNPSPorSucursal').innerHTML = SUCURSALES.map(function(suc){
+    return renderFilaRankingNPS_(suc, base.filter(function(r){ return r.sucursal===suc; }));
+  }).join('');
+
+  // --- Por canal (PDA / Tradicional) ---
+  document.getElementById('dashNPSPorCanal').innerHTML = [['pda','PDA'],['tradicional','Tradicional']].map(function(par){
+    return renderFilaRankingNPS_(par[1], base.filter(function(r){ return par[0]==='pda' ? esCanalPDA_(r) : !esCanalPDA_(r); }));
+  }).join('');
+
+  // --- Por vendedor ---
+  var elVend = document.getElementById('dashNPSPorVendedor');
+  var porVendedor = {};
+  base.forEach(function(r){ var v=r.vendedor||'(sin asignar)'; if(!porVendedor[v]) porVendedor[v]=[]; porVendedor[v].push(r); });
+  var vendedores = Object.keys(porVendedor);
+  if(vendedores.length===0){
+    elVend.innerHTML = '<div style="color:var(--text-faint);font-size:11.5px;padding:10px;">Sin datos todavía.</div>';
+  } else {
+    elVend.innerHTML = vendedores.map(function(v){ return {v:v, rows:porVendedor[v]}; })
+      .sort(function(a,b){ return calcularNps_(b.rows)-calcularNps_(a.rows); })
+      .map(function(x){ return renderFilaRankingNPS_(x.v, x.rows); }).join('');
+  }
+}
 function toggleSeccionNPS_(){
   var cuerpo = document.getElementById('npsSeccionCuerpo');
   var icono = document.getElementById('npsAccordionIcon');
