@@ -1072,6 +1072,7 @@
           <button class="nav-subitem" id="subReportesAlertaTemprana" onclick="setMaestroTab('alertatemprana')">Alerta Temprana</button>
         </div>
         <button class="nav-item" id="navHistorialComs" title="Historial de Comunicaciones" onclick="setAppView('historialcoms')"><span class="material-symbols-outlined">forum</span><span class="nav-label">Historial de Comunicaciones</span></button>
+        <a class="nav-item" href="manual_rapido.html" target="_blank" title="Manual del sistema" style="text-decoration:none;"><span class="material-symbols-outlined">menu_book</span><span class="nav-label">Manual</span></a>
         <button class="nav-item" id="navMaestro" title="Maestro (Config)" onclick="irAMaestro()"><span class="material-symbols-outlined">settings</span><span class="nav-label">Maestro (Config)</span></button>
         <div class="nav-submenu" id="submenuMaestro" style="display:none;">
           <button class="nav-subitem" id="subMaestroConfig" onclick="setMaestroTab('config')">Configuración</button>
@@ -3750,8 +3751,9 @@ function renderStats(){
   // --- Alerta: entregas ya realizadas que todavía tienen algo pendiente ---
   var conPendienteReal = rows.filter(function(r){ return r.entregada && tienePendienteSinResolver_(r); }).length;
   if(conPendienteReal>0){
-    html+='<div class="stat-chip danger" style="cursor:pointer;box-shadow:inset 0 0 0 2px var(--danger);'+(filterAlertaPendientes?'background:var(--danger-soft);':'')+'" onclick="toggleFilterAlertaPendientes()"><div class="icon-badge"><span class="material-symbols-outlined">warning</span></div><div class="n" style="color:var(--danger);">'+conPendienteReal+'</div><div class="l">Entregadas con pendientes</div></div>';
+    html+='<div class="stat-chip danger" style="cursor:pointer;box-shadow:inset 0 0 0 2px var(--danger);" onclick="mostrarDetalleFiltrado(\'Entregadas con pendientes\', window._rowsContextoActual.filter(function(r){return r.entregada && tienePendienteSinResolver_(r);}), null, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">warning</span></div><div class="n" style="color:var(--danger);">'+conPendienteReal+'</div><div class="l">Entregadas con pendientes</div></div>';
   }
+  window._rowsContextoActual = rows;
 
   // --- Alerta para Logística: unidades marcadas para traslado a otra sucursal (siempre visible) ---
   var totalTraslado = rows.filter(function(r){ return r.traslado; });
@@ -4286,9 +4288,9 @@ function renderKanban(){
 
   function tarjeta(r){
     var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
-    return '<div class="kanban-card">'+
+    return '<div class="kanban-card" style="border-left:4px solid var('+b.color+');">'+
       '<div class="cli" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')" style="cursor:pointer;">'+r.cliente+'</div>'+
-      '<div class="veh">'+b.label+' '+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+'</div>'+
+      '<div class="veh" style="color:var('+b.color+');font-weight:700;">'+b.label+' '+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+'</div>'+
       '<div class="fecha">'+r.fecha+' · '+r.hora+' hs · '+r.sucursal+'</div>'+
       '<select onchange="asignarResponsableKanban(\''+r.marca+'\',\''+r.id+'\',this.value)">'+opcionesSelect.replace('value="'+(r.responsableEntrega||'\u0000')+'"','value="'+(r.responsableEntrega||'')+'" selected')+'</select>'+
     '</div>';
@@ -5999,6 +6001,7 @@ function enviarConfirmacionDirecta(){
   gasPost('enviarConfirmacion',{marca:detailMarca,id:detailId,usuario:usuarioActual()}).then(function(res){
     if(!res.ok){ showToast(res.error||'No se pudo enviar'); return; }
     r.confirmado=true; r.confirmadoPor=usuarioActual(); r.confirmadoFecha=new Date().toLocaleString('es-AR');
+    gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{confirmado:true, confirmadoPor:r.confirmadoPor, confirmadoFecha:r.confirmadoFecha}});
     logHistorial_(detailMarca, detailId, '✅ Confirmación enviada a '+r.email);
     renderEstadoComunicaciones(r); renderAll();
     showToast('Confirmación enviada a '+r.email);
@@ -6011,6 +6014,7 @@ function enviarRecordatorioDirecto(){
   gasPost('enviarRecordatorio',{marca:detailMarca,id:detailId,usuario:usuarioActual()}).then(function(res){
     if(!res.ok){ showToast(res.error||'No se pudo enviar'); return; }
     r.recordatorio='enviado'; r.recordatorioEnviadoPor=usuarioActual(); r.recordatorioFecha=new Date().toLocaleString('es-AR');
+    gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{recordatorio:'enviado', recordatorioEnviadoPor:r.recordatorioEnviadoPor, recordatorioFecha:r.recordatorioFecha}});
     logHistorial_(detailMarca, detailId, '📩 Recordatorio enviado a '+r.email);
     renderEstadoComunicaciones(r); renderAll();
     showToast('Recordatorio enviado a '+r.email);
