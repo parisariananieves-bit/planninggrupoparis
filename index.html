@@ -2133,6 +2133,7 @@
     <div id="dTrasladoAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">local_shipping</span></div>
     <div id="dComentariosAlerta" style="display:none;margin-top:8px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionComentarios_()"><span class="material-symbols-outlined" style="font-size:15px;">chat</span></div>
     <div id="dNpsAlerta" style="display:none;margin-top:8px;border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">star</span></div>
+    <div id="dCasoAbiertoAlerta" style="display:none;margin-top:8px;background:var(--caso-soft);color:var(--caso);border:1px solid var(--caso);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;"><span class="material-symbols-outlined" style="font-size:15px;">report</span></div>
   </div>
   <div class="drawer-body">
     <button class="entrega-toggle pending" id="dEntregaToggle" onclick="toggleEntregada()">🚗 Marcar unidad como entregada</button>
@@ -2757,12 +2758,18 @@ function aplicarPermisosUI(){
     if(mod==='maestro') visible = esCalidad();
     else if(mod==='kanban') visible = esSupervisorLogistica() || esCalidad();
     else if(mod==='historialcoms') visible = esCalidad();
-    else if(mod==='casos') visible = esCalidad(); // en desarrollo — solo Calidad por ahora
-    else if(mod==='manual') visible = esCalidad(); // en desarrollo — solo Calidad por ahora
     else if(mod==='nuevaentrega' || mod==='reportes') visible = puede;
     else visible = true;
-    if(modulosUsuario) visible = modulosUsuario.indexOf(mod)>-1;
-    if(modulosGlobales[mod]===false) visible = false;
+    // 'casos' y 'manual' están en desarrollo — visibles solo para Calidad/Maestro por ahora,
+    // sin importar la lista de módulos por usuario ni los módulos globales (todavía no se
+    // sumaron a ese sistema granular a propósito). Cuando estén listos para todo el equipo,
+    // sacar este "if" y que entren en el flujo normal de abajo.
+    if(mod==='casos' || mod==='manual'){
+      visible = esCalidad();
+    } else {
+      if(modulosUsuario) visible = modulosUsuario.indexOf(mod)>-1;
+      if(modulosGlobales[mod]===false) visible = false;
+    }
     el.style.display = visible ? '' : 'none';
     var bnEl = document.getElementById('bn'+mod.charAt(0).toUpperCase()+mod.slice(1));
     if(bnEl) bnEl.style.display = visible ? '' : 'none';
@@ -4454,6 +4461,40 @@ function abrirModalCaso(marca, id){
 // Coincidencia en vivo: al cargar DNI (o abrir con datos de un cliente conocido),
 // avisa si ya hay casos previos con el mismo DNI, VIN/dominio o nombre —
 // para no duplicar antes de mandar a Calidad.
+// Aviso en el detalle de la entrega si el cliente ya tiene casos reportados —
+// solo visible para Calidad (el módulo de Casos todavía está en desarrollo, admin-only).
+// Como acá no se hace seguimiento de estado (eso vive en el sistema aparte de Calidad),
+// mostramos cualquier caso reportado a este cliente, sin distinguir abierto/cerrado.
+function renderAlertaCasoAbierto_(r){
+  var el = document.getElementById('dCasoAbiertoAlerta');
+  if(!el) return;
+  if(!esCalidad()){ el.style.display='none'; return; }
+  function pintar(){
+    var cliente = normalizarBusquedaCaso_(r.cliente);
+    var dominio = normalizarBusquedaCaso_(r.dominio||r.chasis);
+    var propios = CASOS.filter(function(c){
+      var cCli = normalizarBusquedaCaso_(c.cliente), cDom = normalizarBusquedaCaso_(c.dominio);
+      return (cliente && cCli && cCli===cliente) || (dominio && cDom && cDom===dominio);
+    });
+    if(propios.length===0){ el.style.display='none'; return; }
+    propios.sort(function(a,b){ return (b.fechaReporte||'').localeCompare(a.fechaReporte||''); });
+    var ultimo = propios[0];
+    el.style.display = 'flex';
+    el.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">report</span>'+
+      'Este cliente tiene '+propios.length+' caso'+(propios.length>1?'s':'')+' reportado'+(propios.length>1?'s':'')+
+      ' — último: '+(ultimo.motivo||'—')+' ('+fmtFechaCaso_(ultimo.fechaReporte)+') <span style="text-decoration:underline;margin-left:4px;">Ver →</span>';
+    el.onclick = function(){
+      closeDetail();
+      setAppView('casos');
+      setTimeout(function(){
+        var input = document.getElementById('casosBuscarCliente');
+        if(input){ input.value = r.cliente; buscarClienteParaCaso(); }
+      }, 150);
+    };
+  }
+  if(_casosCargadas_) pintar();
+  else cargarCasosSiHaceFalta_().then(pintar);
+}
 function verificarCoincidenciaCaso_(){
   var alerta = document.getElementById('casoCoincidenciaAlerta');
   var manual = document.getElementById('casoManualWrap').style.display !== 'none';
@@ -5433,6 +5474,17 @@ function atCerrarOmitir_(confirmado){
 // Muestra la encuesta completa de un cliente al apretar la alerta de NPS en el detalle.
 // Para Chevrolet (Alerta Temprana) trae también satisfacción compra/atención, OnStar y demás;
 // para el resto de las marcas muestra lo que haya (puntaje, comentario, fecha).
+function fmtFechaNacimientoNps_(valor){
+  if(!valor) return '—';
+  var d = new Date(valor);
+  if(isNaN(d.getTime())) return String(valor).split('T')[0];
+  // getUTC* en vez de get* — el valor viene guardado como medianoche ART (UTC-3), que en UTC
+  // cae a las 03:00 del mismo día. Usar los getters locales del navegador podría restarle un
+  // día según el huso horario de quien mira la pantalla; con UTC siempre da la fecha correcta.
+  var dd = String(d.getUTCDate()).padStart(2,'0');
+  var mm = String(d.getUTCMonth()+1).padStart(2,'0');
+  return dd+'/'+mm+'/'+d.getUTCFullYear();
+}
 function verNpsCompleto_(marca, id){
   var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r || typeof r.npsScore!=='number') return;
@@ -5463,7 +5515,8 @@ function verNpsCompleto_(marca, id){
     }
     html += '</div>';
     html += '<div class="info-item-row" style="font-size:12.5px;color:var(--text-dim);margin-bottom:6px;">OnStar activado: <b style="color:var(--text);">'+(r.alertaTempranaOnstarActivado?'Sí':'No')+'</b></div>';
-    if(r.alertaTempranaFechaNacimiento) html += '<div style="font-size:12.5px;color:var(--text-dim);margin-bottom:6px;">Fecha de nacimiento: <b style="color:var(--text);">'+r.alertaTempranaFechaNacimiento+'</b></div>';
+    if(r.email) html += '<div style="font-size:12.5px;color:var(--text-dim);margin-bottom:6px;">Correo confirmado: <b style="color:var(--text);">'+r.email+'</b></div>';
+    if(r.alertaTempranaFechaNacimiento) html += '<div style="font-size:12.5px;color:var(--text-dim);margin-bottom:6px;">Fecha de nacimiento: <b style="color:var(--text);">'+fmtFechaNacimientoNps_(r.alertaTempranaFechaNacimiento)+'</b></div>';
     if(r.alertaTempranaUsuario) html += '<div style="font-size:12.5px;color:var(--text-dim);">Cargado por: <b style="color:var(--text);">'+r.alertaTempranaUsuario+'</b></div>';
   }
 
@@ -5790,6 +5843,7 @@ function openDetail(marca, id){
     }
   }
   renderAlertaOnstar_(r);
+  renderAlertaCasoAbierto_(r);
   var alertaTraslado = document.getElementById('dTrasladoAlerta');
   if(alertaTraslado){
     if(r.traslado){
