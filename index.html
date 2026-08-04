@@ -3749,9 +3749,11 @@ function renderStats(){
   var html='';
 
   // --- Alerta: entregas ya realizadas que todavía tienen algo pendiente ---
-  var conPendienteReal = rows.filter(function(r){ return r.entregada && tienePendienteSinResolver_(r); }).length;
+  var entregasConPendienteReal = rows.filter(function(r){ return r.entregada && tienePendienteSinResolver_(r); });
+  var conPendienteReal = entregasConPendienteReal.length;
+  window._entregasConPendienteReal = entregasConPendienteReal;
   if(conPendienteReal>0){
-    html+='<div class="stat-chip danger" style="cursor:pointer;box-shadow:inset 0 0 0 2px var(--danger);" onclick="mostrarDetalleFiltrado(\'Entregadas con pendientes\', window._rowsContextoActual.filter(function(r){return r.entregada && tienePendienteSinResolver_(r);}), null, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">warning</span></div><div class="n" style="color:var(--danger);">'+conPendienteReal+'</div><div class="l">Entregadas con pendientes</div></div>';
+    html+='<div class="stat-chip danger" style="cursor:pointer;box-shadow:inset 0 0 0 2px var(--danger);" onclick="mostrarDetalleFiltrado(\'Entregadas con pendientes\', window._entregasConPendienteReal, null, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">warning</span></div><div class="n" style="color:var(--danger);">'+conPendienteReal+'</div><div class="l">Entregadas con pendientes</div></div>';
   }
   window._rowsContextoActual = rows;
 
@@ -4288,9 +4290,13 @@ function renderKanban(){
 
   function tarjeta(r){
     var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
-    return '<div class="kanban-card" style="border-left:4px solid var('+b.color+');">'+
+    return '<div class="kanban-card" style="border-left:5px solid var('+b.color+');background:linear-gradient(90deg,var('+b.soft+') 0%,var(--panel-2) 14%);">'+
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">'+
+        '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var('+b.color+');flex:none;"></span>'+
+        '<span style="font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var('+b.color+');">'+b.label+'</span>'+
+      '</div>'+
       '<div class="cli" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')" style="cursor:pointer;">'+r.cliente+'</div>'+
-      '<div class="veh" style="color:var('+b.color+');font-weight:700;">'+b.label+' '+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+'</div>'+
+      '<div class="veh" style="color:var('+b.color+');font-weight:700;">'+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+'</div>'+
       '<div class="fecha">'+r.fecha+' · '+r.hora+' hs · '+r.sucursal+'</div>'+
       '<select onchange="asignarResponsableKanban(\''+r.marca+'\',\''+r.id+'\',this.value)">'+opcionesSelect.replace('value="'+(r.responsableEntrega||'\u0000')+'"','value="'+(r.responsableEntrega||'')+'" selected')+'</select>'+
     '</div>';
@@ -5974,29 +5980,40 @@ function renderEstadoComunicaciones(r){
   var estConf=document.getElementById('dConfirmacionEstado');
   var btnPreviewConf=document.getElementById('dBtnPreviewConf');
   var btnEnviarConf=document.getElementById('dBtnEnviarConf');
+  estConf.style.display='block';
   if(r.confirmado){
-    estConf.style.display='block';
+    estConf.style.background='var(--ok-soft)'; estConf.style.color='var(--ok)';
     estConf.textContent='✓ Confirmación enviada por '+(r.confirmadoPor||'—')+' — '+(r.confirmadoFecha||'');
-    btnPreviewConf.style.display='none'; btnEnviarConf.style.display='none';
+    btnEnviarConf.disabled=true; btnEnviarConf.style.opacity='0.5'; btnEnviarConf.style.cursor='not-allowed';
+    btnEnviarConf.innerHTML='✅ Confirmación ya enviada';
   } else {
-    estConf.style.display='none';
-    btnPreviewConf.style.display='block'; btnEnviarConf.style.display='block';
+    estConf.style.background='var(--panel-2)'; estConf.style.color='var(--text-dim)';
+    estConf.textContent='○ Confirmación no enviada todavía';
+    btnEnviarConf.disabled=false; btnEnviarConf.style.opacity='1'; btnEnviarConf.style.cursor='pointer';
+    btnEnviarConf.innerHTML='✅ Enviar confirmación ahora';
   }
+  btnPreviewConf.style.display='block';
   var estRec=document.getElementById('dRecordatorioEstado');
   var btnPreviewRec=document.getElementById('dBtnPreviewRec');
   var btnEnviarRec=document.getElementById('dBtnEnviarRec');
+  estRec.style.display='block';
   if(r.recordatorio==='enviado'){
-    estRec.style.display='block';
+    estRec.style.background='var(--ok-soft)'; estRec.style.color='var(--ok)';
     estRec.textContent='✓ Recordatorio enviado por '+(r.recordatorioEnviadoPor||'—')+' — '+(r.recordatorioFecha||'');
-    btnPreviewRec.style.display='none'; btnEnviarRec.style.display='none';
+    btnEnviarRec.disabled=true; btnEnviarRec.style.opacity='0.5'; btnEnviarRec.style.cursor='not-allowed';
+    btnEnviarRec.innerHTML='📩 Recordatorio ya enviado';
   } else {
-    estRec.style.display='none';
-    btnPreviewRec.style.display='block'; btnEnviarRec.style.display='block';
+    estRec.style.background='var(--panel-2)'; estRec.style.color='var(--text-dim)';
+    estRec.textContent='○ Recordatorio no enviado todavía';
+    btnEnviarRec.disabled=false; btnEnviarRec.style.opacity='1'; btnEnviarRec.style.cursor='pointer';
+    btnEnviarRec.innerHTML='📩 Enviar recordatorio ahora';
   }
+  btnPreviewRec.style.display='block';
 }
 function enviarConfirmacionDirecta(){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  if(r.confirmado){ showToast('La confirmación ya fue enviada'); return; }
   if(!confirm('¿Enviar la confirmación ahora a '+(r.email||'(sin email cargado)')+'?')) return;
   gasPost('enviarConfirmacion',{marca:detailMarca,id:detailId,usuario:usuarioActual()}).then(function(res){
     if(!res.ok){ showToast(res.error||'No se pudo enviar'); return; }
@@ -6010,6 +6027,7 @@ function enviarConfirmacionDirecta(){
 function enviarRecordatorioDirecto(){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  if(r.recordatorio==='enviado'){ showToast('El recordatorio ya fue enviado'); return; }
   if(!confirm('¿Enviar el recordatorio ahora a '+(r.email||'(sin email cargado)')+'?')) return;
   gasPost('enviarRecordatorio',{marca:detailMarca,id:detailId,usuario:usuarioActual()}).then(function(res){
     if(!res.ok){ showToast(res.error||'No se pudo enviar'); return; }
