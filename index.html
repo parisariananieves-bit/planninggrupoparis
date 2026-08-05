@@ -2508,7 +2508,8 @@
       <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:4px;">Caso reportado</div>
       <div style="font-size:12px;color:var(--text-dim);margin-bottom:16px;">Queda constancia acá; el seguimiento se hace en Calidad.</div>
       <div style="font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:700;color:var(--caso);background:var(--caso-soft);border-radius:9px;padding:10px 14px;display:inline-block;letter-spacing:.5px;" id="casoConfirmCodigo">—</div>
-      <div style="font-size:10.5px;color:var(--text-faint);margin-top:6px;margin-bottom:16px;">Guardá este código para el seguimiento</div>
+      <div style="font-size:10.5px;color:var(--text-faint);margin-top:6px;margin-bottom:8px;">Guardá este código para el seguimiento</div>
+      <div id="casoConfirmSyncGC" style="font-size:11px;margin-bottom:16px;"></div>
       <button class="email-action-btn" style="width:auto;" onclick="cerrarModalCaso()">Listo</button>
     </div>
   </div>
@@ -4652,6 +4653,10 @@ function guardarCasoUI(){
     document.getElementById('casoFormWrap').style.display = 'none';
     document.getElementById('casoConfirmWrap').style.display = 'block';
     var codigoEl = document.getElementById('casoConfirmCodigo');
+    var syncEl = document.getElementById('casoConfirmSyncGC');
+    syncEl.innerHTML = res.sincronizadoGC
+      ? '<span style="color:var(--ok);">✓ Enviado a la Bandeja de entrada de Gestión de Casos</span>'
+      : '<span style="color:var(--warn);">⚠ No se pudo avisar a Gestión de Casos — igual queda guardado acá, avisá a Calidad</span>';
     if(res.codigo || res.id){
       codigoEl.textContent = res.codigo || res.id;
       if(currentAppView==='casos'){ cargarCasosSiHaceFalta_().then(function(){ renderCasos(); var qEl=document.getElementById('casosBuscarCliente'); if(qEl && qEl.value) buscarClienteParaCaso(); }); }
