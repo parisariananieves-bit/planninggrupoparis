@@ -2200,7 +2200,7 @@
       <div class="dual-toggle-fecha"></div>
       <div class="obs-wrap" id="dAccesoriosObsWrap" style="display:none;margin-top:8px;">
         <textarea id="dAccesoriosObsInput" placeholder="Observación (ej: sin stock, cliente no lo quiso)..." style="width:100%;min-height:48px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:11.5px;font-family:inherit;resize:vertical;"></textarea>
-        <button onclick="guardarEstadoItem_('accesorios')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
+        <button id="dAccesoriosGuardarBtn" onclick="guardarEstadoItem_('accesorios')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
       </div>
     </div>
 
@@ -2218,7 +2218,7 @@
       <div class="dual-toggle-fecha"></div>
       <div class="obs-wrap" id="dLlaveDuplicadaObsWrap" style="display:none;margin-top:8px;">
         <textarea id="dLlaveDuplicadaObsInput" placeholder="Observación (ej: sin stock, cliente no lo quiso)..." style="width:100%;min-height:48px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:11.5px;font-family:inherit;resize:vertical;"></textarea>
-        <button onclick="guardarEstadoItem_('llaveDuplicada')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
+        <button id="dLlaveDuplicadaGuardarBtn" onclick="guardarEstadoItem_('llaveDuplicada')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
       </div>
     </div>
 
@@ -2236,7 +2236,7 @@
       <div class="dual-toggle-fecha"></div>
       <div class="obs-wrap" id="dAlfombrasObsWrap" style="display:none;margin-top:8px;">
         <textarea id="dAlfombrasObsInput" placeholder="Observación (ej: sin stock, cliente no lo quiso)..." style="width:100%;min-height:48px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:11.5px;font-family:inherit;resize:vertical;"></textarea>
-        <button onclick="guardarEstadoItem_('alfombras')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
+        <button id="dAlfombrasGuardarBtn" onclick="guardarEstadoItem_('alfombras')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
       </div>
     </div>
 
@@ -2254,7 +2254,7 @@
       <div class="dual-toggle-fecha"></div>
       <div class="obs-wrap" id="dKitSeguridadObsWrap" style="display:none;margin-top:8px;">
         <textarea id="dKitSeguridadObsInput" placeholder="Observación (ej: sin stock, cliente no lo quiso)..." style="width:100%;min-height:48px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:11.5px;font-family:inherit;resize:vertical;"></textarea>
-        <button onclick="guardarEstadoItem_('kitSeguridad')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
+        <button id="dKitSeguridadGuardarBtn" onclick="guardarEstadoItem_('kitSeguridad')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
       </div>
     </div>
 
@@ -2269,7 +2269,7 @@
       <div class="dual-toggle-fecha"></div>
       <div class="obs-wrap" id="dCampanaObsWrap" style="display:none;margin-top:8px;">
         <textarea id="dCampanaObsInput" placeholder="Observación (ej: sin stock, unidad entregada igual, cliente no lo quiso)..." style="width:100%;min-height:48px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:11.5px;font-family:inherit;resize:vertical;"></textarea>
-        <button onclick="guardarEstadoItem_('campana')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
+        <button id="dCampanaGuardarBtn" onclick="guardarEstadoItem_('campana')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
       </div>
     </div>
 
@@ -2299,7 +2299,7 @@
       <div class="dual-toggle-fecha"></div>
       <div class="obs-wrap" id="dManualObsWrap" style="display:none;margin-top:8px;">
         <textarea id="dManualObsInput" placeholder="Observación (ej: sin stock, cliente no lo quiso)..." style="width:100%;min-height:48px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:11.5px;font-family:inherit;resize:vertical;"></textarea>
-        <button onclick="guardarEstadoItem_('manual')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
+        <button id="dManualGuardarBtn" onclick="guardarEstadoItem_('manual')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
       </div>
     </div>
 
@@ -6268,7 +6268,15 @@ function aplicarSoloLecturaDrawer_(){
   var soloLectura = !puedeEditar();
   var esLogisticaLimitada = rolActual()==='logistica';
   var drawer = document.getElementById('drawer');
-  var permitidosLogistica = ['dAccesoriosBtnSi','dAccesoriosBtnNo','dLlaveDuplicadaBtnSi','dLlaveDuplicadaBtnNo','dKitSeguridadBtnSi','dKitSeguridadBtnNo','dAlfombrasBtnSi','dAlfombrasBtnNo','dCampanaToggle','dManualBtnSi','dManualBtnNo','dRegaloToggle','dEntregaToggle','dTrasladoBtn','dResponsable'];
+  var permitidosLogistica = [
+    'dAccesoriosBtnPend','dAccesoriosBtnNo','dAccesoriosBtnSi','dAccesoriosObsInput','dAccesoriosGuardarBtn',
+    'dLlaveDuplicadaBtnPend','dLlaveDuplicadaBtnNo','dLlaveDuplicadaBtnSi','dLlaveDuplicadaObsInput','dLlaveDuplicadaGuardarBtn',
+    'dKitSeguridadBtnPend','dKitSeguridadBtnNo','dKitSeguridadBtnSi','dKitSeguridadObsInput','dKitSeguridadGuardarBtn',
+    'dAlfombrasBtnPend','dAlfombrasBtnNo','dAlfombrasBtnSi','dAlfombrasObsInput','dAlfombrasGuardarBtn',
+    'dCampanaBtnPend','dCampanaBtnNo','dCampanaBtnSi','dCampanaObsInput','dCampanaGuardarBtn','dCampanaInput',
+    'dManualBtnPend','dManualBtnNo','dManualBtnSi','dManualObsInput','dManualGuardarBtn',
+    'dRegaloToggle','dEntregaToggle','dTrasladoBtn','dResponsable'
+  ];
   drawer.querySelectorAll('input, select, textarea, button').forEach(function(el){
     if(el.classList.contains('close')) return;
     if(esLogisticaLimitada){
