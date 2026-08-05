@@ -4766,9 +4766,22 @@ function guardarCasoUI(){
     document.getElementById('casoConfirmWrap').style.display = 'block';
     var codigoEl = document.getElementById('casoConfirmCodigo');
     var syncEl = document.getElementById('casoConfirmSyncGC');
-    syncEl.innerHTML = res.sincronizadoGC
-      ? '<span style="color:var(--ok);">✓ Enviado a la Bandeja de entrada de Gestión de Casos</span>'
-      : '<span style="color:var(--warn);">⚠ No se pudo avisar a Gestión de Casos — igual queda guardado acá, avisá a Calidad</span>';
+    // La sincronización con Gestión de Casos se dispara acá, DESPUÉS de ya
+    // mostrar la confirmación — así el "Enviar a Calidad" se siente
+    // instantáneo (el caso en Planning ya quedó guardado) y la demora de
+    // la otra planilla, si la hay, se ve solo en este cartelito de abajo,
+    // no bloqueando el botón.
+    syncEl.innerHTML = '<span style="color:var(--text-faint);">Avisando a Gestión de Casos…</span>';
+    if(res.codigo || res.id){
+      var codigoFinal = res.codigo || res.id;
+      gasPost('sincronizarCasoGC', Object.assign({codigo:codigoFinal}, payload)).then(function(resSync){
+        syncEl.innerHTML = (resSync && resSync.sincronizadoGC)
+          ? '<span style="color:var(--ok);">✓ Enviado a la Bandeja de entrada de Gestión de Casos</span>'
+          : '<span style="color:var(--warn);">⚠ No se pudo avisar a Gestión de Casos — igual queda guardado acá, avisá a Calidad</span>';
+      }).catch(function(){
+        syncEl.innerHTML = '<span style="color:var(--warn);">⚠ No se pudo avisar a Gestión de Casos — igual queda guardado acá, avisá a Calidad</span>';
+      });
+    }
     if(res.codigo || res.id){
       codigoEl.textContent = res.codigo || res.id;
       if(currentAppView==='casos'){ cargarCasosSiHaceFalta_().then(function(){ renderCasos(); var qEl=document.getElementById('casosBuscarCliente'); if(qEl && qEl.value) buscarClienteParaCaso(); }); }
