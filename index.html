@@ -1426,7 +1426,7 @@
             <div class="section-title" style="color:var(--caso);">Buscar cliente</div>
             <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:10px;">Pegá el DNI, VIN/dominio o nombre del cliente para ver sus vehículos y casos anteriores — así no se duplica info si ya tiene un caso cargado o más de una unidad.</div>
             <div style="display:flex;gap:8px;">
-              <input type="text" id="casosBuscarCliente" placeholder="DNI, VIN/Dominio o nombre del cliente..." onkeydown="if(event.key==='Enter'){buscarClienteParaCaso();}" style="flex:1;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12.5px;">
+              <input type="text" id="casosBuscarCliente" placeholder="VIN completo o últimos 8, dominio, DNI, teléfono, mail o nombre..." onkeydown="if(event.key==='Enter'){buscarClienteParaCaso();}" style="flex:1;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12.5px;">
               <button class="comms-btn primary" style="width:auto;margin:0;" onclick="buscarClienteParaCaso()">Buscar</button>
             </div>
             <div id="casosClienteResultados" style="display:none;margin-top:12px;"></div>
@@ -2522,6 +2522,10 @@
       <div class="field" style="margin-top:10px;"><div class="l">Descripción (opcional)</div>
         <textarea id="casoDescripcion" placeholder="Detalle lo que haga falta para que Calidad pueda tomarlo..." style="width:100%;box-sizing:border-box;min-height:80px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;"></textarea>
       </div>
+      <div class="field" style="margin-top:10px;" id="casoReportadoPorWrap">
+        <div class="l">Tu nombre y apellido <span style="font-weight:500;color:var(--text-faint);">(para que Calidad sepa a quién consultarle)</span></div>
+        <input id="casoReportadoPorInput" type="text" placeholder="Ej: Juan Pérez" style="width:100%;box-sizing:border-box;padding:9px 11px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);font-size:13px;">
+      </div>
       <button class="email-action-btn" id="casoGuardarBtn" style="margin-top:14px;background:var(--caso-soft);color:var(--caso);" onclick="guardarCasoUI()">Enviar a Calidad →</button>
     </div>
     <div id="casoConfirmWrap" style="display:none;text-align:center;padding:14px 6px;">
@@ -2811,12 +2815,16 @@ function aplicarPermisosUI(){
     else if(mod==='historialcoms') visible = esCalidad();
     else if(mod==='nuevaentrega' || mod==='reportes') visible = puede;
     else visible = true;
-    // 'casos' y 'manual' están en desarrollo — visibles solo para Calidad/Maestro por ahora,
-    // sin importar la lista de módulos por usuario ni los módulos globales (todavía no se
-    // sumaron a ese sistema granular a propósito). Cuando estén listos para todo el equipo,
-    // sacar este "if" y que entren en el flujo normal de abajo.
-    if(mod==='casos' || mod==='manual' || mod==='notificaciones'){
+    // 'manual' y 'notificaciones' siguen en desarrollo — visibles solo para Calidad/Maestro
+    // por ahora. 'casos' (Reportar Caso) ya se abrió a TODO el mundo — hasta vendedores
+    // pueden reportar — así que a propósito no se filtra por la lista de módulos de cada
+    // usuario (esas listas son de antes de que existiera este módulo, y quedarían todas
+    // desactualizadas). Si en algún momento hace falta apagarlo para todos de una, se puede
+    // usar el interruptor global (modulosGlobales.casos = false desde Maestro).
+    if(mod==='manual' || mod==='notificaciones'){
       visible = esCalidad();
+    } else if(mod==='casos'){
+      if(modulosGlobales[mod]===false) visible = false;
     } else {
       if(modulosUsuario) visible = modulosUsuario.indexOf(mod)>-1;
       if(modulosGlobales[mod]===false) visible = false;
@@ -4506,7 +4514,7 @@ function renderCasos(){
       '<td>'+(c.motivo||'—')+'</td>'+
       '<td style="font-weight:700;color:'+prioColor+';">'+(c.prioridad||'—')+'</td>'+
       '<td>'+(c.reportadoPor||'—')+'</td>'+
-      '<td><button onclick="event.stopPropagation();verSeguimientoGC_(\''+(c.dominio||c.chasis||'')+'\',\''+c.cliente+'\',\''+(c.dni||'')+'\',\''+c.id+'\')" title="Ver seguimiento en Gestión de Casos" style="background:none;border:none;color:var(--caso);cursor:pointer;padding:4px;margin-right:2px;"><span class="material-symbols-outlined" style="font-size:16px;">visibility</span></button><button onclick="event.stopPropagation();eliminarCasoUI_(\''+c.id+'\')" title="Eliminar caso (por si se cargó por error)" style="background:none;border:none;color:var(--text-faint);cursor:pointer;padding:4px;"><span class="material-symbols-outlined" style="font-size:16px;">delete</span></button></td>'+
+      '<td><button onclick="event.stopPropagation();verSeguimientoGC_(\''+(c.dominio||c.chasis||'')+'\',\''+c.cliente+'\',\''+(c.dni||'')+'\',\''+c.id+'\')" title="Ver seguimiento en Gestión de Casos" style="background:none;border:none;color:var(--caso);cursor:pointer;padding:4px;margin-right:2px;"><span class="material-symbols-outlined" style="font-size:16px;">visibility</span></button>'+(esCalidad()?'<button onclick="event.stopPropagation();eliminarCasoUI_(\''+c.id+'\')" title="Eliminar caso (por si se cargó por error)" style="background:none;border:none;color:var(--text-faint);cursor:pointer;padding:4px;"><span class="material-symbols-outlined" style="font-size:16px;">delete</span></button>':'')+'</td>'+
     '</tr>';
   });
   tabla.innerHTML = html;
@@ -4529,23 +4537,45 @@ function agregarComentarioCasoExistenteUI_(codigo){
     buscarClienteParaCaso();
   });
 }
+function normalizarTelefonoCaso_(s){ return (s||'').toString().replace(/\D/g,''); }
+// ¿La consulta matchea este VIN? — exacto, o por los últimos dígitos (lo más
+// común es que solo tengan/tipeen los últimos 8 del chasis).
+function coincideVin_(vinCompleto, q){
+  var vin = normalizarBusquedaCaso_(vinCompleto);
+  if(!vin || !q) return false;
+  if(vin===q) return true;
+  if(q.length>=6 && vin.length>q.length && vin.slice(-q.length)===q) return true;
+  return false;
+}
 function buscarClienteParaCaso(){
   var qRaw = document.getElementById('casosBuscarCliente').value;
   var q = normalizarBusquedaCaso_(qRaw);
+  var qTelDigits = normalizarTelefonoCaso_(qRaw);
+  var esConsultaMail = qRaw.indexOf('@')>-1;
   var cont = document.getElementById('casosClienteResultados');
   if(!q){ cont.innerHTML=''; cont.style.display='none'; return; }
 
   var vehiculos = ENTREGAS.filter(function(r){
     var dom = normalizarBusquedaCaso_(r.dominio);
-    var vin = normalizarBusquedaCaso_(r.chasis);
     var cli = normalizarBusquedaCaso_(r.cliente);
-    return (dom && dom===q) || (vin && vin===q) || (cli && cli.indexOf(q)!==-1);
+    var tel = normalizarTelefonoCaso_(r.telefono);
+    var mail = normalizarBusquedaCaso_(r.email);
+    return (dom && dom===q) ||
+      coincideVin_(r.chasis, q) ||
+      (cli && cli.indexOf(q)!==-1) ||
+      (tel && qTelDigits && qTelDigits.length>=6 && tel.indexOf(qTelDigits)>-1) ||
+      (esConsultaMail && mail && mail===q);
   });
   var casosPrevios = CASOS.filter(function(c){
     var dni = normalizarBusquedaCaso_(c.dni);
     var dom = normalizarBusquedaCaso_(c.dominio);
     var cli = normalizarBusquedaCaso_(c.cliente);
-    return (dni && dni===q) || (dom && dom===q) || (cli && cli.indexOf(q)!==-1);
+    var tel = normalizarTelefonoCaso_(c.telefono);
+    return (dni && dni===q) ||
+      (dom && dom===q) ||
+      coincideVin_(c.dominio, q) ||
+      (cli && cli.indexOf(q)!==-1) ||
+      (tel && qTelDigits && qTelDigits.length>=6 && tel.indexOf(qTelDigits)>-1);
   });
 
   var html = '';
@@ -4630,6 +4660,10 @@ function abrirModalCaso(marca, id){
   document.getElementById('casoMotivo').value = '';
   document.getElementById('casoPrioridad').value = 'Media';
   document.getElementById('casoDescripcion').value = '';
+  // Se precarga con el usuario logueado, pero queda editable y es obligatorio
+  // completarlo antes de enviar — así, aunque el login sea genérico/compartido
+  // o falle usuarioActual(), Calidad siempre sabe a quién consultarle el caso.
+  document.getElementById('casoReportadoPorInput').value = usuarioActual() || '';
   document.getElementById('casoDatosWrap').style.display = r ? 'block' : 'none';
   document.getElementById('casoManualWrap').style.display = r ? 'none' : 'block';
   if(r){
@@ -4657,7 +4691,8 @@ function abrirModalCaso(marca, id){
 // seguimiento en vez de abrir el formulario de nuevo.
 function renderBotonAbrirCaso_(r){
   var btn = document.getElementById('dBtnAbrirCaso');
-  if(!btn || !esCalidad()) return;
+  if(!btn) return;
+  btn.style.display = '';
   function pintar(){
     var existente = CASOS.find(function(c){ return String(c.entregaId)===String(r.id) && c.marca===r.marca; });
     if(existente){
@@ -4678,7 +4713,6 @@ function renderBotonAbrirCaso_(r){
 function renderAlertaCasoAbierto_(r){
   var el = document.getElementById('dCasoAbiertoAlerta');
   if(!el) return;
-  if(!esCalidad()){ el.style.display='none'; return; }
   function pintar(){
     var cliente = normalizarBusquedaCaso_(r.cliente);
     var dominio = normalizarBusquedaCaso_(r.dominio||r.chasis);
@@ -4736,6 +4770,8 @@ function guardarCasoUI(){
   var r = (casoCtx.marca && casoCtx.id) ? ENTREGAS.find(function(x){return x.marca===casoCtx.marca && x.id===casoCtx.id;}) : null;
   var clienteManual = document.getElementById('casoClienteInput').value.trim();
   if(!r && !clienteManual){ showToast('Cargá el nombre del cliente'); return; }
+  var reportadoPor = document.getElementById('casoReportadoPorInput').value.trim();
+  if(!reportadoPor){ showToast('Falta tu nombre y apellido — sin eso no se puede cerrar el caso'); document.getElementById('casoReportadoPorInput').focus(); return; }
   var btn = document.getElementById('casoGuardarBtn');
   btn.disabled = true; btn.textContent = 'Enviando...';
   var payload = {
@@ -4755,7 +4791,7 @@ function guardarCasoUI(){
     motivo: motivo,
     prioridad: document.getElementById('casoPrioridad').value,
     descripcion: document.getElementById('casoDescripcion').value.trim(),
-    reportadoPor: usuarioActual()
+    reportadoPor: reportadoPor
   };
   gasPost('reportarCaso', payload).then(function(res){
     btn.disabled = false; btn.textContent = 'Enviar a Calidad →';
@@ -5770,6 +5806,10 @@ function verNpsCompleto_(marca, id){
     if(r.alertaTempranaUsuario) html += '<div style="font-size:12.5px;color:var(--text-dim);">Cargado por: <b style="color:var(--text);">'+r.alertaTempranaUsuario+'</b></div>';
   }
 
+  if(r.npsScore<8 && r.npsComentario){
+    html += '<button class="email-action-btn" style="margin-top:16px;background:var(--caso-soft);color:var(--caso);" onclick="cerrarModalNpsDetalle_();abrirModalCaso(\''+marca+'\',\''+id+'\');document.getElementById(\'casoMotivo\').value=\'Insatisfacción en encuesta (NPS \'+'+r.npsScore+'+\'/10)\';document.getElementById(\'casoDescripcion\').value='+JSON.stringify(r.npsComentario)+';document.getElementById(\'casoArea\').value=\'Entregas\';"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">report</span> Abrir caso a partir de esta encuesta</button>';
+  }
+
   document.getElementById('npsDetalleBody').innerHTML = html;
   document.getElementById('overlay').classList.add('show');
   document.getElementById('modalNpsDetalle').classList.add('show');
@@ -6047,7 +6087,6 @@ function openDetail(marca, id){
   renderEstadoComunicaciones(r);
   renderEstadoBienvenida_(r);
   var btnAbrirCaso = document.getElementById('dBtnAbrirCaso');
-  if(btnAbrirCaso) btnAbrirCaso.style.display = esCalidad() ? '' : 'none';
   renderBotonAbrirCaso_(r);
   document.getElementById('dCliente').value=r.cliente;
   document.getElementById('dTelefono').value=r.telefono||'';
