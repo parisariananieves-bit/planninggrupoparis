@@ -1071,11 +1071,13 @@
       <button class="sidebar-pin" onclick="toggleSidebarPin()" title="Fijar menú expandido" id="sidebarPinBtn"><span class="material-symbols-outlined">push_pin</span></button>
       <div class="sidebar-brand"><img class="sidebar-logo-full" alt="Grupo París" src="assets/logos/logo-grupoparis-wordmark.png" width="200" height="49"><div class="tag">Planning Entregas</div></div>
       <nav class="sidebar-nav">
+        <button class="nav-item" id="navNotificaciones" title="Bandeja de entrada" onclick="setAppView('notificaciones')" style="position:relative;color:var(--caso);"><span class="material-symbols-outlined" style="color:var(--caso);">notifications</span><span class="nav-label">Bandeja de entrada</span><span id="navNotifBadge" style="display:none;position:absolute;top:6px;left:26px;background:var(--danger);color:#fff;font-size:9.5px;font-weight:800;min-width:15px;height:15px;border-radius:20px;align-items:center;justify-content:center;padding:0 3px;line-height:1;">0</span></button>
         <button class="nav-item active" id="navDashboard" title="Dashboard" onclick="setAppView('dashboard')"><span class="material-symbols-outlined">dashboard</span><span class="nav-label">Dashboard</span></button>
         <button class="nav-item nav-item-highlight" id="navNuevaentrega" title="Nueva Entrega" onclick="openNewDelivery()"><span class="material-symbols-outlined">add_circle</span><span class="nav-label">Nueva Entrega</span></button>
         <button class="nav-item" id="navCalendario" title="Calendario" onclick="setAppView('calendario')"><span class="material-symbols-outlined">calendar_today</span><span class="nav-label">Calendario</span></button>
         <button class="nav-item" id="navLista" title="Lista de Entregas" onclick="setAppView('lista')"><span class="material-symbols-outlined">list_alt</span><span class="nav-label">Lista de Entregas</span></button>
         <button class="nav-item" id="navKanban" title="Asignación Logística" onclick="setAppView('kanban')"><span class="material-symbols-outlined">view_kanban</span><span class="nav-label">Asignación Logística</span></button>
+        <button class="nav-item" id="navTraslados" title="Traslados" onclick="setAppView('traslados')"><span class="material-symbols-outlined">local_shipping</span><span class="nav-label">Traslados</span></button>
         <button class="nav-item" id="navReportes" title="Reportes" onclick="irAReportes()"><span class="material-symbols-outlined">analytics</span><span class="nav-label">Reportes</span></button>
         <div class="nav-submenu" id="submenuReportes" style="display:none;">
           <button class="nav-subitem" id="subReportesDashboard" onclick="setMaestroTab('dashboard')">Dashboard</button>
@@ -1086,7 +1088,6 @@
         </div>
         <button class="nav-item" id="navHistorialComs" title="Historial de Comunicaciones" onclick="setAppView('historialcoms')"><span class="material-symbols-outlined">forum</span><span class="nav-label">Historial de Comunicaciones</span></button>
         <button class="nav-item" id="navCasos" title="Reportar Caso" onclick="setAppView('casos')" style="color:var(--caso);"><span class="material-symbols-outlined" style="color:var(--caso);">report</span><span class="nav-label">Reportar Caso</span></button>
-        <button class="nav-item" id="navNotificaciones" title="Bandeja de entrada" onclick="setAppView('notificaciones')" style="position:relative;color:var(--caso);"><span class="material-symbols-outlined" style="color:var(--caso);">notifications</span><span class="nav-label">Bandeja de entrada</span><span id="navNotifBadge" style="display:none;position:absolute;top:6px;left:26px;background:var(--danger);color:#fff;font-size:9.5px;font-weight:800;min-width:15px;height:15px;border-radius:20px;align-items:center;justify-content:center;padding:0 3px;line-height:1;">0</span></button>
         <a class="nav-item" id="navManual" href="manual_rapido.html" target="_blank" title="Manual del sistema" style="text-decoration:none;"><span class="material-symbols-outlined">menu_book</span><span class="nav-label">Manual</span></a>
         <button class="nav-item" id="navMaestro" title="Maestro (Config)" onclick="irAMaestro()"><span class="material-symbols-outlined">settings</span><span class="nav-label">Maestro (Config)</span></button>
         <div class="nav-submenu" id="submenuMaestro" style="display:none;">
@@ -1398,6 +1399,18 @@
           <div id="kanbanBoard" style="display:flex;gap:14px;overflow-x:auto;padding-bottom:10px;align-items:flex-start;"></div>
         </div>
 
+        <div class="app-view" id="viewTraslados">
+          <div class="view-header"><h2>Traslados</h2><p>Todas las unidades trasladadas a otra sucursal, de cualquier marca — para que no se le escape nada a nadie.</p></div>
+          <div class="filter-bar" style="flex-wrap:wrap;gap:10px;">
+            <select id="trasladosEstadoFiltro" onchange="renderTraslados()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;">
+              <option value="todos">Todos</option>
+              <option value="con_pendientes" selected>Con ítems pendientes</option>
+              <option value="completos">Completos</option>
+            </select>
+          </div>
+          <div id="trasladosLista" style="margin-top:14px;"></div>
+        </div>
+
         <div class="app-view" id="viewHistorialcoms">
           <div class="view-header"><h2>Historial de Comunicaciones</h2><p>WhatsApp y Email automáticos enviados después de cada entrega.</p></div>
           <div class="costos-grid" id="historialComsStats" style="margin-bottom:16px;"></div>
@@ -1442,10 +1455,24 @@
 
         <div class="app-view" id="viewNotificaciones">
           <div class="view-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-            <div><h2 style="color:var(--caso);">Bandeja de entrada</h2><p>Novedades de casos: cuando se reportan, y cuando cambian de estado en Gestión de Casos.</p></div>
+            <div><h2 style="color:var(--caso);">Bandeja de entrada</h2><p>Todo lo que te toca saber: entregas agendadas, ítems marcados por Logística, entregas completadas, comentarios y casos.</p></div>
             <div style="display:flex;gap:8px;">
               <button class="comms-btn" style="width:auto;margin:0;" onclick="marcarTodasLeidasUI_()">Marcar todo leído</button>
               <button class="comms-btn primary" style="width:auto;margin:0;border-color:var(--caso);color:var(--caso);" onclick="revisarActualizacionesUI_()" id="btnRevisarActualizaciones"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">sync</span> Revisar actualizaciones en Gestión de Casos</button>
+            </div>
+          </div>
+          <div class="section" id="formComunicadoWrap" style="display:none;margin-top:14px;">
+            <div class="section-title">📣 Mandar un comunicado</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <textarea id="comunicadoTexto" placeholder="Escribí el aviso para el equipo..." style="flex:1;min-width:220px;min-height:44px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12.5px;font-family:inherit;resize:vertical;"></textarea>
+              <select id="comunicadoDestinatario" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12.5px;">
+                <option value="todos">A todos</option>
+                <option value="logistica">Solo Logística</option>
+                <option value="administrativo">Solo Administrativos</option>
+                <option value="recepcion">Solo Recepción</option>
+                <option value="vendedor">Solo Vendedores</option>
+              </select>
+              <button class="comms-btn primary" style="width:auto;margin:0;" onclick="enviarComunicadoUI_()">Enviar</button>
             </div>
           </div>
           <div id="listaNotificaciones" style="margin-top:14px;"></div>
@@ -2431,6 +2458,14 @@
   </div>
 </div>
 
+<div class="modal" id="modalChecklistTraslado">
+  <div class="modal-head">
+    <div><h3><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">checklist</span> Checklist del traslado</h3><div class="sub" id="checklistTrasladoSub">Qué se llevó la unidad y qué quedó pendiente de mandar aparte.</div></div>
+    <button class="close" onclick="cerrarChecklistTraslado_()">✕</button>
+  </div>
+  <div class="modal-body" id="checklistTrasladoBody" style="padding:16px 20px;"></div>
+</div>
+
 <div class="modal" id="modalSeguimientoGC">
   <div class="modal-head">
     <div><h3><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">visibility</span> Seguimiento en Gestión de Casos</h3><div class="sub">Solo lectura — el seguimiento y la resolución se hacen en la otra web.</div></div>
@@ -2803,8 +2838,8 @@ function olvidePasswordUI(){
 }
 // Oculta/deshabilita lo que el rol actual no puede tocar. Se llama al loguearse
 // y cada vez que se renderiza la tabla o se abre el detalle de una entrega.
-var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','kanban','reportes','historialcoms','casos','notificaciones','manual','maestro','tv'];
-var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'navKanban', reportes:'navReportes', historialcoms:'navHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', manual:'navManual', maestro:'navMaestro', tv:'navTv'};
+var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','kanban','traslados','reportes','historialcoms','casos','notificaciones','manual','maestro','tv'];
+var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'navKanban', traslados:'navTraslados', reportes:'navReportes', historialcoms:'navHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', manual:'navManual', maestro:'navMaestro', tv:'navTv'};
 function aplicarPermisosUI(){
   var puede = puedeEditar();
   var modulosDelUsuario = modulosUsuarioActual();
@@ -2816,18 +2851,19 @@ function aplicarPermisosUI(){
     var visible;
     if(mod==='maestro') visible = esCalidad();
     else if(mod==='kanban') visible = esSupervisorLogistica() || esCalidad();
+    else if(mod==='traslados') visible = esSupervisorLogistica() || esCalidad() || rolActual()==='logistica';
     else if(mod==='historialcoms') visible = esCalidad();
     else if(mod==='nuevaentrega' || mod==='reportes') visible = puede;
     else visible = true;
-    // 'manual' y 'notificaciones' siguen en desarrollo — visibles solo para Calidad/Maestro
-    // por ahora. 'casos' (Reportar Caso) ya se abrió a TODO el mundo — hasta vendedores
-    // pueden reportar — así que a propósito no se filtra por la lista de módulos de cada
-    // usuario (esas listas son de antes de que existiera este módulo, y quedarían todas
-    // desactualizadas). Si en algún momento hace falta apagarlo para todos de una, se puede
-    // usar el interruptor global (modulosGlobales.casos = false desde Maestro).
-    if(mod==='manual' || mod==='notificaciones'){
+    // 'manual' sigue en desarrollo — visible solo para Calidad/Maestro por ahora.
+    // 'casos' y 'notificaciones' ya se abrieron a TODO el mundo (hasta vendedores pueden
+    // reportar, y todos los roles reciben avisos que les tocan) — a propósito no se filtran
+    // por la lista de módulos de cada usuario (esas listas son de antes de que existieran
+    // estos módulos, y quedarían todas desactualizadas). Si hace falta apagarlos para todos
+    // de una, se puede usar el interruptor global (modulosGlobales.X = false desde Maestro).
+    if(mod==='manual'){
       visible = esCalidad();
-    } else if(mod==='casos'){
+    } else if(mod==='casos' || mod==='notificaciones'){
       if(modulosGlobales[mod]===false) visible = false;
     } else {
       if(modulosUsuario) visible = modulosUsuario.indexOf(mod)>-1;
@@ -3240,7 +3276,7 @@ function activarVistaPrevia(){
 // ============================================================
 // NAVEGACIÓN POR VISTAS (Dashboard / Calendario / Lista / Maestro)
 // ============================================================
-var VISTAS_APP = ['dashboard','calendario','lista','kanban','historialcoms','casos','notificaciones','maestro','nuevaentrega','tv'];
+var VISTAS_APP = ['dashboard','calendario','lista','kanban','historialcoms','casos','notificaciones','traslados','maestro','nuevaentrega','tv'];
 // ============================================================
 // MODO TV — pantalla de solo lectura para monitor de la concesionaria.
 // Se actualiza sola (usa el mismo refresco silencioso de cada 25s que
@@ -3518,6 +3554,7 @@ function setAppView(view){
   if(view==='historialcoms'){ cargarComunicacionesSiHaceFalta_().then(renderHistorialComs); }
   if(view==='casos'){ cargarCasosSiHaceFalta_().then(renderCasos); }
   if(view==='notificaciones'){ renderNotificaciones(); }
+  if(view==='traslados'){ renderTraslados(); }
 }
 
 function fmtFecha(d){ var dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0'); return dd+'/'+mm+'/'+d.getFullYear(); }
@@ -4367,8 +4404,8 @@ function cargarComunicacionesSiHaceFalta_(){
 // BANDEJA DE ENTRADA (Notificaciones) — módulo propio de Planning
 // ============================================================
 function actualizarBadgeNotificaciones_(){
-  if(!esCalidad()) return;
-  gasGet('notificaciones').then(function(res){
+  var s = sesionActual(); if(!s) return;
+  gasGet('notificaciones', {actorUsuario:s.usuario, actorRol:s.rol}).then(function(res){
     if(!res.ok) return;
     var noLeidas = (res.notificaciones||[]).filter(function(n){return !n.leida;}).length;
     var badge = document.getElementById('navNotifBadge');
@@ -4377,10 +4414,63 @@ function actualizarBadgeNotificaciones_(){
     else badge.style.display='none';
   });
 }
+var ICONOS_NOTIF_ = {
+  caso_creado:'add_circle', caso_actualizado:'sync', entrega_agendada:'event_available',
+  item_marcado:'inventory_2', entrega_completada:'local_shipping', comentario:'chat',
+  resumen_diario:'wb_sunny', comunicado:'campaign'
+};
+// ============================================================
+// VISTA TRASLADOS — cruza TODAS las marcas y sucursales, para que
+// Logística/Supervisor tengan un solo lugar donde ver qué unidades
+// trasladadas todavía tienen algo pendiente de mandar.
+// ============================================================
+function renderTraslados(){
+  var filtro = document.getElementById('trasladosEstadoFiltro').value;
+  var todas = ENTREGAS.filter(function(r){ return r.traslado; });
+  var conInfo = todas.map(function(r){ return {r:r, info: estadoChecklistTraslado_(r)}; });
+
+  var filtradas = conInfo.filter(function(x){
+    if(filtro==='con_pendientes') return x.info && x.info.pendientes>0 && !x.r.trasladoCompletado;
+    if(filtro==='completos') return !x.info || x.info.pendientes===0 || x.r.trasladoCompletado;
+    return true;
+  });
+  // Los más urgentes primero: con más ítems pendientes, y sin completar el traslado.
+  filtradas.sort(function(a,b){
+    var pa = (a.info?a.info.pendientes:0) + (a.r.trasladoCompletado?-100:0);
+    var pb = (b.info?b.info.pendientes:0) + (b.r.trasladoCompletado?-100:0);
+    return pb-pa;
+  });
+
+  var cont = document.getElementById('trasladosLista');
+  if(filtradas.length===0){
+    cont.innerHTML = '<div class="report-wrap" style="padding:30px;text-align:center;color:var(--text-faint);font-size:12.5px;">No hay traslados que coincidan con este filtro.</div>';
+    return;
+  }
+  cont.innerHTML = filtradas.map(function(x){
+    var r=x.r, info=x.info;
+    var b = BRANDS.find(function(bb){return bb.id===r.marca;}) || BRANDS[0];
+    var urgente = info && info.pendientes>0 && !r.trasladoCompletado;
+    return '<div style="background:var(--panel);border:1px solid '+(urgente?'var(--danger)':'var(--hairline)')+';border-left:4px solid var('+b.color+');border-radius:9px;padding:12px 14px;margin-bottom:8px;cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">'+
+        '<div><b style="color:var('+b.color+');">'+b.label+'</b> · '+r.cliente+' · '+(r.dominio||r.chasis||'—')+'</div>'+
+        '<div style="font-size:11px;color:var(--text-faint);">'+r.sucursal+' → <b>'+(r.trasladoDestino||'—')+'</b></div>'+
+      '</div>'+
+      '<div style="font-size:11.5px;color:var(--text-dim);margin-top:4px;">'+
+        (r.trasladoCompletado ? '<span style="color:var(--ok);font-weight:700;">✓ Traslado completado</span>' : '<span style="color:var(--warn);font-weight:700;">📦 Traslado en curso</span>')+
+        (info ? ' · '+(urgente?'<span style="color:var(--danger);font-weight:700;">':'')+info.completos+'/'+info.total+' ítems con la unidad'+(urgente?'</span>':'') : ' · sin ítems para hacer seguimiento')+
+      '</div>'+
+      (info && info.pendientes>0 ? '<div style="font-size:10.5px;color:var(--text-faint);margin-top:3px;">Faltan: '+info.relevantes.filter(function(it){return !info.checklist[it.key]||info.checklist[it.key].estado!=='si';}).map(function(it){return it.label;}).join(', ')+'</div>' : '')+
+      (info ? '<button onclick="event.stopPropagation();abrirChecklistTraslado_(\''+r.marca+'\',\''+r.id+'\')" style="margin-top:8px;background:var(--panel-2);border:1px solid var(--hairline);color:var(--text);border-radius:7px;padding:5px 11px;font-size:11px;cursor:pointer;">Ver / editar checklist</button>' : '')+
+    '</div>';
+  }).join('');
+}
+
 function renderNotificaciones(){
   var cont = document.getElementById('listaNotificaciones');
   cont.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-faint);font-size:12.5px;">Cargando…</div>';
-  gasGet('notificaciones').then(function(res){
+  renderFormComunicado_();
+  var s = sesionActual();
+  gasGet('notificaciones', {actorUsuario:s.usuario, actorRol:s.rol}).then(function(res){
     if(!res.ok){ cont.innerHTML = '<div style="padding:18px;color:var(--danger);">'+res.error+'</div>'; return; }
     var notifs = res.notificaciones||[];
     if(notifs.length===0){
@@ -4388,8 +4478,8 @@ function renderNotificaciones(){
       return;
     }
     cont.innerHTML = notifs.map(function(n){
-      var icono = n.tipo==='caso_creado' ? 'add_circle' : 'sync';
-      return '<div onclick="marcarLeidaYNavegar_(\''+n.id+'\',\''+n.casoId+'\')" style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:9px;margin-bottom:6px;cursor:pointer;background:'+(n.leida?'var(--panel)':'var(--caso-soft)')+';border:1px solid '+(n.leida?'var(--hairline)':'var(--caso)')+';">'+
+      var icono = ICONOS_NOTIF_[n.tipo] || 'notifications';
+      return '<div onclick="marcarLeidaYNavegar_(\''+n.id+'\',\''+(n.casoId||'')+'\',\''+(n.marca||'')+'\',\''+(n.entregaId||'')+'\')" style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:9px;margin-bottom:6px;cursor:pointer;background:'+(n.leida?'var(--panel)':'var(--caso-soft)')+';border:1px solid '+(n.leida?'var(--hairline)':'var(--caso)')+';">'+
         '<span class="material-symbols-outlined" style="color:var(--caso);font-size:18px;margin-top:1px;">'+icono+'</span>'+
         '<div style="flex:1;">'+
           '<div style="font-size:12.5px;color:var(--text);'+(n.leida?'':'font-weight:700;')+'">'+n.mensaje+'</div>'+
@@ -4400,18 +4490,42 @@ function renderNotificaciones(){
     }).join('');
   });
 }
-function marcarLeidaYNavegar_(id, casoId){
+function marcarLeidaYNavegar_(id, casoId, marca, entregaId){
   gasPost('marcarNotificacionLeida', {id:id}).then(function(){
     actualizarBadgeNotificaciones_();
     renderNotificaciones();
   });
-  if(casoId) verSeguimientoGC_('', '', '', casoId);
+  if(entregaId && marca) openDetail(marca, entregaId);
+  else if(casoId) verSeguimientoGC_('', '', '', casoId);
 }
 function marcarTodasLeidasUI_(){
-  gasPost('marcarTodasNotificacionesLeidas', {}).then(function(res){
+  var s = sesionActual();
+  gasPost('marcarTodasNotificacionesLeidas', {actorUsuario:s.usuario, actorRol:s.rol}).then(function(res){
     if(!res.ok){ showToast(res.error); return; }
     showToast('Todo marcado como leído');
     actualizarBadgeNotificaciones_();
+    renderNotificaciones();
+  });
+}
+// Comunicado manual — solo Calidad lo ve/usa. El resto de los roles solo ve
+// la lista de novedades, sin este formulario.
+function renderFormComunicado_(){
+  var el = document.getElementById('formComunicadoWrap');
+  if(!el) return;
+  if(!esCalidad()){ el.style.display='none'; return; }
+  el.style.display='block';
+}
+function enviarComunicadoUI_(){
+  var mensaje = document.getElementById('comunicadoTexto').value.trim();
+  var destinatario = document.getElementById('comunicadoDestinatario').value;
+  if(!mensaje){ showToast('Escribí el mensaje del comunicado'); return; }
+  var s = sesionActual();
+  var pass = window._ultimaPasswordActor || credencialesActor_();
+  if(pass===null) return;
+  gasPost('enviarComunicado', {actorUsuario:s.usuario, actorPassword:pass, mensaje:mensaje, destinatarioRol:destinatario}).then(function(res){
+    if(res.error){ showToast(res.error); return; }
+    showToast('Comunicado enviado');
+    document.getElementById('comunicadoTexto').value = '';
     renderNotificaciones();
   });
 }
@@ -5628,6 +5742,10 @@ function marcarEntregadaEfectiva_(marca, id, r){
   r.entregada=!r.entregada;
   gasPost('updateEntregaFields',{marca:marca,id:id,fields:{entregada:r.entregada}});
   logHistorial_(marca, id, r.entregada ? '🚗 Unidad marcada como entregada' : 'Se desmarcó como entregada');
+  if(r.entregada){
+    var extra = (typeof r.npsScore==='number') ? 'Encuesta respondida: NPS '+r.npsScore+'/10' : '';
+    gasPost('notificarEntregaCompletada', {marca:marca, id:id, autor:usuarioActual(), extra:extra});
+  }
   if(detailId===id) updateEntregaToggleUI(r);
   renderAll();
   showToast(r.entregada?'Unidad entregada a '+r.cliente:'Se desmarcó como entregada');
@@ -5962,6 +6080,77 @@ function guardarEncuestaNPS_(){
   showToast('Encuesta guardada');
   if(callback) callback();
 }
+// ============================================================
+// CHECKLIST DE TRASLADO — qué ítems se llevó la unidad al trasladarla a
+// otra sucursal, para que no se le "escape" nada a Logística y el cliente
+// no se quede sin kit/manual/llave/regalo/alfombras ni tenga que volver.
+// ============================================================
+var TRASLADO_ITEMS_ = [
+  {key:'kitSeguridad', label:'Kit de seguridad', corresponde:'kitSeguridad'},
+  {key:'regalo', label:'Regalo corporativo', corresponde:'regaloCorporativo'},
+  {key:'alfombras', label:'Alfombras', corresponde:'alfombras'},
+  {key:'manual', label:'Manual del vehículo', corresponde:'manual'},
+  {key:'llaveDuplicada', label:'Llave duplicada', corresponde:'llaveDuplicada'}
+];
+function estadoChecklistTraslado_(r){
+  var checklist = r.trasladoChecklist || {};
+  var relevantes = TRASLADO_ITEMS_.filter(function(it){ return !!r[it.corresponde]; });
+  if(relevantes.length===0) return null; // esta entrega no tiene ningún ítem que trasladar aparte
+  var completos = relevantes.filter(function(it){ return checklist[it.key] && checklist[it.key].estado==='si'; }).length;
+  var pendientes = relevantes.filter(function(it){ return !checklist[it.key] || checklist[it.key].estado!=='si'; }).length;
+  return {total: relevantes.length, completos: completos, pendientes: pendientes, relevantes: relevantes, checklist: checklist};
+}
+function abrirChecklistTraslado_(marca, id){
+  var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
+  if(!r) return;
+  var info = estadoChecklistTraslado_(r);
+  document.getElementById('checklistTrasladoSub').textContent = r.cliente+' → '+(r.trasladoDestino||'sin destino')+' · '+(r.dominio||r.chasis||'');
+  var body = document.getElementById('checklistTrasladoBody');
+  if(!info){
+    body.innerHTML = '<div style="text-align:center;color:var(--text-faint);padding:20px;font-size:12.5px;">Esta entrega no tiene ningún ítem (kit, regalo, alfombras, manual, llave) cargado para hacer seguimiento.</div>';
+  } else {
+    body.innerHTML = info.relevantes.map(function(it){
+      var estado = (info.checklist[it.key] && info.checklist[it.key].estado) || '';
+      var motivo = (info.checklist[it.key] && info.checklist[it.key].motivo) || '';
+      return '<div style="margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--hairline);">'+
+        '<div style="font-weight:700;font-size:12.5px;margin-bottom:7px;">'+it.label+'</div>'+
+        '<div class="dual-toggle-wrap" style="display:flex;">'+
+          '<button class="dual-toggle-btn pend'+(estado==='pendiente'?' active':'')+'" onclick="marcarItemChecklistTraslado_(\''+marca+'\',\''+id+'\',\''+it.key+'\',\'pendiente\')"><span class="material-symbols-outlined">schedule</span>Pendiente</button>'+
+          '<button class="dual-toggle-btn no'+(estado==='no'?' active':'')+'" onclick="marcarItemChecklistTraslado_(\''+marca+'\',\''+id+'\',\''+it.key+'\',\'no\')"><span class="material-symbols-outlined">cancel</span>No fue</button>'+
+          '<button class="dual-toggle-btn si'+(estado==='si'?' active':'')+'" onclick="marcarItemChecklistTraslado_(\''+marca+'\',\''+id+'\',\''+it.key+'\',\'si\')"><span class="material-symbols-outlined">check_circle</span>Sí, fue</button>'+
+        '</div>'+
+        (estado && estado!=='si' ? '<textarea id="checklistMotivo_'+it.key+'" placeholder="Motivo (ej: sin stock, se manda por separado)..." style="width:100%;min-height:38px;margin-top:6px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:6px 8px;font-size:11.5px;font-family:inherit;resize:vertical;" onchange="guardarMotivoChecklistTraslado_(\''+marca+'\',\''+id+'\',\''+it.key+'\',this.value)">'+motivo+'</textarea>' : '')+
+      '</div>';
+    }).join('');
+  }
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('modalChecklistTraslado').classList.add('show');
+}
+function cerrarChecklistTraslado_(){
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('modalChecklistTraslado').classList.remove('show');
+  renderAll();
+  if(detailId) updateTrasladoUI(ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}));
+}
+function marcarItemChecklistTraslado_(marca, id, itemKey, estado){
+  var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
+  r.trasladoChecklist = r.trasladoChecklist || {};
+  var motivoPrevio = (r.trasladoChecklist[itemKey] && r.trasladoChecklist[itemKey].motivo) || '';
+  r.trasladoChecklist[itemKey] = {estado: estado, motivo: estado==='si' ? '' : motivoPrevio};
+  gasPost('updateEntregaFields', {marca:marca, id:id, fields:{trasladoChecklist: r.trasladoChecklist}});
+  var it = TRASLADO_ITEMS_.find(function(x){return x.key===itemKey;});
+  var etiquetaEstado = estado==='si' ? 'sí fue con el traslado' : (estado==='no' ? 'no fue con el traslado' : 'queda pendiente de mandar');
+  logHistorial_(marca, id, '📦 '+it.label+': '+etiquetaEstado);
+  gasPost('notificarItemMarcado', {marca:marca, id:id, itemLabel:it.label+' (traslado)', estado:etiquetaEstado, motivo:'', autor:usuarioActual()});
+  abrirChecklistTraslado_(marca, id); // repinta con el nuevo estado
+}
+function guardarMotivoChecklistTraslado_(marca, id, itemKey, motivo){
+  var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
+  r.trasladoChecklist = r.trasladoChecklist || {};
+  if(!r.trasladoChecklist[itemKey]) r.trasladoChecklist[itemKey] = {estado:'pendiente', motivo:''};
+  r.trasladoChecklist[itemKey].motivo = motivo.trim();
+  gasPost('updateEntregaFields', {marca:marca, id:id, fields:{trasladoChecklist: r.trasladoChecklist}});
+}
 function toggleTraslado(){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
@@ -5989,6 +6178,12 @@ function toggleTraslado(){
     gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{traslado:true, trasladoCompletado:false, trasladoDestino:destino, trasladoObs:r.trasladoObs, trasladoFecha:r.trasladoFecha, trasladoUsuario:r.trasladoUsuario}});
     logHistorial_(detailMarca, detailId, '📦 Marcada para traslado a "'+destino+'"'+(r.trasladoObs?' — '+r.trasladoObs:''));
     showToast('Marcada para traslado a '+destino);
+    updateTrasladoUI(r);
+    renderAll();
+    // Si tiene ítems para hacer seguimiento (kit, regalo, alfombras, manual,
+    // llave), abrimos el checklist al toque para no dejarlo para después.
+    if(estadoChecklistTraslado_(r)) abrirChecklistTraslado_(detailMarca, detailId);
+    return;
   }
   updateTrasladoUI(r);
   renderAll();
@@ -6003,7 +6198,17 @@ function updateTrasladoUI(r){
     badge.style.background = r.trasladoCompletado ? 'var(--ok-soft)' : 'var(--invertido-soft)';
     badge.style.borderColor = r.trasladoCompletado ? 'var(--ok)' : 'var(--invertido)';
     badge.style.color = r.trasladoCompletado ? 'var(--ok)' : 'var(--invertido)';
-    badge.innerHTML='<b>'+(r.trasladoCompletado?'✓ Trasladada a ':'📦 Trasladar a ')+(r.trasladoDestino||'')+'</b>'+(r.trasladoObs?'<br>'+r.trasladoObs:'')+'<br><span style="opacity:.75;font-size:11px;">'+(r.trasladoFecha||'')+(r.trasladoUsuario?' · '+r.trasladoUsuario:'')+'</span>';
+    var infoChecklist = estadoChecklistTraslado_(r);
+    var checklistHtml = '';
+    if(infoChecklist){
+      var completo = infoChecklist.pendientes===0;
+      checklistHtml = '<div style="margin-top:8px;padding-top:8px;border-top:1px solid currentColor;opacity:.9;">'+
+        '<b>'+(completo?'✓ ':'⚠ ')+infoChecklist.completos+'/'+infoChecklist.total+' ítems con la unidad</b>'+
+        (completo?'':' — '+infoChecklist.pendientes+' sin confirmar')+
+        ' <button onclick="abrirChecklistTraslado_(\''+r.marca+'\',\''+r.id+'\')" style="background:none;border:1px solid currentColor;color:inherit;border-radius:6px;padding:2px 8px;font-size:10.5px;cursor:pointer;margin-left:4px;">Ver checklist</button>'+
+      '</div>';
+    }
+    badge.innerHTML='<b>'+(r.trasladoCompletado?'✓ Trasladada a ':'📦 Trasladar a ')+(r.trasladoDestino||'')+'</b>'+(r.trasladoObs?'<br>'+r.trasladoObs:'')+'<br><span style="opacity:.75;font-size:11px;">'+(r.trasladoFecha||'')+(r.trasladoUsuario?' · '+r.trasladoUsuario:'')+'</span>'+checklistHtml;
   } else {
     btn.textContent='📦 Marcar unidad para traslado a otra sucursal';
     btn.className='toggle-btn';
@@ -6453,6 +6658,7 @@ function marcarEstadoItem_(itemKey, nuevoEstado){
     var fields = {}; fields[cfg.colocado]=true; fields[cfg.pendienteStock]=false; fields[cfg.fecha]=r[cfg.fecha]; fields[cfg.motivo]='';
     gasPost('updateEntregaFields',{marca:marca,id:id,fields:fields});
     logHistorial_(marca, id, cfg.label+' marcado como colocado');
+    gasPost('notificarItemMarcado', {marca:marca, id:id, itemLabel:cfg.label, estado:'colocado', motivo:'', autor:usuarioActual()});
     window[cfg.render](r);
     renderAll();
     showToast(cfg.label+': colocado');
@@ -6490,6 +6696,7 @@ function guardarEstadoItem_(itemKey){
   gasPost('updateEntregaFields',{marca:marca,id:id,fields:fields});
   var etiquetaEstado = nuevoEstado==='pendiente' ? 'pendiente' : 'no colocado';
   logHistorial_(marca, id, cfg.label+' marcado como '+etiquetaEstado+(observacion?' — '+observacion:''));
+  gasPost('notificarItemMarcado', {marca:marca, id:id, itemLabel:cfg.label, estado:etiquetaEstado, motivo:observacion, autor:usuarioActual()});
   window[cfg.render](r);
   renderAll();
   showToast(cfg.label+' guardado: '+etiquetaEstado);
@@ -6872,6 +7079,7 @@ function agregarComentarioUI(){
   if(!texto) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
   gasPost('agregarComentario',{marca:detailMarca,id:detailId,autor:'Vos',texto:texto});
+  gasPost('notificarComentarioEntrega', {marca:detailMarca, id:detailId, autor:usuarioActual(), texto:texto});
   r.comentarios=r.comentarios||[]; r.comentarios.push({autor:'Vos',fecha:'ahora',texto:texto});
   document.getElementById('cNuevo').value='';
   renderComentariosUI(r);
@@ -7163,6 +7371,7 @@ function submitNewDelivery(){
     nueva.id=res.id; nueva.marca=marcaElegida;
     ENTREGAS.push(nueva);
     logHistorial_(marcaElegida, nueva.id, '🆕 Entrega creada');
+    gasPost('notificarEntregaAgendada', {marca:marcaElegida, id:nueva.id, autor:usuarioActual()});
     var p2=fechaVal.split('-'); currentDate=new Date(Number(p2[0]),Number(p2[1])-1,Number(p2[2]));
     mostrarTodosLosDias=false;
     submittingEntrega=false;
