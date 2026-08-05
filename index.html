@@ -4667,27 +4667,18 @@ function abrirModalCaso(marca, id){
   document.getElementById('casoMotivo').value = '';
   document.getElementById('casoPrioridad').value = 'Media';
   document.getElementById('casoDescripcion').value = '';
-  // Si es un usuario individual (no el login compartido "acceso libre"), el
-  // nombre y el sector se autocompletan solos y quedan bloqueados — ya sabemos
-  // quién es. Si es acceso libre (o no tiene sector cargado), se piden a mano.
+  // Muchas cuentas (ej. "Logistica Paris", "Vendedor - acceso libre") las usa
+  // más de una persona en el día a día — no hay forma de saber desde el login
+  // quién está tipeando en ese momento. Por eso el nombre queda SIEMPRE
+  // editable: se precarga como sugerencia (el nombre de la cuenta), pero
+  // cualquiera lo puede pisar con el suyo propio antes de enviar.
   var sesion = sesionActual();
-  var esAccesoLibre = !sesion || sesion.usuario==='libre';
   var nombreInput = document.getElementById('casoReportadoPorInput');
   var sectorInput = document.getElementById('casoReportadoPorSector');
-  if(!esAccesoLibre && sesion.nombre){
-    nombreInput.value = sesion.nombre;
-    nombreInput.disabled = true;
-  } else {
-    nombreInput.value = '';
-    nombreInput.disabled = false;
-  }
-  if(!esAccesoLibre && sesion.sector){
-    sectorInput.value = sesion.sector;
-    sectorInput.disabled = true;
-  } else {
-    sectorInput.value = '';
-    sectorInput.disabled = false;
-  }
+  nombreInput.disabled = false;
+  sectorInput.disabled = false;
+  nombreInput.value = (sesion && sesion.usuario!=='libre' && sesion.nombre) ? sesion.nombre : '';
+  sectorInput.value = (sesion && sesion.sector) ? sesion.sector : '';
   document.getElementById('casoDatosWrap').style.display = r ? 'block' : 'none';
   document.getElementById('casoManualWrap').style.display = r ? 'none' : 'block';
   if(r){
