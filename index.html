@@ -420,13 +420,13 @@
   .save-btn:hover{filter:brightness(1.08);}
   .save-btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;filter:none;}
   .context-tag{display:inline-block;background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;margin-bottom:14px;}
-  .report-table{width:100%;border-collapse:collapse;font-size:11px;min-height:120px;}
+  .report-table{width:max-content;min-width:100%;border-collapse:collapse;font-size:11px;min-height:120px;}
   .report-table:empty{display:block;background:linear-gradient(90deg,var(--panel) 25%,var(--panel-2) 50%,var(--panel) 75%);background-size:200% 100%;animation:skeleton-pulse 1.4s ease-in-out infinite;border-radius:8px;}
   @keyframes skeleton-pulse{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
   .report-brand-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:8px 8px 0 0;font-weight:700;font-size:13px;color:#1a1a1a;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .report-brand-header .report-count{font-weight:600;font-size:11px;background:rgba(255,255,255,.35);padding:3px 10px;border-radius:20px;}
-  .report-table th{background:var(--panel-2);text-align:left;padding:9px 11px;white-space:nowrap;color:var(--text-dim);font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;border-bottom:1px solid var(--hairline);position:sticky;top:0;z-index:1;}
-  .report-table td{padding:8px 11px;border-bottom:1px solid var(--hairline);white-space:nowrap;}
+  .report-table th{background:var(--panel-2);text-align:left;padding:9px 14px;white-space:nowrap;color:var(--text-dim);font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;border-bottom:1px solid var(--hairline);position:sticky;top:0;z-index:1;}
+  .report-table td{padding:8px 14px;border-bottom:1px solid var(--hairline);white-space:nowrap;}
   .report-table tbody tr{transition:background-color .1s;}
   .report-table tbody tr:hover{background-color:rgba(255,255,255,.03);}
   #detalleFiltradoTabla{table-layout:fixed;}
@@ -1086,6 +1086,7 @@
         </div>
         <button class="nav-item" id="navHistorialComs" title="Historial de Comunicaciones" onclick="setAppView('historialcoms')"><span class="material-symbols-outlined">forum</span><span class="nav-label">Historial de Comunicaciones</span></button>
         <button class="nav-item" id="navCasos" title="Reportar Caso" onclick="setAppView('casos')" style="color:var(--caso);"><span class="material-symbols-outlined" style="color:var(--caso);">report</span><span class="nav-label">Reportar Caso</span></button>
+        <button class="nav-item" id="navNotificaciones" title="Bandeja de entrada" onclick="setAppView('notificaciones')" style="position:relative;color:var(--caso);"><span class="material-symbols-outlined" style="color:var(--caso);">notifications</span><span class="nav-label">Bandeja de entrada</span><span id="navNotifBadge" style="display:none;position:absolute;top:6px;left:26px;background:var(--danger);color:#fff;font-size:9.5px;font-weight:800;min-width:15px;height:15px;border-radius:20px;align-items:center;justify-content:center;padding:0 3px;line-height:1;">0</span></button>
         <a class="nav-item" id="navManual" href="manual_rapido.html" target="_blank" title="Manual del sistema" style="text-decoration:none;"><span class="material-symbols-outlined">menu_book</span><span class="nav-label">Manual</span></a>
         <button class="nav-item" id="navMaestro" title="Maestro (Config)" onclick="irAMaestro()"><span class="material-symbols-outlined">settings</span><span class="nav-label">Maestro (Config)</span></button>
         <div class="nav-submenu" id="submenuMaestro" style="display:none;">
@@ -1437,6 +1438,17 @@
           <div class="report-wrap" style="margin-top:14px;max-height:65vh;">
             <table class="report-table" id="casosTabla"></table>
           </div>
+        </div>
+
+        <div class="app-view" id="viewNotificaciones">
+          <div class="view-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div><h2 style="color:var(--caso);">Bandeja de entrada</h2><p>Novedades de casos: cuando se reportan, y cuando cambian de estado en Gestión de Casos.</p></div>
+            <div style="display:flex;gap:8px;">
+              <button class="comms-btn" style="width:auto;margin:0;" onclick="marcarTodasLeidasUI_()">Marcar todo leído</button>
+              <button class="comms-btn primary" style="width:auto;margin:0;border-color:var(--caso);color:var(--caso);" onclick="revisarActualizacionesUI_()" id="btnRevisarActualizaciones"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">sync</span> Revisar actualizaciones en Gestión de Casos</button>
+            </div>
+          </div>
+          <div id="listaNotificaciones" style="margin-top:14px;"></div>
         </div>
 
 
@@ -2249,7 +2261,16 @@
     <div class="section" id="dCampanaSection" style="display:none;">
       <div class="section-title">Campaña</div>
       <input id="dCampanaInput" placeholder="Ej: Campaña de bomba de combustible (vacío si no aplica)" onchange="guardarCampanaTexto(this.value)" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;">
-      <button class="toggle-btn" id="dCampanaToggle" onclick="toggleCampana()" style="display:none;"></button>
+      <div class="dual-toggle-wrap" id="dCampanaToggleWrap" style="display:none;">
+        <button class="dual-toggle-btn pend" id="dCampanaBtnPend" onclick="marcarEstadoItem_('campana', 'pendiente')"><span class="material-symbols-outlined">schedule</span>Pendiente</button>
+        <button class="dual-toggle-btn no" id="dCampanaBtnNo" onclick="marcarEstadoItem_('campana', 'no_colocado')"><span class="material-symbols-outlined">cancel</span>No colocado</button>
+        <button class="dual-toggle-btn si" id="dCampanaBtnSi" onclick="marcarEstadoItem_('campana', 'colocado')"><span class="material-symbols-outlined">check_circle</span>Colocado</button>
+      </div>
+      <div class="dual-toggle-fecha"></div>
+      <div class="obs-wrap" id="dCampanaObsWrap" style="display:none;margin-top:8px;">
+        <textarea id="dCampanaObsInput" placeholder="Observación (ej: sin stock, unidad entregada igual, cliente no lo quiso)..." style="width:100%;min-height:48px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:11.5px;font-family:inherit;resize:vertical;"></textarea>
+        <button onclick="guardarEstadoItem_('campana')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
+      </div>
     </div>
 
     <div class="section">
@@ -2698,6 +2719,7 @@ function activarRolPreview(rol){
     renderSwitcher(); updateDayLabel(); checkBloqueado(); renderAll(); renderDatalists();
     aplicarPermisosUI();
     setAppView('dashboard');
+    actualizarBadgeNotificaciones_();
   }
   if(rolPreview && !(window._usuariosCache||[]).some(function(u){return u.rol===rolPreview;})){
     var pass = credencialesActor_();
@@ -2773,8 +2795,8 @@ function olvidePasswordUI(){
 }
 // Oculta/deshabilita lo que el rol actual no puede tocar. Se llama al loguearse
 // y cada vez que se renderiza la tabla o se abre el detalle de una entrega.
-var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','kanban','reportes','historialcoms','casos','manual','maestro','tv'];
-var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'navKanban', reportes:'navReportes', historialcoms:'navHistorialComs', casos:'navCasos', manual:'navManual', maestro:'navMaestro', tv:'navTv'};
+var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','kanban','reportes','historialcoms','casos','notificaciones','manual','maestro','tv'];
+var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'navKanban', reportes:'navReportes', historialcoms:'navHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', manual:'navManual', maestro:'navMaestro', tv:'navTv'};
 function aplicarPermisosUI(){
   var puede = puedeEditar();
   var modulosDelUsuario = modulosUsuarioActual();
@@ -2793,7 +2815,7 @@ function aplicarPermisosUI(){
     // sin importar la lista de módulos por usuario ni los módulos globales (todavía no se
     // sumaron a ese sistema granular a propósito). Cuando estén listos para todo el equipo,
     // sacar este "if" y que entren en el flujo normal de abajo.
-    if(mod==='casos' || mod==='manual'){
+    if(mod==='casos' || mod==='manual' || mod==='notificaciones'){
       visible = esCalidad();
     } else {
       if(modulosUsuario) visible = modulosUsuario.indexOf(mod)>-1;
@@ -3203,7 +3225,7 @@ function activarVistaPrevia(){
 // ============================================================
 // NAVEGACIÓN POR VISTAS (Dashboard / Calendario / Lista / Maestro)
 // ============================================================
-var VISTAS_APP = ['dashboard','calendario','lista','kanban','historialcoms','casos','maestro','nuevaentrega','tv'];
+var VISTAS_APP = ['dashboard','calendario','lista','kanban','historialcoms','casos','notificaciones','maestro','nuevaentrega','tv'];
 // ============================================================
 // MODO TV — pantalla de solo lectura para monitor de la concesionaria.
 // Se actualiza sola (usa el mismo refresco silencioso de cada 25s que
@@ -3480,6 +3502,7 @@ function setAppView(view){
   if(view==='kanban') renderKanban();
   if(view==='historialcoms'){ cargarComunicacionesSiHaceFalta_().then(renderHistorialComs); }
   if(view==='casos'){ cargarCasosSiHaceFalta_().then(renderCasos); }
+  if(view==='notificaciones'){ renderNotificaciones(); }
 }
 
 function fmtFecha(d){ var dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0'); return dd+'/'+mm+'/'+d.getFullYear(); }
@@ -4325,6 +4348,69 @@ function cargarComunicacionesSiHaceFalta_(){
     _comunicacionesCargadas_ = true;
   }).catch(function(){ COMUNICACIONES = []; _comunicacionesCargadas_ = true; });
 }
+// ============================================================
+// BANDEJA DE ENTRADA (Notificaciones) — módulo propio de Planning
+// ============================================================
+function actualizarBadgeNotificaciones_(){
+  if(!esCalidad()) return;
+  gasGet('notificaciones').then(function(res){
+    if(!res.ok) return;
+    var noLeidas = (res.notificaciones||[]).filter(function(n){return !n.leida;}).length;
+    var badge = document.getElementById('navNotifBadge');
+    if(!badge) return;
+    if(noLeidas>0){ badge.textContent = noLeidas>99?'99+':noLeidas; badge.style.display='flex'; }
+    else badge.style.display='none';
+  });
+}
+function renderNotificaciones(){
+  var cont = document.getElementById('listaNotificaciones');
+  cont.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-faint);font-size:12.5px;">Cargando…</div>';
+  gasGet('notificaciones').then(function(res){
+    if(!res.ok){ cont.innerHTML = '<div style="padding:18px;color:var(--danger);">'+res.error+'</div>'; return; }
+    var notifs = res.notificaciones||[];
+    if(notifs.length===0){
+      cont.innerHTML = '<div class="report-wrap" style="padding:30px;text-align:center;color:var(--text-faint);font-size:12.5px;">Todavía no hay novedades acá.</div>';
+      return;
+    }
+    cont.innerHTML = notifs.map(function(n){
+      var icono = n.tipo==='caso_creado' ? 'add_circle' : 'sync';
+      return '<div onclick="marcarLeidaYNavegar_(\''+n.id+'\',\''+n.casoId+'\')" style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:9px;margin-bottom:6px;cursor:pointer;background:'+(n.leida?'var(--panel)':'var(--caso-soft)')+';border:1px solid '+(n.leida?'var(--hairline)':'var(--caso)')+';">'+
+        '<span class="material-symbols-outlined" style="color:var(--caso);font-size:18px;margin-top:1px;">'+icono+'</span>'+
+        '<div style="flex:1;">'+
+          '<div style="font-size:12.5px;color:var(--text);'+(n.leida?'':'font-weight:700;')+'">'+n.mensaje+'</div>'+
+          '<div style="font-size:10.5px;color:var(--text-faint);margin-top:3px;">'+n.fecha+(n.casoId?' · '+n.casoId:'')+'</div>'+
+        '</div>'+
+        (n.leida?'':'<span style="width:8px;height:8px;border-radius:50%;background:var(--caso);margin-top:5px;flex-shrink:0;"></span>')+
+      '</div>';
+    }).join('');
+  });
+}
+function marcarLeidaYNavegar_(id, casoId){
+  gasPost('marcarNotificacionLeida', {id:id}).then(function(){
+    actualizarBadgeNotificaciones_();
+    renderNotificaciones();
+  });
+  if(casoId) verSeguimientoGC_('', '', '', casoId);
+}
+function marcarTodasLeidasUI_(){
+  gasPost('marcarTodasNotificacionesLeidas', {}).then(function(res){
+    if(!res.ok){ showToast(res.error); return; }
+    showToast('Todo marcado como leído');
+    actualizarBadgeNotificaciones_();
+    renderNotificaciones();
+  });
+}
+function revisarActualizacionesUI_(){
+  var btn = document.getElementById('btnRevisarActualizaciones');
+  btn.disabled = true; btn.textContent = 'Revisando...';
+  gasPost('revisarActualizacionesCasos', {}).then(function(res){
+    btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">sync</span> Revisar actualizaciones en Gestión de Casos';
+    if(!res.ok){ showToast(res.error); return; }
+    showToast(res.actualizados>0 ? res.actualizados+' caso(s) con novedades' : 'Sin cambios nuevos por ahora');
+    actualizarBadgeNotificaciones_();
+    renderNotificaciones();
+  });
+}
 function cargarCasosSiHaceFalta_(){
   if(_casosCargadas_) return Promise.resolve();
   return gasGet('casos').then(function(res){
@@ -4426,6 +4512,23 @@ function renderCasos(){
   tabla.innerHTML = html;
 }
 function normalizarBusquedaCaso_(s){ return (s||'').toString().trim().toUpperCase(); }
+function toggleComentarioCasoExistente_(codigo){
+  var wrap = document.getElementById('comentarioCasoWrap_'+codigo);
+  var abierto = wrap.style.display!=='none';
+  wrap.style.display = abierto ? 'none' : 'block';
+  if(!abierto) document.getElementById('comentarioCasoInput_'+codigo).focus();
+}
+function agregarComentarioCasoExistenteUI_(codigo){
+  var texto = document.getElementById('comentarioCasoInput_'+codigo).value.trim();
+  if(!texto){ showToast('Escribí algo primero'); return; }
+  gasPost('agregarComentarioCaso', {codigo:codigo, autor:usuarioActual(), texto:texto}).then(function(res){
+    if(!res.ok){ showToast(res.error); return; }
+    var c = CASOS.find(function(x){return x.id===codigo;});
+    if(c) c.historial = res.historial;
+    showToast('Comentario agregado a '+codigo+' — sin duplicar el caso');
+    buscarClienteParaCaso();
+  });
+}
 function buscarClienteParaCaso(){
   var qRaw = document.getElementById('casosBuscarCliente').value;
   var q = normalizarBusquedaCaso_(qRaw);
@@ -4462,10 +4565,19 @@ function buscarClienteParaCaso(){
   }
 
   if(casosPrevios.length){
-    html += '<div style="font-size:11px;font-weight:700;color:var(--caso);margin:10px 0 6px;text-transform:uppercase;letter-spacing:.4px;">Casos anteriores de este cliente ('+casosPrevios.length+')</div>';
+    html += '<div style="font-size:11px;font-weight:700;color:var(--caso);margin:10px 0 6px;text-transform:uppercase;letter-spacing:.4px;">Casos anteriores de este cliente ('+casosPrevios.length+') — sumá una novedad ahí en vez de duplicar</div>';
     casosPrevios.sort(function(a,b){ return (b.fechaReporte||'').localeCompare(a.fechaReporte||''); }).forEach(function(c){
-      html += '<div style="font-size:11.5px;color:var(--text-dim);border-left:3px solid var(--caso);padding:5px 9px;margin-bottom:5px;">'+
-        fmtFechaCaso_(c.fechaReporte)+' · <b>'+(c.areaOrigen||'—')+'</b> · '+(c.motivo||'—')+' · reportado por '+(c.reportadoPor||'—')+
+      var ultimaNovedad = (c.historial && c.historial.length) ? c.historial[c.historial.length-1] : null;
+      html += '<div style="border-left:3px solid var(--caso);padding:8px 11px;margin-bottom:8px;background:var(--panel-2);border-radius:0 8px 8px 0;">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">'+
+          '<div style="font-size:11.5px;color:var(--text-dim);"><span class="mono" style="color:var(--caso);font-weight:700;">'+c.id+'</span> · '+fmtFechaCaso_(c.fechaReporte)+' · <b>'+(c.areaOrigen||'—')+'</b> · '+(c.motivo||'—')+' · reportado por '+(c.reportadoPor||'—')+'</div>'+
+          '<button class="comms-btn" style="width:auto;margin:0;white-space:nowrap;padding:5px 10px;font-size:11px;" onclick="toggleComentarioCasoExistente_(\''+c.id+'\')">+ Agregar comentario</button>'+
+        '</div>'+
+        (ultimaNovedad ? '<div style="font-size:10.5px;color:var(--text-faint);margin-top:5px;">Última novedad ('+ultimaNovedad.fecha+' — '+ultimaNovedad.autor+'): '+ultimaNovedad.texto+'</div>' : '')+
+        '<div id="comentarioCasoWrap_'+c.id+'" style="display:none;margin-top:8px;">'+
+          '<textarea id="comentarioCasoInput_'+c.id+'" placeholder="Escribí la novedad para sumar a este mismo caso..." style="width:100%;min-height:48px;background:var(--panel);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:7px 9px;font-size:11.5px;font-family:inherit;resize:vertical;"></textarea>'+
+          '<button class="comms-btn primary" style="width:100%;margin:5px 0 0;" onclick="agregarComentarioCasoExistenteUI_(\''+c.id+'\')">Guardar en este caso</button>'+
+        '</div>'+
       '</div>';
     });
   } else {
@@ -5919,12 +6031,7 @@ function openDetail(marca, id){
   var campanaSection=document.getElementById('dCampanaSection');
   campanaSection.style.display='block';
   document.getElementById('dCampanaInput').value = r.campanaTexto || '';
-  var campBtn=document.getElementById('dCampanaToggle');
-  if(r.campanaTexto){
-    campBtn.style.display='block';
-    campBtn.textContent = r.campanaControlada ? ('✓ Controlada'+(r.campanaControladaFecha?' — '+r.campanaControladaFecha:'')) : '⚠ Pendiente de controlar';
-    campBtn.className='toggle-btn '+(r.campanaControlada?'done':'pending');
-  } else { campBtn.style.display='none'; }
+  renderCampanaDualUI_(r);
   document.getElementById('dVendedor').value = r.vendedor || '';
   document.getElementById('dAdministrativo').value = r.administrativo || '';
   document.getElementById('dResponsable').value = r.responsableEntrega || '';
@@ -6182,7 +6289,8 @@ var ITEMS_COLOCADO_CONFIG_ = {
   manual:         {corresponde:'manual',         colocado:'manualEntregado',             fecha:'manualEntregadoFecha',             motivo:'manualMotivo',         pendienteStock:'manualPendienteStock',         label:'Manual del vehículo', render:'renderManualUI'},
   llaveDuplicada: {corresponde:'llaveDuplicada', colocado:'llaveDuplicadaEntregada',      fecha:'llaveDuplicadaEntregadaFecha',     motivo:'llaveDuplicadaMotivo', pendienteStock:'llaveDuplicadaPendienteStock', label:'Llave duplicada',    render:'renderLlaveDuplicadaUI'},
   alfombras:      {corresponde:'alfombras',      colocado:'alfombrasColocadas',           fecha:'alfombrasColocadasFecha',          motivo:'alfombrasMotivo',      pendienteStock:'alfombrasPendienteStock',      label:'Alfombras',          render:'renderAlfombrasUI'},
-  accesorios:     {corresponde:'accesorios',     colocado:'accesoriosColocado',           fecha:'accesoriosColocadoFecha',          motivo:'accesoriosMotivo',     pendienteStock:'accesoriosPendienteStock',     label:'Accesorio',          render:'renderAccDualUI_'}
+  accesorios:     {corresponde:'accesorios',     colocado:'accesoriosColocado',           fecha:'accesoriosColocadoFecha',          motivo:'accesoriosMotivo',     pendienteStock:'accesoriosPendienteStock',     label:'Accesorio',          render:'renderAccDualUI_'},
+  campana:        {corresponde:'campanaTexto',   colocado:'campanaControlada',            fecha:'campanaControladaFecha',           motivo:'campanaMotivo',        pendienteStock:'campanaPendienteStock',        label:'Campaña',            render:'renderCampanaDualUI_'}
 };
 // Devuelve el estado actual: 'colocado' | 'no_colocado' | 'pendiente'
 function estadoItemActual_(cfg, r){
@@ -6196,7 +6304,7 @@ function renderDualToggleUI_(itemKey, r){
   var idBase = itemKey.charAt(0).toUpperCase()+itemKey.slice(1);
   var wrap = document.getElementById('d'+idBase+'ToggleWrap');
   if(!wrap) return;
-  var corresponde = itemKey==='accesorios' ? !!r.accesorios : !!r[cfg.corresponde];
+  var corresponde = itemKey==='accesorios' ? !!r.accesorios : itemKey==='campana' ? !!r.campanaTexto : !!r[cfg.corresponde];
   var obsWrap = document.getElementById('d'+idBase+'ObsWrap');
   if(!corresponde){ wrap.style.display='none'; if(obsWrap) obsWrap.style.display='none'; return; }
   wrap.style.display='flex';
@@ -6286,6 +6394,7 @@ function guardarEstadoItem_(itemKey){
   showToast(cfg.label+' guardado: '+etiquetaEstado);
 }
 function renderAccDualUI_(r){ renderDualToggleUI_('accesorios', r); }
+function renderCampanaDualUI_(r){ renderDualToggleUI_('campana', r); }
 var _motivoCallback_ = null;
 function pedirObservacionPendiente_(itemLabel, callback, tituloCustom){
   _motivoCallback_ = callback;
@@ -6310,8 +6419,8 @@ function guardarCampanaTexto(valor){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
   r.campanaTexto = valor.trim();
-  if(!r.campanaTexto){ r.campanaControlada=false; r.campanaControladaFecha=''; }
-  gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{campanaTexto:r.campanaTexto, campanaControlada:r.campanaControlada, campanaControladaFecha:r.campanaControladaFecha||''}});
+  if(!r.campanaTexto){ r.campanaControlada=false; r.campanaControladaFecha=''; r.campanaMotivo=''; r.campanaPendienteStock=false; }
+  gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{campanaTexto:r.campanaTexto, campanaControlada:r.campanaControlada, campanaControladaFecha:r.campanaControladaFecha||'', campanaMotivo:r.campanaMotivo||'', campanaPendienteStock:r.campanaPendienteStock||false}});
   logHistorial_(detailMarca, detailId, r.campanaTexto ? ('Campaña cargada: '+r.campanaTexto) : 'Se quitó la campaña cargada');
   openDetail(detailMarca, detailId);
   renderAll();
@@ -6903,6 +7012,15 @@ function submitNewDelivery(){
     return;
   } else {
     warningEl.style.display='none';
+  }
+
+  // Recomendación (no bloquea el guardado): si falta menos de 2hs para la
+  // entrega, sugerimos agendar con 48hs de anticipación de acá en adelante,
+  // así Logística tiene tiempo de preparar la unidad.
+  var fechaHoraEntrega = new Date(fechaVal+'T'+horaVal);
+  var horasFaltantes = (fechaHoraEntrega.getTime() - Date.now()) / (1000*60*60);
+  if(horasFaltantes >= 0 && horasFaltantes < 2){
+    showToast('⚠ Quedan menos de 2hs para esta entrega — para la próxima, recomendamos agendar con 48hs de anticipación para que Logística pueda prepararla.');
   }
 
   submittingEntrega = true;
