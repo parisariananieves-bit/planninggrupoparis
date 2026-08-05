@@ -2186,6 +2186,10 @@
         <button class="dual-toggle-btn si" id="dAccesoriosBtnSi" onclick="marcarEstadoItem_('accesorios', 'colocado')"><span class="material-symbols-outlined">check_circle</span>Colocado</button>
       </div>
       <div class="dual-toggle-fecha"></div>
+      <div class="obs-wrap" id="dAccesoriosObsWrap" style="display:none;margin-top:8px;">
+        <textarea id="dAccesoriosObsInput" placeholder="Observación (ej: sin stock, cliente no lo quiso)..." style="width:100%;min-height:48px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:11.5px;font-family:inherit;resize:vertical;"></textarea>
+        <button onclick="guardarEstadoItem_('accesorios')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
+      </div>
     </div>
 
     <div class="section">
@@ -2200,6 +2204,10 @@
         <button class="dual-toggle-btn si" id="dLlaveDuplicadaBtnSi" onclick="marcarEstadoItem_('llaveDuplicada', 'colocado')"><span class="material-symbols-outlined">check_circle</span>Colocado</button>
       </div>
       <div class="dual-toggle-fecha"></div>
+      <div class="obs-wrap" id="dLlaveDuplicadaObsWrap" style="display:none;margin-top:8px;">
+        <textarea id="dLlaveDuplicadaObsInput" placeholder="Observación (ej: sin stock, cliente no lo quiso)..." style="width:100%;min-height:48px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:11.5px;font-family:inherit;resize:vertical;"></textarea>
+        <button onclick="guardarEstadoItem_('llaveDuplicada')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
+      </div>
     </div>
 
     <div class="section">
@@ -2214,6 +2222,10 @@
         <button class="dual-toggle-btn si" id="dAlfombrasBtnSi" onclick="marcarEstadoItem_('alfombras', 'colocado')"><span class="material-symbols-outlined">check_circle</span>Colocado</button>
       </div>
       <div class="dual-toggle-fecha"></div>
+      <div class="obs-wrap" id="dAlfombrasObsWrap" style="display:none;margin-top:8px;">
+        <textarea id="dAlfombrasObsInput" placeholder="Observación (ej: sin stock, cliente no lo quiso)..." style="width:100%;min-height:48px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:11.5px;font-family:inherit;resize:vertical;"></textarea>
+        <button onclick="guardarEstadoItem_('alfombras')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
+      </div>
     </div>
 
     <div class="section">
@@ -2228,6 +2240,10 @@
         <button class="dual-toggle-btn si" id="dKitSeguridadBtnSi" onclick="marcarEstadoItem_('kitSeguridad', 'colocado')"><span class="material-symbols-outlined">check_circle</span>Colocado</button>
       </div>
       <div class="dual-toggle-fecha"></div>
+      <div class="obs-wrap" id="dKitSeguridadObsWrap" style="display:none;margin-top:8px;">
+        <textarea id="dKitSeguridadObsInput" placeholder="Observación (ej: sin stock, cliente no lo quiso)..." style="width:100%;min-height:48px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:11.5px;font-family:inherit;resize:vertical;"></textarea>
+        <button onclick="guardarEstadoItem_('kitSeguridad')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
+      </div>
     </div>
 
     <div class="section" id="dCampanaSection" style="display:none;">
@@ -2260,6 +2276,10 @@
         <button class="dual-toggle-btn si" id="dManualBtnSi" onclick="marcarEstadoItem_('manual', 'colocado')"><span class="material-symbols-outlined">check_circle</span>Entregado</button>
       </div>
       <div class="dual-toggle-fecha"></div>
+      <div class="obs-wrap" id="dManualObsWrap" style="display:none;margin-top:8px;">
+        <textarea id="dManualObsInput" placeholder="Observación (ej: sin stock, cliente no lo quiso)..." style="width:100%;min-height:48px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:11.5px;font-family:inherit;resize:vertical;"></textarea>
+        <button onclick="guardarEstadoItem_('manual')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
+      </div>
     </div>
 
     <div class="section" id="dOnstarSection">
@@ -2387,6 +2407,14 @@
     <input id="resetPasswordInput" type="text" placeholder="Nueva contraseña (mínimo 4 caracteres)" onkeydown="if(event.key==='Enter'){confirmarResetPassword();}" style="width:100%;box-sizing:border-box;padding:10px 12px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);font-size:13px;">
     <button class="email-action-btn" onclick="confirmarResetPassword()">Guardar nueva contraseña</button>
   </div>
+</div>
+
+<div class="modal" id="modalSeguimientoGC">
+  <div class="modal-head">
+    <div><h3><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">visibility</span> Seguimiento en Gestión de Casos</h3><div class="sub">Solo lectura — el seguimiento y la resolución se hacen en la otra web.</div></div>
+    <button class="close" onclick="cerrarModalSeguimientoGC_()">✕</button>
+  </div>
+  <div class="modal-body" id="seguimientoGCBody"></div>
 </div>
 
 <div class="modal" id="modalNpsDetalle">
@@ -4313,6 +4341,51 @@ function fmtFechaCaso_(valor){
   var mi = String(d.getMinutes()).padStart(2,'0');
   return dd+'/'+mm+'/'+d.getFullYear()+' '+hh+':'+mi;
 }
+// Consulta de solo lectura a la planilla de Gestión de Casos — matchea por
+// el código del caso (origenId), VIN/dominio, DNI o nombre de cliente.
+function verSeguimientoGC_(dominio, cliente, dni, origenId){
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('modalSeguimientoGC').classList.add('show');
+  document.getElementById('seguimientoGCBody').innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-faint);font-size:12.5px;">Consultando Gestión de Casos…</div>';
+  gasGet('seguimientoGestionCasos', {dominio:dominio||'', cliente:cliente||'', dni:dni||'', origenId:origenId||''}).then(function(res){
+    var body = document.getElementById('seguimientoGCBody');
+    if(!res.ok){ body.innerHTML = '<div style="padding:18px;color:var(--danger);font-size:12.5px;">'+res.error+'</div>'; return; }
+    if(!res.casos || res.casos.length===0){
+      body.innerHTML = '<div style="padding:18px;color:var(--text-faint);font-size:12.5px;">Todavía no hay ningún caso en Gestión de Casos para este cliente/vehículo.<br>Puede ser porque el caso reportado acá todavía no fue confirmado del otro lado (Bandeja de entrada de Gestión de Casos).</div>';
+      return;
+    }
+    body.innerHTML = res.casos.map(function(c){
+      var colorEstado = c.estado==='cerrado'||c.estado==='resuelto' ? 'var(--ok)' : (c.estado==='nuevo' ? 'var(--caso)' : 'var(--warn)');
+      var colorPrio = c.prioridad==='Alta' ? 'var(--danger)' : (c.prioridad==='Media' ? 'var(--warn)' : 'var(--text-dim)');
+      return '<div style="border:1px solid var(--hairline);border-radius:9px;padding:12px 14px;margin-bottom:10px;">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'+
+          '<span class="mono" style="font-weight:700;color:var(--caso);">'+c.id+'</span>'+
+          '<span style="font-weight:700;font-size:11px;color:'+colorEstado+';text-transform:uppercase;">'+c.estado+'</span>'+
+        '</div>'+
+        '<div style="font-size:12px;color:var(--text-dim);margin-bottom:3px;">Prioridad: <b style="color:'+colorPrio+';">'+c.prioridad+'</b> · Responsable: <b>'+c.responsable+'</b></div>'+
+        '<div style="font-size:12px;color:var(--text-dim);margin-bottom:3px;">Motivo: '+(c.motivo||'—')+'</div>'+
+        (c.proximaAccion ? '<div style="font-size:12px;color:var(--text-dim);margin-bottom:3px;">Próxima acción: '+c.proximaAccion+'</div>' : '')+
+        (c.ultimaNovedad ? '<div style="margin-top:8px;background:var(--panel-2);border-radius:7px;padding:8px 10px;font-size:11.5px;"><b>Última novedad</b> ('+c.ultimaNovedad.fecha+' — '+c.ultimaNovedad.autor+'): '+c.ultimaNovedad.texto+'</div>' : '')+
+        '<div style="font-size:10.5px;color:var(--text-faint);margin-top:6px;">Actualizado: '+c.fechaUltimaActualizacion+'</div>'+
+      '</div>';
+    }).join('');
+  }).catch(function(){
+    document.getElementById('seguimientoGCBody').innerHTML = '<div style="padding:18px;color:var(--danger);font-size:12.5px;">No se pudo conectar con Gestión de Casos.</div>';
+  });
+}
+function cerrarModalSeguimientoGC_(){
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('modalSeguimientoGC').classList.remove('show');
+}
+function eliminarCasoUI_(codigo){
+  if(!confirm('¿Eliminar el caso '+codigo+'? Esta acción no se puede deshacer — usalo solo si se cargó por error.')) return;
+  gasPost('eliminarCaso', {codigo:codigo}).then(function(res){
+    if(!res.ok){ showToast(res.error||'No se pudo eliminar'); return; }
+    _casosCargadas_ = false;
+    showToast('Caso '+codigo+' eliminado');
+    cargarCasosSiHaceFalta_().then(renderCasos);
+  });
+}
 function renderCasos(){
   var tabla = document.getElementById('casosTabla');
   if(!tabla) return;
@@ -4328,7 +4401,7 @@ function renderCasos(){
     tabla.innerHTML = '<tr><td style="text-align:center;color:var(--text-faint);padding:24px;">Todavía no se reportó ningún caso.</td></tr>';
     return;
   }
-  var html = '<tr><th>Código</th><th>Fecha</th><th>Marca</th><th>Cliente</th><th>DNI</th><th>Teléfono</th><th>Vehículo</th><th>Dominio/VIN</th><th>Área</th><th>Tipo</th><th>Motivo</th><th>Prioridad</th><th>Reportado por</th></tr>';
+  var html = '<tr><th>Código</th><th>Fecha</th><th>Marca</th><th>Cliente</th><th>DNI</th><th>Teléfono</th><th>Vehículo</th><th>Dominio/VIN</th><th>Área</th><th>Tipo</th><th>Motivo</th><th>Prioridad</th><th>Reportado por</th><th></th></tr>';
   rows.forEach(function(c){
     var b = BRANDS.find(function(x){return x.id===c.marca;});
     var prioColor = c.prioridad==='Alta' ? 'var(--danger)' : (c.prioridad==='Media' ? 'var(--warn)' : 'var(--text-dim)');
@@ -4346,6 +4419,7 @@ function renderCasos(){
       '<td>'+(c.motivo||'—')+'</td>'+
       '<td style="font-weight:700;color:'+prioColor+';">'+(c.prioridad||'—')+'</td>'+
       '<td>'+(c.reportadoPor||'—')+'</td>'+
+      '<td><button onclick="event.stopPropagation();verSeguimientoGC_(\''+(c.dominio||c.chasis||'')+'\',\''+c.cliente+'\',\''+(c.dni||'')+'\',\''+c.id+'\')" title="Ver seguimiento en Gestión de Casos" style="background:none;border:none;color:var(--caso);cursor:pointer;padding:4px;margin-right:2px;"><span class="material-symbols-outlined" style="font-size:16px;">visibility</span></button><button onclick="event.stopPropagation();eliminarCasoUI_(\''+c.id+'\')" title="Eliminar caso (por si se cargó por error)" style="background:none;border:none;color:var(--text-faint);cursor:pointer;padding:4px;"><span class="material-symbols-outlined" style="font-size:16px;">delete</span></button></td>'+
     '</tr>';
   });
   tabla.innerHTML = html;
@@ -4465,6 +4539,29 @@ function abrirModalCaso(marca, id){
 // solo visible para Calidad (el módulo de Casos todavía está en desarrollo, admin-only).
 // Como acá no se hace seguimiento de estado (eso vive en el sistema aparte de Calidad),
 // mostramos cualquier caso reportado a este cliente, sin distinguir abierto/cerrado.
+// Evita reportar dos veces un caso para la MISMA entrega: si ya existe un
+// caso con este entregaId, el botón queda deshabilitado y lleva directo al
+// seguimiento en vez de abrir el formulario de nuevo.
+function renderBotonAbrirCaso_(r){
+  var btn = document.getElementById('dBtnAbrirCaso');
+  if(!btn || !esCalidad()) return;
+  function pintar(){
+    var existente = CASOS.find(function(c){ return String(c.entregaId)===String(r.id) && c.marca===r.marca; });
+    if(existente){
+      btn.disabled = true;
+      btn.style.opacity = '0.6'; btn.style.cursor = 'pointer'; btn.style.background = 'var(--panel-2)'; btn.style.color = 'var(--text-dim)';
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">visibility</span> Ya tiene un caso ('+existente.id+') — Ver seguimiento';
+      btn.onclick = function(){ verSeguimientoGC_(r.dominio||r.chasis||'', r.cliente, '', existente.id); };
+    } else {
+      btn.disabled = false;
+      btn.style.opacity = '1'; btn.style.cursor = 'pointer'; btn.style.background = 'var(--caso-soft)'; btn.style.color = 'var(--caso)';
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">report</span> Abrir caso';
+      btn.onclick = function(){ abrirModalCaso(r.marca, r.id); };
+    }
+  }
+  if(_casosCargadas_) pintar();
+  else cargarCasosSiHaceFalta_().then(pintar);
+}
 function renderAlertaCasoAbierto_(r){
   var el = document.getElementById('dCasoAbiertoAlerta');
   if(!el) return;
@@ -4554,8 +4651,23 @@ function guardarCasoUI(){
     if(r) logHistorial_(r.marca, r.id, '🚩 Caso reportado ('+payload.areaOrigen+'): '+motivo);
     document.getElementById('casoFormWrap').style.display = 'none';
     document.getElementById('casoConfirmWrap').style.display = 'block';
-    document.getElementById('casoConfirmCodigo').textContent = res.codigo || res.id || '—';
-    if(currentAppView==='casos'){ cargarCasosSiHaceFalta_().then(function(){ renderCasos(); var qEl=document.getElementById('casosBuscarCliente'); if(qEl && qEl.value) buscarClienteParaCaso(); }); }
+    var codigoEl = document.getElementById('casoConfirmCodigo');
+    if(res.codigo || res.id){
+      codigoEl.textContent = res.codigo || res.id;
+      if(currentAppView==='casos'){ cargarCasosSiHaceFalta_().then(function(){ renderCasos(); var qEl=document.getElementById('casosBuscarCliente'); if(qEl && qEl.value) buscarClienteParaCaso(); }); }
+    } else {
+      // Por las dudas la respuesta llegó sin el código (ej: Apps Script tardó
+      // mucho en "despertar" la primera vez), lo buscamos en el listado recién
+      // guardado en vez de dejar un guión sin explicación.
+      codigoEl.textContent = 'Buscando…';
+      _casosCargadas_ = false;
+      cargarCasosSiHaceFalta_().then(function(){
+        var ultimo = CASOS.filter(function(c){ return c.cliente===payload.cliente; })
+          .sort(function(a,b){ return (b.fechaReporte||'').localeCompare(a.fechaReporte||''); })[0];
+        codigoEl.textContent = ultimo ? ultimo.id : 'Revisá el listado de Casos';
+        if(currentAppView==='casos'){ renderCasos(); }
+      });
+    }
   }).catch(function(){
     btn.disabled = false; btn.textContent = 'Enviar a Calidad →';
     showToast('Error de conexión, probá de nuevo');
@@ -5784,6 +5896,7 @@ function openDetail(marca, id){
   renderEstadoBienvenida_(r);
   var btnAbrirCaso = document.getElementById('dBtnAbrirCaso');
   if(btnAbrirCaso) btnAbrirCaso.style.display = esCalidad() ? '' : 'none';
+  renderBotonAbrirCaso_(r);
   document.getElementById('dCliente').value=r.cliente;
   document.getElementById('dTelefono').value=r.telefono||'';
   document.getElementById('dEmail').value=r.email||'';
@@ -6075,10 +6188,12 @@ function estadoItemActual_(cfg, r){
 }
 function renderDualToggleUI_(itemKey, r){
   var cfg = ITEMS_COLOCADO_CONFIG_[itemKey];
-  var wrap = document.getElementById('d'+itemKey.charAt(0).toUpperCase()+itemKey.slice(1)+'ToggleWrap');
+  var idBase = itemKey.charAt(0).toUpperCase()+itemKey.slice(1);
+  var wrap = document.getElementById('d'+idBase+'ToggleWrap');
   if(!wrap) return;
   var corresponde = itemKey==='accesorios' ? !!r.accesorios : !!r[cfg.corresponde];
-  if(!corresponde){ wrap.style.display='none'; return; }
+  var obsWrap = document.getElementById('d'+idBase+'ObsWrap');
+  if(!corresponde){ wrap.style.display='none'; if(obsWrap) obsWrap.style.display='none'; return; }
   wrap.style.display='flex';
   var estado = estadoItemActual_(cfg, r);
   var btnSi = wrap.querySelector('.dual-toggle-btn.si');
@@ -6090,37 +6205,80 @@ function renderDualToggleUI_(itemKey, r){
   var fechaEl = wrap.parentElement.querySelector('.dual-toggle-fecha');
   if(fechaEl){
     if(estado==='colocado' && r[cfg.fecha]) fechaEl.textContent = 'Colocado — '+r[cfg.fecha];
-    else if(estado==='no_colocado' && r[cfg.motivo]) fechaEl.textContent = 'No colocado — Motivo: '+r[cfg.motivo];
-    else if(estado==='pendiente' && r[cfg.motivo]) fechaEl.textContent = 'Pendiente — '+r[cfg.motivo];
+    else if(estado==='no_colocado' && r[cfg.motivo]) fechaEl.textContent = 'No colocado — Observación: '+r[cfg.motivo];
+    else if(estado==='pendiente' && r[cfg.motivo]) fechaEl.textContent = 'Pendiente — Observación: '+r[cfg.motivo];
     else fechaEl.textContent = '';
+  }
+  // El cuadro de observaciones solo se muestra si el estado es pendiente/no
+  // colocado (colocado no necesita explicación), y se precarga con lo que
+  // ya estuviera guardado para poder corregirlo sin perderlo.
+  if(obsWrap){
+    if(estado==='colocado'){ obsWrap.style.display='none'; }
+    else {
+      obsWrap.style.display='block';
+      var obsInput = document.getElementById('d'+idBase+'ObsInput');
+      if(obsInput && document.activeElement!==obsInput) obsInput.value = r[cfg.motivo] || '';
+    }
   }
 }
 // Cambia el estado de un ítem a 'pendiente' | 'no_colocado' | 'colocado'.
-// 'no_colocado' y 'pendiente' piden una observación breve (ej: "sin stock", "cliente no lo quiso").
+// 'colocado' se guarda al toque (no necesita explicación). 'pendiente' y
+// 'no_colocado' solo mueven la selección visual y muestran el cuadro de
+// observaciones — recién se guardan cuando se aprieta "Guardar" (ver
+// guardarEstadoItem_), así queda la observación siempre a la vista, sin
+// depender de un popup aparte.
 function marcarEstadoItem_(itemKey, nuevoEstado){
   if(!detailId) return;
   var cfg = ITEMS_COLOCADO_CONFIG_[itemKey];
   var marca=detailMarca, id=detailId;
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
-  if(estadoItemActual_(cfg, r)===nuevoEstado) return; // ya estaba en ese estado, no repetir
-  function aplicar(motivo){
-    r[cfg.colocado] = (nuevoEstado==='colocado');
-    r[cfg.pendienteStock] = (nuevoEstado==='pendiente');
-    r[cfg.fecha] = nuevoEstado==='colocado' ? fechaHoraAhora_() : '';
-    r[cfg.motivo] = nuevoEstado==='colocado' ? '' : (motivo||'');
-    var fields = {}; fields[cfg.colocado]=r[cfg.colocado]; fields[cfg.pendienteStock]=r[cfg.pendienteStock]; fields[cfg.fecha]=r[cfg.fecha]; fields[cfg.motivo]=r[cfg.motivo];
+
+  if(nuevoEstado==='colocado'){
+    r[cfg.colocado] = true; r[cfg.pendienteStock] = false;
+    r[cfg.fecha] = fechaHoraAhora_(); r[cfg.motivo] = '';
+    var fields = {}; fields[cfg.colocado]=true; fields[cfg.pendienteStock]=false; fields[cfg.fecha]=r[cfg.fecha]; fields[cfg.motivo]='';
     gasPost('updateEntregaFields',{marca:marca,id:id,fields:fields});
-    var etiquetaEstado = nuevoEstado==='colocado' ? 'colocado' : (nuevoEstado==='pendiente' ? 'pendiente (sin stock u otro motivo)' : 'no colocado');
-    logHistorial_(marca, id, cfg.label+' marcado como '+etiquetaEstado+(motivo?' — '+motivo:''));
+    logHistorial_(marca, id, cfg.label+' marcado como colocado');
     window[cfg.render](r);
     renderAll();
-    showToast(cfg.label+': '+etiquetaEstado);
+    showToast(cfg.label+': colocado');
+    return;
   }
-  if(nuevoEstado!=='colocado'){
-    var tituloObs = nuevoEstado==='pendiente' ? '¿Por qué "'+cfg.label+'" queda pendiente? (ej: sin stock)' : '¿Por qué "'+cfg.label+'" queda como no colocado?';
-    pedirObservacionPendiente_(cfg.label, function(motivo){ if(motivo!==null) aplicar(motivo); }, tituloObs);
-  }
-  else { aplicar(''); }
+  // Pendiente / No colocado: solo mueve la selección visual y muestra el
+  // cuadro de observaciones — todavía no se guarda nada en la planilla.
+  var idBase = itemKey.charAt(0).toUpperCase()+itemKey.slice(1);
+  var wrap = document.getElementById('d'+idBase+'ToggleWrap');
+  wrap.querySelector('.dual-toggle-btn.si').classList.remove('active');
+  wrap.querySelector('.dual-toggle-btn.no').classList.toggle('active', nuevoEstado==='no_colocado');
+  wrap.querySelector('.dual-toggle-btn.pend').classList.toggle('active', nuevoEstado==='pendiente');
+  var obsWrap = document.getElementById('d'+idBase+'ObsWrap');
+  obsWrap.style.display = 'block';
+  obsWrap.dataset.estadoSeleccionado = nuevoEstado;
+  document.getElementById('d'+idBase+'ObsInput').focus();
+}
+// Se llama al apretar "Guardar" en el cuadro de observaciones — recién acá
+// se persiste el estado pendiente/no colocado junto con la observación.
+function guardarEstadoItem_(itemKey){
+  if(!detailId) return;
+  var cfg = ITEMS_COLOCADO_CONFIG_[itemKey];
+  var marca=detailMarca, id=detailId;
+  var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
+  var idBase = itemKey.charAt(0).toUpperCase()+itemKey.slice(1);
+  var obsWrap = document.getElementById('d'+idBase+'ObsWrap');
+  var nuevoEstado = obsWrap.dataset.estadoSeleccionado || estadoItemActual_(cfg, r);
+  var observacion = document.getElementById('d'+idBase+'ObsInput').value.trim();
+
+  r[cfg.colocado] = false;
+  r[cfg.pendienteStock] = (nuevoEstado==='pendiente');
+  r[cfg.fecha] = '';
+  r[cfg.motivo] = observacion;
+  var fields = {}; fields[cfg.colocado]=false; fields[cfg.pendienteStock]=r[cfg.pendienteStock]; fields[cfg.fecha]=''; fields[cfg.motivo]=observacion;
+  gasPost('updateEntregaFields',{marca:marca,id:id,fields:fields});
+  var etiquetaEstado = nuevoEstado==='pendiente' ? 'pendiente' : 'no colocado';
+  logHistorial_(marca, id, cfg.label+' marcado como '+etiquetaEstado+(observacion?' — '+observacion:''));
+  window[cfg.render](r);
+  renderAll();
+  showToast(cfg.label+' guardado: '+etiquetaEstado);
 }
 function renderAccDualUI_(r){ renderDualToggleUI_('accesorios', r); }
 var _motivoCallback_ = null;
