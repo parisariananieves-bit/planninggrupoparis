@@ -777,10 +777,11 @@
   .sidebar:hover .sidebar-user-toggle .info,.sidebar.pinned .sidebar-user-toggle .info{opacity:1;max-width:160px;}
   .sidebar-nav{padding:0 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;min-height:0;flex:1 1 auto;}
   .nav-item{display:flex;align-items:center;gap:8px;padding:7px 13px;border-radius:9px;color:#9099ac;font-size:10.5px;font-weight:600;cursor:pointer;border:none;background:none;text-align:left;width:100%;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;white-space:nowrap;}
-  .nav-section-label{padding:12px 13px 3px;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#5b6270;white-space:nowrap;}
-  .sidebar:not(:hover):not(.pinned) .nav-section-label{display:none;}
-  .nav-item.nav-sub{padding-left:26px;}
-  .sidebar:not(:hover):not(.pinned) .nav-item.nav-sub{padding-left:0;}
+  .nav-section-toggle .nav-section-chevron{transition:transform .15s ease;}
+  .nav-section-toggle.collapsed .nav-section-chevron{transform:rotate(-90deg);}
+  .nav-sub-logistica{padding-left:26px;overflow:hidden;max-height:34px;transition:max-height .18s ease, opacity .15s ease, padding .18s ease;}
+  .nav-sub-logistica.nav-sub-collapsed{max-height:0;opacity:0;padding-top:0;padding-bottom:0;pointer-events:none;}
+  .sidebar:not(:hover):not(.pinned) .nav-sub-logistica{padding-left:0;}
   .sidebar:not(:hover):not(.pinned) .nav-item{justify-content:center;padding-left:0;padding-right:0;}
   .nav-item .material-symbols-outlined{font-size:18px;flex-shrink:0;}
   .nav-item:hover{background:#161b28;color:#fff;}
@@ -1080,9 +1081,9 @@
         <button class="nav-item nav-item-highlight" id="navNuevaentrega" title="Nueva Entrega" onclick="openNewDelivery()"><span class="material-symbols-outlined">add_circle</span><span class="nav-label">Nueva Entrega</span></button>
         <button class="nav-item" id="navCalendario" title="Calendario" onclick="setAppView('calendario')"><span class="material-symbols-outlined">calendar_today</span><span class="nav-label">Calendario</span></button>
         <button class="nav-item" id="navLista" title="Lista de Entregas" onclick="setAppView('lista')"><span class="material-symbols-outlined">list_alt</span><span class="nav-label">Lista de Entregas</span></button>
-        <div class="nav-section-label" id="navSeccionLogistica">Logística</div>
-        <button class="nav-item nav-sub" id="navKanban" title="Asignación Logística" onclick="setAppView('kanban')"><span class="material-symbols-outlined">view_kanban</span><span class="nav-label">Asignación</span></button>
-        <button class="nav-item nav-sub" id="navTraslados" title="Traslados" onclick="setAppView('traslados')"><span class="material-symbols-outlined">local_shipping</span><span class="nav-label">Traslado</span></button>
+        <button class="nav-item nav-section-toggle" id="navSeccionLogistica" onclick="toggleSeccionLogistica_()"><span class="material-symbols-outlined">local_shipping</span><span class="nav-label">Logística</span><span class="material-symbols-outlined nav-section-chevron" id="navSeccionLogisticaChevron" style="margin-left:auto;font-size:16px;">expand_more</span></button>
+        <button class="nav-item nav-sub nav-sub-logistica" id="navKanban" title="Asignación Logística" onclick="setAppView('kanban')"><span class="material-symbols-outlined">view_kanban</span><span class="nav-label">Asignación</span></button>
+        <button class="nav-item nav-sub nav-sub-logistica" id="navTraslados" title="Traslados" onclick="setAppView('traslados')"><span class="material-symbols-outlined">local_shipping</span><span class="nav-label">Traslado</span></button>
         <button class="nav-item" id="navReportes" title="Reportes" onclick="irAReportes()"><span class="material-symbols-outlined">analytics</span><span class="nav-label">Reportes</span></button>
         <div class="nav-submenu" id="submenuReportes" style="display:none;">
           <button class="nav-subitem" id="subReportesDashboard" onclick="setMaestroTab('dashboard')">Dashboard</button>
@@ -2845,6 +2846,21 @@ function olvidePasswordUI(){
 // y cada vez que se renderiza la tabla o se abre el detalle de una entrega.
 var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','kanban','traslados','reportes','historialcoms','casos','notificaciones','manual','maestro','tv'];
 var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'navKanban', traslados:'navTraslados', reportes:'navReportes', historialcoms:'navHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', manual:'navManual', maestro:'navMaestro', tv:'navTv'};
+// Plegar/desplegar el grupo "Logística" del sidebar — se acuerda la
+// preferencia entre sesiones (mismo criterio que el tema claro/oscuro).
+function aplicarEstadoSeccionLogistica_(){
+  var colapsado = localStorage.getItem('navLogisticaColapsada')==='true';
+  var boton = document.getElementById('navSeccionLogistica');
+  if(boton) boton.classList.toggle('collapsed', colapsado);
+  document.querySelectorAll('.nav-sub-logistica').forEach(function(el){
+    el.classList.toggle('nav-sub-collapsed', colapsado);
+  });
+}
+function toggleSeccionLogistica_(){
+  var colapsadoActual = localStorage.getItem('navLogisticaColapsada')==='true';
+  localStorage.setItem('navLogisticaColapsada', !colapsadoActual);
+  aplicarEstadoSeccionLogistica_();
+}
 function aplicarPermisosUI(){
   var puede = puedeEditar();
   var modulosDelUsuario = modulosUsuarioActual();
@@ -2898,6 +2914,7 @@ function aplicarPermisosUI(){
     var trasladosVisible = document.getElementById('navTraslados').style.display !== 'none';
     seccionLogistica.style.display = (kanbanVisible || trasladosVisible) ? '' : 'none';
   }
+  aplicarEstadoSeccionLogistica_();
   document.body.classList.toggle('role-tv', esTvRecepcion());
 }
 
