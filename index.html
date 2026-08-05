@@ -1966,6 +1966,7 @@
       <div id="uFormTitulo" style="font-weight:700;font-size:12.5px;margin-bottom:8px;">Crear usuario nuevo</div>
       <div class="form-grid" style="margin-bottom:8px;">
         <div class="form-field"><label>Nombre y apellido</label><input id="uNombre" placeholder="Ej: María Gómez"></div>
+        <div class="form-field"><label>Sector</label><input id="uSector" placeholder="Ej: Ventas, PDA, Postventa..."></div>
         <div class="form-field"><label>Email</label><input id="uEmail" type="email" placeholder="Ej: mgomez@grupoparis.com" autocomplete="off"></div>
         <div class="form-field"><label>Usuario</label><input id="uUsuario" placeholder="Ej: mgomez" autocomplete="off"></div>
         <div class="form-field" id="uPasswordWrap"><label>Contraseña inicial</label><input id="uPassword" type="text" placeholder="Mínimo 4 caracteres" autocomplete="off"></div>
@@ -2524,7 +2525,10 @@
       </div>
       <div class="field" style="margin-top:10px;" id="casoReportadoPorWrap">
         <div class="l">Tu nombre y apellido <span style="font-weight:500;color:var(--text-faint);">(para que Calidad sepa a quién consultarle)</span></div>
-        <input id="casoReportadoPorInput" type="text" placeholder="Ej: Juan Pérez" style="width:100%;box-sizing:border-box;padding:9px 11px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);font-size:13px;">
+        <div style="display:flex;gap:8px;">
+          <input id="casoReportadoPorInput" type="text" placeholder="Ej: Juan Pérez" style="flex:1;box-sizing:border-box;padding:9px 11px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);font-size:13px;">
+          <input id="casoReportadoPorSector" type="text" placeholder="Sector (ej: Ventas)" style="flex:1;box-sizing:border-box;padding:9px 11px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);font-size:13px;">
+        </div>
       </div>
       <button class="email-action-btn" id="casoGuardarBtn" style="margin-top:14px;background:var(--caso-soft);color:var(--caso);" onclick="guardarCasoUI()">Enviar a Calidad →</button>
     </div>
@@ -2772,7 +2776,7 @@ function intentarLogin(){
   gasPost('login',{usuario:usuario, password:password}).then(function(res){
     btn.disabled=false; btn.textContent='Ingresar';
     if(res.error){ err.textContent=res.error; err.style.display='block'; return; }
-    guardarSesion_({usuario:res.usuario, nombre:res.nombre, rol:res.rol, password:password, modulos:res.modulos||[]}, document.getElementById('loginRecordar').checked);
+    guardarSesion_({usuario:res.usuario, nombre:res.nombre, rol:res.rol, password:password, modulos:res.modulos||[], sector:res.sector||''}, document.getElementById('loginRecordar').checked);
     document.getElementById('loginUI').style.display='none';
     actualizarBotonUsuario();
     aplicarPermisosUI();
@@ -2936,7 +2940,7 @@ function renderUsuariosTabla_(){
           }).join('')+
         '</div></td>'+
         '<td><div class="user-actions" style="flex-wrap:nowrap;justify-content:flex-end;">'+
-          '<button class="pill-btn edit" onclick="editarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\',\''+(u.email||'')+'\',\''+u.rol+'\','+JSON.stringify(u.modulos||[]).replace(/"/g,'&quot;')+')"><span class="material-symbols-outlined">edit</span>Editar</button>'+
+          '<button class="pill-btn edit" onclick="editarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\',\''+(u.email||'')+'\',\''+u.rol+'\','+JSON.stringify(u.modulos||[]).replace(/"/g,'&quot;')+',\''+(u.sector||'').replace(/'/g,"\\'")+'\')"><span class="material-symbols-outlined">edit</span>Editar</button>'+
           '<div class="user-menu-wrap">'+
             '<button class="user-menu-btn" onclick="toggleUserMenu(\'um_'+u.usuario+'\',event)"><span class="material-symbols-outlined">more_vert</span></button>'+
             '<div class="user-menu-dropdown" id="um_'+u.usuario+'">'+
@@ -2981,7 +2985,7 @@ function toggleModuloUsuarioInline(usuario, modulo, btn){
   var s = sesionActual();
   var pass = window._ultimaPasswordActor || credencialesActor_();
   if(pass===null) return;
-  gasPost('editarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuario, nombre:u.nombre, email:u.email||'', rol:u.rol, modulos:u.modulos}).then(function(res){
+  gasPost('editarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuario, nombre:u.nombre, email:u.email||'', rol:u.rol, modulos:u.modulos, sector:u.sector||''}).then(function(res){
     if(res.error){ showToast(res.error); return; }
     showToast('Módulos de "'+u.nombre+'" actualizados');
   });
@@ -2993,10 +2997,11 @@ function leerModulosSeleccionados_(){
 function marcarModulosUI_(modulos){
   document.querySelectorAll('#uModulosRow input').forEach(function(c){ c.checked = (modulos||[]).indexOf(c.value)>-1; });
 }
-function editarUsuarioUI(usuario, nombre, email, rol, modulos){
+function editarUsuarioUI(usuario, nombre, email, rol, modulos, sector){
   usuarioEnEdicion = usuario;
   document.getElementById('uFormTitulo').textContent = 'Editando a '+nombre;
   document.getElementById('uNombre').value = nombre;
+  document.getElementById('uSector').value = sector||'';
   document.getElementById('uEmail').value = email||'';
   document.getElementById('uUsuario').value = usuario;
   document.getElementById('uUsuario').disabled = true;
@@ -3011,6 +3016,7 @@ function cancelarEdicionUsuarioUI(){
   usuarioEnEdicion = null;
   document.getElementById('uFormTitulo').textContent = 'Crear usuario nuevo';
   document.getElementById('uNombre').value = '';
+  document.getElementById('uSector').value = '';
   document.getElementById('uEmail').value = '';
   document.getElementById('uUsuario').value = '';
   document.getElementById('uUsuario').disabled = false;
@@ -3023,6 +3029,7 @@ function cancelarEdicionUsuarioUI(){
 }
 function crearUsuarioUI(){
   var nombre = document.getElementById('uNombre').value.trim();
+  var sector = document.getElementById('uSector').value.trim();
   var email = document.getElementById('uEmail').value.trim();
   var usuario = document.getElementById('uUsuario').value.trim();
   var rol = document.getElementById('uRol').value;
@@ -3033,7 +3040,7 @@ function crearUsuarioUI(){
 
   if(usuarioEnEdicion){
     if(!nombre){ showToast('Completá el nombre'); return; }
-    gasPost('editarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuarioEnEdicion, nombre:nombre, email:email, rol:rol, modulos:modulos}).then(function(res){
+    gasPost('editarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuarioEnEdicion, nombre:nombre, email:email, rol:rol, modulos:modulos, sector:sector}).then(function(res){
       if(res.error){ showToast(res.error); return; }
       showToast('Usuario "'+nombre+'" actualizado');
       cancelarEdicionUsuarioUI();
@@ -3044,7 +3051,7 @@ function crearUsuarioUI(){
 
   var password = document.getElementById('uPassword').value;
   if(!nombre || !usuario || !password){ showToast('Completá nombre, usuario y contraseña'); return; }
-  gasPost('crearUsuario',{actorUsuario:s.usuario, actorPassword:pass, nombre:nombre, usuario:usuario, password:password, rol:rol, email:email, modulos:modulos}).then(function(res){
+  gasPost('crearUsuario',{actorUsuario:s.usuario, actorPassword:pass, nombre:nombre, usuario:usuario, password:password, rol:rol, email:email, modulos:modulos, sector:sector}).then(function(res){
     if(res.error){ showToast(res.error); return; }
     cancelarEdicionUsuarioUI();
     if(res.mailError){
@@ -4660,10 +4667,27 @@ function abrirModalCaso(marca, id){
   document.getElementById('casoMotivo').value = '';
   document.getElementById('casoPrioridad').value = 'Media';
   document.getElementById('casoDescripcion').value = '';
-  // Se precarga con el usuario logueado, pero queda editable y es obligatorio
-  // completarlo antes de enviar — así, aunque el login sea genérico/compartido
-  // o falle usuarioActual(), Calidad siempre sabe a quién consultarle el caso.
-  document.getElementById('casoReportadoPorInput').value = usuarioActual() || '';
+  // Si es un usuario individual (no el login compartido "acceso libre"), el
+  // nombre y el sector se autocompletan solos y quedan bloqueados — ya sabemos
+  // quién es. Si es acceso libre (o no tiene sector cargado), se piden a mano.
+  var sesion = sesionActual();
+  var esAccesoLibre = !sesion || sesion.usuario==='libre';
+  var nombreInput = document.getElementById('casoReportadoPorInput');
+  var sectorInput = document.getElementById('casoReportadoPorSector');
+  if(!esAccesoLibre && sesion.nombre){
+    nombreInput.value = sesion.nombre;
+    nombreInput.disabled = true;
+  } else {
+    nombreInput.value = '';
+    nombreInput.disabled = false;
+  }
+  if(!esAccesoLibre && sesion.sector){
+    sectorInput.value = sesion.sector;
+    sectorInput.disabled = true;
+  } else {
+    sectorInput.value = '';
+    sectorInput.disabled = false;
+  }
   document.getElementById('casoDatosWrap').style.display = r ? 'block' : 'none';
   document.getElementById('casoManualWrap').style.display = r ? 'none' : 'block';
   if(r){
@@ -4770,8 +4794,12 @@ function guardarCasoUI(){
   var r = (casoCtx.marca && casoCtx.id) ? ENTREGAS.find(function(x){return x.marca===casoCtx.marca && x.id===casoCtx.id;}) : null;
   var clienteManual = document.getElementById('casoClienteInput').value.trim();
   if(!r && !clienteManual){ showToast('Cargá el nombre del cliente'); return; }
+  var dominioManual = document.getElementById('casoDominioInput').value.trim();
+  if(!r && !dominioManual){ showToast('El VIN o la patente no es opcional — cargalo antes de enviar'); document.getElementById('casoDominioInput').focus(); return; }
   var reportadoPor = document.getElementById('casoReportadoPorInput').value.trim();
   if(!reportadoPor){ showToast('Falta tu nombre y apellido — sin eso no se puede cerrar el caso'); document.getElementById('casoReportadoPorInput').focus(); return; }
+  var reportadoPorSector = document.getElementById('casoReportadoPorSector').value.trim();
+  if(!reportadoPorSector){ showToast('Falta el sector — sin eso no se puede cerrar el caso'); document.getElementById('casoReportadoPorSector').focus(); return; }
   var btn = document.getElementById('casoGuardarBtn');
   btn.disabled = true; btn.textContent = 'Enviando...';
   var payload = {
@@ -4791,7 +4819,7 @@ function guardarCasoUI(){
     motivo: motivo,
     prioridad: document.getElementById('casoPrioridad').value,
     descripcion: document.getElementById('casoDescripcion').value.trim(),
-    reportadoPor: reportadoPor
+    reportadoPor: reportadoPor+' ('+reportadoPorSector+')'
   };
   gasPost('reportarCaso', payload).then(function(res){
     btn.disabled = false; btn.textContent = 'Enviar a Calidad →';
@@ -6269,12 +6297,12 @@ function aplicarSoloLecturaDrawer_(){
   var esLogisticaLimitada = rolActual()==='logistica';
   var drawer = document.getElementById('drawer');
   var permitidosLogistica = [
-    'dAccesoriosBtnPend','dAccesoriosBtnNo','dAccesoriosBtnSi','dAccesoriosObsInput','dAccesoriosGuardarBtn',
-    'dLlaveDuplicadaBtnPend','dLlaveDuplicadaBtnNo','dLlaveDuplicadaBtnSi','dLlaveDuplicadaObsInput','dLlaveDuplicadaGuardarBtn',
-    'dKitSeguridadBtnPend','dKitSeguridadBtnNo','dKitSeguridadBtnSi','dKitSeguridadObsInput','dKitSeguridadGuardarBtn',
-    'dAlfombrasBtnPend','dAlfombrasBtnNo','dAlfombrasBtnSi','dAlfombrasObsInput','dAlfombrasGuardarBtn',
+    'dAccesoriosInput','dAccesoriosBtnPend','dAccesoriosBtnNo','dAccesoriosBtnSi','dAccesoriosObsInput','dAccesoriosGuardarBtn',
+    'dLlaveDuplicada','dLlaveDuplicadaBtnPend','dLlaveDuplicadaBtnNo','dLlaveDuplicadaBtnSi','dLlaveDuplicadaObsInput','dLlaveDuplicadaGuardarBtn',
+    'dKitSeguridad','dKitSeguridadBtnPend','dKitSeguridadBtnNo','dKitSeguridadBtnSi','dKitSeguridadObsInput','dKitSeguridadGuardarBtn',
+    'dAlfombras','dAlfombrasBtnPend','dAlfombrasBtnNo','dAlfombrasBtnSi','dAlfombrasObsInput','dAlfombrasGuardarBtn',
     'dCampanaBtnPend','dCampanaBtnNo','dCampanaBtnSi','dCampanaObsInput','dCampanaGuardarBtn','dCampanaInput',
-    'dManualBtnPend','dManualBtnNo','dManualBtnSi','dManualObsInput','dManualGuardarBtn',
+    'dManual','dManualBtnPend','dManualBtnNo','dManualBtnSi','dManualObsInput','dManualGuardarBtn',
     'dRegaloToggle','dEntregaToggle','dTrasladoBtn','dResponsable'
   ];
   drawer.querySelectorAll('input, select, textarea, button').forEach(function(el){
