@@ -5523,7 +5523,15 @@ function renderEntregaFallidaBadge_(r){
   if(!el) return;
   if(r.entregaFallidaMotivo && !r.entregada){
     el.style.display = 'block';
-    el.innerHTML = '<b>No se pudo entregar</b> ('+r.entregaFallidaFecha+')<br>'+r.entregaFallidaMotivo;
+    var extra = '';
+    if(r.reprogramada){
+      var fechaProgramada = parsearFecha_(r.fecha);
+      var hoy = new Date(); hoy.setHours(0,0,0,0);
+      if(fechaProgramada && fechaProgramada.getTime() > hoy.getTime()){
+        extra = '<br><span style="font-size:11px;">Reprogramada para el '+r.fecha+' — el botón de "marcar como entregada" reaparece ese día.</span>';
+      }
+    }
+    el.innerHTML = '<b>No se pudo entregar</b> ('+r.entregaFallidaFecha+')<br>'+r.entregaFallidaMotivo+extra;
   } else {
     el.style.display = 'none';
   }
@@ -5933,8 +5941,22 @@ function updateTrasladoUI(r){
 }
 function updateEntregaToggleUI(r){
   var btn=document.getElementById('dEntregaToggle');
-  btn.textContent=r.entregada?'✓ Unidad entregada':'🚗 Marcar unidad como entregada';
-  btn.className='entrega-toggle '+(r.entregada?'done':'pending');
+  // Si falló la entrega y ya se reprogramó para un día futuro, no tiene sentido
+  // ofrecer "marcar como entregada" hasta que llegue ese día — evita marcarla
+  // por error mientras el auto todavía ni está agendado para hoy.
+  var reprogramadaAFuturo = false;
+  if(r.entregaFallidaMotivo && r.reprogramada && !r.entregada){
+    var fechaProgramada = parsearFecha_(r.fecha);
+    var hoy = new Date(); hoy.setHours(0,0,0,0);
+    if(fechaProgramada && fechaProgramada.getTime() > hoy.getTime()) reprogramadaAFuturo = true;
+  }
+  if(reprogramadaAFuturo){
+    btn.style.display = 'none';
+  } else {
+    btn.style.display = '';
+    btn.textContent=r.entregada?'✓ Unidad entregada':'🚗 Marcar unidad como entregada';
+    btn.className='entrega-toggle '+(r.entregada?'done':'pending');
+  }
 }
 
 function deleteRow(marca,id){
