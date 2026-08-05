@@ -5487,7 +5487,7 @@ function itemsPendientesParaEntregar_(r){
   if(r.llaveDuplicada && !r.llaveDuplicadaEntregada && !r.llaveDuplicadaMotivo) faltan.push('Llave duplicada');
   if(r.alfombras && !r.alfombrasColocadas && !r.alfombrasMotivo) faltan.push('Alfombras');
   if(r.regaloCorporativo && r.regaloEstado!=='Entregado' && !r.regaloObservaciones) faltan.push('Regalo corporativo');
-  if(r.campanaTexto && !r.campanaControlada) faltan.push('Campaña ("'+r.campanaTexto+'")');
+  if(r.campanaTexto && !r.campanaControlada && !r.campanaMotivo) faltan.push('Campaña ("'+r.campanaTexto+'")');
   // OnStar queda afuera a propósito: no bloquea la entrega.
   // Si un ítem quedó "no colocado" pero tiene un motivo/observación cargado, no bloquea — ya está justificado.
   return faltan;
