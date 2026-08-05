@@ -777,6 +777,10 @@
   .sidebar:hover .sidebar-user-toggle .info,.sidebar.pinned .sidebar-user-toggle .info{opacity:1;max-width:160px;}
   .sidebar-nav{padding:0 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;min-height:0;flex:1 1 auto;}
   .nav-item{display:flex;align-items:center;gap:8px;padding:7px 13px;border-radius:9px;color:#9099ac;font-size:10.5px;font-weight:600;cursor:pointer;border:none;background:none;text-align:left;width:100%;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;white-space:nowrap;}
+  .nav-section-label{padding:12px 13px 3px;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#5b6270;white-space:nowrap;}
+  .sidebar:not(:hover):not(.pinned) .nav-section-label{display:none;}
+  .nav-item.nav-sub{padding-left:26px;}
+  .sidebar:not(:hover):not(.pinned) .nav-item.nav-sub{padding-left:0;}
   .sidebar:not(:hover):not(.pinned) .nav-item{justify-content:center;padding-left:0;padding-right:0;}
   .nav-item .material-symbols-outlined{font-size:18px;flex-shrink:0;}
   .nav-item:hover{background:#161b28;color:#fff;}
@@ -1076,8 +1080,9 @@
         <button class="nav-item nav-item-highlight" id="navNuevaentrega" title="Nueva Entrega" onclick="openNewDelivery()"><span class="material-symbols-outlined">add_circle</span><span class="nav-label">Nueva Entrega</span></button>
         <button class="nav-item" id="navCalendario" title="Calendario" onclick="setAppView('calendario')"><span class="material-symbols-outlined">calendar_today</span><span class="nav-label">Calendario</span></button>
         <button class="nav-item" id="navLista" title="Lista de Entregas" onclick="setAppView('lista')"><span class="material-symbols-outlined">list_alt</span><span class="nav-label">Lista de Entregas</span></button>
-        <button class="nav-item" id="navKanban" title="Asignación Logística" onclick="setAppView('kanban')"><span class="material-symbols-outlined">view_kanban</span><span class="nav-label">Asignación Logística</span></button>
-        <button class="nav-item" id="navTraslados" title="Traslados" onclick="setAppView('traslados')"><span class="material-symbols-outlined">local_shipping</span><span class="nav-label">Traslados</span></button>
+        <div class="nav-section-label" id="navSeccionLogistica">Logística</div>
+        <button class="nav-item nav-sub" id="navKanban" title="Asignación Logística" onclick="setAppView('kanban')"><span class="material-symbols-outlined">view_kanban</span><span class="nav-label">Asignación</span></button>
+        <button class="nav-item nav-sub" id="navTraslados" title="Traslados" onclick="setAppView('traslados')"><span class="material-symbols-outlined">local_shipping</span><span class="nav-label">Traslado</span></button>
         <button class="nav-item" id="navReportes" title="Reportes" onclick="irAReportes()"><span class="material-symbols-outlined">analytics</span><span class="nav-label">Reportes</span></button>
         <div class="nav-submenu" id="submenuReportes" style="display:none;">
           <button class="nav-subitem" id="subReportesDashboard" onclick="setMaestroTab('dashboard')">Dashboard</button>
@@ -2851,7 +2856,14 @@ function aplicarPermisosUI(){
     var visible;
     if(mod==='maestro') visible = esCalidad();
     else if(mod==='kanban') visible = esSupervisorLogistica() || esCalidad();
-    else if(mod==='traslados') visible = esSupervisorLogistica() || esCalidad() || rolActual()==='logistica';
+    else if(mod==='traslados'){
+      // Antes esto era fijo por rol e ignoraba el check de "módulos" de cada
+      // usuario en Maestro (por eso parecía que "habilitarlo" no hacía nada).
+      // Ahora: los roles de Logística lo ven por defecto, PERO si además se
+      // lo tildaste a mano a otro usuario/rol, también se lo respeta.
+      visible = esSupervisorLogistica() || esCalidad() || rolActual()==='logistica';
+      if(modulosUsuario && modulosUsuario.indexOf('traslados')>-1) visible = true;
+    }
     else if(mod==='historialcoms') visible = esCalidad();
     else if(mod==='nuevaentrega' || mod==='reportes') visible = puede;
     else visible = true;
@@ -2865,6 +2877,11 @@ function aplicarPermisosUI(){
       visible = esCalidad();
     } else if(mod==='casos' || mod==='notificaciones'){
       if(modulosGlobales[mod]===false) visible = false;
+    } else if(mod==='traslados'){
+      // Ya se calculó arriba (rol de Logística + el check manual si lo tildaste) —
+      // acá solo se respeta el interruptor global, sin pisarlo con la lista de
+      // módulos por usuario (que es lo que rompía esto).
+      if(modulosGlobales[mod]===false) visible = false;
     } else {
       if(modulosUsuario) visible = modulosUsuario.indexOf(mod)>-1;
       if(modulosGlobales[mod]===false) visible = false;
@@ -2873,6 +2890,14 @@ function aplicarPermisosUI(){
     var bnEl = document.getElementById('bn'+mod.charAt(0).toUpperCase()+mod.slice(1));
     if(bnEl) bnEl.style.display = visible ? '' : 'none';
   });
+  // El encabezado "Logística" solo se muestra si al menos uno de sus dos
+  // ítems (Asignación o Traslado) es visible para este usuario.
+  var seccionLogistica = document.getElementById('navSeccionLogistica');
+  if(seccionLogistica){
+    var kanbanVisible = document.getElementById('navKanban').style.display !== 'none';
+    var trasladosVisible = document.getElementById('navTraslados').style.display !== 'none';
+    seccionLogistica.style.display = (kanbanVisible || trasladosVisible) ? '' : 'none';
+  }
   document.body.classList.toggle('role-tv', esTvRecepcion());
 }
 
