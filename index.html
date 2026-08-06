@@ -2861,39 +2861,27 @@ function aplicarPermisosUI(){
   var modulosDelUsuario = modulosUsuarioActual();
   var modulosUsuario = modulosDelUsuario.length ? modulosDelUsuario : null;
   var modulosGlobales = (typeof CONFIG!=='undefined' && CONFIG && CONFIG.modulosActivos) || {};
+  // Módulos que SOLO ve el admin (Calidad/Maestro) por defecto — para todos
+  // los demás, ni por rol ni por defecto: hay que dárselos a mano, uno por
+  // uno, desde Maestro → Permisos. Nada de esto aparece solo.
+  var MODULOS_SOLO_ADMIN_POR_DEFECTO_ = ['casos','notificaciones','traslados','faltantes','kanban','manual'];
   MODULOS_LIST.forEach(function(mod){
     var el = document.getElementById(MODULOS_NAV_ID[mod]);
     if(!el) return;
     var visible;
     if(mod==='maestro') visible = esCalidad();
-    else if(mod==='kanban') visible = esSupervisorLogistica() || esCalidad();
-    else if(mod==='traslados' || mod==='faltantes'){
-      // Antes esto era fijo por rol e ignoraba el check de "módulos" de cada
-      // usuario en Maestro (por eso parecía que "habilitarlo" no hacía nada).
-      // Ahora: los roles de Logística lo ven por defecto, PERO si además se
-      // lo tildaste a mano a otro usuario/rol, también se lo respeta.
-      visible = esSupervisorLogistica() || esCalidad() || rolActual()==='logistica';
-      if(modulosUsuario && modulosUsuario.indexOf(mod)>-1) visible = true;
+    else if(MODULOS_SOLO_ADMIN_POR_DEFECTO_.indexOf(mod)>-1){
+      // Por defecto SOLO el rol "maestro" (el usuario madre/admin) — ni
+      // siquiera Calidad lo ve automáticamente. Para cualquier otra persona,
+      // incluido Calidad, hay que dárselo a mano desde Maestro → Permisos.
+      visible = rolActual()==='maestro';
+      if(modulosUsuario && modulosUsuario.indexOf(mod)>-1) visible = true; // se lo diste a mano
+      if(modulosGlobales[mod]===false) visible = false; // interruptor global, por si hace falta apagarlo hasta para el maestro
     }
     else if(mod==='historialcoms') visible = esCalidad();
     else if(mod==='nuevaentrega' || mod==='reportes') visible = puede;
-    else visible = true;
-    // 'manual' sigue en desarrollo — visible solo para Calidad/Maestro por ahora.
-    // 'casos' y 'notificaciones' ya se abrieron a TODO el mundo (hasta vendedores pueden
-    // reportar, y todos los roles reciben avisos que les tocan) — a propósito no se filtran
-    // por la lista de módulos de cada usuario (esas listas son de antes de que existieran
-    // estos módulos, y quedarían todas desactualizadas). Si hace falta apagarlos para todos
-    // de una, se puede usar el interruptor global (modulosGlobales.X = false desde Maestro).
-    if(mod==='manual'){
-      visible = esCalidad();
-    } else if(mod==='casos' || mod==='notificaciones'){
-      if(modulosGlobales[mod]===false) visible = false;
-    } else if(mod==='traslados' || mod==='faltantes'){
-      // Ya se calculó arriba (rol de Logística + el check manual si lo tildaste) —
-      // acá solo se respeta el interruptor global, sin pisarlo con la lista de
-      // módulos por usuario (que es lo que rompía esto).
-      if(modulosGlobales[mod]===false) visible = false;
-    } else {
+    else {
+      visible = true;
       if(modulosUsuario) visible = modulosUsuario.indexOf(mod)>-1;
       if(modulosGlobales[mod]===false) visible = false;
     }
