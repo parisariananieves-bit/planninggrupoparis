@@ -575,6 +575,13 @@
   .mini-modulo-btn.ver-only{background:var(--warn-soft);border-color:var(--warn);color:var(--warn);}
   .mini-modulo-btn.ver-only::after{content:"👁";position:absolute;bottom:-3px;right:-3px;font-size:8px;line-height:1;}
   .mini-modulo-btn:hover{filter:brightness(1.15);}
+  .permiso-segmentado{display:flex;border:1px solid var(--hairline);border-radius:8px;overflow:hidden;flex-shrink:0;}
+  .seg-btn{border:none;background:var(--panel-2);color:var(--text-faint);font-size:10.5px;font-weight:600;padding:6px 10px;cursor:pointer;border-right:1px solid var(--hairline);white-space:nowrap;}
+  .seg-btn:last-child{border-right:none;}
+  .seg-btn:hover{background:var(--panel);color:var(--text);}
+  .seg-btn.activo{background:var(--ok-soft);color:var(--ok);font-weight:700;}
+  .permiso-segmentado .seg-btn:first-child.activo{background:var(--panel);color:var(--text-faint);}
+  .permiso-segmentado .seg-btn:nth-child(2).activo{background:var(--warn-soft);color:var(--warn);}
   .online-dot{position:absolute;bottom:-1px;right:-1px;width:9px;height:9px;border-radius:50%;background:var(--text-faint);border:2px solid var(--panel);}
   .online-dot.online{background:var(--ok);}
   .switch-field{display:flex;flex-direction:column;align-items:center;gap:7px;}
@@ -2484,6 +2491,14 @@
   <div class="modal-body" id="checklistTrasladoBody" style="padding:16px 20px;"></div>
 </div>
 
+<div class="modal" id="modalPermisos" style="width:min(560px,92vw);">
+  <div class="modal-head">
+    <div><h3 id="permisosModalTitulo"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">tune</span> Permisos</h3><div class="sub">Sin acceso · Solo puede ver · Puede ver y editar</div></div>
+    <button class="close" onclick="cerrarModalPermisos_()">✕</button>
+  </div>
+  <div class="modal-body" id="permisosModalBody" style="padding:16px 20px;max-height:60vh;overflow-y:auto;"></div>
+</div>
+
 <div class="modal" id="modalSeguimientoGC">
   <div class="modal-head">
     <div><h3><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">visibility</span> Seguimiento en Gestión de Casos</h3><div class="sub">Solo lectura — el seguimiento y la resolución se hacen en la otra web.</div></div>
@@ -3012,15 +3027,7 @@ function renderUsuariosTabla_(){
         '<td>'+(u.email||'<span style="color:var(--text-faint);">—</span>')+'</td>'+
         '<td>'+etiquetaRol_(u.rol)+'</td>'+
         '<td>'+(u.activo?'<span class="tag ok">Activo</span>':'<span class="tag danger">Inactivo</span>')+'</td>'+
-        '<td><div class="mini-modulos-row" title="Un click: agregar (solo ver) → habilitar edición → quitar">'+
-          MODULOS_LIST.map(function(m){
-            var on = modulosUsuario.indexOf(m)>-1;
-            var soloVer = (u.modulosSoloVer||[]).indexOf(m)>-1;
-            var estado = !on ? 'off' : (soloVer ? 'ver' : 'editar');
-            var claseEstado = estado==='editar' ? ' on' : (estado==='ver' ? ' ver-only' : '');
-            return '<button class="mini-modulo-btn'+claseEstado+'" title="'+m+' — '+(estado==='off'?'sin acceso':estado==='ver'?'solo puede ver':'puede ver y editar')+'" onclick="cicloModuloUsuarioInline(\''+u.usuario+'\',\''+m+'\',\''+estado+'\',this)"><span class="material-symbols-outlined">'+iconos[m]+'</span></button>';
-          }).join('')+
-        '</div></td>'+
+        '<td><button class="pill-btn" onclick="abrirModalPermisos_(\''+u.usuario+'\')" style="white-space:nowrap;"><span class="material-symbols-outlined">tune</span>'+modulosUsuario.length+' módulo'+(modulosUsuario.length===1?'':'s')+'</button></td>'+
         '<td><div class="user-actions" style="flex-wrap:nowrap;justify-content:flex-end;">'+
           '<button class="pill-btn edit" onclick="editarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\',\''+(u.email||'')+'\',\''+u.rol+'\','+JSON.stringify(u.modulos||[]).replace(/"/g,'&quot;')+',\''+(u.sector||'').replace(/'/g,"\\'")+'\')"><span class="material-symbols-outlined">edit</span>Editar</button>'+
           '<div class="user-menu-wrap">'+
@@ -3057,6 +3064,87 @@ function mostrarUltimoIngreso_(nombre, ultimoIngreso){
   showToast(nombre+' — último ingreso: '+fecha.toLocaleString('es-AR'));
 }
 // Ciclo de 3 estados por click: sin acceso → solo ver → puede editar → sin acceso.
+// Nombres legibles + agrupación por tema, para la pantalla de Permisos
+// (antes se mostraban solo los íconos, todos amontonados en una fila).
+var ETIQUETAS_MODULOS_ = {
+  dashboard:'Dashboard', nuevaentrega:'Nueva Entrega', calendario:'Calendario', lista:'Lista de Entregas',
+  kanban:'Asignación Logística', traslados:'Traslados', faltantes:'Faltantes', reportes:'Reportes',
+  historialcoms:'Historial de Comunicaciones', casos:'Reportar Caso', notificaciones:'Bandeja de entrada',
+  manual:'Manual', maestro:'Panel Maestro (Config)', tv:'TV Entregas'
+};
+var GRUPOS_MODULOS_ = [
+  {titulo:'General', modulos:['dashboard','nuevaentrega','calendario','lista','reportes','tv']},
+  {titulo:'Logística', modulos:['kanban','traslados','faltantes']},
+  {titulo:'Comunicación y casos', modulos:['historialcoms','casos','notificaciones']},
+  {titulo:'Administración', modulos:['manual','maestro']}
+];
+function abrirModalPermisos_(usuario){
+  var u = (window._usuariosCache||[]).find(function(x){return x.usuario===usuario;});
+  if(!u) return;
+  document.getElementById('permisosModalTitulo').innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">tune</span> Permisos — '+u.nombre;
+  pintarModalPermisos_(u);
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('modalPermisos').classList.add('show');
+}
+function cerrarModalPermisos_(){
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('modalPermisos').classList.remove('show');
+  var s = sesionActual();
+  if(s) renderUsuariosTabla_(); // refresca el contador "X módulos" de la tabla de atrás
+}
+function pintarModalPermisos_(u){
+  var modulosUsuario = u.modulos || [];
+  var soloVer = u.modulosSoloVer || [];
+  var html = GRUPOS_MODULOS_.map(function(grupo){
+    return '<div style="margin-bottom:16px;">'+
+      '<div style="font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);margin-bottom:8px;">'+grupo.titulo+'</div>'+
+      grupo.modulos.map(function(m){
+        var on = modulosUsuario.indexOf(m)>-1;
+        var esSoloVer = soloVer.indexOf(m)>-1;
+        var estado = !on ? 'off' : (esSoloVer ? 'ver' : 'editar');
+        return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--hairline);">'+
+          '<div style="display:flex;align-items:center;gap:9px;"><span class="material-symbols-outlined" style="font-size:17px;color:var(--text-faint);">'+iconos[m]+'</span><span style="font-size:12.5px;">'+ETIQUETAS_MODULOS_[m]+'</span></div>'+
+          '<div class="permiso-segmentado" id="permisoSeg_'+m+'">'+
+            segmentoBtn_(u.usuario, m, 'off', estado, 'Sin acceso')+
+            segmentoBtn_(u.usuario, m, 'ver', estado, 'Solo ver')+
+            segmentoBtn_(u.usuario, m, 'editar', estado, 'Editar')+
+          '</div>'+
+        '</div>';
+      }).join('')+
+    '</div>';
+  }).join('');
+  document.getElementById('permisosModalBody').innerHTML = html;
+}
+function segmentoBtn_(usuario, modulo, valor, estadoActual, label){
+  var activo = valor===estadoActual;
+  return '<button class="seg-btn'+(activo?' activo':'')+'" onclick="setEstadoModuloUsuario_(\''+usuario+'\',\''+modulo+'\',\''+valor+'\')">'+label+'</button>';
+}
+function setEstadoModuloUsuario_(usuario, modulo, nuevoEstado){
+  var u = (window._usuariosCache||[]).find(function(x){return x.usuario===usuario;});
+  if(!u) return;
+  u.modulos = u.modulos || [];
+  u.modulosSoloVer = u.modulosSoloVer || [];
+  var idxMod = u.modulos.indexOf(modulo), idxVer = u.modulosSoloVer.indexOf(modulo);
+  if(nuevoEstado==='off'){
+    if(idxMod>-1) u.modulos.splice(idxMod,1);
+    if(idxVer>-1) u.modulosSoloVer.splice(idxVer,1);
+  } else if(nuevoEstado==='ver'){
+    if(idxMod===-1) u.modulos.push(modulo);
+    if(idxVer===-1) u.modulosSoloVer.push(modulo);
+  } else { // editar
+    if(idxMod===-1) u.modulos.push(modulo);
+    var idxVer2 = u.modulosSoloVer.indexOf(modulo);
+    if(idxVer2>-1) u.modulosSoloVer.splice(idxVer2,1);
+  }
+  pintarModalPermisos_(u); // repinta al toque, se ve la respuesta inmediata
+
+  var s = sesionActual();
+  var pass = window._ultimaPasswordActor || credencialesActor_();
+  if(pass===null) return;
+  gasPost('editarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuario, nombre:u.nombre, email:u.email||'', rol:u.rol, modulos:u.modulos, sector:u.sector||'', modulosSoloVer:u.modulosSoloVer}).then(function(res){
+    if(res.error){ showToast(res.error); return; }
+  });
+}
 function cicloModuloUsuarioInline(usuario, modulo, estadoActual, btn){
   var u = (window._usuariosCache||[]).find(function(x){return x.usuario===usuario;});
   if(!u) return;
