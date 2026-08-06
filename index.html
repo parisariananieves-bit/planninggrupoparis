@@ -772,17 +772,11 @@
   .sidebar:hover .sidebar-brand .tag,.sidebar.pinned .sidebar-brand .tag{max-width:150px;font-size:8px;}
   .sidebar-logo-full{height:auto;width:34px;background:#fff;border-radius:6px;padding:3px 5px;object-fit:contain;transition:width .16s ease;flex-shrink:0;}
   .sidebar:hover .sidebar-logo-full,.sidebar.pinned .sidebar-logo-full{width:150px;}
-  .nav-label,.sidebar-user-toggle .info,.nav-section-chevron{opacity:0;max-width:0;overflow:hidden;transition:opacity .08s ease,max-width .16s ease;}
+  .nav-label,.sidebar-user-toggle .info{opacity:0;max-width:0;overflow:hidden;transition:opacity .08s ease,max-width .16s ease;}
   .sidebar:hover .nav-label,.sidebar.pinned .nav-label,
-  .sidebar:hover .nav-section-chevron,.sidebar.pinned .nav-section-chevron,
   .sidebar:hover .sidebar-user-toggle .info,.sidebar.pinned .sidebar-user-toggle .info{opacity:1;max-width:160px;}
   .sidebar-nav{padding:0 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;min-height:0;flex:1 1 auto;}
   .nav-item{display:flex;align-items:center;gap:8px;padding:7px 13px;border-radius:9px;color:#9099ac;font-size:10.5px;font-weight:600;cursor:pointer;border:none;background:none;text-align:left;width:100%;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;white-space:nowrap;}
-  .nav-section-toggle .nav-section-chevron{transition:transform .15s ease;}
-  .nav-section-toggle.collapsed .nav-section-chevron{transform:translateY(-50%) rotate(-90deg);}
-  .nav-sub-logistica{padding-left:26px;overflow:hidden;max-height:34px;transition:max-height .18s ease, opacity .15s ease, padding .18s ease;}
-  .nav-sub-logistica.nav-sub-collapsed{max-height:0;opacity:0;padding-top:0;padding-bottom:0;pointer-events:none;}
-  .sidebar:not(:hover):not(.pinned) .nav-sub-logistica{padding-left:0;}
   .sidebar:not(:hover):not(.pinned) .nav-item{justify-content:center;padding-left:0;padding-right:0;}
   .nav-item .material-symbols-outlined{font-size:18px;flex-shrink:0;}
   .nav-item:hover{background:#161b28;color:#fff;}
@@ -1082,10 +1076,12 @@
         <button class="nav-item nav-item-highlight" id="navNuevaentrega" title="Nueva Entrega" onclick="openNewDelivery()"><span class="material-symbols-outlined">add_circle</span><span class="nav-label">Nueva Entrega</span></button>
         <button class="nav-item" id="navCalendario" title="Calendario" onclick="setAppView('calendario')"><span class="material-symbols-outlined">calendar_today</span><span class="nav-label">Calendario</span></button>
         <button class="nav-item" id="navLista" title="Lista de Entregas" onclick="setAppView('lista')"><span class="material-symbols-outlined">list_alt</span><span class="nav-label">Lista de Entregas</span></button>
-        <button class="nav-item nav-section-toggle" id="navSeccionLogistica" onclick="toggleSeccionLogistica_()" style="position:relative;"><span class="material-symbols-outlined">local_shipping</span><span class="nav-label">Logística</span><span class="material-symbols-outlined nav-section-chevron" id="navSeccionLogisticaChevron" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:16px;">expand_more</span></button>
-        <button class="nav-item nav-sub nav-sub-logistica" id="navKanban" title="Asignación Logística" onclick="setAppView('kanban')"><span class="material-symbols-outlined">view_kanban</span><span class="nav-label">Asignación</span></button>
-        <button class="nav-item nav-sub nav-sub-logistica" id="navTraslados" title="Traslados" onclick="setAppView('traslados')"><span class="material-symbols-outlined">local_shipping</span><span class="nav-label">Traslado</span></button>
-        <button class="nav-item nav-sub nav-sub-logistica" id="navFaltantes" title="Vehículos con algo pendiente" onclick="setAppView('faltantes')"><span class="material-symbols-outlined">assignment_late</span><span class="nav-label">Faltantes</span></button>
+        <button class="nav-item" id="navSeccionLogistica" title="Logística" onclick="irALogistica()"><span class="material-symbols-outlined">local_shipping</span><span class="nav-label">Logística</span></button>
+        <div class="nav-submenu" id="submenuLogistica" style="display:none;">
+          <button class="nav-subitem" id="subLogisticaAsignacion" onclick="setAppView('kanban')">Asignación</button>
+          <button class="nav-subitem" id="subLogisticaTraslado" onclick="setAppView('traslados')">Traslado</button>
+          <button class="nav-subitem" id="subLogisticaFaltantes" onclick="setAppView('faltantes')">Faltantes</button>
+        </div>
         <button class="nav-item" id="navReportes" title="Reportes" onclick="irAReportes()"><span class="material-symbols-outlined">analytics</span><span class="nav-label">Reportes</span></button>
         <div class="nav-submenu" id="submenuReportes" style="display:none;">
           <button class="nav-subitem" id="subReportesDashboard" onclick="setMaestroTab('dashboard')">Dashboard</button>
@@ -2859,22 +2855,7 @@ function olvidePasswordUI(){
 // Oculta/deshabilita lo que el rol actual no puede tocar. Se llama al loguearse
 // y cada vez que se renderiza la tabla o se abre el detalle de una entrega.
 var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','kanban','traslados','faltantes','reportes','historialcoms','casos','notificaciones','manual','maestro','tv'];
-var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'navKanban', traslados:'navTraslados', faltantes:'navFaltantes', reportes:'navReportes', historialcoms:'navHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', manual:'navManual', maestro:'navMaestro', tv:'navTv'};
-// Plegar/desplegar el grupo "Logística" del sidebar — se acuerda la
-// preferencia entre sesiones (mismo criterio que el tema claro/oscuro).
-function aplicarEstadoSeccionLogistica_(){
-  var colapsado = localStorage.getItem('navLogisticaColapsada')==='true';
-  var boton = document.getElementById('navSeccionLogistica');
-  if(boton) boton.classList.toggle('collapsed', colapsado);
-  document.querySelectorAll('.nav-sub-logistica').forEach(function(el){
-    el.classList.toggle('nav-sub-collapsed', colapsado);
-  });
-}
-function toggleSeccionLogistica_(){
-  var colapsadoActual = localStorage.getItem('navLogisticaColapsada')==='true';
-  localStorage.setItem('navLogisticaColapsada', !colapsadoActual);
-  aplicarEstadoSeccionLogistica_();
-}
+var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'subLogisticaAsignacion', traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', reportes:'navReportes', historialcoms:'navHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', manual:'navManual', maestro:'navMaestro', tv:'navTv'};
 function aplicarPermisosUI(){
   var puede = puedeEditar();
   var modulosDelUsuario = modulosUsuarioActual();
@@ -2920,16 +2901,15 @@ function aplicarPermisosUI(){
     var bnEl = document.getElementById('bn'+mod.charAt(0).toUpperCase()+mod.slice(1));
     if(bnEl) bnEl.style.display = visible ? '' : 'none';
   });
-  // El encabezado "Logística" solo se muestra si al menos uno de sus dos
-  // ítems (Asignación o Traslado) es visible para este usuario.
+  // El ítem "Logística" solo se muestra si al menos uno de sus tres subítems
+  // (Asignación, Traslado o Faltantes) es visible para este usuario.
   var seccionLogistica = document.getElementById('navSeccionLogistica');
   if(seccionLogistica){
-    var kanbanVisible = document.getElementById('navKanban').style.display !== 'none';
-    var trasladosVisible = document.getElementById('navTraslados').style.display !== 'none';
-    var faltantesVisible = document.getElementById('navFaltantes').style.display !== 'none';
+    var kanbanVisible = document.getElementById('subLogisticaAsignacion').style.display !== 'none';
+    var trasladosVisible = document.getElementById('subLogisticaTraslado').style.display !== 'none';
+    var faltantesVisible = document.getElementById('subLogisticaFaltantes').style.display !== 'none';
     seccionLogistica.style.display = (kanbanVisible || trasladosVisible || faltantesVisible) ? '' : 'none';
   }
-  aplicarEstadoSeccionLogistica_();
   document.body.classList.toggle('role-tv', esTvRecepcion());
 }
 
@@ -3602,6 +3582,20 @@ function setAppView(view){
     var navReportes = document.getElementById('navReportes'); if(navReportes) navReportes.classList.remove('expanded');
     var navMaestro = document.getElementById('navMaestro'); if(navMaestro) navMaestro.classList.remove('expanded');
     if(window._intervalUsuariosTabla){ clearInterval(window._intervalUsuariosTabla); window._intervalUsuariosTabla = null; }
+  }
+  var VISTAS_LOGISTICA_ = {kanban:'subLogisticaAsignacion', traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes'};
+  var subL = document.getElementById('submenuLogistica');
+  var navL = document.getElementById('navSeccionLogistica');
+  if(VISTAS_LOGISTICA_[view]){
+    if(subL) subL.style.display='flex';
+    if(navL) navL.classList.add('expanded');
+    Object.keys(VISTAS_LOGISTICA_).forEach(function(v){
+      var el = document.getElementById(VISTAS_LOGISTICA_[v]);
+      if(el) el.classList.toggle('active', v===view);
+    });
+  } else {
+    if(subL) subL.style.display='none';
+    if(navL) navL.classList.remove('expanded');
   }
   var filaMarcas = document.getElementById('topbarBrandsRow');
   if(filaMarcas) filaMarcas.style.display = (view==='maestro') ? 'none' : 'flex';
@@ -8259,6 +8253,18 @@ function mostrarSubmenu_(grupo){
   if(navMaestro) navMaestro.classList.toggle('expanded', grupo==='maestro');
 }
 
+function irALogistica(){
+  var abierto = document.getElementById('submenuLogistica').style.display==='flex';
+  var enLogistica = ['kanban','traslados','faltantes'].indexOf(currentAppView)>-1;
+  if(abierto && enLogistica){
+    // Ya estabas en Logística con el submenú abierto: un segundo click lo cierra y vuelve al dashboard.
+    document.getElementById('submenuLogistica').style.display='none';
+    document.getElementById('navSeccionLogistica').classList.remove('expanded');
+    setAppView('dashboard');
+    return;
+  }
+  setAppView('kanban');
+}
 function irAReportes(){
   if(!puedeEditar()){ showToast('No tenés permiso para ver los reportes.'); return; }
   var yaAbierto = currentAppView==='maestro' && document.getElementById('submenuReportes').style.display==='flex';
