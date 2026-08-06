@@ -1084,6 +1084,7 @@
         <button class="nav-item nav-section-toggle" id="navSeccionLogistica" onclick="toggleSeccionLogistica_()"><span class="material-symbols-outlined">local_shipping</span><span class="nav-label">Logística</span><span class="material-symbols-outlined nav-section-chevron" id="navSeccionLogisticaChevron" style="margin-left:auto;font-size:16px;">expand_more</span></button>
         <button class="nav-item nav-sub nav-sub-logistica" id="navKanban" title="Asignación Logística" onclick="setAppView('kanban')"><span class="material-symbols-outlined">view_kanban</span><span class="nav-label">Asignación</span></button>
         <button class="nav-item nav-sub nav-sub-logistica" id="navTraslados" title="Traslados" onclick="setAppView('traslados')"><span class="material-symbols-outlined">local_shipping</span><span class="nav-label">Traslado</span></button>
+        <button class="nav-item nav-sub nav-sub-logistica" id="navFaltantes" title="Vehículos con algo pendiente" onclick="setAppView('faltantes')"><span class="material-symbols-outlined">assignment_late</span><span class="nav-label">Faltantes</span></button>
         <button class="nav-item" id="navReportes" title="Reportes" onclick="irAReportes()"><span class="material-symbols-outlined">analytics</span><span class="nav-label">Reportes</span></button>
         <div class="nav-submenu" id="submenuReportes" style="display:none;">
           <button class="nav-subitem" id="subReportesDashboard" onclick="setMaestroTab('dashboard')">Dashboard</button>
@@ -1415,6 +1416,18 @@
             </select>
           </div>
           <div id="trasladosLista" style="margin-top:14px;"></div>
+        </div>
+
+        <div class="app-view" id="viewFaltantes">
+          <div class="view-header"><h2>Faltantes</h2><p>Vehículos con algo pendiente de colocar o entregar — <b>se hayan trasladado o no</b>. Incluye unidades ya entregadas al cliente que quedaron con algo debiendo.</p></div>
+          <div class="filter-bar" style="flex-wrap:wrap;gap:10px;">
+            <select id="faltantesEstadoFiltro" onchange="renderFaltantes()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;">
+              <option value="todos" selected>Todos con algo pendiente</option>
+              <option value="entregadas">Solo ya entregadas al cliente</option>
+              <option value="no_entregadas">Solo todavía no entregadas</option>
+            </select>
+          </div>
+          <div id="faltantesLista" style="margin-top:14px;"></div>
         </div>
 
         <div class="app-view" id="viewHistorialcoms">
@@ -2844,8 +2857,8 @@ function olvidePasswordUI(){
 }
 // Oculta/deshabilita lo que el rol actual no puede tocar. Se llama al loguearse
 // y cada vez que se renderiza la tabla o se abre el detalle de una entrega.
-var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','kanban','traslados','reportes','historialcoms','casos','notificaciones','manual','maestro','tv'];
-var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'navKanban', traslados:'navTraslados', reportes:'navReportes', historialcoms:'navHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', manual:'navManual', maestro:'navMaestro', tv:'navTv'};
+var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','kanban','traslados','faltantes','reportes','historialcoms','casos','notificaciones','manual','maestro','tv'];
+var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'navKanban', traslados:'navTraslados', faltantes:'navFaltantes', reportes:'navReportes', historialcoms:'navHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', manual:'navManual', maestro:'navMaestro', tv:'navTv'};
 // Plegar/desplegar el grupo "Logística" del sidebar — se acuerda la
 // preferencia entre sesiones (mismo criterio que el tema claro/oscuro).
 function aplicarEstadoSeccionLogistica_(){
@@ -2872,13 +2885,13 @@ function aplicarPermisosUI(){
     var visible;
     if(mod==='maestro') visible = esCalidad();
     else if(mod==='kanban') visible = esSupervisorLogistica() || esCalidad();
-    else if(mod==='traslados'){
+    else if(mod==='traslados' || mod==='faltantes'){
       // Antes esto era fijo por rol e ignoraba el check de "módulos" de cada
       // usuario en Maestro (por eso parecía que "habilitarlo" no hacía nada).
       // Ahora: los roles de Logística lo ven por defecto, PERO si además se
       // lo tildaste a mano a otro usuario/rol, también se lo respeta.
       visible = esSupervisorLogistica() || esCalidad() || rolActual()==='logistica';
-      if(modulosUsuario && modulosUsuario.indexOf('traslados')>-1) visible = true;
+      if(modulosUsuario && modulosUsuario.indexOf(mod)>-1) visible = true;
     }
     else if(mod==='historialcoms') visible = esCalidad();
     else if(mod==='nuevaentrega' || mod==='reportes') visible = puede;
@@ -2893,7 +2906,7 @@ function aplicarPermisosUI(){
       visible = esCalidad();
     } else if(mod==='casos' || mod==='notificaciones'){
       if(modulosGlobales[mod]===false) visible = false;
-    } else if(mod==='traslados'){
+    } else if(mod==='traslados' || mod==='faltantes'){
       // Ya se calculó arriba (rol de Logística + el check manual si lo tildaste) —
       // acá solo se respeta el interruptor global, sin pisarlo con la lista de
       // módulos por usuario (que es lo que rompía esto).
@@ -2912,7 +2925,8 @@ function aplicarPermisosUI(){
   if(seccionLogistica){
     var kanbanVisible = document.getElementById('navKanban').style.display !== 'none';
     var trasladosVisible = document.getElementById('navTraslados').style.display !== 'none';
-    seccionLogistica.style.display = (kanbanVisible || trasladosVisible) ? '' : 'none';
+    var faltantesVisible = document.getElementById('navFaltantes').style.display !== 'none';
+    seccionLogistica.style.display = (kanbanVisible || trasladosVisible || faltantesVisible) ? '' : 'none';
   }
   aplicarEstadoSeccionLogistica_();
   document.body.classList.toggle('role-tv', esTvRecepcion());
@@ -3318,7 +3332,7 @@ function activarVistaPrevia(){
 // ============================================================
 // NAVEGACIÓN POR VISTAS (Dashboard / Calendario / Lista / Maestro)
 // ============================================================
-var VISTAS_APP = ['dashboard','calendario','lista','kanban','historialcoms','casos','notificaciones','traslados','maestro','nuevaentrega','tv'];
+var VISTAS_APP = ['dashboard','calendario','lista','kanban','historialcoms','casos','notificaciones','traslados','faltantes','maestro','nuevaentrega','tv'];
 // ============================================================
 // MODO TV — pantalla de solo lectura para monitor de la concesionaria.
 // Se actualiza sola (usa el mismo refresco silencioso de cada 25s que
@@ -3597,6 +3611,7 @@ function setAppView(view){
   if(view==='casos'){ cargarCasosSiHaceFalta_().then(renderCasos); }
   if(view==='notificaciones'){ renderNotificaciones(); }
   if(view==='traslados'){ renderTraslados(); }
+  if(view==='faltantes'){ renderFaltantes(); }
 }
 
 function fmtFecha(d){ var dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0'); return dd+'/'+mm+'/'+d.getFullYear(); }
@@ -4468,7 +4483,12 @@ var ICONOS_NOTIF_ = {
 // ============================================================
 function renderTraslados(){
   var filtro = document.getElementById('trasladosEstadoFiltro').value;
-  var todas = ENTREGAS.filter(function(r){ return r.traslado; });
+  var todas = ENTREGAS.filter(function(r){
+    if(!r.traslado) return false;
+    if(currentBrands.indexOf(r.marca)===-1) return false;
+    if(currentBranches.length>0 && currentBranches.indexOf(r.sucursal)===-1) return false;
+    return true;
+  });
   var conInfo = todas.map(function(r){ return {r:r, info: estadoChecklistTraslado_(r)}; });
 
   var filtradas = conInfo.filter(function(x){
@@ -4495,14 +4515,63 @@ function renderTraslados(){
     return '<div style="background:var(--panel);border:1px solid '+(urgente?'var(--danger)':'var(--hairline)')+';border-left:4px solid var('+b.color+');border-radius:9px;padding:12px 14px;margin-bottom:8px;cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">'+
         '<div><b style="color:var('+b.color+');">'+b.label+'</b> · '+r.cliente+' · '+(r.dominio||r.chasis||'—')+'</div>'+
-        '<div style="font-size:11px;color:var(--text-faint);">'+r.sucursal+' → <b>'+(r.trasladoDestino||'—')+'</b></div>'+
+        '<div style="font-size:11px;color:var(--text-faint);white-space:nowrap;">'+r.sucursal+' → <b>'+(r.trasladoDestino||'—')+'</b>'+(r.trasladoFecha?' · '+r.trasladoFecha:'')+'</div>'+
       '</div>'+
       '<div style="font-size:11.5px;color:var(--text-dim);margin-top:4px;">'+
         (r.trasladoCompletado ? '<span style="color:var(--ok);font-weight:700;">✓ Traslado completado</span>' : '<span style="color:var(--warn);font-weight:700;">📦 Traslado en curso</span>')+
         (info ? ' · '+(urgente?'<span style="color:var(--danger);font-weight:700;">':'')+info.completos+'/'+info.total+' ítems con la unidad'+(urgente?'</span>':'') : ' · sin ítems para hacer seguimiento')+
+        (r.trasladoUsuario ? ' · <span style="color:var(--text-faint);">'+r.trasladoUsuario+'</span>' : '')+
       '</div>'+
       (info && info.pendientes>0 ? '<div style="font-size:10.5px;color:var(--text-faint);margin-top:3px;">Faltan: '+info.relevantes.filter(function(it){return !info.checklist[it.key]||info.checklist[it.key].estado!=='si';}).map(function(it){return it.label;}).join(', ')+'</div>' : '')+
       (info ? '<button onclick="event.stopPropagation();abrirChecklistTraslado_(\''+r.marca+'\',\''+r.id+'\')" style="margin-top:8px;background:var(--panel-2);border:1px solid var(--hairline);color:var(--text);border-radius:7px;padding:5px 11px;font-size:11px;cursor:pointer;">Ver / editar checklist</button>' : '')+
+    '</div>';
+  }).join('');
+}
+
+// ============================================================
+// VISTA FALTANTES — TODAS las entregas (traslado o no, entregadas o no)
+// que tienen algún ítem sin colocar. Así no se pierde de vista un cliente
+// que ya se llevó el auto pero quedó debiendo el kit/manual/llave/etc.
+// ============================================================
+function renderFaltantes(){
+  var filtro = document.getElementById('faltantesEstadoFiltro').value;
+  var candidatas = ENTREGAS.filter(function(r){
+    if(currentBrands.indexOf(r.marca)===-1) return false;
+    if(currentBranches.length>0 && currentBranches.indexOf(r.sucursal)===-1) return false;
+    if(filtro==='entregadas' && !r.entregada) return false;
+    if(filtro==='no_entregadas' && r.entregada) return false;
+    return true;
+  });
+  var conInfo = candidatas.map(function(r){ return {r:r, info: itemsPendientesEnEntrega_(r)}; })
+    .filter(function(x){ return x.info && x.info.pendientes>0; });
+
+  // Las ya entregadas primero (son las más urgentes — el cliente ya se fue),
+  // y dentro de cada grupo, las que tienen más cosas pendientes arriba.
+  conInfo.sort(function(a,b){
+    var ea = a.r.entregada?1:0, eb = b.r.entregada?1:0;
+    if(eb!==ea) return eb-ea;
+    return b.info.pendientes - a.info.pendientes;
+  });
+
+  var cont = document.getElementById('faltantesLista');
+  if(conInfo.length===0){
+    cont.innerHTML = '<div class="report-wrap" style="padding:30px;text-align:center;color:var(--text-faint);font-size:12.5px;">✓ No hay vehículos con nada pendiente en este filtro.</div>';
+    return;
+  }
+  cont.innerHTML = conInfo.map(function(x){
+    var r=x.r, info=x.info;
+    var b = BRANDS.find(function(bb){return bb.id===r.marca;}) || BRANDS[0];
+    var yaEntregada = !!r.entregada;
+    return '<div style="background:var(--panel);border:1px solid '+(yaEntregada?'var(--danger)':'var(--hairline)')+';border-left:4px solid var('+b.color+');border-radius:9px;padding:12px 14px;margin-bottom:8px;cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">'+
+        '<div><b style="color:var('+b.color+');">'+b.label+'</b> · '+r.cliente+' · '+(r.dominio||r.chasis||'—')+'</div>'+
+        '<div style="font-size:11px;color:var(--text-faint);white-space:nowrap;">'+r.sucursal+' · '+r.fecha+' '+r.hora+'</div>'+
+      '</div>'+
+      '<div style="font-size:11.5px;color:var(--text-dim);margin-top:4px;">'+
+        (yaEntregada ? '<span style="color:var(--danger);font-weight:700;">⚠ Ya entregada al cliente</span>' : '<span style="color:var(--warn);font-weight:700;">Todavía no entregada</span>')+
+        ' · '+info.completos+'/'+info.total+' ítems colocados'+
+      '</div>'+
+      '<div style="font-size:10.5px;color:var(--text-faint);margin-top:3px;">Faltan: '+info.items.filter(function(it){return it.estado!=='colocado';}).map(function(it){return it.label;}).join(', ')+'</div>'+
     '</div>';
   }).join('');
 }
@@ -6146,7 +6215,8 @@ function abrirChecklistTraslado_(marca, id){
   var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r) return;
   var info = estadoChecklistTraslado_(r);
-  document.getElementById('checklistTrasladoSub').textContent = r.cliente+' → '+(r.trasladoDestino||'sin destino')+' · '+(r.dominio||r.chasis||'');
+  var bChk = BRANDS.find(function(bb){return bb.id===marca;}) || BRANDS[0];
+  document.getElementById('checklistTrasladoSub').textContent = bChk.label+' · '+r.cliente+' · VIN '+(r.dominio||r.chasis||'s/d')+' · '+r.sucursal+' → '+(r.trasladoDestino||'sin destino')+(r.trasladoFecha?' · '+r.trasladoFecha:'');
   var body = document.getElementById('checklistTrasladoBody');
   if(!info){
     body.innerHTML = '<div style="text-align:center;color:var(--text-faint);padding:20px;font-size:12.5px;">Esta entrega no tiene ningún ítem (kit, regalo, alfombras, manual, llave) cargado para hacer seguimiento.</div>';
@@ -6632,6 +6702,26 @@ function guardarAccesorioTexto(valor){
 // pendienteStock: cuando está en 'false' pero todavía no se marcó explícitamente colocado ni no-colocado,
 // o cuando se elige explícitamente "Pendiente" (ej: sin stock) — se guarda aparte para diferenciarlo
 // de un "No colocado" definitivo (con motivo).
+// Junta el estado de TODOS los ítems trackeados (kit, llave, alfombras,
+// manual, accesorios, campaña) de una entrega — se usa para la vista de
+// "Pendientes" de Logística, que mira TODAS las entregas (se hayan
+// trasladado o no) y detecta si algo quedó sin colocar, aunque la unidad
+// ya se haya entregado.
+function itemsPendientesEnEntrega_(r){
+  var relevantes = [];
+  Object.keys(ITEMS_COLOCADO_CONFIG_).forEach(function(key){
+    var cfg = ITEMS_COLOCADO_CONFIG_[key];
+    var corresponde = key==='accesorios' ? !!r.accesorios : key==='campana' ? !!r.campanaTexto : !!r[cfg.corresponde];
+    if(!corresponde) return;
+    relevantes.push({key:key, label:cfg.label, estado: estadoItemActual_(cfg, r)});
+  });
+  if(r.regaloCorporativo){
+    relevantes.push({key:'regalo', label:'Regalo corporativo', estado: r.regaloEstado==='Entregado' ? 'colocado' : 'pendiente'});
+  }
+  if(relevantes.length===0) return null;
+  var completos = relevantes.filter(function(x){return x.estado==='colocado';}).length;
+  return {total:relevantes.length, completos:completos, pendientes:relevantes.length-completos, items:relevantes};
+}
 var ITEMS_COLOCADO_CONFIG_ = {
   kitSeguridad:   {corresponde:'kitSeguridad',   colocado:'kitSeguridadColocado',        fecha:'kitSeguridadColocadoFecha',        motivo:'kitSeguridadMotivo',   pendienteStock:'kitSeguridadPendienteStock',   label:'Kit de seguridad',   render:'renderKitSeguridadUI'},
   manual:         {corresponde:'manual',         colocado:'manualEntregado',             fecha:'manualEntregadoFecha',             motivo:'manualMotivo',         pendienteStock:'manualPendienteStock',         label:'Manual del vehículo', render:'renderManualUI'},
