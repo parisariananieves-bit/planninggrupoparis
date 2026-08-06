@@ -3017,7 +3017,6 @@ function renderUsuariosTabla_(){
     if(res.error){ tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">'+res.error+'</th></tr>'; return; }
     window._ultimaPasswordActor = pass; // se reusa para las acciones de esta sesión de la pestaña
     window._usuariosCache = res.usuarios||[];
-    var iconos = {dashboard:'dashboard', nuevaentrega:'add_circle', calendario:'calendar_today', lista:'list_alt', kanban:'view_kanban', traslados:'local_shipping', faltantes:'assignment_late', reportes:'analytics', historialcoms:'forum', casos:'report', notificaciones:'notifications', manual:'menu_book', maestro:'settings', tv:'tv'};
     var html = '<tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th><th>Módulos</th><th>Acciones</th></tr>';
     (res.usuarios||[]).forEach(function(u){
       var nombreEsc = u.nombre.replace(/'/g,"\\'");
@@ -3078,6 +3077,7 @@ var GRUPOS_MODULOS_ = [
   {titulo:'Comunicación y casos', modulos:['historialcoms','casos','notificaciones']},
   {titulo:'Administración', modulos:['manual','maestro']}
 ];
+var iconos = {dashboard:'dashboard', nuevaentrega:'add_circle', calendario:'calendar_today', lista:'list_alt', kanban:'view_kanban', traslados:'local_shipping', faltantes:'assignment_late', reportes:'analytics', historialcoms:'forum', casos:'report', notificaciones:'notifications', manual:'menu_book', maestro:'settings', tv:'tv'};
 function abrirModalPermisos_(usuario){
   var u = (window._usuariosCache||[]).find(function(x){return x.usuario===usuario;});
   if(!u) return;
