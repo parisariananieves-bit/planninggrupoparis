@@ -569,9 +569,11 @@
   .maestro-list-header{display:flex;gap:10px;padding:0 10px 4px;font-size:9px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;}
   .modulos-check-row{display:flex;flex-wrap:wrap;gap:14px 22px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;padding:14px 16px;margin-bottom:10px;}
   .mini-modulos-row{display:flex;gap:3px;flex-wrap:nowrap;width:194px;}
-  .mini-modulo-btn{width:24px;height:24px;border-radius:6px;border:1px solid var(--hairline);background:var(--panel-2);color:var(--text-faint);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;flex-shrink:0;}
+  .mini-modulo-btn{width:24px;height:24px;border-radius:6px;border:1px solid var(--hairline);background:var(--panel-2);color:var(--text-faint);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;flex-shrink:0;position:relative;}
   .mini-modulo-btn .material-symbols-outlined{font-size:14px;}
   .mini-modulo-btn.on{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);}
+  .mini-modulo-btn.ver-only{background:var(--warn-soft);border-color:var(--warn);color:var(--warn);}
+  .mini-modulo-btn.ver-only::after{content:"👁";position:absolute;bottom:-3px;right:-3px;font-size:8px;line-height:1;}
   .mini-modulo-btn:hover{filter:brightness(1.15);}
   .online-dot{position:absolute;bottom:-1px;right:-1px;width:9px;height:9px;border-radius:50%;background:var(--text-faint);border:2px solid var(--panel);}
   .online-dot.online{background:var(--ok);}
@@ -1448,7 +1450,7 @@
         <div class="app-view" id="viewCasos">
           <div class="view-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
             <div><h2 style="color:var(--caso);">Reportar Caso</h2><p>Registro de casos reportados. El seguimiento y resolución se hace en el sistema de Calidad — acá solo queda constancia de lo reportado.</p></div>
-            <button class="comms-btn primary" style="width:auto;margin:0;border-color:var(--caso);color:var(--caso);white-space:nowrap;" onclick="abrirModalCaso()"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">add_circle</span> Reportar caso</button>
+            <button class="comms-btn primary" id="btnReportarCasoNuevo" style="width:auto;margin:0;border-color:var(--caso);color:var(--caso);white-space:nowrap;" onclick="abrirModalCaso()"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">add_circle</span> Reportar caso</button>
           </div>
 
           <div class="section" style="border:1px solid var(--caso);background:var(--caso-soft);margin-top:14px;">
@@ -2747,6 +2749,16 @@ function modulosUsuarioActual(){
   var s=sesionActual(); return (s && s.modulos) || [];
 }
 function esCalidad(){ var r=rolActual(); return r==='calidad' || r==='maestro' || modulosUsuarioActual().indexOf('maestro')>-1; }
+// El maestro siempre puede editar todo. Para el resto, se fija si ese
+// módulo puntual está marcado como "solo ver" en su ficha de permisos —
+// si no está en esa lista, puede editar normalmente (así los usuarios
+// viejos, de antes de que existiera esto, no pierden nada por defecto).
+function puedeEditarModulo_(mod){
+  if(rolActual()==='maestro') return true;
+  var s = sesionActual();
+  var soloVer = (s && s.modulosSoloVer) || [];
+  return soloVer.indexOf(mod)===-1;
+}
 function puedeEditar(){ var r=rolActual(); return esCalidad() || r==='administrativo' || r==='supervisor' || r==='recepcion' || r==='logistica' || r==='supervisor_logistica'; }
 function esSupervisorLogistica(){ return rolActual()==='supervisor_logistica'; }
 function etiquetaRol_(r){
@@ -2827,7 +2839,7 @@ function intentarLogin(){
   gasPost('login',{usuario:usuario, password:password}).then(function(res){
     btn.disabled=false; btn.textContent='Ingresar';
     if(res.error){ err.textContent=res.error; err.style.display='block'; return; }
-    guardarSesion_({usuario:res.usuario, nombre:res.nombre, rol:res.rol, password:password, modulos:res.modulos||[], sector:res.sector||''}, document.getElementById('loginRecordar').checked);
+    guardarSesion_({usuario:res.usuario, nombre:res.nombre, rol:res.rol, password:password, modulos:res.modulos||[], sector:res.sector||'', modulosSoloVer:res.modulosSoloVer||[]}, document.getElementById('loginRecordar').checked);
     document.getElementById('loginUI').style.display='none';
     actualizarBotonUsuario();
     aplicarPermisosUI();
@@ -2869,7 +2881,13 @@ function aplicarPermisosUI(){
     var el = document.getElementById(MODULOS_NAV_ID[mod]);
     if(!el) return;
     var visible;
-    if(mod==='maestro') visible = esCalidad();
+    // El maestro (usuario madre) ve TODO, siempre, sin excepción — ni el
+    // interruptor global ni una desmarcación accidental en su propia ficha
+    // de permisos lo pueden dejar afuera de nada.
+    if(rolActual()==='maestro'){
+      visible = true;
+    }
+    else if(mod==='maestro') visible = esCalidad();
     else if(MODULOS_SOLO_ADMIN_POR_DEFECTO_.indexOf(mod)>-1){
       // Por defecto SOLO el rol "maestro" (el usuario madre/admin) — ni
       // siquiera Calidad lo ve automáticamente. Para cualquier otra persona,
@@ -2994,10 +3012,13 @@ function renderUsuariosTabla_(){
         '<td>'+(u.email||'<span style="color:var(--text-faint);">—</span>')+'</td>'+
         '<td>'+etiquetaRol_(u.rol)+'</td>'+
         '<td>'+(u.activo?'<span class="tag ok">Activo</span>':'<span class="tag danger">Inactivo</span>')+'</td>'+
-        '<td><div class="mini-modulos-row" title="'+(modulosUsuario.length===0?'Sin restricción: usa los permisos del rol':'Módulos habilitados para este usuario')+'">'+
+        '<td><div class="mini-modulos-row" title="Un click: agregar (solo ver) → habilitar edición → quitar">'+
           MODULOS_LIST.map(function(m){
             var on = modulosUsuario.indexOf(m)>-1;
-            return '<button class="mini-modulo-btn'+(on?' on':'')+'" title="'+m+'" onclick="toggleModuloUsuarioInline(\''+u.usuario+'\',\''+m+'\',this)"><span class="material-symbols-outlined">'+iconos[m]+'</span></button>';
+            var soloVer = (u.modulosSoloVer||[]).indexOf(m)>-1;
+            var estado = !on ? 'off' : (soloVer ? 'ver' : 'editar');
+            var claseEstado = estado==='editar' ? ' on' : (estado==='ver' ? ' ver-only' : '');
+            return '<button class="mini-modulo-btn'+claseEstado+'" title="'+m+' — '+(estado==='off'?'sin acceso':estado==='ver'?'solo puede ver':'puede ver y editar')+'" onclick="cicloModuloUsuarioInline(\''+u.usuario+'\',\''+m+'\',\''+estado+'\',this)"><span class="material-symbols-outlined">'+iconos[m]+'</span></button>';
           }).join('')+
         '</div></td>'+
         '<td><div class="user-actions" style="flex-wrap:nowrap;justify-content:flex-end;">'+
@@ -3035,20 +3056,40 @@ function mostrarUltimoIngreso_(nombre, ultimoIngreso){
   var fecha = new Date(ultimoIngreso);
   showToast(nombre+' — último ingreso: '+fecha.toLocaleString('es-AR'));
 }
-function toggleModuloUsuarioInline(usuario, modulo, btn){
+// Ciclo de 3 estados por click: sin acceso → solo ver → puede editar → sin acceso.
+function cicloModuloUsuarioInline(usuario, modulo, estadoActual, btn){
   var u = (window._usuariosCache||[]).find(function(x){return x.usuario===usuario;});
   if(!u) return;
   u.modulos = u.modulos || [];
-  var idx = u.modulos.indexOf(modulo);
-  if(idx>-1) u.modulos.splice(idx,1); else u.modulos.push(modulo);
-  btn.classList.toggle('on');
-  btn.closest('.mini-modulos-row').title = u.modulos.length===0 ? 'Sin restricción: usa los permisos del rol' : 'Módulos habilitados para este usuario';
+  u.modulosSoloVer = u.modulosSoloVer || [];
+  var idxMod = u.modulos.indexOf(modulo);
+  var idxVer = u.modulosSoloVer.indexOf(modulo);
+
+  var siguiente;
+  if(estadoActual==='off'){
+    if(idxMod===-1) u.modulos.push(modulo);
+    if(idxVer===-1) u.modulosSoloVer.push(modulo);
+    siguiente = 'ver';
+  } else if(estadoActual==='ver'){
+    if(idxVer>-1) u.modulosSoloVer.splice(idxVer,1);
+    siguiente = 'editar';
+  } else {
+    if(idxMod>-1) u.modulos.splice(idxMod,1);
+    var idxVer2 = u.modulosSoloVer.indexOf(modulo);
+    if(idxVer2>-1) u.modulosSoloVer.splice(idxVer2,1);
+    siguiente = 'off';
+  }
+
+  btn.className = 'mini-modulo-btn' + (siguiente==='editar' ? ' on' : siguiente==='ver' ? ' ver-only' : '');
+  btn.setAttribute('onclick', "cicloModuloUsuarioInline('"+usuario+"','"+modulo+"','"+siguiente+"',this)");
+  btn.title = modulo+' — '+(siguiente==='off'?'sin acceso':siguiente==='ver'?'solo puede ver':'puede ver y editar');
+
   var s = sesionActual();
   var pass = window._ultimaPasswordActor || credencialesActor_();
   if(pass===null) return;
-  gasPost('editarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuario, nombre:u.nombre, email:u.email||'', rol:u.rol, modulos:u.modulos, sector:u.sector||''}).then(function(res){
+  gasPost('editarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuario, nombre:u.nombre, email:u.email||'', rol:u.rol, modulos:u.modulos, sector:u.sector||'', modulosSoloVer:u.modulosSoloVer}).then(function(res){
     if(res.error){ showToast(res.error); return; }
-    showToast('Módulos de "'+u.nombre+'" actualizados');
+    showToast('"'+modulo+'" para '+u.nombre+': '+(siguiente==='off'?'sin acceso':siguiente==='ver'?'solo puede ver':'puede ver y editar'));
   });
 }
 var usuarioEnEdicion = null; // null = modo "crear"; si no, es el "usuario" que se está editando
@@ -3591,7 +3632,11 @@ function setAppView(view){
   if(view==='lista' || view==='dashboard') renderAll();
   if(view==='kanban') renderKanban();
   if(view==='historialcoms'){ cargarComunicacionesSiHaceFalta_().then(renderHistorialComs); }
-  if(view==='casos'){ cargarCasosSiHaceFalta_().then(renderCasos); }
+  if(view==='casos'){
+    cargarCasosSiHaceFalta_().then(renderCasos);
+    var btnRepCaso = document.getElementById('btnReportarCasoNuevo');
+    if(btnRepCaso) btnRepCaso.style.display = puedeEditarModulo_('casos') ? '' : 'none';
+  }
   if(view==='notificaciones'){ renderNotificaciones(); }
   if(view==='traslados'){ renderTraslados(); }
   if(view==='faltantes'){ renderFaltantes(); }
@@ -4593,6 +4638,7 @@ function marcarLeidaYNavegar_(id, casoId, marca, entregaId){
   else if(casoId) verSeguimientoGC_('', '', '', casoId);
 }
 function marcarTodasLeidasUI_(){
+  if(!puedeEditarModulo_('notificaciones')){ showToast('Tenés acceso de solo lectura a la Bandeja de entrada.'); return; }
   var s = sesionActual();
   gasPost('marcarTodasNotificacionesLeidas', {actorUsuario:s.usuario, actorRol:s.rol}).then(function(res){
     if(!res.ok){ showToast(res.error); return; }
@@ -4688,6 +4734,7 @@ function cerrarModalSeguimientoGC_(){
   document.getElementById('modalSeguimientoGC').classList.remove('show');
 }
 function eliminarCasoUI_(codigo){
+  if(!puedeEditarModulo_('casos')){ showToast('Tenés acceso de solo lectura a Reportar Caso — no podés eliminar casos.'); return; }
   if(!confirm('¿Eliminar el caso '+codigo+'? Esta acción no se puede deshacer — usalo solo si se cargó por error.')) return;
   gasPost('eliminarCaso', {codigo:codigo}).then(function(res){
     if(!res.ok){ showToast(res.error||'No se pudo eliminar'); return; }
@@ -4742,6 +4789,7 @@ function toggleComentarioCasoExistente_(codigo){
   if(!abierto) document.getElementById('comentarioCasoInput_'+codigo).focus();
 }
 function agregarComentarioCasoExistenteUI_(codigo){
+  if(!puedeEditarModulo_('casos')){ showToast('Tenés acceso de solo lectura a Reportar Caso.'); return; }
   var texto = document.getElementById('comentarioCasoInput_'+codigo).value.trim();
   if(!texto){ showToast('Escribí algo primero'); return; }
   gasPost('agregarComentarioCaso', {codigo:codigo, autor:usuarioActual(), texto:texto}).then(function(res){
@@ -4851,6 +4899,7 @@ function poblarSelectMarcaCaso_(){
   });
 }
 function abrirModalCaso(marca, id){
+  if(!puedeEditarModulo_('casos')){ showToast('Tenés acceso de solo lectura a Reportar Caso — no podés cargar casos nuevos.'); return; }
   var r = (marca && id) ? ENTREGAS.find(function(x){return x.marca===marca && x.id===id;}) : null;
   casoCtx = {marca: r ? r.marca : null, id: r ? r.id : null};
   poblarSelectMarcaCaso_();
@@ -5144,6 +5193,7 @@ function verMensajeComunicacion_(id){
   alert((c.canal==='whatsapp' ? 'Mensaje de WhatsApp enviado a '+c.cliente+':\n\n' : 'Email enviado a '+c.cliente+'\n\n')+(c.mensajeEnviado||'(sin contenido guardado)'));
 }
 function reenviarComunicacion_(marca, entregaId, canal){
+  if(!puedeEditarModulo_('historialcoms')){ showToast('Tenés acceso de solo lectura al Historial de Comunicaciones.'); return; }
   if(!confirm('¿Reenviar esta comunicación ahora?')) return;
   gasPost('reenviarComunicacion',{marca:marca, entregaId:entregaId, canal:canal}).then(function(res){
     showToast(res && res.ok ? 'Reenviado' : 'No se pudo reenviar');
@@ -5152,6 +5202,7 @@ function reenviarComunicacion_(marca, entregaId, canal){
   });
 }
 function cancelarComunicacion_(marca, entregaId, canal){
+  if(!puedeEditarModulo_('historialcoms')){ showToast('Tenés acceso de solo lectura al Historial de Comunicaciones.'); return; }
   if(!confirm('¿Cancelar este envío pendiente?')) return;
   gasPost('cancelarComunicacion',{marca:marca, entregaId:entregaId, canal:canal}).then(function(res){
     showToast(res && res.ok ? 'Cancelada' : 'No se pudo cancelar');
@@ -5160,6 +5211,7 @@ function cancelarComunicacion_(marca, entregaId, canal){
   });
 }
 function reenviarTodasLasPendientesComs_(){
+  if(!puedeEditarModulo_('historialcoms')){ showToast('Tenés acceso de solo lectura al Historial de Comunicaciones.'); return; }
   var pendientes = COMUNICACIONES.filter(function(c){return c.estado==='Pendiente'||c.estado==='Error';});
   if(pendientes.length===0){ showToast('No hay pendientes para reenviar'); return; }
   if(!confirm('¿Reenviar las '+pendientes.length+' comunicaciones pendientes/con error?')) return;
@@ -5229,7 +5281,7 @@ function renderKanban(){
       '<div class="cli" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')" style="cursor:pointer;">'+r.cliente+'</div>'+
       '<div class="veh" style="color:var('+b.color+');font-weight:700;">'+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+'</div>'+
       '<div class="fecha">'+r.fecha+' · '+r.hora+' hs · '+r.sucursal+'</div>'+
-      '<select onchange="asignarResponsableKanban(\''+r.marca+'\',\''+r.id+'\',this.value)">'+opcionesSelect.replace('value="'+(r.responsableEntrega||'\u0000')+'"','value="'+(r.responsableEntrega||'')+'" selected')+'</select>'+
+      '<select onchange="asignarResponsableKanban(\''+r.marca+'\',\''+r.id+'\',this.value)"'+(puedeEditarModulo_('kanban')?'':' disabled title="Solo lectura"')+'>'+opcionesSelect.replace('value="'+(r.responsableEntrega||'\u0000')+'"','value="'+(r.responsableEntrega||'')+'" selected')+'</select>'+
     '</div>';
   }
 
@@ -5248,6 +5300,7 @@ function renderKanban(){
   board.innerHTML = html;
 }
 function asignarResponsableKanban(marca, id, nombre){
+  if(!puedeEditarModulo_('kanban')){ showToast('Tenés acceso de solo lectura a Asignación Logística.'); renderKanban(); return; }
   var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r) return;
   var anterior = r.responsableEntrega || 'sin asignar';
@@ -5498,6 +5551,7 @@ function renderHorariosDia_(){
 }
 function reservarHorario_(fechaStr, horaSlot){
   if(!puedeEditar()){ showToast('Tu usuario no tiene permiso para agendar entregas.'); return; }
+  if(!puedeEditarModulo_('calendario')){ showToast('Tenés acceso de solo lectura al Calendario.'); return; }
   var p = fechaStr.split('/');
   currentDate = new Date(Number(p[2]), Number(p[1])-1, Number(p[0]));
   openNewDelivery();
@@ -5781,6 +5835,7 @@ function cerrarPendientesEntrega_(){
 }
 function marcarEntregaFallida_(){
   if(!detailId) return;
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
   var marca=detailMarca, id=detailId;
   var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r) return;
@@ -5833,6 +5888,7 @@ function toggleEntregadaId(marca,id){
   marcarEntregadaEfectiva_(marca, id, r);
 }
 function marcarEntregadaEfectiva_(marca, id, r){
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
   r.entregada=!r.entregada;
   gasPost('updateEntregaFields',{marca:marca,id:id,fields:{entregada:r.entregada}});
   logHistorial_(marca, id, r.entregada ? '🚗 Unidad marcada como entregada' : 'Se desmarcó como entregada');
@@ -6228,6 +6284,7 @@ function cerrarChecklistTraslado_(){
   if(detailId) updateTrasladoUI(ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}));
 }
 function marcarItemChecklistTraslado_(marca, id, itemKey, estado){
+  if(!puedeEditarModulo_('traslados')){ showToast('Tenés acceso de solo lectura a Traslados.'); return; }
   var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   r.trasladoChecklist = r.trasladoChecklist || {};
   var motivoPrevio = (r.trasladoChecklist[itemKey] && r.trasladoChecklist[itemKey].motivo) || '';
@@ -6240,6 +6297,7 @@ function marcarItemChecklistTraslado_(marca, id, itemKey, estado){
   abrirChecklistTraslado_(marca, id); // repinta con el nuevo estado
 }
 function guardarMotivoChecklistTraslado_(marca, id, itemKey, motivo){
+  if(!puedeEditarModulo_('traslados')) return;
   var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   r.trasladoChecklist = r.trasladoChecklist || {};
   if(!r.trasladoChecklist[itemKey]) r.trasladoChecklist[itemKey] = {estado:'pendiente', motivo:''};
@@ -6247,6 +6305,7 @@ function guardarMotivoChecklistTraslado_(marca, id, itemKey, motivo){
   gasPost('updateEntregaFields', {marca:marca, id:id, fields:{trasladoChecklist: r.trasladoChecklist}});
 }
 function toggleTraslado(){
+  if(!puedeEditarModulo_('traslados')){ showToast('Tenés acceso de solo lectura a Traslados.'); return; }
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
   if(!r) return;
@@ -6332,6 +6391,7 @@ function updateEntregaToggleUI(r){
 }
 
 function deleteRow(marca,id){
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!confirm('¿Eliminar la entrega de '+r.cliente+' ('+r.hora+')? No se puede deshacer.')) return;
   gasPost('deleteEntrega',{marca:marca,id:id});
@@ -6763,6 +6823,7 @@ function renderDualToggleUI_(itemKey, r){
 // depender de un popup aparte.
 function marcarEstadoItem_(itemKey, nuevoEstado){
   if(!detailId) return;
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
   var cfg = ITEMS_COLOCADO_CONFIG_[itemKey];
   var marca=detailMarca, id=detailId;
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
@@ -6795,6 +6856,7 @@ function marcarEstadoItem_(itemKey, nuevoEstado){
 // se persiste el estado pendiente/no colocado junto con la observación.
 function guardarEstadoItem_(itemKey){
   if(!detailId) return;
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
   var cfg = ITEMS_COLOCADO_CONFIG_[itemKey];
   var marca=detailMarca, id=detailId;
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
@@ -6840,6 +6902,7 @@ function cerrarModalMotivo_(valor){
 }
 function guardarCampanaTexto(valor){
   if(!detailId) return;
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); openDetail(detailMarca, detailId); return; }
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
   r.campanaTexto = valor.trim();
   if(!r.campanaTexto){ r.campanaControlada=false; r.campanaControladaFecha=''; r.campanaMotivo=''; r.campanaPendienteStock=false; }
@@ -7096,6 +7159,7 @@ function renderOnstarPasos(r){
   }).join('') + '<button style="margin-top:10px;background:none;border:none;color:var(--text-dim);font-size:11px;text-decoration:underline;cursor:pointer;" onclick="marcarOnstarNoAplica()">Este vehículo no tiene OnStar de fábrica (marcar "no aplica")</button>';
 }
 function marcarOnstarNoAplica(){
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
   if(!confirm('¿Marcar este vehículo como "sin OnStar de fábrica"? Se van a ocultar los 4 pasos de seguimiento.')) return;
   r.onstar=null;
@@ -7104,6 +7168,7 @@ function marcarOnstarNoAplica(){
   renderOnstarPasos(r); renderAll();
 }
 function marcarOnstarAplica(){
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
   r.onstar='pending';
   gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{onstar:'pending'}});
@@ -7111,6 +7176,7 @@ function marcarOnstarAplica(){
   renderOnstarPasos(r); renderAll();
 }
 function togglePaso(key){
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
   r[key]=!r[key];
   var fields={}; fields[key]=r[key];
@@ -7148,6 +7214,7 @@ function aplicarMotivoPreset(){
   document.getElementById('rMotivo').value = actual ? (preset+' — '+actual) : preset;
 }
 function reprogramar(){
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
   var f=document.getElementById('rFecha').value, h=document.getElementById('rHora').value, motivo=document.getElementById('rMotivo').value.trim();
   var warningEl = document.getElementById('rWarning');
@@ -7190,6 +7257,7 @@ function renderComentariosUI(r){
     list.map(function(c){return '<div class="comment-item"><div class="meta">'+c.autor+' · '+c.fecha+'</div><div>'+c.texto+'</div></div>';}).join('');
 }
 function agregarComentarioUI(){
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
   var texto=document.getElementById('cNuevo').value.trim();
   if(!texto) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
