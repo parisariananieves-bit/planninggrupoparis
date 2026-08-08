@@ -661,9 +661,9 @@
   .cal-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;min-width:150px;text-align:center;text-transform:capitalize;}
   .cal-legend{display:flex;gap:14px;font-size:10.5px;color:var(--text-dim);flex-wrap:wrap;}
   .cal-legend .sw{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:118px;gap:7px;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:minmax(118px,auto);gap:7px;}
   .cal-dow{font-size:9.5px;color:var(--text-faint);text-transform:uppercase;text-align:center;padding-bottom:7px;letter-spacing:.6px;font-weight:700;}
-  .cal-day{background:var(--panel-2);border:1px solid var(--hairline);border-radius:13px;height:100%;overflow-y:auto;padding:8px;cursor:pointer;position:relative;transition:transform .12s,border-color .12s,box-shadow .12s;scrollbar-width:thin;}
+  .cal-day{background:var(--panel-2);border:1px solid var(--hairline);border-radius:13px;height:100%;overflow:visible;padding:8px;cursor:pointer;position:relative;transition:transform .12s,border-color .12s,box-shadow .12s;}
   .cal-day-cliente{margin-top:5px;font-size:9.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .cal-day-cliente:hover{filter:brightness(1.15);text-decoration:underline;}
   .cal-day-cliente.mas{color:var(--text-faint);background:none;padding:2px 6px 0;font-weight:700;}
@@ -1087,6 +1087,7 @@
         <button class="nav-item" id="navLista" title="Lista de Entregas" onclick="setAppView('lista')"><span class="material-symbols-outlined">list_alt</span><span class="nav-label">Lista de Entregas</span></button>
         <button class="nav-item" id="navSeccionLogistica" title="Logística" onclick="irALogistica()"><span class="material-symbols-outlined">local_shipping</span><span class="nav-label">Logística</span></button>
         <div class="nav-submenu" id="submenuLogistica" style="display:none;">
+          <button class="nav-subitem" id="subLogisticaPreparacion" onclick="setAppView('preparacion')">Centro de Preparación</button>
           <button class="nav-subitem" id="subLogisticaAsignacion" onclick="setAppView('kanban')">Asignación</button>
           <button class="nav-subitem" id="subLogisticaTraslado" onclick="setAppView('traslados')">Traslado</button>
           <button class="nav-subitem" id="subLogisticaFaltantes" onclick="setAppView('faltantes')">Faltantes</button>
@@ -1437,6 +1438,33 @@
             </select>
           </div>
           <div id="faltantesLista" style="margin-top:14px;"></div>
+        </div>
+
+        <div class="app-view" id="viewPreparacion">
+          <div class="view-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div><h2>Centro de Preparación</h2><p>Desde que se vende hasta que está lista para entregar — ninguna unidad llega al Planning sin pasar por acá.</p></div>
+            <div style="display:flex;gap:8px;">
+              <label style="display:inline-flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;padding:9px 14px;cursor:pointer;font-size:12px;color:var(--text-dim);">
+                <span class="material-symbols-outlined" style="font-size:16px;">upload_file</span>Importar
+                <input type="file" accept=".xlsx,.xls" id="prepImportarFileInput" onchange="importarUnidadesPreparacionArchivo_(event)" style="display:none;">
+              </label>
+              <button class="comms-btn primary" style="width:auto;margin:0;" onclick="abrirModalNuevaPreparacion_()"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">add_circle</span> Nueva unidad</button>
+            </div>
+          </div>
+          <div id="prepDashboardKpis" class="stats-grid" style="margin-top:14px;"></div>
+          <div class="filter-bar" style="flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center;">
+            <input type="text" id="prepBuscar" placeholder="Buscar por VIN, cliente, patente o modelo..." oninput="renderPreparacionKanban_()" style="flex:1;min-width:200px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 11px;font-size:12.5px;">
+            <select id="prepFiltroMarca" onchange="renderPreparacionKanban_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:12px;"><option value="">Todas las marcas</option></select>
+            <select id="prepFiltroSucursal" onchange="renderPreparacionKanban_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
+            <select id="prepFiltroEstado" onchange="renderPreparacionKanban_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:12px;"><option value="">Todos los estados</option></select>
+            <select id="prepFiltroPrioridad" onchange="renderPreparacionKanban_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:12px;">
+              <option value="">Toda prioridad</option><option value="Alta">Alta</option><option value="Media">Media</option><option value="Baja">Baja</option>
+            </select>
+            <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-dim);cursor:pointer;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;padding:8px 11px;">
+              <input type="checkbox" id="prepSoloMias" onchange="renderPreparacionKanban_()"> Solo mis unidades
+            </label>
+          </div>
+          <div id="preparacionBoard" style="display:flex;gap:14px;overflow-x:auto;padding-bottom:10px;margin-top:14px;align-items:flex-start;"></div>
         </div>
 
         <div class="app-view" id="viewHistorialcoms">
@@ -2216,6 +2244,7 @@
     <h3 id="dHeadName">—</h3>
     <div class="sub" id="dHeadSub">—</div>
     <div id="dObservacionesAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionObservaciones_()"><span class="material-symbols-outlined" style="font-size:15px;">sticky_note_2</span>Esta entrega tiene observaciones cargadas</div>
+    <div id="dConfirmacionAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionConfirmacion_()"><span class="material-symbols-outlined" style="font-size:15px;">mail</span>Falta enviar la confirmación de esta entrega</div>
     <div id="dAccesorioAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionAccesorio_()"><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
     <div id="dOnstarAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionOnstar_()"><span class="material-symbols-outlined" style="font-size:15px;">directions_car</span></div>
     <div id="dTrasladoAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">local_shipping</span></div>
@@ -2498,6 +2527,53 @@
     <button class="close" onclick="cerrarModalPermisos_()">✕</button>
   </div>
   <div class="modal-body" id="permisosModalBody" style="padding:16px 20px;max-height:60vh;overflow-y:auto;"></div>
+</div>
+
+<div class="modal" id="modalNuevaPreparacion" style="width:min(620px,92vw);">
+  <div class="modal-head">
+    <div><h3><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">add_circle</span> Nueva unidad en preparación</h3><div class="sub">Se crea con checklist vacío y sin asignar — el supervisor la reparte después.</div></div>
+    <button class="close" onclick="cerrarModalNuevaPreparacion_()">✕</button>
+  </div>
+  <div class="modal-body" style="padding:16px 20px;">
+    <div class="field-grid">
+      <div class="field"><div class="l">Cliente *</div><input id="prepNCliente"></div>
+      <div class="field"><div class="l">VIN</div><input id="prepNVin" class="mono"></div>
+      <div class="field"><div class="l">Patente</div><input id="prepNPatente" class="mono"></div>
+      <div class="field"><div class="l">Modelo</div><input id="prepNModelo"></div>
+      <div class="field"><div class="l">Versión</div><input id="prepNVersion"></div>
+      <div class="field"><div class="l">Color</div><input id="prepNColor"></div>
+      <div class="field"><div class="l">Motor</div><input id="prepNMotor"></div>
+      <div class="field"><div class="l">Marca</div><select id="prepNMarca"></select></div>
+      <div class="field"><div class="l">Sucursal</div><select id="prepNSucursal"></select></div>
+      <div class="field"><div class="l">Vendedor</div><input id="prepNVendedor"></div>
+      <div class="field"><div class="l">Administrativo</div><input id="prepNAdministrativo"></div>
+      <div class="field"><div class="l">Fecha de venta</div><input type="date" id="prepNFechaVenta"></div>
+      <div class="field"><div class="l">Fecha prometida</div><input type="date" id="prepNFechaPrometida"></div>
+      <div class="field"><div class="l">Prioridad</div><select id="prepNPrioridad"><option value="Media" selected>Media</option><option value="Alta">Alta</option><option value="Baja">Baja</option></select></div>
+    </div>
+    <button class="reprog-btn" style="margin-top:14px;" onclick="crearUnidadPreparacionUI_()">Crear unidad</button>
+  </div>
+</div>
+
+<div class="modal" id="modalFichaPreparacion" style="width:min(760px,94vw);">
+  <div class="modal-head">
+    <div><h3 id="prepFichaTitulo"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">directions_car</span> Ficha de la unidad</h3><div class="sub" id="prepFichaSub"></div></div>
+    <button class="close" onclick="cerrarFichaPreparacion_()">✕</button>
+  </div>
+  <div class="modal-body" style="padding:16px 20px;max-height:74vh;overflow-y:auto;">
+    <div id="prepFichaInfoGeneral" class="field-grid" style="margin-bottom:16px;"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+      <div class="field" style="flex:1;min-width:160px;"><div class="l">Estado</div><select id="prepFichaEstado" onchange="cambiarEstadoPreparacionUI_(this.value)"></select></div>
+      <div class="field" style="flex:1;min-width:160px;"><div class="l">Responsable</div><select id="prepFichaResponsable" onchange="asignarResponsablePreparacionUI_(this.value)"></select></div>
+      <div class="field" style="flex:1;min-width:160px;"><div class="l">Prioridad</div><select id="prepFichaPrioridad" onchange="cambiarPrioridadPreparacionUI_(this.value)"><option value="Alta">Alta</option><option value="Media">Media</option><option value="Baja">Baja</option></select></div>
+    </div>
+    <div class="section-title" style="margin-bottom:8px;">Checklist</div>
+    <div id="prepFichaChecklist"></div>
+    <button id="prepBtnProgramarEntrega" onclick="abrirNuevaEntregaDesdePreparacion_()" style="display:none;width:100%;margin-top:14px;background:linear-gradient(135deg,var(--ok),#0d8a4a);color:#fff;border:none;border-radius:8px;padding:11px;font-weight:700;font-size:13px;cursor:pointer;"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">event_available</span> Programar Entrega</button>
+    <div class="section-title" style="margin-top:18px;margin-bottom:8px;">Historial</div>
+    <div id="prepFichaHistorial" style="max-height:180px;overflow-y:auto;"></div>
+    <button style="margin-top:14px;background:none;border:1px solid var(--hairline);color:var(--danger);border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;" onclick="eliminarUnidadPreparacionUI_()">Eliminar unidad (se cargó por error)</button>
+  </div>
 </div>
 
 <div class="modal" id="modalSeguimientoGC">
@@ -2883,8 +2959,8 @@ function olvidePasswordUI(){
 }
 // Oculta/deshabilita lo que el rol actual no puede tocar. Se llama al loguearse
 // y cada vez que se renderiza la tabla o se abre el detalle de una entrega.
-var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','kanban','traslados','faltantes','reportes','historialcoms','casos','notificaciones','manual','maestro','tv'];
-var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'subLogisticaAsignacion', traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', reportes:'navReportes', historialcoms:'navHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', manual:'navManual', maestro:'navMaestro', tv:'navTv'};
+var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','kanban','traslados','faltantes','preparacion','reportes','historialcoms','casos','notificaciones','manual','maestro','tv'];
+var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'subLogisticaAsignacion', traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', preparacion:'subLogisticaPreparacion', reportes:'navReportes', historialcoms:'navHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', manual:'navManual', maestro:'navMaestro', tv:'navTv'};
 function aplicarPermisosUI(){
   var puede = puedeEditar();
   var modulosDelUsuario = modulosUsuarioActual();
@@ -2893,7 +2969,7 @@ function aplicarPermisosUI(){
   // Módulos que SOLO ve el admin (Calidad/Maestro) por defecto — para todos
   // los demás, ni por rol ni por defecto: hay que dárselos a mano, uno por
   // uno, desde Maestro → Permisos. Nada de esto aparece solo.
-  var MODULOS_SOLO_ADMIN_POR_DEFECTO_ = ['casos','notificaciones','traslados','faltantes','kanban','manual'];
+  var MODULOS_SOLO_ADMIN_POR_DEFECTO_ = ['casos','notificaciones','traslados','faltantes','kanban','manual','preparacion'];
   MODULOS_LIST.forEach(function(mod){
     var el = document.getElementById(MODULOS_NAV_ID[mod]);
     if(!el) return;
@@ -2931,7 +3007,8 @@ function aplicarPermisosUI(){
     var kanbanVisible = document.getElementById('subLogisticaAsignacion').style.display !== 'none';
     var trasladosVisible = document.getElementById('subLogisticaTraslado').style.display !== 'none';
     var faltantesVisible = document.getElementById('subLogisticaFaltantes').style.display !== 'none';
-    seccionLogistica.style.display = (kanbanVisible || trasladosVisible || faltantesVisible) ? '' : 'none';
+    var preparacionVisible = document.getElementById('subLogisticaPreparacion').style.display !== 'none';
+    seccionLogistica.style.display = (kanbanVisible || trasladosVisible || faltantesVisible || preparacionVisible) ? '' : 'none';
   }
   document.body.classList.toggle('role-tv', esTvRecepcion());
 }
@@ -3069,17 +3146,17 @@ function mostrarUltimoIngreso_(nombre, ultimoIngreso){
 // (antes se mostraban solo los íconos, todos amontonados en una fila).
 var ETIQUETAS_MODULOS_ = {
   dashboard:'Dashboard', nuevaentrega:'Nueva Entrega', calendario:'Calendario', lista:'Lista de Entregas',
-  kanban:'Asignación Logística', traslados:'Traslados', faltantes:'Faltantes', reportes:'Reportes',
+  kanban:'Asignación Logística', traslados:'Traslados', faltantes:'Faltantes', preparacion:'Centro de Preparación', reportes:'Reportes',
   historialcoms:'Historial de Comunicaciones', casos:'Reportar Caso', notificaciones:'Bandeja de entrada',
   manual:'Manual', maestro:'Panel Maestro (Config)', tv:'TV Entregas'
 };
 var GRUPOS_MODULOS_ = [
   {titulo:'General', modulos:['dashboard','nuevaentrega','calendario','lista','reportes','tv']},
-  {titulo:'Logística', modulos:['kanban','traslados','faltantes']},
+  {titulo:'Logística', modulos:['preparacion','kanban','traslados','faltantes']},
   {titulo:'Comunicación y casos', modulos:['historialcoms','casos','notificaciones']},
   {titulo:'Administración', modulos:['manual','maestro']}
 ];
-var iconos = {dashboard:'dashboard', nuevaentrega:'add_circle', calendario:'calendar_today', lista:'list_alt', kanban:'view_kanban', traslados:'local_shipping', faltantes:'assignment_late', reportes:'analytics', historialcoms:'forum', casos:'report', notificaciones:'notifications', manual:'menu_book', maestro:'settings', tv:'tv'};
+var iconos = {dashboard:'dashboard', nuevaentrega:'add_circle', calendario:'calendar_today', lista:'list_alt', kanban:'view_kanban', traslados:'local_shipping', faltantes:'assignment_late', preparacion:'checklist', reportes:'analytics', historialcoms:'forum', casos:'report', notificaciones:'notifications', manual:'menu_book', maestro:'settings', tv:'tv'};
 function abrirModalPermisos_(usuario){
   var u = (window._usuariosCache||[]).find(function(x){return x.usuario===usuario;});
   if(!u) return;
@@ -3432,7 +3509,7 @@ function activarVistaPrevia(){
 // ============================================================
 // NAVEGACIÓN POR VISTAS (Dashboard / Calendario / Lista / Maestro)
 // ============================================================
-var VISTAS_APP = ['dashboard','calendario','lista','kanban','historialcoms','casos','notificaciones','traslados','faltantes','maestro','nuevaentrega','tv'];
+var VISTAS_APP = ['dashboard','calendario','lista','kanban','historialcoms','casos','notificaciones','traslados','faltantes','preparacion','maestro','nuevaentrega','tv'];
 // ============================================================
 // MODO TV — pantalla de solo lectura para monitor de la concesionaria.
 // Se actualiza sola (usa el mismo refresco silencioso de cada 25s que
@@ -3702,7 +3779,7 @@ function setAppView(view){
     var navMaestro = document.getElementById('navMaestro'); if(navMaestro) navMaestro.classList.remove('expanded');
     if(window._intervalUsuariosTabla){ clearInterval(window._intervalUsuariosTabla); window._intervalUsuariosTabla = null; }
   }
-  var VISTAS_LOGISTICA_ = {kanban:'subLogisticaAsignacion', traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes'};
+  var VISTAS_LOGISTICA_ = {kanban:'subLogisticaAsignacion', traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', preparacion:'subLogisticaPreparacion'};
   var subL = document.getElementById('submenuLogistica');
   var navL = document.getElementById('navSeccionLogistica');
   if(VISTAS_LOGISTICA_[view]){
@@ -3730,6 +3807,7 @@ function setAppView(view){
   if(view==='notificaciones'){ renderNotificaciones(); }
   if(view==='traslados'){ renderTraslados(); }
   if(view==='faltantes'){ renderFaltantes(); }
+  if(view==='preparacion'){ cargarPreparacionSiHaceFalta_().then(renderPreparacionKanban_); }
 }
 
 function fmtFecha(d){ var dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0'); return dd+'/'+mm+'/'+d.getFullYear(); }
@@ -4459,6 +4537,7 @@ function renderAll(){
   if(currentAppView==='kanban') renderKanban();
   if(currentAppView==='traslados') renderTraslados();
   if(currentAppView==='faltantes') renderFaltantes();
+  if(currentAppView==='preparacion') renderPreparacionKanban_();
 }
 function renderCanalToggle(){
   var htmlFiltros =
@@ -4639,6 +4718,361 @@ function renderTraslados(){
 // que tienen algún ítem sin colocar. Así no se pierde de vista un cliente
 // que ya se llevó el auto pero quedó debiendo el kit/manual/llave/etc.
 // ============================================================
+// ============================================================
+// CENTRO DE PREPARACIÓN DE ENTREGAS — Fase 1
+// Ficha de la unidad + checklist configurable + Kanban por responsable,
+// reutilizando el mismo diseño visual del Kanban de Asignación Logística.
+// ============================================================
+var PREP_UNIDADES = [];
+var PREP_CHECKLIST_CONFIG = [];
+var PREP_ESTADOS = ['Sin asignar','Asignado','En preparación','Esperando Taller','Esperando Chapa y Pintura','Esperando Accesorios','Esperando Administración','Esperando Patentamiento','Esperando Repuestos','Esperando Lavadero','Esperando Calidad','Bloqueado','Listo para entregar','Agendado','Entregado'];
+var _preparacionCargada_ = false;
+var _prepFichaAbierta_ = null;
+
+function cargarPreparacionSiHaceFalta_(){
+  if(_preparacionCargada_) return Promise.resolve();
+  return Promise.all([gasGet('unidadesPreparacion'), gasGet('checklistPreparacionConfig')]).then(function(res){
+    PREP_UNIDADES = (res[0] && res[0].ok) ? res[0].unidades : [];
+    PREP_CHECKLIST_CONFIG = (res[1] && res[1].ok) ? res[1].config.filter(function(x){return x.activo;}) : [];
+    _preparacionCargada_ = true;
+    poblarFiltrosPreparacion_();
+  });
+}
+function poblarFiltrosPreparacion_(){
+  var selMarca = document.getElementById('prepFiltroMarca');
+  if(selMarca && selMarca.options.length<=1){
+    selMarca.innerHTML = '<option value="">Todas las marcas</option>' + BRANDS.map(function(b){return '<option value="'+b.id+'">'+b.label+'</option>';}).join('');
+  }
+  var selSucursal = document.getElementById('prepFiltroSucursal');
+  if(selSucursal && selSucursal.options.length<=1){
+    var todasSucursales = [];
+    BRANDS.forEach(function(b){ if(b.branches) b.branches.forEach(function(s){ if(todasSucursales.indexOf(s)===-1) todasSucursales.push(s); }); });
+    selSucursal.innerHTML = '<option value="">Todas las sucursales</option>' + todasSucursales.map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join('');
+  }
+  var selEstado = document.getElementById('prepFiltroEstado');
+  if(selEstado && selEstado.options.length<=1){
+    selEstado.innerHTML = '<option value="">Todos los estados</option>' + PREP_ESTADOS.map(function(e){return '<option value="'+e+'">'+e+'</option>';}).join('');
+  }
+}
+function prepDiasRestantes_(u){
+  var f = parsearFecha_(u.fechaPrometida);
+  if(!f) return null;
+  var hoy = new Date(); hoy.setHours(0,0,0,0);
+  return Math.round((f.getTime()-hoy.getTime())/(1000*60*60*24));
+}
+function prepProgresoChecklist_(u){
+  var items = u.checklist || [];
+  if(items.length===0) return {hechos:0, total:0};
+  return {hechos: items.filter(function(i){return i.hecho;}).length, total: items.length};
+}
+function prepColorPrioridad_(p){
+  return p==='Alta' ? 'var(--danger)' : p==='Baja' ? 'var(--text-faint)' : 'var(--warn)';
+}
+function renderPrepDashboardKpis_(){
+  var cont = document.getElementById('prepDashboardKpis');
+  if(!cont) return;
+  var soloMias = document.getElementById('prepSoloMias').checked;
+  if(soloMias){
+    gasGet('prepDashboardResponsable', {nombre: usuarioActual()}).then(function(res){
+      if(!res.ok) return;
+      cont.innerHTML =
+        '<div class="stat-chip"><div class="n">'+res.total+'</div><div class="l">Mis unidades</div></div>'+
+        '<div class="stat-chip ok"><div class="n">'+res.listas+'</div><div class="l">Listas para entregar</div></div>'+
+        '<div class="stat-chip danger"><div class="n">'+res.bloqueadas+'</div><div class="l">Bloqueadas</div></div>'+
+        '<div class="stat-chip warn"><div class="n">'+res.porVencer+'</div><div class="l">Por vencer (≤2 días)</div></div>'+
+        '<div class="stat-chip"><div class="n">'+res.checklistPendiente+'</div><div class="l">Ítems de checklist pendientes</div></div>';
+    });
+  } else {
+    gasGet('prepDashboardSupervisor').then(function(res){
+      if(!res.ok) return;
+      var esperando = 0;
+      Object.keys(res.porEstado).forEach(function(e){ if(e.indexOf('Esperando')===0) esperando += res.porEstado[e]; });
+      cont.innerHTML =
+        '<div class="stat-chip"><div class="n">'+res.total+'</div><div class="l">Unidades activas</div></div>'+
+        '<div class="stat-chip warn"><div class="n">'+(res.porEstado['Sin asignar']||0)+'</div><div class="l">Sin asignar</div></div>'+
+        '<div class="stat-chip"><div class="n">'+(res.porEstado['En preparación']||0)+'</div><div class="l">En preparación</div></div>'+
+        '<div class="stat-chip"><div class="n">'+esperando+'</div><div class="l">Esperando otra área</div></div>'+
+        '<div class="stat-chip ok"><div class="n">'+(res.porEstado['Listo para entregar']||0)+'</div><div class="l">Listas para entregar</div></div>'+
+        '<div class="stat-chip ok"><div class="n">'+(res.porEstado['Agendado']||0)+'</div><div class="l">Agendadas</div></div>'+
+        '<div class="stat-chip danger"><div class="n">'+res.demoradas+'</div><div class="l">Demoradas (vencieron)</div></div>'+
+        '<div class="stat-chip"><div class="n">'+res.tiempoPromedioDias+'d</div><div class="l">Tiempo promedio de preparación</div></div>';
+    });
+  }
+}
+function renderPreparacionKanban_(){
+  var board = document.getElementById('preparacionBoard');
+  if(!board) return;
+  renderPrepDashboardKpis_();
+  var q = (document.getElementById('prepBuscar').value||'').trim().toLowerCase();
+  var fMarca = document.getElementById('prepFiltroMarca').value;
+  var fSucursal = document.getElementById('prepFiltroSucursal').value;
+  var fEstado = document.getElementById('prepFiltroEstado').value;
+  var fPrioridad = document.getElementById('prepFiltroPrioridad').value;
+  var soloMias = document.getElementById('prepSoloMias').checked;
+
+  var filtradas = PREP_UNIDADES.filter(function(u){
+    if(soloMias && u.responsable!==usuarioActual()) return false;
+    if(fMarca && u.marca!==fMarca) return false;
+    if(fSucursal && u.sucursal!==fSucursal) return false;
+    if(fEstado && u.estado!==fEstado) return false;
+    if(fPrioridad && u.prioridad!==fPrioridad) return false;
+    if(u.estado==='Entregado') return false; // ya está en el Planning, no ocupa lugar acá
+    if(q){
+      var hay = (u.vin||'').toLowerCase().indexOf(q)>-1 || (u.cliente||'').toLowerCase().indexOf(q)>-1 ||
+        (u.patente||'').toLowerCase().indexOf(q)>-1 || (u.modelo||'').toLowerCase().indexOf(q)>-1;
+      if(!hay) return false;
+    }
+    return true;
+  });
+
+  var responsables = ((CONFIG.maestros && CONFIG.maestros.responsables) || []).map(function(r){return nombreDeMaestro_(r);});
+  var opcionesResp = '<option value="">Asignar a...</option>' + responsables.map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join('');
+
+  function tarjeta(u){
+    var b = BRANDS.find(function(x){return x.id===u.marca;}) || BRANDS[0];
+    var dias = prepDiasRestantes_(u);
+    var prog = prepProgresoChecklist_(u);
+    var diasTxt = dias===null ? '' : (dias<0 ? '<span style="color:var(--danger);font-weight:700;">'+Math.abs(dias)+'d vencida</span>' : dias===0 ? '<span style="color:var(--warn);font-weight:700;">Hoy</span>' : '<span style="color:var(--text-faint);">'+dias+'d restantes</span>');
+    return '<div class="kanban-card" style="border-left:5px solid var('+b.color+');background:linear-gradient(90deg,var('+b.soft+') 0%,var(--panel-2) 14%);cursor:pointer;" onclick="abrirFichaPreparacion_(\''+u.id+'\')">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:3px;">'+
+        '<div style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var('+b.color+');flex:none;"></span><span style="font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var('+b.color+');">'+b.label+'</span></div>'+
+        '<span style="font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;color:#fff;background:'+prepColorPrioridad_(u.prioridad)+';">'+(u.prioridad||'Media')+'</span>'+
+      '</div>'+
+      '<div class="cli">'+(u.cliente||'—')+'</div>'+
+      '<div class="veh" style="color:var('+b.color+');font-weight:700;">'+(u.modelo||'—')+(u.vin?' · VIN '+u.vin:'')+(u.patente?' · '+u.patente:'')+'</div>'+
+      '<div class="fecha">'+(u.sucursal||'—')+(u.fechaPrometida?' · Prometida '+u.fechaPrometida:'')+'</div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;font-size:10.5px;">'+
+        '<span style="color:var(--text-faint);">'+u.estado+'</span>'+diasTxt+
+      '</div>'+
+      (prog.total>0 ? '<div style="margin-top:6px;height:5px;background:var(--hairline);border-radius:3px;overflow:hidden;"><div style="height:100%;width:'+(prog.hechos/prog.total*100)+'%;background:var(--ok);"></div></div><div style="font-size:9.5px;color:var(--text-faint);margin-top:3px;">Checklist: '+prog.hechos+'/'+prog.total+'</div>' : '')+
+      '<select onclick="event.stopPropagation();" onchange="asignarResponsablePreparacion_(\''+u.id+'\',this.value)"'+(puedeEditarModulo_('preparacion')?'':' disabled title="Solo lectura"')+' style="margin-top:6px;">'+opcionesResp.replace('value="'+(u.responsable||'\u0000')+'"','value="'+(u.responsable||'')+'" selected')+'</select>'+
+    '</div>';
+  }
+
+  var sinAsignar = filtradas.filter(function(u){ return !u.responsable; });
+  var html = '<div class="kanban-col sin-asignar"><div class="kanban-col-header"><span>⚠ Sin asignar</span><span class="cant">'+sinAsignar.length+'</span></div><div class="kanban-col-body">'+
+    (sinAsignar.length ? sinAsignar.map(tarjeta).join('') : '<div style="color:var(--text-faint);font-size:11.5px;text-align:center;padding:14px;">Nadie sin asignar 🎉</div>') +
+  '</div></div>';
+  responsables.forEach(function(nombre){
+    var suyas = filtradas.filter(function(u){ return u.responsable===nombre; });
+    html += '<div class="kanban-col"><div class="kanban-col-header"><span>'+nombre+'</span><span class="cant">'+suyas.length+'</span></div><div class="kanban-col-body">'+
+      (suyas.length ? suyas.map(tarjeta).join('') : '<div style="color:var(--text-faint);font-size:11.5px;text-align:center;padding:14px;">Sin unidades asignadas.</div>') +
+    '</div></div>';
+  });
+  board.innerHTML = html;
+}
+function asignarResponsablePreparacion_(id, nombre){
+  if(!puedeEditarModulo_('preparacion')){ showToast('Tenés acceso de solo lectura al Centro de Preparación.'); renderPreparacionKanban_(); return; }
+  var u = PREP_UNIDADES.find(function(x){return x.id===id;});
+  if(!u) return;
+  u.responsable = nombre;
+  if(u.estado==='Sin asignar' && nombre) u.estado='Asignado';
+  gasPost('prepAsignarResponsable', {id:id, responsable:nombre, autor:usuarioActual()});
+  showToast(nombre ? 'Asignada a '+nombre : 'Quedó sin asignar');
+  renderPreparacionKanban_();
+}
+
+// ---- Ficha completa de la unidad ----
+function abrirFichaPreparacion_(id){
+  var u = PREP_UNIDADES.find(function(x){return x.id===id;});
+  if(!u) return;
+  _prepFichaAbierta_ = id;
+  var b = BRANDS.find(function(x){return x.id===u.marca;}) || BRANDS[0];
+  document.getElementById('prepFichaTitulo').innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">directions_car</span> '+(u.cliente||'—')+' · '+(u.modelo||'—');
+  document.getElementById('prepFichaSub').textContent = u.id+' · '+b.label+' · '+(u.sucursal||'—');
+
+  var campos = [
+    ['Cliente', u.cliente], ['VIN', u.vin], ['Patente', u.patente], ['Modelo', u.modelo], ['Versión', u.version],
+    ['Color', u.color], ['Motor', u.motor], ['Vendedor', u.vendedor], ['Administrativo', u.administrativo],
+    ['Fecha de venta', u.fechaVenta], ['Fecha prometida', u.fechaPrometida]
+  ];
+  document.getElementById('prepFichaInfoGeneral').innerHTML = campos.map(function(c){
+    return '<div class="field"><div class="l">'+c[0]+'</div><div style="font-size:12.5px;font-weight:600;padding:2px 0;">'+(c[1]||'—')+'</div></div>';
+  }).join('');
+
+  var selEstado = document.getElementById('prepFichaEstado');
+  selEstado.innerHTML = PREP_ESTADOS.map(function(e){return '<option value="'+e+'" '+(e===u.estado?'selected':'')+'>'+e+'</option>';}).join('');
+  var responsables = ((CONFIG.maestros && CONFIG.maestros.responsables) || []).map(function(r){return nombreDeMaestro_(r);});
+  var selResp = document.getElementById('prepFichaResponsable');
+  selResp.innerHTML = '<option value="">Sin asignar</option>' + responsables.map(function(n){return '<option value="'+n+'" '+(n===u.responsable?'selected':'')+'>'+n+'</option>';}).join('');
+  document.getElementById('prepFichaPrioridad').value = u.prioridad || 'Media';
+  var btnProgramar = document.getElementById('prepBtnProgramarEntrega');
+  if(btnProgramar) btnProgramar.style.display = (u.estado==='Listo para entregar') ? 'block' : 'none';
+
+  var puedeEditarFicha = puedeEditarModulo_('preparacion');
+  [selEstado, selResp, document.getElementById('prepFichaPrioridad')].forEach(function(el){ el.disabled = !puedeEditarFicha; });
+
+  var checklistCont = document.getElementById('prepFichaChecklist');
+  var items = (u.checklist && u.checklist.length) ? u.checklist : PREP_CHECKLIST_CONFIG.map(function(c){return {item:c.item, hecho:false, usuario:'', fecha:'', observaciones:''};});
+  checklistCont.innerHTML = items.map(function(it){
+    return '<div style="display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid var(--hairline);">'+
+      '<input type="checkbox" '+(it.hecho?'checked':'')+' '+(puedeEditarFicha?'':'disabled')+' onchange="marcarChecklistItemPreparacionUI_(\''+it.item.replace(/'/g,"\\'")+'\',this.checked)" style="margin-top:3px;width:16px;height:16px;flex-shrink:0;cursor:pointer;">'+
+      '<div style="flex:1;"><div style="font-size:12.5px;font-weight:'+(it.hecho?'400':'600')+';text-decoration:'+(it.hecho?'line-through':'none')+';color:'+(it.hecho?'var(--text-faint)':'var(--text)')+';">'+it.item+'</div>'+
+      (it.hecho?'<div style="font-size:10.5px;color:var(--text-faint);margin-top:2px;">'+it.usuario+' · '+it.fecha+'</div>':'')+'</div>'+
+    '</div>';
+  }).join('');
+
+  var historialCont = document.getElementById('prepFichaHistorial');
+  var hist = (u.historial||[]).slice().reverse();
+  historialCont.innerHTML = hist.length ? hist.map(function(h){
+    return '<div style="font-size:11.5px;padding:5px 0;border-bottom:1px solid var(--hairline);"><span style="color:var(--text-faint);">'+h.fecha+'</span> — '+h.texto+' <span style="color:var(--text-faint);">('+h.autor+')</span></div>';
+  }).join('') : '<div style="font-size:11.5px;color:var(--text-faint);">Sin movimientos todavía.</div>';
+
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('modalFichaPreparacion').classList.add('show');
+}
+function cerrarFichaPreparacion_(){
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('modalFichaPreparacion').classList.remove('show');
+  _prepFichaAbierta_ = null;
+  renderPreparacionKanban_();
+}
+function cambiarEstadoPreparacionUI_(estado){
+  if(!_prepFichaAbierta_) return;
+  var u = PREP_UNIDADES.find(function(x){return x.id===_prepFichaAbierta_;});
+  var estadoAnterior = u.estado;
+  gasPost('prepCambiarEstado', {id:u.id, estado:estado, autor:usuarioActual()}).then(function(res){
+    if(!res.ok){
+      showToast(res.error||'No se pudo cambiar el estado');
+      abrirFichaPreparacion_(u.id); // repinta con el estado real (sin el cambio, rechazado)
+      return;
+    }
+    u.estado = estado;
+    u.historial = u.historial||[]; u.historial.push({fecha:fechaHoraAhora_(), texto:'Cambió a estado "'+estado+'"', autor:usuarioActual()});
+    if(estado==='Listo para entregar') u.fechaListoParaEntregar = fechaHoraAhora_();
+    showToast('Estado actualizado');
+    abrirFichaPreparacion_(u.id);
+    renderPreparacionKanban_();
+  });
+}
+function asignarResponsablePreparacionUI_(nombre){
+  if(!_prepFichaAbierta_) return;
+  asignarResponsablePreparacion_(_prepFichaAbierta_, nombre);
+  abrirFichaPreparacion_(_prepFichaAbierta_);
+}
+var _prepOrigenParaNuevaEntrega_ = null;
+function abrirNuevaEntregaDesdePreparacion_(){
+  if(!_prepFichaAbierta_) return;
+  var u = PREP_UNIDADES.find(function(x){return x.id===_prepFichaAbierta_;});
+  cerrarFichaPreparacion_();
+  currentBrand = u.marca;
+  openNewDelivery();
+  document.getElementById('nCliente').value = u.cliente || '';
+  document.getElementById('nModelo').value = u.modelo || '';
+  document.getElementById('nColor').value = u.color || '';
+  document.getElementById('nDominio').value = u.patente || '';
+  document.getElementById('nChasis').value = u.vin || '';
+  if(u.vendedor) document.getElementById('nVendedor').value = u.vendedor;
+  if(u.administrativo) document.getElementById('nAdministrativo').value = u.administrativo;
+  if(u.responsable) document.getElementById('nResponsable').value = u.responsable;
+  document.getElementById('nObservaciones').value = 'Viene del Centro de Preparación ('+u.id+(u.version?' — '+u.version:'')+(u.motor?' — Motor '+u.motor:'')+')';
+  _prepOrigenParaNuevaEntrega_ = u.id;
+  showToast('Datos precargados desde el Centro de Preparación — completá fecha, hora y lugar de entrega');
+}
+function cambiarPrioridadPreparacionUI_(prioridad){
+  if(!_prepFichaAbierta_) return;
+  var u = PREP_UNIDADES.find(function(x){return x.id===_prepFichaAbierta_;});
+  u.prioridad = prioridad;
+  gasPost('prepCambiarPrioridad', {id:u.id, prioridad:prioridad, autor:usuarioActual()});
+  showToast('Prioridad actualizada');
+}
+function marcarChecklistItemPreparacionUI_(itemNombre, hecho){
+  if(!_prepFichaAbierta_) return;
+  var u = PREP_UNIDADES.find(function(x){return x.id===_prepFichaAbierta_;});
+  u.checklist = u.checklist || PREP_CHECKLIST_CONFIG.map(function(c){return {item:c.item, hecho:false, usuario:'', fecha:'', observaciones:''};});
+  var item = u.checklist.find(function(x){return x.item===itemNombre;});
+  if(!item){ item={item:itemNombre, hecho:false, usuario:'', fecha:'', observaciones:''}; u.checklist.push(item); }
+  item.hecho = hecho;
+  item.usuario = hecho ? usuarioActual() : '';
+  item.fecha = hecho ? fechaHoraAhora_() : '';
+  gasPost('prepMarcarChecklistItem', {id:u.id, item:itemNombre, hecho:hecho, autor:usuarioActual()});
+  abrirFichaPreparacion_(u.id);
+}
+function eliminarUnidadPreparacionUI_(){
+  if(!_prepFichaAbierta_) return;
+  var u = PREP_UNIDADES.find(function(x){return x.id===_prepFichaAbierta_;});
+  if(!confirm('¿Eliminar la unidad de '+u.cliente+'? No se puede deshacer.')) return;
+  gasPost('prepEliminarUnidad', {id:u.id}).then(function(res){
+    if(!res.ok){ showToast(res.error||'No se pudo eliminar'); return; }
+    PREP_UNIDADES = PREP_UNIDADES.filter(function(x){return x.id!==u.id;});
+    showToast('Unidad eliminada');
+    cerrarFichaPreparacion_();
+  });
+}
+
+// ---- Nueva unidad (manual) ----
+function abrirModalNuevaPreparacion_(){
+  if(!puedeEditarModulo_('preparacion')){ showToast('Tenés acceso de solo lectura al Centro de Preparación.'); return; }
+  ['prepNCliente','prepNVin','prepNPatente','prepNModelo','prepNVersion','prepNColor','prepNMotor','prepNVendedor','prepNAdministrativo','prepNFechaVenta','prepNFechaPrometida'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('prepNPrioridad').value = 'Media';
+  var selMarca = document.getElementById('prepNMarca');
+  selMarca.innerHTML = BRANDS.map(function(b){return '<option value="'+b.id+'">'+b.label+'</option>';}).join('');
+  actualizarSucursalesPrepNueva_();
+  selMarca.onchange = actualizarSucursalesPrepNueva_;
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('modalNuevaPreparacion').classList.add('show');
+}
+function actualizarSucursalesPrepNueva_(){
+  var marcaId = document.getElementById('prepNMarca').value;
+  var b = BRANDS.find(function(x){return x.id===marcaId;});
+  var selSucursal = document.getElementById('prepNSucursal');
+  selSucursal.innerHTML = (b && b.branches) ? b.branches.map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join('') : '<option value="default">—</option>';
+}
+function cerrarModalNuevaPreparacion_(){
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('modalNuevaPreparacion').classList.remove('show');
+}
+function fechaInputADDMMYYYY_(valorInput){
+  if(!valorInput) return '';
+  var p = valorInput.split('-'); // yyyy-mm-dd -> dd/mm/yyyy
+  return p.length===3 ? (p[2]+'/'+p[1]+'/'+p[0]) : valorInput;
+}
+function crearUnidadPreparacionUI_(){
+  var cliente = document.getElementById('prepNCliente').value.trim();
+  if(!cliente){ showToast('Falta el nombre del cliente'); return; }
+  var payload = {
+    cliente:cliente, vin:document.getElementById('prepNVin').value.trim(), patente:document.getElementById('prepNPatente').value.trim(),
+    modelo:document.getElementById('prepNModelo').value.trim(), version:document.getElementById('prepNVersion').value.trim(),
+    marca:document.getElementById('prepNMarca').value, sucursal:document.getElementById('prepNSucursal').value,
+    vendedor:document.getElementById('prepNVendedor').value.trim(), administrativo:document.getElementById('prepNAdministrativo').value.trim(),
+    fechaVenta:fechaInputADDMMYYYY_(document.getElementById('prepNFechaVenta').value), fechaPrometida:fechaInputADDMMYYYY_(document.getElementById('prepNFechaPrometida').value),
+    color:document.getElementById('prepNColor').value.trim(), motor:document.getElementById('prepNMotor').value.trim(),
+    prioridad:document.getElementById('prepNPrioridad').value, autor:usuarioActual()
+  };
+  gasPost('crearUnidadPreparacion', payload).then(function(res){
+    if(!res.ok){ showToast(res.error||'No se pudo crear'); return; }
+    showToast('Unidad creada: '+res.id);
+    cerrarModalNuevaPreparacion_();
+    _preparacionCargada_ = false;
+    cargarPreparacionSiHaceFalta_().then(renderPreparacionKanban_);
+  });
+}
+function importarUnidadesPreparacionArchivo_(event){
+  var file = event.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
+      var hoja = wb.Sheets[wb.SheetNames[0]];
+      var filas = XLSX.utils.sheet_to_json(hoja, {header:1});
+      if(filas.length && isNaN(Date.parse(filas[0][9]))) filas = filas.slice(1); // salta encabezado si la col FechaVenta no parece fecha
+      filas = filas.filter(function(f){ return f && (f[0]||f[1]); });
+      if(filas.length===0){ showToast('El archivo no tiene filas para importar'); return; }
+      gasPost('importarUnidadesPreparacion', {filas:filas, autor:usuarioActual()}).then(function(res){
+        if(!res.ok){ showToast(res.error||'No se pudo importar'); return; }
+        showToast(res.creadas+' unidad(es) importada(s)');
+        _preparacionCargada_ = false;
+        cargarPreparacionSiHaceFalta_().then(renderPreparacionKanban_);
+      });
+    }catch(err){
+      showToast('No se pudo leer el archivo: '+err.message);
+    }
+    event.target.value = '';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
 function renderFaltantes(){
   var filtro = document.getElementById('faltantesEstadoFiltro').value;
   var candidatas = ENTREGAS.filter(function(r){
@@ -6756,6 +7190,11 @@ function abrirSeccionOnstar_(){
   var seccion = document.getElementById('dOnstarSection');
   if(seccion){ seccion.classList.remove('collapsed'); seccion.scrollIntoView({behavior:'smooth', block:'center'}); }
 }
+function abrirSeccionConfirmacion_(){
+  var estado = document.getElementById('dConfirmacionEstado');
+  var seccion = estado ? estado.closest('.section') : null;
+  if(seccion){ seccion.classList.remove('collapsed'); seccion.scrollIntoView({behavior:'smooth', block:'center'}); }
+}
 function abrirSeccionComentarios_(){
   var titulos = document.querySelectorAll('.drawer-body .section-title');
   for(var i=0;i<titulos.length;i++){
@@ -6780,6 +7219,7 @@ function inicializarAcordeonDrawer_(r){
 }
 function seccionTieneContenido_(titulo, r){
   if(!r) return false;
+  if(titulo.indexOf('Confirmación y Recordatorio')>-1) return true; // siempre abierta, para verla de un vistazo
   if(titulo.indexOf('Accesorio')>-1) return accHayAlgo_(r);
   if(titulo.indexOf('Campaña')>-1) return !!r.campanaTexto;
   if(titulo.indexOf('Kit de Seguridad')>-1) return !!r.kitSeguridad;
@@ -7534,6 +7974,8 @@ function faltanMenosDe24hs_(r){
 function renderEstadoComunicaciones(r){
   var estConf=document.getElementById('dConfirmacionEstado');
   var btnEnviarConf=document.getElementById('dBtnEnviarConf');
+  var alertaConf = document.getElementById('dConfirmacionAlerta');
+  if(alertaConf) alertaConf.style.display = (!r.entregada && !r.confirmado) ? 'flex' : 'none';
   estConf.style.display='block';
   if(r.confirmado){
     estConf.style.background='var(--ok-soft)'; estConf.style.color='var(--ok)';
@@ -7704,7 +8146,7 @@ function renderDisponibilidadNuevaEntrega(){
   }
   grilla.innerHTML = html || '<div style="color:var(--text-faint);font-size:12px;padding:10px;">Sin horarios configurados para este día.</div>';
 }
-function closeNewDelivery(){ setAppView('calendario'); }
+function closeNewDelivery(){ _prepOrigenParaNuevaEntrega_ = null; setAppView('calendario'); }
 function cambiarSucursalNuevaEntrega(){
   var sucursal = document.getElementById('nSucursal').value;
   document.getElementById('nLugar').value = BRANCH_ABBR[sucursal] || '';
@@ -7852,6 +8294,12 @@ function submitNewDelivery(){
     ENTREGAS.push(nueva);
     logHistorial_(marcaElegida, nueva.id, '🆕 Entrega creada');
     gasPost('notificarEntregaAgendada', {marca:marcaElegida, id:nueva.id, autor:usuarioActual()});
+    if(_prepOrigenParaNuevaEntrega_){
+      gasPost('prepVincularEntrega', {id:_prepOrigenParaNuevaEntrega_, entregaId:nueva.id, autor:usuarioActual()});
+      var uOrigen = PREP_UNIDADES.find(function(x){return x.id===_prepOrigenParaNuevaEntrega_;});
+      if(uOrigen) uOrigen.estado='Agendado';
+      _prepOrigenParaNuevaEntrega_ = null;
+    }
     var p2=fechaVal.split('-'); currentDate=new Date(Number(p2[0]),Number(p2[1])-1,Number(p2[2]));
     mostrarTodosLosDias=false;
     submittingEntrega=false;
