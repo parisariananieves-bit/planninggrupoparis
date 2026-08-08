@@ -2572,7 +2572,10 @@
     <button id="prepBtnProgramarEntrega" onclick="abrirNuevaEntregaDesdePreparacion_()" style="display:none;width:100%;margin-top:14px;background:linear-gradient(135deg,var(--ok),#0d8a4a);color:#fff;border:none;border-radius:8px;padding:11px;font-weight:700;font-size:13px;cursor:pointer;"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">event_available</span> Programar Entrega</button>
     <div class="section-title" style="margin-top:18px;margin-bottom:8px;">Historial</div>
     <div id="prepFichaHistorial" style="max-height:180px;overflow-y:auto;"></div>
-    <button style="margin-top:14px;background:none;border:1px solid var(--hairline);color:var(--danger);border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;" onclick="eliminarUnidadPreparacionUI_()">Eliminar unidad (se cargó por error)</button>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+      <button style="background:var(--warn-soft);border:1px solid var(--warn);color:var(--warn);border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;font-weight:700;" onclick="marcarVentaCaidaUI_()"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">cancel</span> Venta caída — no preparar</button>
+      <button style="background:none;border:1px solid var(--hairline);color:var(--danger);border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;" onclick="eliminarUnidadPreparacionUI_()">Eliminar unidad (se cargó por error)</button>
+    </div>
   </div>
 </div>
 
@@ -4725,7 +4728,7 @@ function renderTraslados(){
 // ============================================================
 var PREP_UNIDADES = [];
 var PREP_CHECKLIST_CONFIG = [];
-var PREP_ESTADOS = ['Sin asignar','Asignado','En preparación','Esperando Taller','Esperando Chapa y Pintura','Esperando Accesorios','Esperando Administración','Esperando Patentamiento','Esperando Repuestos','Esperando Lavadero','Esperando Calidad','Bloqueado','Listo para entregar','Agendado','Entregado'];
+var PREP_ESTADOS = ['Sin asignar','Asignado','En preparación','Esperando Taller','Esperando Chapa y Pintura','Esperando Accesorios','Esperando Administración','Esperando Patentamiento','Esperando Repuestos','Esperando Lavadero','Esperando Calidad','Bloqueado','Listo para entregar','Agendado','Entregado','Venta caída'];
 var _preparacionCargada_ = false;
 var _prepFichaAbierta_ = null;
 
@@ -4816,7 +4819,7 @@ function renderPreparacionKanban_(){
     if(fSucursal && u.sucursal!==fSucursal) return false;
     if(fEstado && u.estado!==fEstado) return false;
     if(fPrioridad && u.prioridad!==fPrioridad) return false;
-    if(u.estado==='Entregado') return false; // ya está en el Planning, no ocupa lugar acá
+    if(!fEstado && (u.estado==='Entregado' || u.estado==='Venta caída')) return false; // por defecto no ocupan lugar, salvo que se filtren a propósito
     if(q){
       var hay = (u.vin||'').toLowerCase().indexOf(q)>-1 || (u.cliente||'').toLowerCase().indexOf(q)>-1 ||
         (u.patente||'').toLowerCase().indexOf(q)>-1 || (u.modelo||'').toLowerCase().indexOf(q)>-1;
@@ -4882,7 +4885,7 @@ function abrirFichaPreparacion_(id){
   document.getElementById('prepFichaSub').textContent = u.id+' · '+b.label+' · '+(u.sucursal||'—');
 
   var campos = [
-    ['Cliente', u.cliente], ['VIN', u.vin], ['Patente', u.patente], ['Modelo', u.modelo], ['Versión', u.version],
+    ['Referencia', u.referencia], ['Cliente', u.cliente], ['VIN', u.vin], ['Patente', u.patente], ['Modelo', u.modelo], ['Versión', u.version],
     ['Color', u.color], ['Motor', u.motor], ['Vendedor', u.vendedor], ['Administrativo', u.administrativo],
     ['Fecha de venta', u.fechaVenta], ['Fecha prometida', u.fechaPrometida]
   ];
@@ -4988,6 +4991,17 @@ function marcarChecklistItemPreparacionUI_(itemNombre, hecho){
   gasPost('prepMarcarChecklistItem', {id:u.id, item:itemNombre, hecho:hecho, autor:usuarioActual()});
   abrirFichaPreparacion_(u.id);
 }
+function marcarVentaCaidaUI_(){
+  if(!_prepFichaAbierta_) return;
+  var u = PREP_UNIDADES.find(function(x){return x.id===_prepFichaAbierta_;});
+  if(!confirm('¿Marcar como "Venta caída" la unidad de '+u.cliente+'? Deja de aparecer en el Kanban activo — la unidad no se prepara.')) return;
+  gasPost('prepCambiarEstado', {id:u.id, estado:'Venta caída', autor:usuarioActual()}).then(function(res){
+    if(!res.ok){ showToast(res.error||'No se pudo actualizar'); return; }
+    u.estado = 'Venta caída';
+    showToast('Marcada como venta caída — no se va a preparar');
+    cerrarFichaPreparacion_();
+  });
+}
 function eliminarUnidadPreparacionUI_(){
   if(!_prepFichaAbierta_) return;
   var u = PREP_UNIDADES.find(function(x){return x.id===_prepFichaAbierta_;});
@@ -5047,6 +5061,52 @@ function crearUnidadPreparacionUI_(){
     cargarPreparacionSiHaceFalta_().then(renderPreparacionKanban_);
   });
 }
+// Convierte la fecha serial de Excel (así vienen Fec.aper, F.matric, etc. en
+// el reporte U19) a texto dd/mm/yyyy — SheetJS a veces la entrega ya
+// parseada como string, a veces como número serial; contemplamos las dos.
+function excelSerialAFecha_(valor){
+  if(!valor) return '';
+  if(typeof valor==='number'){
+    var ms = Math.round((valor - 25569) * 86400 * 1000);
+    var d = new Date(ms);
+    return String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCMonth()+1).padStart(2,'0')+'/'+d.getUTCFullYear();
+  }
+  return String(valor);
+}
+var PREP_MAPA_MARCAS_U19_ = {CI:'citroen', HM:'honda', CV:'chevrolet', PE:'peugeot', DFS:'dfsk'};
+var PREP_LOCALIDADES_A_SUCURSAL_ = ['San Luis','San Juan','Villa Mercedes','Merlo'];
+function detectarYParsearU19_(filasCrudo){
+  // El reporte U19 no tiene una fila de encabezado limpia al ras — puede
+  // venir con separadores "***" y filas en blanco entre grupos de vendedor.
+  var esU19 = filasCrudo.length>0 && filasCrudo[0].some(function(c){ return String(c).indexOf('Bastidor')>-1 || String(c).indexOf('Refer.')>-1; });
+  if(!esU19) return null;
+  var filas = [];
+  for(var i=1;i<filasCrudo.length;i++){
+    var f = filasCrudo[i];
+    if(!f || !f[0] || f[0]==='***') continue; // separador o fila vacía
+    var vendedor = String(f[0]).replace(/^\d+\s+/, '').trim(); // saca el código de legajo del principio
+    var marcaCodigo = String(f[3]||'').trim();
+    var marca = PREP_MAPA_MARCAS_U19_[marcaCodigo] || '';
+    var localidad = String(f[16]||'').trim();
+    var sucursal = PREP_LOCALIDADES_A_SUCURSAL_.find(function(s){ return localidad.toUpperCase().indexOf(s.toUpperCase())>-1; }) || '';
+    filas.push([
+      f[13]||'',           // Cliente
+      f[5]||'',             // VIN (Bastidor)
+      f[11]||f[19]||'',     // Patente (Matricu / Matricula)
+      f[4]||'',              // Modelo
+      '',                    // Versión (no viene separada en este reporte)
+      marca,
+      sucursal,
+      vendedor,
+      '',                     // Administrativo (no viene en este reporte)
+      excelSerialAFecha_(f[6]),  // Fecha Venta = Fec.aper (fecha de apertura)
+      excelSerialAFecha_(f[7]),  // Fecha Prometida = Fecha pr
+      '', '',                    // Color, Motor (no vienen)
+      String(f[2]||'').trim()    // Referencia
+    ]);
+  }
+  return filas;
+}
 function importarUnidadesPreparacionArchivo_(event){
   var file = event.target.files[0];
   if(!file) return;
@@ -5055,13 +5115,19 @@ function importarUnidadesPreparacionArchivo_(event){
     try{
       var wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
       var hoja = wb.Sheets[wb.SheetNames[0]];
-      var filas = XLSX.utils.sheet_to_json(hoja, {header:1});
-      if(filas.length && isNaN(Date.parse(filas[0][9]))) filas = filas.slice(1); // salta encabezado si la col FechaVenta no parece fecha
-      filas = filas.filter(function(f){ return f && (f[0]||f[1]); });
+      var filasCrudo = XLSX.utils.sheet_to_json(hoja, {header:1});
+      var filas = detectarYParsearU19_(filasCrudo);
+      var esFormatoConocido = !!filas;
+      if(!filas){
+        // Formato genérico: Cliente, VIN, Patente, Modelo, Versión, Marca, Sucursal, Vendedor, Administrativo, FechaVenta, FechaPrometida, Color, Motor
+        filas = filasCrudo;
+        if(filas.length && isNaN(Date.parse(filas[0][9]))) filas = filas.slice(1);
+        filas = filas.filter(function(f){ return f && (f[0]||f[1]); });
+      }
       if(filas.length===0){ showToast('El archivo no tiene filas para importar'); return; }
       gasPost('importarUnidadesPreparacion', {filas:filas, autor:usuarioActual()}).then(function(res){
         if(!res.ok){ showToast(res.error||'No se pudo importar'); return; }
-        showToast(res.creadas+' unidad(es) importada(s)');
+        showToast(res.creadas+' unidad(es) importada(s)'+(res.saltadas?' — '+res.saltadas+' ya existían (mismo VIN o referencia)':'')+(esFormatoConocido?' · Formato U19 detectado':''));
         _preparacionCargada_ = false;
         cargarPreparacionSiHaceFalta_().then(renderPreparacionKanban_);
       });
