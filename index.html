@@ -2377,11 +2377,9 @@
     <div class="section">
       <div class="section-title">Confirmación y Recordatorio (pre-entrega)</div>
       <div id="dConfirmacionEstado" style="display:none;font-size:12px;color:var(--ok);background:var(--ok-soft);padding:9px 11px;border-radius:7px;margin-bottom:8px;"></div>
-      <button class="comms-btn" id="dBtnPreviewConf" onclick="openEmailPreview('confirmacion')">👁 Vista previa de la confirmación</button>
       <button class="comms-btn primary" id="dBtnEnviarConf" onclick="enviarConfirmacionDirecta()">✅ Enviar confirmación ahora</button>
       <div id="dRecordatorioEstado" style="display:none;font-size:12px;color:var(--ok);background:var(--ok-soft);padding:9px 11px;border-radius:7px;margin-bottom:8px;margin-top:12px;"></div>
-      <button class="comms-btn" id="dBtnPreviewRec" onclick="openEmailPreview('recordatorio')" style="margin-top:12px;">👁 Vista previa del recordatorio</button>
-      <button class="comms-btn primary" id="dBtnEnviarRec" onclick="enviarRecordatorioDirecto()">📩 Enviar recordatorio ahora</button>
+      <button class="comms-btn primary" id="dBtnEnviarRec" onclick="enviarRecordatorioDirecto()" style="margin-top:12px;">📩 Enviar recordatorio ahora</button>
     </div>
 
     <div class="section">
@@ -4459,6 +4457,8 @@ function renderAll(){
   if(typeof renderHorariosDia_==='function' && diaSeleccionadoCalendario) renderHorariosDia_();
   if(currentAppView==='tv') renderModoTV();
   if(currentAppView==='kanban') renderKanban();
+  if(currentAppView==='traslados') renderTraslados();
+  if(currentAppView==='faltantes') renderFaltantes();
 }
 function renderCanalToggle(){
   var htmlFiltros =
@@ -7533,7 +7533,6 @@ function faltanMenosDe24hs_(r){
 }
 function renderEstadoComunicaciones(r){
   var estConf=document.getElementById('dConfirmacionEstado');
-  var btnPreviewConf=document.getElementById('dBtnPreviewConf');
   var btnEnviarConf=document.getElementById('dBtnEnviarConf');
   estConf.style.display='block';
   if(r.confirmado){
@@ -7547,9 +7546,7 @@ function renderEstadoComunicaciones(r){
     btnEnviarConf.disabled=false; btnEnviarConf.style.opacity='1'; btnEnviarConf.style.cursor='pointer';
     btnEnviarConf.innerHTML='✅ Enviar confirmación ahora';
   }
-  btnPreviewConf.style.display='block';
   var estRec=document.getElementById('dRecordatorioEstado');
-  var btnPreviewRec=document.getElementById('dBtnPreviewRec');
   var btnEnviarRec=document.getElementById('dBtnEnviarRec');
   estRec.style.display='block';
   if(r.recordatorio==='enviado'){
@@ -7569,7 +7566,6 @@ function renderEstadoComunicaciones(r){
     btnEnviarRec.disabled=false; btnEnviarRec.style.opacity='1'; btnEnviarRec.style.cursor='pointer';
     btnEnviarRec.innerHTML='📩 Enviar recordatorio ahora';
   }
-  btnPreviewRec.style.display='block';
 }
 function enviarConfirmacionDirecta(){
   if(!detailId) return;
