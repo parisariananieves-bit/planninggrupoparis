@@ -1317,8 +1317,11 @@
       <div class="form-field"><label>¿Alfombras?</label><select id="nAlfombras"><option value="Sí" selected>Sí</option><option value="No">No</option></select></div>
       <div class="form-field full">
         <label>Accesorios (vacío si no lleva)</label>
-        <input id="nAccesorios" placeholder="Ej: Polarizado intermedio + cubre cárter">
-        <button type="button" class="toggle-btn pending" id="nAccToggleBtn" onclick="toggleNAcc()">🔧 Pendiente de colocar</button>
+        <div id="nAccesoriosLista"></div>
+        <div class="acc-buscador-wrap" style="position:relative;margin-top:6px;">
+          <input id="nAccesoriosBuscador" placeholder="+ Buscar y agregar un accesorio..." autocomplete="off" oninput="filtrarBuscadorAccesoriosNueva_(this.value)" onfocus="filtrarBuscadorAccesoriosNueva_(this.value)" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'Inter',sans-serif;font-size:12.5px;">
+          <div id="nAccesoriosBuscadorLista" class="combo-lista" style="display:none;"></div>
+        </div>
       </div>
       <div class="form-field full">
         <label>Campaña (vacío si no aplica)</label>
@@ -1416,8 +1419,8 @@
           <div class="view-header"><h2>Traslados</h2><p>Todas las unidades trasladadas a otra sucursal, de cualquier marca — para que no se le escape nada a nadie.</p></div>
           <div class="filter-bar" style="flex-wrap:wrap;gap:10px;">
             <select id="trasladosEstadoFiltro" onchange="renderTraslados()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;">
-              <option value="todos">Todos</option>
-              <option value="con_pendientes" selected>Con ítems pendientes</option>
+              <option value="todos" selected>Todos</option>
+              <option value="con_pendientes">Con ítems pendientes</option>
               <option value="completos">Completos</option>
             </select>
           </div>
@@ -1539,6 +1542,12 @@
         <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
       </div>
       <div class="stats-grid" id="dashIndicadores"></div>
+      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;cursor:pointer;" onclick="toggleSeccionAccesorios_()"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">directions_car</span>Accesorios más vendidos (todas las marcas)<span class="material-symbols-outlined" id="accesoriosAccordionIcon" style="font-size:14px;margin-left:auto;transition:transform .15s;">expand_more</span></div>
+      <div id="reporteAccesoriosWrap">
+        <div class="report-wrap" style="margin-top:10px;">
+          <table class="report-table" id="reporteAccesoriosTabla"></table>
+        </div>
+      </div>
       <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;cursor:pointer;" onclick="toggleSeccionNPS_()"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido);">star</span>Encuestas NPS (todas las marcas)<span class="material-symbols-outlined" id="npsAccordionIcon" style="font-size:14px;margin-left:auto;transition:transform .15s;">expand_more</span></div>
       <div id="npsSeccionCuerpo" style="margin-bottom:18px;">
         <div class="filter-bar" style="flex-wrap:wrap;gap:8px;margin-bottom:12px;">
@@ -2062,7 +2071,7 @@
     </div>
     <div class="maestro-block">
       <div class="section-title">Cargar base de Accesorios (listado del taller)</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:8px;">Copiá el listado del taller (con columnas Matrícula, Bastidor, Est y F. cierr) y pegalo acá — cruza primero por VIN (Bastidor) y si no encuentra, por Dominio (Matrícula). Si la orden figura Cerrada o tiene fecha de cierre, marca el accesorio como colocado.</div>
+      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:8px;">Copiá el listado del taller (con columnas Matrícula, Bastidor, Est y F. cierr) y pegalo acá — cruza primero por VIN (Bastidor) y si no encuentra, por Dominio (Matrícula). Si la orden figura Cerrada o tiene fecha de cierre, marca como colocados los accesorios pendientes de esa entrega.</div>
       <div style="margin-bottom:10px;">
         <label style="display:inline-block;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:10px 14px;cursor:pointer;font-size:12px;color:var(--text-dim);">
           📎 O subí el archivo directamente (.xlsx)
@@ -2071,6 +2080,20 @@
       </div>
       <textarea id="accesoriosPasteArea" placeholder="Pegá acá el listado copiado del taller..." style="width:100%;min-height:130px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:10px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;resize:vertical;"></textarea>
       <button class="save-btn" style="margin-top:8px;" onclick="procesarBaseAccesorios()">Procesar base pegada</button>
+    </div>
+    <div class="maestro-block">
+      <div class="section-title">Catálogo de accesorios y precios</div>
+      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Estos son los accesorios que aparecen al buscar en una entrega — con su precio, para que se calcule solo. Se puede cargar uno por uno o importar una lista completa desde Excel (2 columnas: Nombre y Precio, sin encabezado o con "Nombre"/"Precio" arriba).</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+        <input id="catAccNombre" placeholder="Nombre del accesorio" style="flex:1;min-width:160px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;">
+        <input id="catAccPrecio" type="number" placeholder="Precio" style="width:120px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;">
+        <button class="save-btn" style="width:auto;margin:0;" onclick="agregarItemCatalogoAccesoriosUI_()">+ Agregar</button>
+        <label style="display:inline-block;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:12px;color:var(--text-dim);">
+          📎 Importar Excel
+          <input type="file" accept=".xlsx,.xls" id="catalogoAccesoriosFileInput" onchange="importarCatalogoAccesoriosArchivo_(event)" style="display:none;">
+        </label>
+      </div>
+      <div id="catalogoAccesoriosTabla"></div>
     </div>
     </div>
 
@@ -2217,6 +2240,10 @@
         <div class="field"><div class="l">E-mail</div><input id="dEmail" onchange="guardarCampo('email', this.value)"></div>
         <div class="field"><div class="l">Tipo de venta</div><select id="dTipoVenta" onchange="guardarCampo('tipoVenta', this.value)"><option value="OKM">0KM</option><option value="USADO">Usado</option></select></div>
         <div class="field"><div class="l">Es usado (parte de pago)</div><select id="dUsado" onchange="guardarCampo('usado', this.value)"><option value="No">No</option><option value="Sí">Sí</option></select></div>
+        <div class="field"><div class="l">Vendedor</div><input class="combo-input" id="dVendedor" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('dVendedor','dVendedor_lista')" onfocus="comboAbrir('dVendedor','dVendedor_lista')" onkeydown="comboTeclado(event,'dVendedor','dVendedor_lista')" onchange="guardarCampo('vendedor', this.value)"><div class="combo-lista" id="dVendedor_lista"></div></div>
+        <div class="field"><div class="l">Administrativo</div><input class="combo-input" id="dAdministrativo" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('dAdministrativo','dAdministrativo_lista')" onfocus="comboAbrir('dAdministrativo','dAdministrativo_lista')" onkeydown="comboTeclado(event,'dAdministrativo','dAdministrativo_lista')" onchange="guardarCampo('administrativo', this.value)"><div class="combo-lista" id="dAdministrativo_lista"></div></div>
+        <div class="field"><div class="l">Responsable de entrega</div><input class="combo-input" id="dResponsable" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('dResponsable','dResponsable_lista')" onfocus="comboAbrir('dResponsable','dResponsable_lista')" onkeydown="comboTeclado(event,'dResponsable','dResponsable_lista')" onchange="guardarCampo('responsableEntrega', this.value)"><div class="combo-lista" id="dResponsable_lista"></div></div>
+        <div class="field"><div class="l">Sucursal / Lugar de entrega</div><select id="dLugar" onchange="cambiarSucursalDetalle(this.value)" style="font-weight:600;"></select></div>
       </div>
     </div>
 
@@ -2244,17 +2271,12 @@
 
     <div class="section">
       <div class="section-title">Accesorios</div>
-      <input id="dAccesoriosInput" placeholder="Ej: Polarizado intermedio + cubre cárter (vacío si no lleva)" onchange="guardarAccesorioTexto(this.value)" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;">
-      <div class="dual-toggle-wrap" id="dAccesoriosToggleWrap" style="display:none;">
-        <button class="dual-toggle-btn pend" id="dAccesoriosBtnPend" onclick="marcarEstadoItem_('accesorios', 'pendiente')"><span class="material-symbols-outlined">schedule</span>Pendiente</button>
-        <button class="dual-toggle-btn no" id="dAccesoriosBtnNo" onclick="marcarEstadoItem_('accesorios', 'no_colocado')"><span class="material-symbols-outlined">cancel</span>No colocado</button>
-        <button class="dual-toggle-btn si" id="dAccesoriosBtnSi" onclick="marcarEstadoItem_('accesorios', 'colocado')"><span class="material-symbols-outlined">check_circle</span>Colocado</button>
+      <div id="dAccesoriosLista"></div>
+      <div class="acc-buscador-wrap" style="position:relative;margin-top:6px;">
+        <input id="dAccesoriosBuscador" placeholder="+ Buscar y agregar un accesorio (ej: Cubrecárter)..." autocomplete="off" oninput="filtrarBuscadorAccesorios_(this.value)" onfocus="filtrarBuscadorAccesorios_(this.value)" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'Inter',sans-serif;font-size:12.5px;">
+        <div id="dAccesoriosBuscadorLista" class="combo-lista" style="display:none;"></div>
       </div>
-      <div class="dual-toggle-fecha"></div>
-      <div class="obs-wrap" id="dAccesoriosObsWrap" style="display:none;margin-top:8px;">
-        <textarea id="dAccesoriosObsInput" placeholder="Observación (ej: sin stock, cliente no lo quiso)..." style="width:100%;min-height:48px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:11.5px;font-family:inherit;resize:vertical;"></textarea>
-        <button id="dAccesoriosGuardarBtn" onclick="guardarEstadoItem_('accesorios')" style="margin-top:5px;width:100%;background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px;font-weight:700;font-size:11px;cursor:pointer;">Guardar</button>
-      </div>
+      <div id="dAccesoriosTotal" style="margin-top:8px;font-size:11px;color:var(--text-faint);text-align:right;"></div>
     </div>
 
     <div class="section">
@@ -2326,16 +2348,6 @@
       </div>
     </div>
 
-    <div class="section">
-      <div class="section-title">Entrega</div>
-      <div class="field-grid">
-        <div class="field"><div class="l">Vendedor</div><input class="combo-input" id="dVendedor" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('dVendedor','dVendedor_lista')" onfocus="comboAbrir('dVendedor','dVendedor_lista')" onkeydown="comboTeclado(event,'dVendedor','dVendedor_lista')" onchange="guardarCampo('vendedor', this.value)"><div class="combo-lista" id="dVendedor_lista"></div></div>
-        <div class="field"><div class="l">Administrativo</div><input class="combo-input" id="dAdministrativo" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('dAdministrativo','dAdministrativo_lista')" onfocus="comboAbrir('dAdministrativo','dAdministrativo_lista')" onkeydown="comboTeclado(event,'dAdministrativo','dAdministrativo_lista')" onchange="guardarCampo('administrativo', this.value)"><div class="combo-lista" id="dAdministrativo_lista"></div></div>
-        <div class="field"><div class="l">Responsable de entrega</div><input class="combo-input" id="dResponsable" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('dResponsable','dResponsable_lista')" onfocus="comboAbrir('dResponsable','dResponsable_lista')" onkeydown="comboTeclado(event,'dResponsable','dResponsable_lista')" onchange="guardarCampo('responsableEntrega', this.value)"><div class="combo-lista" id="dResponsable_lista"></div></div>
-        <div class="field"><div class="l">Sucursal / Lugar de entrega</div><select id="dLugar" onchange="cambiarSucursalDetalle(this.value)" style="font-weight:600;"></select></div>
-      </div>
-    </div>
-
     <div class="block-title">Administrativo</div>
 
     <div class="section">
@@ -2387,7 +2399,6 @@
           <label class="maestro-tag" style="cursor:pointer;"><input type="checkbox" class="regalo-item-chk" value="Portadocumentos" onchange="guardarRegaloItems()" style="margin-right:5px;">Portadocumentos</label>
         </div>
         <input id="dRegaloOtro" placeholder="Otro item (vacío si no aplica)" onchange="guardarRegaloItems()" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;">
-        <div class="field full" style="margin-top:8px;"><div class="l">Responsable de la entrega del regalo</div><input id="dRegaloResponsable" onchange="guardarCampo('regaloResponsable', this.value)"></div>
         <textarea class="obs-input" id="dRegaloObs" onchange="guardarCampo('regaloObservaciones', this.value)" placeholder="Observaciones adicionales" style="margin-top:8px;"></textarea>
       </div>
     </div>
@@ -2397,20 +2408,12 @@
       <textarea class="obs-input" id="dObservaciones" onchange="guardarCampo('observaciones', this.value)" placeholder="Sin observaciones."></textarea>
     </div>
 
-    <div class="section">
+    <div class="section" id="seccionReprogramar">
       <div class="section-title">Reprogramar</div>
       <div class="reprog-grid">
         <input type="date" id="rFecha"><input type="time" id="rHora">
-        <select id="rMotivoPreset" onchange="aplicarMotivoPreset()" style="grid-column:1/-1;background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:8px 9px;font-family:'Inter',sans-serif;font-size:11.5px;">
-          <option value="">— Elegí un motivo estándar (opcional) —</option>
-          <option value="OK PARA ENTREGAR">OK PARA ENTREGAR</option>
-          <option value="ENTREGADO EN TIEMPO Y FORMA">ENTREGADO EN TIEMPO Y FORMA</option>
-          <option value="ENTREGADO CON RETRASO">ENTREGADO CON RETRASO</option>
-          <option value="ENTREGA RETRASADA POR EL CE/PREENTREGA">ENTREGA RETRASADA POR EL CE/PREENTREGA</option>
-          <option value="ENTREGA RETRASADA POR EL CE/ADMINISTRACION">ENTREGA RETRASADA POR EL CE/ADMINISTRACION</option>
-          <option value="ENTREGA RETRASADA POR EL CLIENTE">ENTREGA RETRASADA POR EL CLIENTE</option>
-        </select>
-        <textarea id="rMotivo" placeholder="Motivo de la reprogramación — podés elegir uno de arriba y/o escribir a mano"></textarea>
+        <select id="rSucursal" style="grid-column:1/-1;background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:8px 9px;font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;"></select>
+        <textarea id="rMotivo" placeholder="Motivo de la reprogramación" style="grid-column:1/-1;"></textarea>
       </div>
       <div class="new-warning" id="rWarning"></div>
       <button class="reprog-btn" onclick="reprogramar()">Confirmar nueva fecha y hora</button>
@@ -2806,6 +2809,7 @@ function activarRolPreview(rol){
     aplicarPermisosUI();
     setAppView('dashboard');
     actualizarBadgeNotificaciones_();
+    cargarCatalogoAccesorios_();
   }
   if(rolPreview && !(window._usuariosCache||[]).some(function(u){return u.rol===rolPreview;})){
     var pass = credencialesActor_();
@@ -3545,7 +3549,7 @@ function tvChecklistItems_(r){
   return [
     {label:'Documentación completa', ok:true},
     {label:'Unidad preparada', ok:true},
-    {label:'Accesorios colocados', ok: !r.accesorios || !!r.accesoriosColocado},
+    {label:'Accesorios colocados', ok: !accHayAlgo_(r) || accTodosColocados_(r)},
     {label:'OnStar activado', ok: !r.onstar || r.onstar==='ok'},
     {label:'Explicación de funciones', ok:true},
     {label:'Llaves entregadas', ok: !!r.entregada}
@@ -3853,7 +3857,7 @@ function toggleFilterAlertaPendientes(){ filterAlertaPendientes=!filterAlertaPen
 // Un pendiente "real" es el que queda en un auto que el cliente YA se llevó
 // (un pendiente en una entrega futura todavía no es urgente).
 function tienePendienteSinResolver_(r){
-  if(r.accesorios && !r.accesoriosColocado) return true;
+  if(accHayAlgo_(r) && !accTodosColocados_(r)) return true;
   if(r.regaloCorporativo && r.regaloEstado!=='Entregado') return true;
   if(r.kitSeguridad && !r.kitSeguridadColocado) return true;
   if(r.marca==='chevrolet' && r.onstar==='pending') return true;
@@ -4069,7 +4073,7 @@ function renderTable(){
       '<td class="cliente" data-label="Cliente" tabindex="0" role="button" aria-label="Ver detalle de '+r.cliente+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openDetail(\''+r.marca+'\',\''+r.id+'\');}" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
         '<div style="display:flex;align-items:flex-start;gap:8px;">'+
           '<span class="material-symbols-outlined" style="font-size:18px;color:var(--text-faint);margin-top:1px;flex-shrink:0;">directions_car</span>'+
-          '<span>'+r.cliente+'<span class="veh">'+r.modelo+' · '+r.color+' <span class="usado-badge">· '+(r.usado==='Sí'?'USADO':'0KM')+'</span></span>'+(r.accesorios?'<span class="acc-badge '+(r.accesoriosColocado?'done':'')+'">'+r.accesorios+' — '+(r.accesoriosColocado?'colocado':'pendiente')+'</span>':'')+'</span>'+
+          '<span>'+r.cliente+'<span class="veh">'+r.modelo+' · '+r.color+' <span class="usado-badge">· '+(r.usado==='Sí'?'USADO':'0KM')+'</span></span>'+(accHayAlgo_(r)?'<span class="acc-badge '+(accTodosColocados_(r)?'done':'')+'">'+accResumenTexto_(r)+' — '+accCantidadColocados_(r)+'/'+r.accesoriosItems.length+' colocados</span>':'')+'</span>'+
         '</div>'+
       '</td>'+
       '<td class="dominio" data-label="Dominio"><span class="dominio-badge">'+r.dominio+'</span>'+(r.chasis&&r.chasis!=='—'?'<span style="display:block;font-size:9.5px;color:var(--text-faint);margin-top:3px;">VIN '+r.chasis+'</span>':'')+'</td>'+
@@ -4207,8 +4211,8 @@ function renderStats(){
 
   // --- Accesorios, Regalo corporativo, Kit de seguridad y Campaña: cargados vs colocados/controlados ---
   // (mismo criterio que el Panel Maestro, pero acotado a la marca/sucursal que se está viendo)
-  var conAccesorio = rows.filter(function(r){return r.accesorios;}).length;
-  var accColocado = rows.filter(function(r){return r.accesorios && r.accesoriosColocado;}).length;
+  var conAccesorio = rows.filter(function(r){return accHayAlgo_(r);}).length;
+  var accColocado = rows.filter(function(r){return accTodosColocados_(r);}).length;
   var conRegalo = rows.filter(function(r){return r.regaloCorporativo;}).length;
   var regaloEntregado = rows.filter(function(r){return r.regaloCorporativo && r.regaloEstado==='Entregado';}).length;
   var conKit = rows.filter(function(r){return r.kitSeguridad;}).length;
@@ -4218,7 +4222,7 @@ function renderStats(){
   var conCampana = rows.filter(function(r){return r.campanaTexto;}).length;
   var campanaControlada = rows.filter(function(r){return r.campanaTexto && r.campanaControlada;}).length;
 
-  if(conAccesorio>0) html+='<div class="stat-chip warn" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Con accesorio ('+currentBrand+')\', entregasContexto().filter(function(r){return r.accesorios;}), {header:\'Accesorio\', pendiente:function(r){return !r.accesoriosColocado;}}, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">build</span></div><div class="n">'+accColocado+' / '+conAccesorio+'</div><div class="l">Accesorios colocados</div></div>';
+  if(conAccesorio>0) html+='<div class="stat-chip warn" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Con accesorio ('+currentBrand+')\', entregasContexto().filter(function(r){return accHayAlgo_(r);}), {header:\'Accesorio\', pendiente:function(r){return !accTodosColocados_(r);}}, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">build</span></div><div class="n">'+accColocado+' / '+conAccesorio+'</div><div class="l">Accesorios colocados</div></div>';
   if(conRegalo>0) html+='<div class="stat-chip ok" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Con regalo corporativo\', entregasContexto().filter(function(r){return r.regaloCorporativo;}), {header:\'Regalo\', pendiente:function(r){return r.regaloEstado!==\'Entregado\';}}, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">redeem</span></div><div class="n">'+regaloEntregado+' / '+conRegalo+'</div><div class="l">Regalos entregados</div></div>';
   if(conKit>0) html+='<div class="stat-chip ok" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Con kit de seguridad\', entregasContexto().filter(function(r){return r.kitSeguridad;}), {header:\'Kit de seguridad\', pendiente:function(r){return !r.kitSeguridadColocado;}}, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">health_and_safety</span></div><div class="n">'+kitColocado+' / '+conKit+'</div><div class="l">Kit de seguridad colocado</div></div>';
   if(conAlfombras>0) html+='<div class="stat-chip ok" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Con alfombras\', entregasContexto().filter(function(r){return r.alfombras;}), {header:\'Alfombras\', pendiente:function(r){return !r.alfombrasColocadas;}}, \'statsStrip\')"><div class="icon-badge"><span class="material-symbols-outlined">weekend</span></div><div class="n">'+alfombrasColocadas+' / '+conAlfombras+'</div><div class="l">Alfombras colocadas</div></div>';
@@ -4254,8 +4258,8 @@ function renderHeroProximaEntrega_(r){
 
   var puedeHero = puedeEditar();
   var controles = '';
-  if(r.accesorios){
-    controles += '<button class="hero-chip '+(r.accesoriosColocado?'ok':'warn')+(puedeHero?'':' readonly')+'" '+(puedeHero?'onclick="heroToggleAccesorio(\''+r.marca+'\',\''+r.id+'\')"':'')+'><span class="material-symbols-outlined">build</span>Accesorio: '+(r.accesoriosColocado?'Colocado':'Pendiente')+'</button>';
+  if(accHayAlgo_(r)){
+    controles += '<button class="hero-chip '+(accTodosColocados_(r)?'ok':'warn')+'" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">build</span>Accesorios: '+accCantidadColocados_(r)+'/'+r.accesoriosItems.length+' colocados</button>';
   }
   if(r.campanaTexto){
     controles += '<button class="hero-chip '+(r.campanaControlada?'ok':'warn')+(puedeHero?'':' readonly')+'" '+(puedeHero?'onclick="heroToggleCampana(\''+r.marca+'\',\''+r.id+'\')"':'')+'><span class="material-symbols-outlined">campaign</span>Campaña: '+(r.campanaControlada?'Controlada':'Pendiente')+'</button>';
@@ -4293,17 +4297,6 @@ function renderHeroProximaEntrega_(r){
       '</div>'+
       '<button class="cta-btn" style="flex-shrink:0;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">Preparar Entrega <span class="material-symbols-outlined">arrow_forward</span></button>'+
     '</div>';
-}
-function heroToggleAccesorio(marca,id){
-  if(!puedeEditar()){ showToast('Tu usuario no tiene permiso para editar.'); return; }
-  var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
-  if(!r) return;
-  r.accesoriosColocado=!r.accesoriosColocado;
-  r.accesoriosColocadoFecha = r.accesoriosColocado ? fechaHoraAhora_() : '';
-  gasPost('updateEntregaFields',{marca:marca,id:id,fields:{accesoriosColocado:r.accesoriosColocado, accesoriosColocadoFecha:r.accesoriosColocadoFecha}});
-  logHistorial_(marca, id, r.accesoriosColocado ? 'Accesorio marcado como colocado' : 'Accesorio marcado como pendiente');
-  showToast(r.accesoriosColocado?'Accesorio colocado':'Accesorio pendiente');
-  renderResumenHoyManana(); renderAll();
 }
 function heroToggleCampana(marca,id){
   if(!puedeEditar()){ showToast('Tu usuario no tiene permiso para editar.'); return; }
@@ -4519,13 +4512,10 @@ function renderCalendar(){
     var cls='cal-day';
     if(fechaStr===hoyStr) cls+=' today';
     if(feriado || (regla && regla.desde==='00:00')) cls+=' blocked';
-    var MAX_MOSTRAR = 3;
-    var clientesHtml = entregasDia.slice(0,MAX_MOSTRAR).map(function(r){
+    var clientesHtml = entregasDia.map(function(r){
       var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
       return '<div class="cal-day-cliente" onclick="event.stopPropagation();openDetail(\''+r.marca+'\',\''+r.id+'\')" title="'+r.hora+' hs · '+r.cliente+' · '+b.label+'" style="background:var('+b.soft+');color:var('+b.color+');border-left:3px solid var('+b.color+');">'+r.hora+' '+r.cliente+'</div>';
     }).join('');
-    var resto = entregasDia.length - MAX_MOSTRAR;
-    if(resto>0) clientesHtml += '<div class="cal-day-cliente mas">+'+resto+' más</div>';
     html+='<div class="'+cls+'" onclick="verHorariosDia('+y+','+m+','+d+')"><div class="num">'+d+'</div>'+clientesHtml+'</div>';
   }
   document.getElementById('calGrid').innerHTML=html;
@@ -5865,11 +5855,17 @@ function procesarBaseAccesorios(){
     if(!row && f.dominio) row=ENTREGAS.find(function(r){return r.dominio && r.dominio.toUpperCase()===f.dominio;});
     if(!row){ sinCoincidencia++; return; }
     cruzados++;
-    if(row.accesoriosColocado) return; // ya estaba marcado, no lo pisamos
-    row.accesoriosColocado=true;
-    row.accesoriosColocadoFecha=f.fecCrea;
+    // El listado del taller no dice CUÁL accesorio específico se cerró, así
+    // que si hay ítems cargados en la entrega, se marcan todos los que
+    // seguían pendientes como colocados (la orden del taller ya cerró).
+    var items = row.accesoriosItems || [];
+    var huboActualizacion = false;
+    items.forEach(function(it){
+      if(it.estado!=='colocado'){ it.estado='colocado'; it.motivo=''; huboActualizacion=true; }
+    });
+    if(!huboActualizacion) return; // ya estaba todo colocado, o no tiene ítems cargados — no lo pisamos
     colocadosAhora++;
-    pendientesActualizar.push(gasPost('updateEntregaFields',{marca:row.marca, id:row.id, fields:{accesoriosColocado:true, accesoriosColocadoFecha:f.fecCrea}}));
+    pendientesActualizar.push(gasPost('updateEntregaFields',{marca:row.marca, id:row.id, fields:{accesoriosItems: items}}));
   });
 
   Promise.all(pendientesActualizar).then(function(){
@@ -5885,6 +5881,66 @@ function procesarBaseAccesorios(){
 // ACTUALIZACIÓN AUTOMÁTICA EN SEGUNDO PLANO (cada 25 seg)
 // para que todo el equipo vea lo mismo sin tener que tocar "Actualizar"
 // ============================================================
+// ============================================================
+// CATÁLOGO DE ACCESORIOS (Maestro → Cargas masivas)
+// ============================================================
+function renderCatalogoAccesoriosTabla_(){
+  var cont = document.getElementById('catalogoAccesoriosTabla');
+  if(!cont) return;
+  if(CATALOGO_ACCESORIOS_.length===0){
+    cont.innerHTML = '<div style="font-size:11.5px;color:var(--text-faint);padding:10px 0;">Sin accesorios cargados todavía.</div>';
+    return;
+  }
+  var filas = CATALOGO_ACCESORIOS_.map(function(it){
+    return '<tr><td>'+it.nombre+'</td><td>$'+it.precio.toLocaleString('es-AR')+'</td>'+
+      '<td style="text-align:right;"><button onclick="eliminarItemCatalogoAccesoriosUI_(\''+it.nombre.replace(/'/g,"\\'")+'\')" style="background:none;border:none;color:var(--text-faint);cursor:pointer;"><span class="material-symbols-outlined" style="font-size:16px;">delete</span></button></td></tr>';
+  }).join('');
+  cont.innerHTML = '<table class="report-table" style="width:100%;"><tr><th>Nombre</th><th>Precio</th><th></th></tr>'+filas+'</table>';
+}
+function agregarItemCatalogoAccesoriosUI_(){
+  var nombre = document.getElementById('catAccNombre').value.trim();
+  var precio = document.getElementById('catAccPrecio').value;
+  if(!nombre){ showToast('Falta el nombre'); return; }
+  gasPost('agregarItemCatalogoAccesorios', {nombre:nombre, precio:precio}).then(function(res){
+    if(!res.ok){ showToast(res.error||'No se pudo agregar'); return; }
+    document.getElementById('catAccNombre').value=''; document.getElementById('catAccPrecio').value='';
+    showToast('Accesorio agregado al catálogo');
+    cargarCatalogoAccesorios_().then(renderCatalogoAccesoriosTabla_);
+  });
+}
+function eliminarItemCatalogoAccesoriosUI_(nombre){
+  if(!confirm('¿Sacar "'+nombre+'" del catálogo? (no afecta a las entregas que ya lo tengan cargado)')) return;
+  gasPost('eliminarItemCatalogoAccesorios', {nombre:nombre}).then(function(res){
+    if(!res.ok){ showToast(res.error||'No se pudo eliminar'); return; }
+    showToast('Accesorio quitado del catálogo');
+    cargarCatalogoAccesorios_().then(renderCatalogoAccesoriosTabla_);
+  });
+}
+function importarCatalogoAccesoriosArchivo_(event){
+  var file = event.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
+      var hoja = wb.Sheets[wb.SheetNames[0]];
+      var filas = XLSX.utils.sheet_to_json(hoja, {header:1});
+      // Si la primera fila parece encabezado (texto, no número en la col precio), la salteamos.
+      if(filas.length && isNaN(Number(filas[0][1]))) filas = filas.slice(1);
+      filas = filas.filter(function(f){ return f && f[0]; });
+      if(filas.length===0){ showToast('El archivo no tiene filas para importar'); return; }
+      gasPost('importarCatalogoAccesorios', {filas: filas}).then(function(res){
+        if(!res.ok){ showToast(res.error||'No se pudo importar'); return; }
+        showToast(res.creados+' nuevos, '+res.actualizados+' actualizados');
+        cargarCatalogoAccesorios_().then(renderCatalogoAccesoriosTabla_);
+      });
+    }catch(err){
+      showToast('No se pudo leer el archivo: '+err.message);
+    }
+    event.target.value = '';
+  };
+  reader.readAsArrayBuffer(file);
+}
 function hayModalAbierto(){
   return document.querySelector('.modal.show') || document.getElementById('drawer').classList.contains('show');
 }
@@ -5899,7 +5955,9 @@ setInterval(actualizacionSilenciosa, 25000);
 
 function itemsPendientesParaEntregar_(r){
   var faltan = [];
-  if(r.accesorios && !r.accesoriosColocado && !r.accesoriosMotivo) faltan.push('Accesorios');
+  (r.accesoriosItems||[]).forEach(function(it){
+    if(it.estado!=='colocado' && !it.motivo) faltan.push('Accesorio: '+it.nombre);
+  });
   if(r.kitSeguridad && !r.kitSeguridadColocado && !r.kitSeguridadMotivo) faltan.push('Kit de seguridad');
   if(r.manual && !r.manualEntregado && !r.manualMotivo) faltan.push('Manual del vehículo');
   if(r.llaveDuplicada && !r.llaveDuplicadaEntregada && !r.llaveDuplicadaMotivo) faltan.push('Llave duplicada');
@@ -5933,8 +5991,17 @@ function marcarEntregaFallida_(){
     r.entregaFallidaFecha = fechaHoraAhora_();
     gasPost('updateEntregaFields',{marca:marca,id:id,fields:{entregaFallidaMotivo:motivo, entregaFallidaFecha:r.entregaFallidaFecha}});
     logHistorial_(marca, id, '✕ No se pudo entregar — Motivo: '+motivo);
-    showToast('Quedó registrado el motivo');
+    showToast('Quedó registrado — ahora reprogramá la nueva fecha');
     renderEntregaFallidaBadge_(r);
+    // La lleva directo a Reprogramar para no tener que buscarla aparte —
+    // libera ese paso extra en el Planning.
+    var seccionReprog = document.getElementById('seccionReprogramar');
+    if(seccionReprog){
+      seccionReprog.classList.remove('collapsed');
+      seccionReprog.scrollIntoView({behavior:'smooth', block:'center'});
+      var rFechaInput = document.getElementById('rFecha');
+      if(rFechaInput) setTimeout(function(){ rFechaInput.focus(); }, 350);
+    }
   });
 }
 function renderEntregaFallidaBadge_(r){
@@ -6530,7 +6597,7 @@ function comboTeclado(e, inputId, listaId){
   }
 }
 document.addEventListener('click', function(e){
-  if(!e.target.closest('.field') && !e.target.closest('.form-field')){
+  if(!e.target.closest('.field') && !e.target.closest('.form-field') && !e.target.closest('.acc-buscador-wrap')){
     document.querySelectorAll('.combo-lista').forEach(function(el){ el.style.display='none'; });
   }
 });
@@ -6567,8 +6634,7 @@ function openDetail(marca, id){
   document.getElementById('dDuracion').value=r.duracionMinutos||(CONFIG.duracionEntrega||60);
   document.getElementById('dFechaTexto').textContent = r.fecha || '—';
   document.getElementById('dHoraTexto').textContent = r.hora || '—';
-  document.getElementById('dAccesoriosInput').value = r.accesorios || '';
-  renderAccDualUI_(r);
+  renderAccesoriosItemsUI_(r);
   var campanaSection=document.getElementById('dCampanaSection');
   campanaSection.style.display='block';
   document.getElementById('dCampanaInput').value = r.campanaTexto || '';
@@ -6597,13 +6663,14 @@ function openDetail(marca, id){
   if(alertaObs) alertaObs.style.display = (r.observaciones && r.observaciones.trim()) ? 'flex' : 'none';
   var alertaAcc = document.getElementById('dAccesorioAlerta');
   if(alertaAcc){
-    if(r.accesorios && r.accesorios.trim()){
-      var pendiente = !r.accesoriosColocado;
+    if(accHayAlgo_(r)){
+      var pendientesAcc = r.accesoriosItems.length - accCantidadColocados_(r);
+      var pendiente = pendientesAcc>0;
       alertaAcc.style.display = 'flex';
       alertaAcc.style.background = pendiente ? 'var(--danger-soft)' : 'var(--ok-soft)';
       alertaAcc.style.color = pendiente ? 'var(--danger)' : 'var(--ok)';
       alertaAcc.style.borderColor = pendiente ? 'var(--danger)' : 'var(--ok)';
-      alertaAcc.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">build</span>Esta entrega tiene accesorio: "'+r.accesorios+'"'+(pendiente?' — pendiente de colocar':' — ya colocado');
+      alertaAcc.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">build</span>Accesorios: '+accResumenTexto_(r)+(pendiente?' — '+pendientesAcc+' pendiente(s) de colocar':' — todos colocados');
     } else {
       alertaAcc.style.display = 'none';
     }
@@ -6657,7 +6724,15 @@ function openDetail(marca, id){
   if(parts.length===3) document.getElementById('rFecha').value=parts[2]+'-'+parts[1]+'-'+parts[0];
   document.getElementById('rHora').value=r.hora;
   document.getElementById('rMotivo').value='';
-  document.getElementById('rMotivoPreset').value='';
+  var selRSucursal = document.getElementById('rSucursal');
+  var brandReprog = BRANDS.find(function(x){return x.id===r.marca;});
+  if(brandReprog && brandReprog.branches){
+    selRSucursal.innerHTML = brandReprog.branches.map(function(s){
+      return '<option value="'+s+'" '+(s===r.sucursal?'selected':'')+'>'+s+'</option>';
+    }).join('');
+  } else {
+    selRSucursal.innerHTML = '<option value="default">—</option>';
+  }
   document.getElementById('rWarning').style.display='none';
   renderHistorialUI(r); renderComentariosUI(r);
   cargarComunicacionesSiHaceFalta_().then(function(){ renderComunicacionesDetalle_(r); });
@@ -6705,7 +6780,7 @@ function inicializarAcordeonDrawer_(r){
 }
 function seccionTieneContenido_(titulo, r){
   if(!r) return false;
-  if(titulo.indexOf('Accesorio')>-1) return !!r.accesorios;
+  if(titulo.indexOf('Accesorio')>-1) return accHayAlgo_(r);
   if(titulo.indexOf('Campaña')>-1) return !!r.campanaTexto;
   if(titulo.indexOf('Kit de Seguridad')>-1) return !!r.kitSeguridad;
   if(titulo.indexOf('Manual')>-1) return !!r.manual;
@@ -6736,7 +6811,7 @@ function aplicarSoloLecturaDrawer_(){
   var esLogisticaLimitada = rolActual()==='logistica';
   var drawer = document.getElementById('drawer');
   var permitidosLogistica = [
-    'dAccesoriosInput','dAccesoriosBtnPend','dAccesoriosBtnNo','dAccesoriosBtnSi','dAccesoriosObsInput','dAccesoriosGuardarBtn',
+    'dAccesoriosBuscador',
     'dLlaveDuplicada','dLlaveDuplicadaBtnPend','dLlaveDuplicadaBtnNo','dLlaveDuplicadaBtnSi','dLlaveDuplicadaObsInput','dLlaveDuplicadaGuardarBtn',
     'dKitSeguridad','dKitSeguridadBtnPend','dKitSeguridadBtnNo','dKitSeguridadBtnSi','dKitSeguridadObsInput','dKitSeguridadGuardarBtn',
     'dAlfombras','dAlfombrasBtnPend','dAlfombrasBtnNo','dAlfombrasBtnSi','dAlfombrasObsInput','dAlfombrasGuardarBtn',
@@ -6747,7 +6822,7 @@ function aplicarSoloLecturaDrawer_(){
   drawer.querySelectorAll('input, select, textarea, button').forEach(function(el){
     if(el.classList.contains('close')) return;
     if(esLogisticaLimitada){
-      el.disabled = permitidosLogistica.indexOf(el.id)===-1;
+      el.disabled = permitidosLogistica.indexOf(el.id)===-1 && !el.classList.contains('acc-item-editable');
     } else {
       el.disabled = soloLectura;
     }
@@ -6817,16 +6892,104 @@ function fechaHoraAhora_(){
   return new Date().toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
 }
 
-function guardarAccesorioTexto(valor){
+// ============================================================
+// ACCESORIOS — sistema multi-ítem con catálogo y precio (reemplaza el
+// campo de texto libre único de antes). Cada accesorio de la entrega es su
+// propio ítem con estado (pendiente/no colocado/colocado) y observación —
+// así se sabe exactamente cuál faltó, por qué, y cuánto se vendió de cada
+// uno para el reporte.
+// ============================================================
+var CATALOGO_ACCESORIOS_ = [];
+function cargarCatalogoAccesorios_(){
+  return gasGet('catalogoAccesorios').then(function(res){
+    if(res && res.ok) CATALOGO_ACCESORIOS_ = res.catalogo || [];
+  });
+}
+function filtrarBuscadorAccesorios_(q){
+  var lista = document.getElementById('dAccesoriosBuscadorLista');
+  q = (q||'').trim().toLowerCase();
+  if(!q){ lista.style.display='none'; lista.innerHTML=''; return; }
+  var coincidencias = CATALOGO_ACCESORIOS_.filter(function(it){
+    return it.activo!==false && it.nombre.toLowerCase().indexOf(q)>-1;
+  });
+  var opciones = coincidencias.map(function(it){
+    return '<div class="combo-item" onclick="agregarAccesorioAEntrega_(\''+it.nombre.replace(/'/g,"\\'")+'\','+it.precio+')">'+it.nombre+' <span style="color:var(--text-faint);float:right;">$'+it.precio.toLocaleString('es-AR')+'</span></div>';
+  });
+  // Si no hay coincidencia exacta, se puede cargar como ítem "libre" sin precio (no todo tiene que estar en el catálogo).
+  var coincidenciaExacta = CATALOGO_ACCESORIOS_.some(function(it){return it.nombre.toLowerCase()===q;});
+  if(!coincidenciaExacta){
+    opciones.push('<div class="combo-item" style="color:var(--text-faint);" onclick="agregarAccesorioAEntrega_(\''+q.replace(/'/g,"\\'")+'\',0)">+ Agregar "'+q+'" (no está en el catálogo, sin precio)</div>');
+  }
+  lista.innerHTML = opciones.join('') || '<div class="combo-item" style="color:var(--text-faint);">Sin resultados</div>';
+  lista.style.display = 'block';
+}
+function agregarAccesorioAEntrega_(nombre, precio){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
-  r.accesorios = valor.trim();
-  if(!r.accesorios){ r.accesoriosColocado=false; r.accesoriosColocadoFecha=''; }
-  gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{accesorios:r.accesorios, accesoriosColocado:r.accesoriosColocado, accesoriosColocadoFecha:r.accesoriosColocadoFecha||''}});
-  logHistorial_(detailMarca, detailId, r.accesorios ? ('Accesorio cargado: '+r.accesorios) : 'Se quitó el accesorio cargado');
-  openDetail(detailMarca, detailId);
+  r.accesoriosItems = r.accesoriosItems || [];
+  r.accesoriosItems.push({nombre:nombre, precio:Number(precio)||0, estado:'pendiente', motivo:''});
+  gasPost('updateEntregaFields', {marca:detailMarca, id:detailId, fields:{accesoriosItems: r.accesoriosItems}});
+  logHistorial_(detailMarca, detailId, '+ Accesorio agregado: '+nombre);
+  document.getElementById('dAccesoriosBuscador').value = '';
+  document.getElementById('dAccesoriosBuscadorLista').style.display = 'none';
+  renderAccesoriosItemsUI_(r);
   renderAll();
-  showToast('Accesorios actualizados');
+}
+function eliminarAccesorioDeEntrega_(idx){
+  if(!detailId) return;
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  var item = r.accesoriosItems[idx];
+  if(!confirm('¿Sacar "'+item.nombre+'" de esta entrega?')) return;
+  r.accesoriosItems.splice(idx,1);
+  gasPost('updateEntregaFields', {marca:detailMarca, id:detailId, fields:{accesoriosItems: r.accesoriosItems}});
+  logHistorial_(detailMarca, detailId, '− Accesorio quitado: '+item.nombre);
+  renderAccesoriosItemsUI_(r);
+  renderAll();
+}
+function marcarEstadoAccesorioItem_(idx, estado){
+  if(!detailId) return;
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  r.accesoriosItems[idx].estado = estado;
+  if(estado==='colocado') r.accesoriosItems[idx].motivo = '';
+  gasPost('updateEntregaFields', {marca:detailMarca, id:detailId, fields:{accesoriosItems: r.accesoriosItems}});
+  var etiquetaEstado = estado==='colocado' ? 'colocado' : (estado==='no_colocado' ? 'no colocado' : 'pendiente');
+  logHistorial_(detailMarca, detailId, 'Accesorio "'+r.accesoriosItems[idx].nombre+'": '+etiquetaEstado);
+  gasPost('notificarItemMarcado', {marca:detailMarca, id:detailId, itemLabel:'Accesorio: '+r.accesoriosItems[idx].nombre, estado:etiquetaEstado, motivo:'', autor:usuarioActual()});
+  renderAccesoriosItemsUI_(r);
+  renderAll();
+}
+function guardarMotivoAccesorioItem_(idx, motivo){
+  if(!detailId) return;
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  r.accesoriosItems[idx].motivo = motivo.trim();
+  gasPost('updateEntregaFields', {marca:detailMarca, id:detailId, fields:{accesoriosItems: r.accesoriosItems}});
+}
+function renderAccesoriosItemsUI_(r){
+  var cont = document.getElementById('dAccesoriosLista');
+  var items = r.accesoriosItems || [];
+  if(items.length===0){
+    cont.innerHTML = '<div style="font-size:11.5px;color:var(--text-faint);padding:6px 0;">Sin accesorios cargados todavía.</div>';
+  } else {
+    cont.innerHTML = items.map(function(it, idx){
+      var precioTxt = it.precio ? ' — $'+it.precio.toLocaleString('es-AR') : '';
+      return '<div style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;padding:9px 11px;margin-bottom:7px;">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px;">'+
+          '<b style="font-size:12px;">'+it.nombre+'<span style="color:var(--text-faint);font-weight:500;">'+precioTxt+'</span></b>'+
+          '<button class="acc-item-editable" onclick="eliminarAccesorioDeEntrega_('+idx+')" title="Sacar" style="background:none;border:none;color:var(--text-faint);cursor:pointer;padding:2px;"><span class="material-symbols-outlined" style="font-size:15px;">close</span></button>'+
+        '</div>'+
+        '<div class="dual-toggle-wrap">'+
+          '<button class="dual-toggle-btn pend acc-item-editable'+(it.estado==='pendiente'?' active':'')+'" onclick="marcarEstadoAccesorioItem_('+idx+',\'pendiente\')"><span class="material-symbols-outlined">schedule</span>Pendiente</button>'+
+          '<button class="dual-toggle-btn no acc-item-editable'+(it.estado==='no_colocado'?' active':'')+'" onclick="marcarEstadoAccesorioItem_('+idx+',\'no_colocado\')"><span class="material-symbols-outlined">cancel</span>No colocado</button>'+
+          '<button class="dual-toggle-btn si acc-item-editable'+(it.estado==='colocado'?' active':'')+'" onclick="marcarEstadoAccesorioItem_('+idx+',\'colocado\')"><span class="material-symbols-outlined">check_circle</span>Colocado</button>'+
+        '</div>'+
+        (it.estado!=='colocado' ? '<textarea class="acc-item-editable" placeholder="Observación (ej: sin stock, cliente no lo quiso)..." onchange="guardarMotivoAccesorioItem_('+idx+',this.value)" style="width:100%;min-height:38px;margin-top:6px;background:var(--panel);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:6px 8px;font-size:11.5px;font-family:inherit;resize:vertical;">'+(it.motivo||'')+'</textarea>' : '')+
+      '</div>';
+    }).join('');
+  }
+  var total = items.filter(function(it){return it.estado==='colocado';}).reduce(function(sum,it){return sum+(Number(it.precio)||0);}, 0);
+  var totalEl = document.getElementById('dAccesoriosTotal');
+  totalEl.textContent = items.length>0 ? 'Total accesorios colocados: $'+total.toLocaleString('es-AR') : '';
 }
 
 // Configuración genérica de los 5 ítems "pendiente / no colocado / colocado" con 3 botones lado a lado.
@@ -6842,9 +7005,12 @@ function itemsPendientesEnEntrega_(r){
   var relevantes = [];
   Object.keys(ITEMS_COLOCADO_CONFIG_).forEach(function(key){
     var cfg = ITEMS_COLOCADO_CONFIG_[key];
-    var corresponde = key==='accesorios' ? !!r.accesorios : key==='campana' ? !!r.campanaTexto : !!r[cfg.corresponde];
+    var corresponde = key==='campana' ? !!r.campanaTexto : !!r[cfg.corresponde];
     if(!corresponde) return;
     relevantes.push({key:key, label:cfg.label, estado: estadoItemActual_(cfg, r)});
+  });
+  (r.accesoriosItems||[]).forEach(function(it, idx){
+    relevantes.push({key:'accesorio_'+idx, label:'Accesorio: '+it.nombre, estado: it.estado==='colocado' ? 'colocado' : 'pendiente'});
   });
   if(r.regaloCorporativo){
     relevantes.push({key:'regalo', label:'Regalo corporativo', estado: r.regaloEstado==='Entregado' ? 'colocado' : 'pendiente'});
@@ -6853,12 +7019,15 @@ function itemsPendientesEnEntrega_(r){
   var completos = relevantes.filter(function(x){return x.estado==='colocado';}).length;
   return {total:relevantes.length, completos:completos, pendientes:relevantes.length-completos, items:relevantes};
 }
+function accHayAlgo_(r){ return (r.accesoriosItems||[]).length>0; }
+function accTodosColocados_(r){ var items=r.accesoriosItems||[]; return items.length>0 && items.every(function(it){return it.estado==='colocado';}); }
+function accCantidadColocados_(r){ return (r.accesoriosItems||[]).filter(function(it){return it.estado==='colocado';}).length; }
+function accResumenTexto_(r){ return (r.accesoriosItems||[]).map(function(it){return it.nombre;}).join(', '); }
 var ITEMS_COLOCADO_CONFIG_ = {
   kitSeguridad:   {corresponde:'kitSeguridad',   colocado:'kitSeguridadColocado',        fecha:'kitSeguridadColocadoFecha',        motivo:'kitSeguridadMotivo',   pendienteStock:'kitSeguridadPendienteStock',   label:'Kit de seguridad',   render:'renderKitSeguridadUI'},
   manual:         {corresponde:'manual',         colocado:'manualEntregado',             fecha:'manualEntregadoFecha',             motivo:'manualMotivo',         pendienteStock:'manualPendienteStock',         label:'Manual del vehículo', render:'renderManualUI'},
   llaveDuplicada: {corresponde:'llaveDuplicada', colocado:'llaveDuplicadaEntregada',      fecha:'llaveDuplicadaEntregadaFecha',     motivo:'llaveDuplicadaMotivo', pendienteStock:'llaveDuplicadaPendienteStock', label:'Llave duplicada',    render:'renderLlaveDuplicadaUI'},
   alfombras:      {corresponde:'alfombras',      colocado:'alfombrasColocadas',           fecha:'alfombrasColocadasFecha',          motivo:'alfombrasMotivo',      pendienteStock:'alfombrasPendienteStock',      label:'Alfombras',          render:'renderAlfombrasUI'},
-  accesorios:     {corresponde:'accesorios',     colocado:'accesoriosColocado',           fecha:'accesoriosColocadoFecha',          motivo:'accesoriosMotivo',     pendienteStock:'accesoriosPendienteStock',     label:'Accesorio',          render:'renderAccDualUI_'},
   campana:        {corresponde:'campanaTexto',   colocado:'campanaControlada',            fecha:'campanaControladaFecha',           motivo:'campanaMotivo',        pendienteStock:'campanaPendienteStock',        label:'Campaña',            render:'renderCampanaDualUI_'}
 };
 // Devuelve el estado actual: 'colocado' | 'no_colocado' | 'pendiente'
@@ -6873,7 +7042,7 @@ function renderDualToggleUI_(itemKey, r){
   var idBase = itemKey.charAt(0).toUpperCase()+itemKey.slice(1);
   var wrap = document.getElementById('d'+idBase+'ToggleWrap');
   if(!wrap) return;
-  var corresponde = itemKey==='accesorios' ? !!r.accesorios : itemKey==='campana' ? !!r.campanaTexto : !!r[cfg.corresponde];
+  var corresponde = itemKey==='campana' ? !!r.campanaTexto : !!r[cfg.corresponde];
   var obsWrap = document.getElementById('d'+idBase+'ObsWrap');
   if(!corresponde){ wrap.style.display='none'; if(obsWrap) obsWrap.style.display='none'; return; }
   wrap.style.display='flex';
@@ -6966,7 +7135,6 @@ function guardarEstadoItem_(itemKey){
   renderAll();
   showToast(cfg.label+' guardado: '+etiquetaEstado);
 }
-function renderAccDualUI_(r){ renderDualToggleUI_('accesorios', r); }
 function renderCampanaDualUI_(r){ renderDualToggleUI_('campana', r); }
 var _motivoCallback_ = null;
 function pedirObservacionPendiente_(itemLabel, callback, tituloCustom){
@@ -7016,7 +7184,6 @@ function renderRegaloUI(r){
   var det=document.getElementById('dRegaloDetalle');
   if(r.regaloCorporativo){
     det.style.display='block';
-    document.getElementById('dRegaloResponsable').value = r.regaloResponsable || '';
     document.getElementById('dRegaloObs').value = r.regaloObservaciones || '';
     var itemsCargados = (r.regaloItems||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
     var fijos=['Mate','Llavero','Portadocumentos'];
@@ -7295,38 +7462,34 @@ function logHistorial_(marca, id, texto){
   gasPost('agregarHistorial',{marca:marca,id:id,texto:textoConAutor});
   if(detailId===id && detailMarca===marca) renderHistorialUI(r);
 }
-function aplicarMotivoPreset(){
-  var preset = document.getElementById('rMotivoPreset').value;
-  if(!preset) return;
-  var actual = document.getElementById('rMotivo').value.trim();
-  document.getElementById('rMotivo').value = actual ? (preset+' — '+actual) : preset;
-}
 function reprogramar(){
   if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
   var f=document.getElementById('rFecha').value, h=document.getElementById('rHora').value, motivo=document.getElementById('rMotivo').value.trim();
+  var nuevaSucursal = document.getElementById('rSucursal').value || r.sucursal;
   var warningEl = document.getElementById('rWarning');
   if(!f||!h){ showToast('Completá fecha y hora'); return; }
   var parts=f.split('-'); var nuevaFecha=parts[2]+'/'+parts[1]+'/'+parts[0];
   var marcasAgendaRepro = marcasCompartenAgenda_(r.marca);
   var choque = ENTREGAS.find(function(x){
-    return marcasAgendaRepro.indexOf(x.marca)>-1 && x.sucursal===r.sucursal && x.fecha===nuevaFecha && x.id!==r.id &&
+    return marcasAgendaRepro.indexOf(x.marca)>-1 && x.sucursal===nuevaSucursal && x.fecha===nuevaFecha && x.id!==r.id &&
       seSuperponenHorarios_(h, r.duracionMinutos, x.hora, x.duracionMinutos);
   });
   if(choque){
     warningEl.style.display='block';
-    warningEl.textContent = '🚫 Ya hay una entrega de '+choque.cliente+' el '+nuevaFecha+' a las '+h+'. Elegí otro horario.';
+    warningEl.textContent = '🚫 Ya hay una entrega de '+choque.cliente+' el '+nuevaFecha+' a las '+h+' en '+nuevaSucursal+'. Elegí otro horario.';
     warningEl.scrollIntoView({behavior:'smooth', block:'nearest'});
     return;
   }
   warningEl.style.display='none';
-  var anterior=r.fecha+' '+r.hora;
-  r.fecha=nuevaFecha; r.hora=h; r.recordatorio='programado'; r.reprogramada=true;
+  var anterior=r.fecha+' '+r.hora+(r.sucursal?' ('+r.sucursal+')':'');
+  var cambioSucursal = nuevaSucursal!==r.sucursal;
+  r.fecha=nuevaFecha; r.hora=h; r.sucursal=nuevaSucursal; r.recordatorio='programado'; r.reprogramada=true;
   r.confirmado=false; r.confirmadoPor=''; r.confirmadoFecha=''; r.recordatorioEnviadoPor=''; r.recordatorioFecha='';
-  var texto='Reprogramada de '+anterior+' a '+nuevaFecha+' '+h+(motivo?'. Motivo: '+motivo:'');
+  var texto='Reprogramada de '+anterior+' a '+nuevaFecha+' '+h+(cambioSucursal?' ('+nuevaSucursal+')':'')+(motivo?'. Motivo: '+motivo:'');
   // La reprogramación invalida la confirmación y el recordatorio anteriores — hay que volver a enviarlos.
   gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{
-    fecha:nuevaFecha, hora:h, reprogramada:true,
+    fecha:nuevaFecha, hora:h, sucursal:nuevaSucursal, reprogramada:true,
     confirmado:false, confirmadoPor:'', confirmadoFecha:'',
     recordatorio:'programado', recordatorioEnviadoPor:'', recordatorioFecha:''
   }});
@@ -7335,8 +7498,10 @@ function reprogramar(){
   document.getElementById('dHeadSub').textContent=r.fecha+' · '+r.hora+' · '+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+(r.sucursal?' · '+r.sucursal:'')+(r.vendedor?' · Vend: '+r.vendedor:'')+(r.administrativo?' · Adm: '+r.administrativo:'');
   document.getElementById('dFechaTexto').textContent=r.fecha;
   document.getElementById('dHoraTexto').textContent=r.hora;
+  var selLugarPost = document.getElementById('dLugar');
+  if(selLugarPost) selLugarPost.value = nuevaSucursal;
   renderAll();
-  showToast('Entrega reprogramada');
+  showToast('Entrega reprogramada'+(cambioSucursal?' — trasladada a '+nuevaSucursal:''));
 }
 
 function renderComentariosUI(r){
@@ -7358,6 +7523,14 @@ function agregarComentarioUI(){
 }
 
 // --- Envío directo de recordatorio (sin pasar por la vista previa) ---
+function faltanMenosDe24hs_(r){
+  var fechaObj = parsearFecha_(r.fecha);
+  if(!fechaObj || !r.hora) return true; // sin fecha clara, no bloqueamos
+  var partesHora = r.hora.split(':');
+  fechaObj.setHours(Number(partesHora[0])||0, Number(partesHora[1])||0, 0, 0);
+  var horasFaltantes = (fechaObj.getTime() - Date.now()) / (1000*60*60);
+  return horasFaltantes <= 24;
+}
 function renderEstadoComunicaciones(r){
   var estConf=document.getElementById('dConfirmacionEstado');
   var btnPreviewConf=document.getElementById('dBtnPreviewConf');
@@ -7384,6 +7557,12 @@ function renderEstadoComunicaciones(r){
     estRec.textContent='✓ Recordatorio enviado por '+(r.recordatorioEnviadoPor||'—')+' — '+(r.recordatorioFecha||'');
     btnEnviarRec.disabled=true; btnEnviarRec.style.opacity='0.5'; btnEnviarRec.style.cursor='not-allowed';
     btnEnviarRec.innerHTML='📩 Recordatorio ya enviado';
+  } else if(!faltanMenosDe24hs_(r)){
+    // Todavía falta más de 24hs para la entrega — el recordatorio se manda cerca, no antes.
+    estRec.style.background='var(--warn-soft)'; estRec.style.color='var(--warn)';
+    estRec.textContent='⏳ Se habilita 24hs antes de la entrega ('+r.fecha+' '+r.hora+')';
+    btnEnviarRec.disabled=true; btnEnviarRec.style.opacity='0.5'; btnEnviarRec.style.cursor='not-allowed';
+    btnEnviarRec.innerHTML='📩 Todavía no se puede enviar';
   } else {
     estRec.style.background='var(--panel-2)'; estRec.style.color='var(--text-dim)';
     estRec.textContent='○ Recordatorio no enviado todavía';
@@ -7409,6 +7588,7 @@ function enviarRecordatorioDirecto(){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
   if(r.recordatorio==='enviado'){ showToast('El recordatorio ya fue enviado'); return; }
+  if(!faltanMenosDe24hs_(r)){ showToast('Todavía faltan más de 24hs para la entrega — se habilita más cerca de la fecha'); return; }
   if(!confirm('¿Enviar el recordatorio ahora a '+(r.email||'(sin email cargado)')+'?')) return;
   gasPost('enviarRecordatorio',{marca:detailMarca,id:detailId,usuario:usuarioActual()}).then(function(res){
     if(!res.ok){ showToast(res.error||'No se pudo enviar'); return; }
@@ -7444,8 +7624,9 @@ function openNewDelivery(){
   document.getElementById('nTipoVenta').value='OKM';
   document.getElementById('nUsado').value='No';
   actualizarSucursalYContextoNuevaEntrega_(brand);
-  ['nCliente','nTelefono','nEmail','nModelo','nColor','nDominio','nChasis','nAccesorios','nObservaciones'].forEach(function(id){document.getElementById(id).value='';});
-  document.getElementById('nAccToggleBtn').textContent='🔧 Pendiente de colocar'; document.getElementById('nAccToggleBtn').className='toggle-btn pending'; window.nAccState=false;
+  ['nCliente','nTelefono','nEmail','nModelo','nColor','nDominio','nChasis','nObservaciones'].forEach(function(id){document.getElementById(id).value='';});
+  window._nuevaEntregaAccesorios = [];
+  renderNAccesoriosLista_();
   document.getElementById('nCampana').value='';
   document.getElementById('nCampanaToggleBtn').textContent='⚠ Pendiente de controlar'; document.getElementById('nCampanaToggleBtn').className='toggle-btn pending'; window.nCampanaState=false;
   document.getElementById('nVendedor').value = nombreDeMaestro_(CONFIG.maestros.vendedores[0]) || '';
@@ -7536,11 +7717,44 @@ function cambiarSucursalNuevaEntrega(){
   checkNewDeliveryDate();
   renderDisponibilidadNuevaEntrega();
 }
-function toggleNAcc(){
-  window.nAccState=!window.nAccState;
-  var btn=document.getElementById('nAccToggleBtn');
-  btn.textContent=window.nAccState?'✓ Colocado':'🔧 Pendiente de colocar';
-  btn.className='toggle-btn '+(window.nAccState?'done':'pending');
+window._nuevaEntregaAccesorios = [];
+function filtrarBuscadorAccesoriosNueva_(q){
+  var lista = document.getElementById('nAccesoriosBuscadorLista');
+  q = (q||'').trim().toLowerCase();
+  if(!q){ lista.style.display='none'; lista.innerHTML=''; return; }
+  var coincidencias = CATALOGO_ACCESORIOS_.filter(function(it){
+    return it.activo!==false && it.nombre.toLowerCase().indexOf(q)>-1;
+  });
+  var opciones = coincidencias.map(function(it){
+    return '<div class="combo-item" onclick="agregarAccesorioNueva_(\''+it.nombre.replace(/'/g,"\\'")+'\','+it.precio+')">'+it.nombre+' <span style="color:var(--text-faint);float:right;">$'+it.precio.toLocaleString('es-AR')+'</span></div>';
+  });
+  var coincidenciaExacta = CATALOGO_ACCESORIOS_.some(function(it){return it.nombre.toLowerCase()===q;});
+  if(!coincidenciaExacta){
+    opciones.push('<div class="combo-item" style="color:var(--text-faint);" onclick="agregarAccesorioNueva_(\''+q.replace(/'/g,"\\'")+'\',0)">+ Agregar "'+q+'" (sin precio)</div>');
+  }
+  lista.innerHTML = opciones.join('') || '<div class="combo-item" style="color:var(--text-faint);">Sin resultados</div>';
+  lista.style.display = 'block';
+}
+function agregarAccesorioNueva_(nombre, precio){
+  window._nuevaEntregaAccesorios.push({nombre:nombre, precio:Number(precio)||0, estado:'pendiente', motivo:''});
+  document.getElementById('nAccesoriosBuscador').value = '';
+  document.getElementById('nAccesoriosBuscadorLista').style.display = 'none';
+  renderNAccesoriosLista_();
+}
+function eliminarAccesorioNueva_(idx){
+  window._nuevaEntregaAccesorios.splice(idx,1);
+  renderNAccesoriosLista_();
+}
+function renderNAccesoriosLista_(){
+  var cont = document.getElementById('nAccesoriosLista');
+  var items = window._nuevaEntregaAccesorios || [];
+  cont.innerHTML = items.map(function(it, idx){
+    var precioTxt = it.precio ? ' — $'+it.precio.toLocaleString('es-AR') : '';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;padding:6px 10px;margin-bottom:5px;font-size:12px;">'+
+      '<span>'+it.nombre+'<span style="color:var(--text-faint);">'+precioTxt+'</span></span>'+
+      '<button type="button" onclick="eliminarAccesorioNueva_('+idx+')" style="background:none;border:none;color:var(--text-faint);cursor:pointer;"><span class="material-symbols-outlined" style="font-size:15px;">close</span></button>'+
+    '</div>';
+  }).join('');
 }
 function toggleNCampana(){
   window.nCampanaState=!window.nCampanaState;
@@ -7608,7 +7822,6 @@ function submitNewDelivery(){
   saveBtn.disabled = true; saveBtn.textContent = 'Guardando...';
 
   var tipoVenta=document.getElementById('nTipoVenta').value;
-  var accesorios=document.getElementById('nAccesorios').value.trim();
   var campana=document.getElementById('nCampana').value.trim();
   var nueva={
     fecha:fecha, hora:horaVal, sucursal: sucursalElegida, tipoVenta:tipoVenta, cliente:cliente.toUpperCase(),
@@ -7627,7 +7840,7 @@ function submitNewDelivery(){
     llaveDuplicadaEntregada:false, llaveDuplicadaEntregadaFecha:'',
     alfombras: document.getElementById('nAlfombras').value==='Sí',
     alfombrasColocadas:false, alfombrasColocadasFecha:'',
-    accesorios:accesorios, accesoriosColocado: accesorios?window.nAccState:false, accesoriosColocadoFecha: (accesorios&&window.nAccState)?fechaHoraAhora_():'',
+    accesoriosItems: window._nuevaEntregaAccesorios || [],
     campanaTexto:campana, campanaControlada: campana?window.nCampanaState:false, campanaControladaFecha: (campana&&window.nCampanaState)?fechaHoraAhora_():'',
     lugar:document.getElementById('nLugar').value.trim(), observaciones:document.getElementById('nObservaciones').value.trim(),
     vendedor:document.getElementById('nVendedor').value, administrativo:document.getElementById('nAdministrativo').value,
@@ -7783,7 +7996,7 @@ function filaReporte_(r){
   return [
     (r.sucursal==='default'?'—':r.sucursal), r.fecha, r.hora, r.cliente,
     r.telefono||'', r.email||'', r.tipoVenta, r.modelo, r.color||'', r.dominio, r.chasis||'',
-    r.accesorios?(r.accesorios+(r.accesoriosColocado?' (colocado)':' (pendiente)')):'—',
+    accHayAlgo_(r)?(accResumenTexto_(r)+' ('+accCantidadColocados_(r)+'/'+r.accesoriosItems.length+' colocados)'):'—',
     r.vendedor, r.administrativo, r.responsableEntrega, r.lugar,
     r.onstar||'—', r.estado, (r.confirmado?'Sí':'No'), (r.entregada?'Sí':'No'), (r.reprogramada?'Sí':'No'), r.recordatorio, r.observaciones||''
   ];
@@ -7840,8 +8053,8 @@ function hojaConEstilo_(headers, filas, colorHex, colorTextoHex){
 
 function calcularIndicadores_(rows){
   var totalEntregas = rows.length;
-  var conAccesorio = rows.filter(function(r){return r.accesorios;}).length;
-  var accesoriosColocados = rows.filter(function(r){return r.accesorios && r.accesoriosColocado;}).length;
+  var conAccesorio = rows.filter(function(r){return accHayAlgo_(r);}).length;
+  var accesoriosColocados = rows.filter(function(r){return accTodosColocados_(r);}).length;
   var onstarAplica = rows.filter(function(r){return r.marca==='chevrolet' && r.onstar!==null && r.onstar!=='';}).length;
   var onstarActivado = rows.filter(function(r){return r.onstar==='ok';}).length;
   var conCampana = rows.filter(function(r){return r.campanaTexto;}).length;
@@ -7906,7 +8119,7 @@ function hojaDashboardExcel_(){
     var nombre = r.administrativo || '(sin asignar)';
     if(!porAdmin[nombre]) porAdmin[nombre] = {entregas:0, accesorios:0, onstar:0, campanas:0, regalos:0};
     porAdmin[nombre].entregas++;
-    if(r.accesorios && r.accesoriosColocado) porAdmin[nombre].accesorios++;
+    if(accTodosColocados_(r)) porAdmin[nombre].accesorios++;
     if(r.onstar==='ok') porAdmin[nombre].onstar++;
     if(r.campanaTexto && r.campanaControlada) porAdmin[nombre].campanas++;
     if(r.regaloCorporativo && r.regaloEstado==='Entregado') porAdmin[nombre].regalos++;
@@ -8546,6 +8759,7 @@ function setMaestroTab(tab){
   if(tab==='regalos') renderRegalosPanel();
   if(tab==='kit') renderKitPanel();
   if(tab==='config') openConfig();
+  if(tab==='cargas') renderCatalogoAccesoriosTabla_();
   if(tab==='automatizaciones') renderAutomatizacionesUI_();
   if(tab==='alertatemprana') renderAlertaTempranaReporte_();
   if(tab==='permisos'){
@@ -8596,6 +8810,7 @@ function setDashboardMarca(marca){
 }
 
 function renderDashboard(){
+  renderReporteAccesorios_();
   var elCanal=document.getElementById('dashCanalToggle');
   if(elCanal){
     elCanal.innerHTML =
@@ -8605,8 +8820,8 @@ function renderDashboard(){
   }
   var rows = entregasParaDashboard();
   var totalEntregas = rows.length;
-  var conAccesorio = rows.filter(function(r){return r.accesorios;}).length;
-  var accesoriosColocados = rows.filter(function(r){return r.accesorios && r.accesoriosColocado;}).length;
+  var conAccesorio = rows.filter(function(r){return accHayAlgo_(r);}).length;
+  var accesoriosColocados = rows.filter(function(r){return accTodosColocados_(r);}).length;
   var onstarActivado = rows.filter(function(r){return r.onstar==='ok';}).length;
   var onstarAplica = rows.filter(function(r){return r.marca==='chevrolet' && r.onstar!==null && r.onstar!=='';}).length;
   var conCampana = rows.filter(function(r){return (r.marca==='peugeot'||r.marca==='citroen'||r.campanaTexto) && r.campanaTexto;}).length;
@@ -8618,7 +8833,7 @@ function renderDashboard(){
 
   var chips = [
     {n:totalEntregas, l:'Total de entregas', cls:'ok', icon:'local_shipping', filtro:function(r){return true;}, titulo:'Todas las entregas'},
-    {n:accesoriosColocados+' / '+conAccesorio, l:'Accesorios colocados', cls:'warn', icon:'build', filtro:function(r){return !!r.accesorios;}, titulo:'Entregas con accesorio'},
+    {n:accesoriosColocados+' / '+conAccesorio, l:'Accesorios colocados', cls:'warn', icon:'build', filtro:function(r){return accHayAlgo_(r);}, titulo:'Entregas con accesorio'},
     {n:onstarActivado+' / '+onstarAplica, l:'OnStar activado (Chevrolet)', cls:'pending', icon:'satellite_alt', filtro:function(r){return r.marca==='chevrolet';}, titulo:'Entregas Chevrolet (OnStar)'},
     {n:campanaControlada+' / '+conCampana, l:'Campañas controladas', cls:'warn', icon:'campaign', filtro:function(r){return !!r.campanaTexto;}, titulo:'Entregas con campaña cargada'},
     {n:confirmadas+' / '+totalEntregas, l:'Confirmaciones enviadas', cls:'ok', icon:'check_circle', filtro:function(r){return !!r.confirmado;}, titulo:'Confirmaciones enviadas'},
@@ -8637,7 +8852,7 @@ function renderDashboard(){
     var nombre = r.administrativo || '(sin asignar)';
     if(!porAdmin[nombre]) porAdmin[nombre] = {entregas:0, accesorios:0, onstar:0, campanas:0, regalos:0};
     porAdmin[nombre].entregas++;
-    if(r.accesorios && r.accesoriosColocado) porAdmin[nombre].accesorios++;
+    if(accTodosColocados_(r)) porAdmin[nombre].accesorios++;
     if(r.onstar==='ok') porAdmin[nombre].onstar++;
     if(r.campanaTexto && r.campanaControlada) porAdmin[nombre].campanas++;
     if(r.regaloCorporativo && r.regaloEstado==='Entregado') porAdmin[nombre].regalos++;
@@ -8974,6 +9189,28 @@ function renderSeccionNPSCompleta_(){
       .map(function(x){ return renderFilaRankingNPS_(x.v, x.rows); }).join('');
   }
 }
+function toggleSeccionAccesorios_(){
+  var cuerpo = document.getElementById('reporteAccesoriosWrap');
+  var icono = document.getElementById('accesoriosAccordionIcon');
+  var abierto = cuerpo.style.display !== 'none';
+  cuerpo.style.display = abierto ? 'none' : 'block';
+  icono.style.transform = abierto ? 'rotate(-90deg)' : 'rotate(0deg)';
+}
+function renderReporteAccesorios_(){
+  var tabla = document.getElementById('reporteAccesoriosTabla');
+  if(!tabla) return;
+  tabla.innerHTML = '<tr><th colspan="4" style="text-align:center;color:var(--text-faint);font-weight:500;">Cargando…</th></tr>';
+  gasGet('reporteAccesorios').then(function(res){
+    if(!res.ok || !res.accesorios || res.accesorios.length===0){
+      tabla.innerHTML = '<tr><th style="text-align:center;color:var(--text-faint);font-weight:500;">Todavía no hay accesorios cargados en ninguna entrega.</th></tr>';
+      return;
+    }
+    var filas = res.accesorios.map(function(a){
+      return '<tr><td>'+a.nombre+'</td><td>'+a.cantidad+'</td><td style="color:var(--ok);">'+a.colocados+'</td><td style="color:var(--warn);">'+a.pendientes+'</td><td style="text-align:right;">$'+a.montoTotal.toLocaleString('es-AR')+'</td></tr>';
+    }).join('');
+    tabla.innerHTML = '<tr><th>Accesorio</th><th>Vendido (veces)</th><th>Colocados</th><th>Pendientes</th><th style="text-align:right;">Monto colocado</th></tr>'+filas;
+  });
+}
 function toggleSeccionNPS_(){
   var cuerpo = document.getElementById('npsSeccionCuerpo');
   var icono = document.getElementById('npsAccordionIcon');
@@ -9053,8 +9290,8 @@ function renderDashboardCharts(rows){
   });
 
   // 4. % Cumplimiento por tarea (accesorios, kit, regalos, OnStar, campañas)
-  var conAcc=rows.filter(function(r){return r.accesorios;}).length;
-  var accOk=rows.filter(function(r){return r.accesorios && r.accesoriosColocado;}).length;
+  var conAcc=rows.filter(function(r){return accHayAlgo_(r);}).length;
+  var accOk=rows.filter(function(r){return accTodosColocados_(r);}).length;
   var conKit=rows.filter(function(r){return r.kitSeguridad;}).length;
   var kitOk=rows.filter(function(r){return r.kitSeguridad && r.kitSeguridadColocado;}).length;
   var conReg=rows.filter(function(r){return r.regaloCorporativo;}).length;
@@ -9311,7 +9548,7 @@ function abrirDetalleFiltradoAdmin(nombre, tipo){
   var base = entregasParaDashboard().filter(function(r){ return (r.administrativo||'(sin asignar)')===nombre; });
   var filtros = {
     entregas: function(r){return true;},
-    accesorios: function(r){return r.accesorios && r.accesoriosColocado;},
+    accesorios: function(r){return accTodosColocados_(r);},
     onstar: function(r){return r.onstar==='ok';},
     campanas: function(r){return r.campanaTexto && r.campanaControlada;},
     regalos: function(r){return r.regaloCorporativo && r.regaloEstado==='Entregado';}
@@ -9977,8 +10214,8 @@ function ejecutarReporte(){
     if(admin && (r.administrativo||'').toLowerCase().indexOf(admin)===-1) return false;
     if(vend && (r.vendedor||'').toLowerCase().indexOf(vend)===-1) return false;
     if(estado && r.estado!==estado) return false;
-    if(acc==='si' && !r.accesorios) return false;
-    if(acc==='no' && r.accesorios) return false;
+    if(acc==='si' && !accHayAlgo_(r)) return false;
+    if(acc==='no' && accHayAlgo_(r)) return false;
     if(ons){ if(ons==='pending'){ if(r.onstar!=='pending' && r.onstar!=='warn') return false; } else if(r.onstar!==ons) return false; }
     if(camp==='si' && !r.campanaTexto) return false;
     if(camp==='no' && r.campanaTexto) return false;
@@ -10001,7 +10238,7 @@ function ejecutarReporte(){
   filas.forEach(function(r){
     var b=BRANDS.find(function(x){return x.id===r.marca;});
     html += '<tr><td>'+(b?b.label:r.marca)+'</td><td>'+(r.sucursal==='default'?'—':r.sucursal)+'</td><td>'+r.fecha+'</td><td>'+r.hora+'</td><td>'+r.cliente+'</td><td>'+r.modelo+'</td><td>'+r.dominio+'</td><td>'+r.vendedor+'</td><td>'+r.administrativo+'</td><td>'+r.estado+'</td>'+
-      '<td>'+(r.accesorios?(r.accesoriosColocado?'Colocado':'Pendiente'):'—')+'</td><td>'+(r.onstar||'—')+'</td><td>'+(r.campanaTexto?(r.campanaControlada?'Controlada':'Pendiente'):'—')+'</td><td>'+(r.regaloCorporativo?(r.regaloEstado||'Pendiente'):'—')+'</td></tr>';
+      '<td>'+(accHayAlgo_(r)?(accTodosColocados_(r)?'Colocado':'Pendiente'):'—')+'</td><td>'+(r.onstar||'—')+'</td><td>'+(r.campanaTexto?(r.campanaControlada?'Controlada':'Pendiente'):'—')+'</td><td>'+(r.regaloCorporativo?(r.regaloEstado||'Pendiente'):'—')+'</td></tr>';
   });
   document.getElementById('repResultadoTabla').innerHTML = html;
   document.getElementById('repResultadoWrap').style.display = filas.length? 'block':'none';
@@ -10014,7 +10251,7 @@ function exportarReporteExcel(){
   var datos = filas.map(function(r){
     var b=BRANDS.find(function(x){return x.id===r.marca;});
     return [(b?b.label:r.marca), (r.sucursal==='default'?'—':r.sucursal), r.fecha, r.hora, r.cliente, r.modelo, r.dominio, r.vendedor, r.administrativo, r.estado,
-      (r.accesorios?(r.accesoriosColocado?'Colocado':'Pendiente'):'—'), (r.onstar||'—'), (r.campanaTexto?(r.campanaControlada?'Controlada':'Pendiente'):'—'), (r.regaloCorporativo?(r.regaloEstado||'Pendiente'):'—')];
+      (accHayAlgo_(r)?(accTodosColocados_(r)?'Colocado':'Pendiente'):'—'), (r.onstar||'—'), (r.campanaTexto?(r.campanaControlada?'Controlada':'Pendiente'):'—'), (r.regaloCorporativo?(r.regaloEstado||'Pendiente'):'—')];
   });
   var libro = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(libro, hojaConEstilo_(headers, datos, '1D2330','FFFFFF'), 'Reporte');
