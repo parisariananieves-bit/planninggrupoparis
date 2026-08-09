@@ -661,9 +661,9 @@
   .cal-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;min-width:150px;text-align:center;text-transform:capitalize;}
   .cal-legend{display:flex;gap:14px;font-size:10.5px;color:var(--text-dim);flex-wrap:wrap;}
   .cal-legend .sw{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:minmax(118px,auto);gap:7px;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(118px,auto);gap:7px;min-width:0;}
   .cal-dow{font-size:9.5px;color:var(--text-faint);text-transform:uppercase;text-align:center;padding-bottom:7px;letter-spacing:.6px;font-weight:700;}
-  .cal-day{background:var(--panel-2);border:1px solid var(--hairline);border-radius:13px;height:100%;overflow:visible;padding:8px;cursor:pointer;position:relative;transition:transform .12s,border-color .12s,box-shadow .12s;}
+  .cal-day{background:var(--panel-2);border:1px solid var(--hairline);border-radius:13px;height:100%;min-width:0;overflow:visible;padding:8px;cursor:pointer;position:relative;transition:transform .12s,border-color .12s,box-shadow .12s;}
   .cal-day-cliente{margin-top:5px;font-size:9.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .cal-day-cliente:hover{filter:brightness(1.15);text-decoration:underline;}
   .cal-day-cliente.mas{color:var(--text-faint);background:none;padding:2px 6px 0;font-weight:700;}
@@ -1297,8 +1297,9 @@
       <div class="form-field"><label>E-mail</label><input id="nEmail"></div>
       <div class="form-field full"><label>Modelo</label><input id="nModelo"></div>
       <div class="form-field"><label>Color</label><input id="nColor"></div>
-      <div class="form-field"><label>Dominio</label><input id="nDominio"></div>
-      <div class="form-field full"><label>Chasis / VIN</label><input id="nChasis"></div>
+      <div class="form-field"><label>Dominio</label><input id="nDominio" oninput="buscarEnPreparacion_(this.value)"></div>
+      <div class="form-field full"><label>Chasis / VIN</label><input id="nChasis" oninput="buscarEnPreparacion_(this.value)"></div>
+      <div id="nPreparacionLegend" class="form-field full" style="display:none;"></div>
       <div class="form-field"><label>Duración estimada</label>
         <select id="nDuracion" onchange="renderDisponibilidadNuevaEntrega()">
           <option value="15">15 minutos</option>
@@ -4814,6 +4815,8 @@ function renderPreparacionKanban_(){
   var soloMias = document.getElementById('prepSoloMias').checked;
 
   var filtradas = PREP_UNIDADES.filter(function(u){
+    if(u.marca && currentBrands.indexOf(u.marca)===-1) return false;
+    if(u.sucursal && currentBranches.length>0 && currentBranches.indexOf(u.sucursal)===-1) return false;
     if(soloMias && u.responsable!==usuarioActual()) return false;
     if(fMarca && u.marca!==fMarca) return false;
     if(fSucursal && u.sucursal!==fSucursal) return false;
@@ -8110,8 +8113,38 @@ function responsableAutomatico_(marca, sucursal){
   if((marca==='chevrolet' || marca==='peugeot' || marca==='citroen') && sucursal==='San Juan') return 'Darío Aguirre';
   return nombreDeMaestro_(CONFIG.maestros.responsables[0]) || '';
 }
+// Cruza lo que se va tipeando en Dominio/VIN contra el Centro de
+// Preparación — si encuentra una coincidencia, autocompleta lo que sepa y
+// avisa en qué estado está esa unidad (para que el administrativo sepa si
+// ya está lista o todavía le falta algo).
+function buscarEnPreparacion_(valor){
+  var legend = document.getElementById('nPreparacionLegend');
+  var q = (valor||'').trim().toLowerCase();
+  if(q.length<4){ legend.style.display='none'; return; }
+  var u = (PREP_UNIDADES||[]).find(function(x){
+    return (x.vin && x.vin.toLowerCase()===q) || (x.patente && x.patente.toLowerCase()===q);
+  });
+  if(!u){ legend.style.display='none'; return; }
+  if(u.cliente) document.getElementById('nCliente').value = u.cliente;
+  if(u.modelo) document.getElementById('nModelo').value = u.modelo;
+  if(u.color) document.getElementById('nColor').value = u.color;
+  if(u.vin) document.getElementById('nChasis').value = u.vin;
+  if(u.patente) document.getElementById('nDominio').value = u.patente;
+  if(u.vendedor) document.getElementById('nVendedor').value = u.vendedor;
+  if(u.administrativo) document.getElementById('nAdministrativo').value = u.administrativo;
+  var esListo = u.estado==='Listo para entregar';
+  var esCaida = u.estado==='Venta caída';
+  legend.style.display='block';
+  legend.innerHTML = '<div style="background:'+(esListo?'var(--ok-soft)':esCaida?'var(--danger-soft)':'var(--warn-soft)')+';color:'+(esListo?'var(--ok)':esCaida?'var(--danger)':'var(--warn)')+';border-radius:8px;padding:9px 12px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:7px;">'+
+    '<span class="material-symbols-outlined" style="font-size:16px;">'+(esListo?'check_circle':esCaida?'cancel':'schedule')+'</span>'+
+    (esListo ? '✓ Lista para entregar — Centro de Preparación ('+u.id+')' : esCaida ? '⚠ Figura como "Venta caída" en el Centro de Preparación' : 'Centro de Preparación: '+u.estado+' — '+(u.checklist?prepProgresoChecklist_(u).hechos+'/'+prepProgresoChecklist_(u).total+' del checklist':''))+
+  '</div>';
+  if(esCaida) showToast('⚠ Ojo: esta unidad figura como "Venta caída" en el Centro de Preparación');
+}
 function openNewDelivery(){
   if(!puedeEditar()){ showToast('Tu usuario no tiene permiso para agendar entregas.'); setAppView('dashboard'); return; }
+  cargarPreparacionSiHaceFalta_(); // para poder cruzar por VIN/dominio contra el Centro de Preparación
+  document.getElementById('nPreparacionLegend').style.display='none';
   document.getElementById('nMarca').innerHTML = BRANDS.map(function(b){
     return '<option value="'+b.id+'" '+(b.id===currentBrand?'selected':'')+'>'+b.label+'</option>';
   }).join('');
