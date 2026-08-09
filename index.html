@@ -59,6 +59,7 @@
 
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
   .material-symbols-outlined{
     font-family:'Material Symbols Outlined';
     font-weight:normal;
@@ -1462,7 +1463,7 @@
               <option value="">Toda prioridad</option><option value="Alta">Alta</option><option value="Media">Media</option><option value="Baja">Baja</option>
             </select>
             <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-dim);cursor:pointer;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;padding:8px 11px;">
-              <input type="checkbox" id="prepSoloMias" onchange="renderPreparacionKanban_()"> Solo mis unidades
+              <input type="checkbox" id="prepSoloMias" onchange="renderPrepDashboardKpis_();renderPreparacionKanban_()"> Solo mis unidades
             </label>
           </div>
           <div id="preparacionBoard" style="display:flex;gap:14px;overflow-x:auto;padding-bottom:10px;margin-top:14px;align-items:flex-start;"></div>
@@ -3820,7 +3821,7 @@ function setAppView(view){
   if(view==='notificaciones'){ renderNotificaciones(); }
   if(view==='traslados'){ renderTraslados(); }
   if(view==='faltantes'){ renderFaltantes(); }
-  if(view==='preparacion'){ cargarPreparacionSiHaceFalta_().then(renderPreparacionKanban_); }
+  if(view==='preparacion'){ cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPreparacionKanban_(); }); }
 }
 
 function fmtFecha(d){ var dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0'); return dd+'/'+mm+'/'+d.getFullYear(); }
@@ -4815,7 +4816,6 @@ function renderPrepDashboardKpis_(){
 function renderPreparacionKanban_(){
   var board = document.getElementById('preparacionBoard');
   if(!board) return;
-  renderPrepDashboardKpis_();
   var q = (document.getElementById('prepBuscar').value||'').trim().toLowerCase();
   var fMarca = document.getElementById('prepFiltroMarca').value;
   var fSucursal = document.getElementById('prepFiltroSucursal').value;
@@ -4884,10 +4884,29 @@ function asignarResponsablePreparacion_(id, nombre){
   if(u.estado==='Sin asignar' && nombre) u.estado='Asignado';
   gasPost('prepAsignarResponsable', {id:id, responsable:nombre, autor:usuarioActual()});
   showToast(nombre ? 'Asignada a '+nombre : 'Quedó sin asignar');
+  renderPrepDashboardKpis_();
   renderPreparacionKanban_();
 }
 
 // ---- Ficha completa de la unidad ----
+// Cada unidad guarda su propio checklist (así queda registrado quién marcó
+// qué), pero tiene que reflejar el catálogo VIGENTE — si agregás o sacás un
+// ítem del catálogo (Maestro → Cargas masivas), esto lo actualiza acá,
+// respetando lo que ya estaba tildado en los ítems que siguen existiendo.
+function reconciliarChecklistConConfig_(u){
+  var actual = u.checklist || [];
+  var nombresConfig = PREP_CHECKLIST_CONFIG.map(function(c){return c.item;});
+  var reconciliado = PREP_CHECKLIST_CONFIG.map(function(c){
+    var existente = actual.find(function(x){return x.item===c.item;});
+    return existente || {item:c.item, hecho:false, usuario:'', fecha:'', observaciones:''};
+  });
+  var cambio = reconciliado.length!==actual.length || actual.some(function(x){return nombresConfig.indexOf(x.item)===-1;});
+  if(cambio){
+    u.checklist = reconciliado;
+    gasPost('prepSincronizarChecklist', {id:u.id, checklist:reconciliado, autor:usuarioActual()});
+  }
+  return reconciliado;
+}
 function abrirFichaPreparacion_(id){
   var u = PREP_UNIDADES.find(function(x){return x.id===id;});
   if(!u) return;
@@ -4918,7 +4937,7 @@ function abrirFichaPreparacion_(id){
   [selEstado, selResp, document.getElementById('prepFichaPrioridad')].forEach(function(el){ el.disabled = !puedeEditarFicha; });
 
   var checklistCont = document.getElementById('prepFichaChecklist');
-  var items = (u.checklist && u.checklist.length) ? u.checklist : PREP_CHECKLIST_CONFIG.map(function(c){return {item:c.item, hecho:false, usuario:'', fecha:'', observaciones:''};});
+  var items = reconciliarChecklistConConfig_(u);
   checklistCont.innerHTML = items.map(function(it){
     return '<div style="display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid var(--hairline);">'+
       '<input type="checkbox" '+(it.hecho?'checked':'')+' '+(puedeEditarFicha?'':'disabled')+' onchange="marcarChecklistItemPreparacionUI_(\''+it.item.replace(/'/g,"\\'")+'\',this.checked)" style="margin-top:3px;width:16px;height:16px;flex-shrink:0;cursor:pointer;">'+
@@ -4940,6 +4959,7 @@ function cerrarFichaPreparacion_(){
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('modalFichaPreparacion').classList.remove('show');
   _prepFichaAbierta_ = null;
+  renderPrepDashboardKpis_();
   renderPreparacionKanban_();
 }
 function cambiarEstadoPreparacionUI_(estado){
@@ -4957,6 +4977,7 @@ function cambiarEstadoPreparacionUI_(estado){
     if(estado==='Listo para entregar') u.fechaListoParaEntregar = fechaHoraAhora_();
     showToast('Estado actualizado');
     abrirFichaPreparacion_(u.id);
+    renderPrepDashboardKpis_();
     renderPreparacionKanban_();
   });
 }
@@ -5070,7 +5091,7 @@ function crearUnidadPreparacionUI_(){
     showToast('Unidad creada: '+res.id);
     cerrarModalNuevaPreparacion_();
     _preparacionCargada_ = false;
-    cargarPreparacionSiHaceFalta_().then(renderPreparacionKanban_);
+    cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPreparacionKanban_(); });
   });
 }
 // Convierte la fecha serial de Excel (así vienen Fec.aper, F.matric, etc. en
@@ -5141,7 +5162,7 @@ function importarUnidadesPreparacionArchivo_(event){
         if(!res.ok){ showToast(res.error||'No se pudo importar'); return; }
         showToast(res.creadas+' unidad(es) importada(s)'+(res.saltadas?' — '+res.saltadas+' ya existían (mismo VIN o referencia)':'')+(esFormatoConocido?' · Formato U19 detectado':''));
         _preparacionCargada_ = false;
-        cargarPreparacionSiHaceFalta_().then(renderPreparacionKanban_);
+        cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPreparacionKanban_(); });
       });
     }catch(err){
       showToast('No se pudo leer el archivo: '+err.message);
@@ -7296,7 +7317,7 @@ function abrirSeccionObservaciones_(){
   if(seccion){ seccion.classList.remove('collapsed'); seccion.scrollIntoView({behavior:'smooth', block:'center'}); }
 }
 function abrirSeccionAccesorio_(){
-  var wrap = document.getElementById('dAccesoriosToggleWrap');
+  var wrap = document.getElementById('dAccesoriosLista');
   var seccion = wrap ? wrap.closest('.section') : null;
   if(seccion){ seccion.classList.remove('collapsed'); seccion.scrollIntoView({behavior:'smooth', block:'center'}); }
 }
@@ -8165,11 +8186,11 @@ function responsableAutomatico_(marca, sucursal){
 function buscarEnPreparacion_(valor){
   var legend = document.getElementById('nPreparacionLegend');
   var q = (valor||'').trim().toLowerCase();
-  if(q.length<4){ legend.style.display='none'; return; }
+  if(q.length<4){ legend.style.display='none'; _prepOrigenParaNuevaEntrega_=null; return; }
   var u = (PREP_UNIDADES||[]).find(function(x){
     return (x.vin && x.vin.toLowerCase()===q) || (x.patente && x.patente.toLowerCase()===q);
   });
-  if(!u){ legend.style.display='none'; return; }
+  if(!u){ legend.style.display='none'; _prepOrigenParaNuevaEntrega_=null; return; }
   if(u.cliente) document.getElementById('nCliente').value = u.cliente;
   if(u.modelo) document.getElementById('nModelo').value = u.modelo;
   if(u.color) document.getElementById('nColor').value = u.color;
@@ -8177,6 +8198,7 @@ function buscarEnPreparacion_(valor){
   if(u.patente) document.getElementById('nDominio').value = u.patente;
   if(u.vendedor) document.getElementById('nVendedor').value = u.vendedor;
   if(u.administrativo) document.getElementById('nAdministrativo').value = u.administrativo;
+  _prepOrigenParaNuevaEntrega_ = u.id; // así, aunque tipee el VIN a mano en vez de venir del botón "Programar Entrega", igual queda vinculada
   var esListo = u.estado==='Listo para entregar';
   var esCaida = u.estado==='Venta caída';
   legend.style.display='block';
@@ -8439,9 +8461,9 @@ function submitNewDelivery(){
     logHistorial_(marcaElegida, nueva.id, '🆕 Entrega creada');
     gasPost('notificarEntregaAgendada', {marca:marcaElegida, id:nueva.id, autor:usuarioActual()});
     if(_prepOrigenParaNuevaEntrega_){
-      gasPost('prepVincularEntrega', {id:_prepOrigenParaNuevaEntrega_, entregaId:nueva.id, autor:usuarioActual()});
+      gasPost('prepVincularEntrega', {id:_prepOrigenParaNuevaEntrega_, entregaId:nueva.id, fecha:nueva.fecha, autor:usuarioActual()});
       var uOrigen = PREP_UNIDADES.find(function(x){return x.id===_prepOrigenParaNuevaEntrega_;});
-      if(uOrigen) uOrigen.estado='Agendado';
+      if(uOrigen){ uOrigen.estado='Agendado'; uOrigen.fechaPrometida=nueva.fecha; }
       _prepOrigenParaNuevaEntrega_ = null;
     }
     var p2=fechaVal.split('-'); currentDate=new Date(Number(p2[0]),Number(p2[1])-1,Number(p2[2]));
@@ -9141,7 +9163,7 @@ function showToast(msg){
 
 document.addEventListener('keydown', function(e){
   if(e.key==='Escape'){ closeAll(); }
-  if(e.key==='Enter' && document.getElementById('newModal').classList.contains('show')){
+  if(e.key==='Enter' && currentAppView==='nuevaentrega'){
     var activo = document.activeElement;
     if(activo && activo.tagName!=='TEXTAREA' && !activo.classList.contains('combo-input')){
       e.preventDefault();
