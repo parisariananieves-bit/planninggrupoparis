@@ -2124,6 +2124,15 @@
       </div>
       <div id="catalogoAccesoriosTabla"></div>
     </div>
+    <div class="maestro-block">
+      <div class="section-title">Checklist del Centro de Preparación</div>
+      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Estos son los ítems que se revisan antes de que una unidad quede "Lista para entregar" — es la revisión pre-entrega para verificar que el auto esté en condiciones. Sacar o agregar un ítem acá no afecta a las unidades que ya tenían su checklist cargado, solo a las nuevas de acá en adelante.</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <input id="checklistPrepNombre" placeholder="Nombre del ítem (ej: Fusible)" style="flex:1;min-width:160px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;">
+        <button class="save-btn" style="width:auto;margin:0;" onclick="agregarItemChecklistPrepUI_()">+ Agregar</button>
+      </div>
+      <div id="checklistPrepTabla"></div>
+    </div>
     </div>
 
       </div>
@@ -6387,6 +6396,42 @@ function procesarBaseAccesorios(){
 // ============================================================
 // CATÁLOGO DE ACCESORIOS (Maestro → Cargas masivas)
 // ============================================================
+// ============================================================
+// CHECKLIST DEL CENTRO DE PREPARACIÓN (Maestro → Cargas masivas)
+// ============================================================
+function renderChecklistPrepTabla_(){
+  var cont = document.getElementById('checklistPrepTabla');
+  if(!cont) return;
+  gasGet('checklistPreparacionConfig').then(function(res){
+    if(!res.ok || !res.config.length){
+      cont.innerHTML = '<div style="font-size:11.5px;color:var(--text-faint);padding:10px 0;">Sin ítems cargados todavía.</div>';
+      return;
+    }
+    var filas = res.config.map(function(it){
+      return '<tr><td>'+it.item+'</td>'+
+        '<td style="text-align:right;"><button onclick="eliminarItemChecklistPrepUI_(\''+it.item.replace(/'/g,"\\'")+'\')" style="background:none;border:none;color:var(--text-faint);cursor:pointer;"><span class="material-symbols-outlined" style="font-size:16px;">delete</span></button></td></tr>';
+    }).join('');
+    cont.innerHTML = '<table class="report-table" style="width:100%;"><tr><th>Ítem</th><th></th></tr>'+filas+'</table>';
+  });
+}
+function agregarItemChecklistPrepUI_(){
+  var nombre = document.getElementById('checklistPrepNombre').value.trim();
+  if(!nombre){ showToast('Falta el nombre del ítem'); return; }
+  gasPost('agregarItemChecklistPreparacionConfig', {nombre:nombre}).then(function(res){
+    if(!res.ok){ showToast(res.error||'No se pudo agregar'); return; }
+    document.getElementById('checklistPrepNombre').value='';
+    showToast('Ítem agregado al checklist');
+    renderChecklistPrepTabla_();
+  });
+}
+function eliminarItemChecklistPrepUI_(nombre){
+  if(!confirm('¿Sacar "'+nombre+'" del checklist? (no afecta a las unidades que ya lo tienen cargado)')) return;
+  gasPost('eliminarItemChecklistPreparacionConfig', {nombre:nombre}).then(function(res){
+    if(!res.ok){ showToast(res.error||'No se pudo eliminar'); return; }
+    showToast('Ítem quitado del checklist');
+    renderChecklistPrepTabla_();
+  });
+}
 function renderCatalogoAccesoriosTabla_(){
   var cont = document.getElementById('catalogoAccesoriosTabla');
   if(!cont) return;
@@ -9302,7 +9347,7 @@ function setMaestroTab(tab){
   if(tab==='regalos') renderRegalosPanel();
   if(tab==='kit') renderKitPanel();
   if(tab==='config') openConfig();
-  if(tab==='cargas') renderCatalogoAccesoriosTabla_();
+  if(tab==='cargas'){ renderCatalogoAccesoriosTabla_(); renderChecklistPrepTabla_(); }
   if(tab==='automatizaciones') renderAutomatizacionesUI_();
   if(tab==='alertatemprana') renderAlertaTempranaReporte_();
   if(tab==='permisos'){
