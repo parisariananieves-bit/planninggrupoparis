@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Verde salvia + rosa gold, acorde al logo de Oletha Beauty.
+     Se pisan en tiempo real desde useConfig() con lo que la dueña
+     configure en el módulo de Configuración. */
+  --color-primary-50: 240 245 242;
+  --color-primary-100: 224 234 227;
+  --color-primary-500: 140 168 150;
+  --color-primary-600: 116 145 127;
+  --color-primary-700: 94 119 104;
+  --color-primary-800: 76 97 85;
+  --color-accent-100: 246 227 219;
+  --color-accent-500: 217 162 141;
+  --color-accent-600: 197 138 116;
+  --color-accent-700: 168 111 91;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
