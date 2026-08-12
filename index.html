@@ -2739,30 +2739,15 @@
 var API_URL = null;
 var GAS_URL = null; // alias interno, se mantiene por compatibilidad con el resto del código
 
-// Reintenta automáticamente una promesa que puede fallar por una demora
-// pasajera (típico cuando Apps Script "recién se despierta" después de un
-// rato sin uso). Solo se usa para lecturas (GET) — nunca para guardar
-// datos, para no correr el riesgo de duplicar un envío.
-function conReintentos_(fn, intentos, esperaMs){
-  intentos = intentos===undefined ? 2 : intentos;
-  esperaMs = esperaMs===undefined ? 800 : esperaMs;
-  return fn().catch(function(err){
-    if(intentos<=0) throw err;
-    return new Promise(function(resolve){ setTimeout(resolve, esperaMs); })
-      .then(function(){ return conReintentos_(fn, intentos-1, esperaMs*2); });
-  });
-}
 function cargarConfigBackend(){
-  return conReintentos_(function(){
-    return fetch('/api/config').then(function(r){
-      if(!r.ok) throw new Error('config no disponible');
-      return r.json();
-    }).then(function(cfg){
-      if(!cfg || !cfg.apiUrl) throw new Error('API_URL no configurada');
-      API_URL = cfg.apiUrl;
-      GAS_URL = cfg.apiUrl;
-      return API_URL;
-    });
+  return fetch('/api/config').then(function(r){
+    if(!r.ok) throw new Error('config no disponible');
+    return r.json();
+  }).then(function(cfg){
+    if(!cfg || !cfg.apiUrl) throw new Error('API_URL no configurada');
+    API_URL = cfg.apiUrl;
+    GAS_URL = cfg.apiUrl;
+    return API_URL;
   });
 }
 
@@ -3507,7 +3492,7 @@ function cargarTodo(){
     setAppView('dashboard');
     return;
   }
-  conReintentos_(function(){ return Promise.all([gasGet('entregas'), gasGet('config')]); }, 2, 1000).then(function(res){
+  Promise.all([gasGet('entregas'), gasGet('config')]).then(function(res){
     ENTREGAS = res[0];
     CONFIG = res[1];
     document.getElementById('loadingMsg').style.display='none';
@@ -10884,20 +10869,10 @@ function exportarReporteExcel(){
   XLSX.writeFile(libro, 'Reporte_GrupoParis.xlsx');
 }
 
-// Se saca el Service Worker: estaba guardando versiones viejas en caché y
-// haciendo que la app pareciera "trabada" o desactualizada aunque ya se
-// hubiera subido una versión nueva a Vercel. Esto desinstala cualquier
-// Service Worker que haya quedado activo en el navegador de cada persona
-// (una sola vez, la próxima vez que entren) y borra sus cachés viejas.
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.getRegistrations().then(function(regs){
-    regs.forEach(function(reg){ reg.unregister(); });
-  }).catch(function(){});
-  if(window.caches && caches.keys){
-    caches.keys().then(function(keys){
-      keys.forEach(function(k){ caches.delete(k); });
-    }).catch(function(){});
-  }
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  });
 }
 init();
 </script>
