@@ -1094,7 +1094,6 @@
         <button class="nav-item" id="navSeccionLogistica" title="Logística" onclick="irALogistica()"><span class="material-symbols-outlined">local_shipping</span><span class="nav-label">Logística</span></button>
         <div class="nav-submenu" id="submenuLogistica" style="display:none;">
           <button class="nav-subitem" id="subLogisticaPreparacion" onclick="setAppView('preparacion')">Centro de Preparación</button>
-          <button class="nav-subitem" id="subLogisticaAsignacion" onclick="setAppView('kanban')">Asignación</button>
           <button class="nav-subitem" id="subLogisticaTraslado" onclick="setAppView('traslados')">Traslado</button>
           <button class="nav-subitem" id="subLogisticaFaltantes" onclick="setAppView('faltantes')">Faltantes</button>
         </div>
@@ -2602,6 +2601,7 @@
       <div class="field" style="flex:1;min-width:160px;"><div class="l">Responsable de preparación</div><select id="prepFichaResponsable" onchange="asignarResponsablePreparacionUI_(this.value)"></select></div>
       <div class="field" style="flex:1;min-width:160px;"><div class="l">Prioridad</div><select id="prepFichaPrioridad" onchange="cambiarPrioridadPreparacionUI_(this.value)"><option value="Alta">Alta</option><option value="Media">Media</option><option value="Baja">Baja</option></select></div>
     </div>
+    <button id="prepBtnGuardarCambios" onclick="guardarCambiosPreparacionUI_()" style="display:none;position:sticky;top:-16px;z-index:5;width:100%;align-items:center;justify-content:center;gap:6px;margin-bottom:16px;background:linear-gradient(135deg,var(--accent),#c99a2e);color:#1a1206;border:none;border-radius:8px;padding:11px;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">save</span> Guardar cambios</button>
     <div class="section-title" style="margin-bottom:8px;">Checklist</div>
     <div id="prepFichaChecklist"></div>
     <button id="prepBtnProgramarEntrega" onclick="abrirNuevaEntregaDesdePreparacion_()" style="display:none;width:100%;margin-top:14px;background:linear-gradient(135deg,var(--ok),#0d8a4a);color:#fff;border:none;border-radius:8px;padding:11px;font-weight:700;font-size:13px;cursor:pointer;"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">event_available</span> Programar Entrega</button>
@@ -3053,8 +3053,8 @@ function olvidePasswordUI(){
 }
 // Oculta/deshabilita lo que el rol actual no puede tocar. Se llama al loguearse
 // y cada vez que se renderiza la tabla o se abre el detalle de una entrega.
-var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','kanban','traslados','faltantes','preparacion','reportes','historialcoms','casos','notificaciones','maestro','tv'];
-var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'subLogisticaAsignacion', traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', preparacion:'subLogisticaPreparacion', reportes:'navReportes', historialcoms:'navHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', maestro:'navMaestro', tv:'navTv'};
+var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','traslados','faltantes','preparacion','reportes','historialcoms','casos','notificaciones','maestro','tv'];
+var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', preparacion:'subLogisticaPreparacion', reportes:'navReportes', historialcoms:'navHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', maestro:'navMaestro', tv:'navTv'};
 function aplicarPermisosUI(){
   var puede = puedeEditar();
   var modulosDelUsuario = modulosUsuarioActual();
@@ -3063,7 +3063,7 @@ function aplicarPermisosUI(){
   // Módulos que SOLO ve el admin (Calidad/Maestro) por defecto — para todos
   // los demás, ni por rol ni por defecto: hay que dárselos a mano, uno por
   // uno, desde Maestro → Permisos. Nada de esto aparece solo.
-  var MODULOS_SOLO_ADMIN_POR_DEFECTO_ = ['casos','notificaciones','traslados','faltantes','kanban'];
+  var MODULOS_SOLO_ADMIN_POR_DEFECTO_ = ['casos','notificaciones','traslados','faltantes'];
   // El Centro de Preparación completo (Kanban, ficha, checklist) es solo
   // para quien lo trabaja día a día: Logística y Supervisor. Administrativo
   // NO entra a este módulo — ve el estado de sus ventas futuras desde una
@@ -3105,15 +3105,14 @@ function aplicarPermisosUI(){
     var bnEl = document.getElementById('bn'+mod.charAt(0).toUpperCase()+mod.slice(1));
     if(bnEl) bnEl.style.display = visible ? '' : 'none';
   });
-  // El ítem "Logística" solo se muestra si al menos uno de sus tres subítems
-  // (Asignación, Traslado o Faltantes) es visible para este usuario.
+  // El ítem "Logística" solo se muestra si al menos uno de sus subítems
+  // (Traslado o Faltantes) es visible para este usuario.
   var seccionLogistica = document.getElementById('navSeccionLogistica');
   if(seccionLogistica){
-    var kanbanVisible = document.getElementById('subLogisticaAsignacion').style.display !== 'none';
     var trasladosVisible = document.getElementById('subLogisticaTraslado').style.display !== 'none';
     var faltantesVisible = document.getElementById('subLogisticaFaltantes').style.display !== 'none';
     var preparacionVisible = document.getElementById('subLogisticaPreparacion').style.display !== 'none';
-    seccionLogistica.style.display = (kanbanVisible || trasladosVisible || faltantesVisible || preparacionVisible) ? '' : 'none';
+    seccionLogistica.style.display = (trasladosVisible || faltantesVisible || preparacionVisible) ? '' : 'none';
   }
   document.body.classList.toggle('role-tv', esTvRecepcion());
 }
@@ -3251,17 +3250,17 @@ function mostrarUltimoIngreso_(nombre, ultimoIngreso){
 // (antes se mostraban solo los íconos, todos amontonados en una fila).
 var ETIQUETAS_MODULOS_ = {
   dashboard:'Dashboard', nuevaentrega:'Nueva Entrega', calendario:'Calendario', lista:'Lista de Entregas',
-  kanban:'Asignación Logística', traslados:'Traslados', faltantes:'Faltantes', preparacion:'Centro de Preparación', reportes:'Reportes',
+  traslados:'Traslados', faltantes:'Faltantes', preparacion:'Centro de Preparación', reportes:'Reportes',
   historialcoms:'Historial de Comunicaciones', casos:'Reportar Caso', notificaciones:'Bandeja de entrada',
   manual:'Manual', maestro:'Panel Maestro (Config)', tv:'TV Entregas'
 };
 var GRUPOS_MODULOS_ = [
   {titulo:'General', modulos:['dashboard','nuevaentrega','calendario','lista','reportes','tv']},
-  {titulo:'Logística', modulos:['preparacion','kanban','traslados','faltantes']},
+  {titulo:'Logística', modulos:['preparacion','traslados','faltantes']},
   {titulo:'Comunicación y casos', modulos:['historialcoms','casos','notificaciones']},
   {titulo:'Administración', modulos:['maestro']}
 ];
-var iconos = {dashboard:'dashboard', nuevaentrega:'add_circle', calendario:'calendar_today', lista:'list_alt', kanban:'view_kanban', traslados:'local_shipping', faltantes:'assignment_late', preparacion:'checklist', reportes:'analytics', historialcoms:'forum', casos:'report', notificaciones:'notifications', manual:'menu_book', maestro:'settings', tv:'tv'};
+var iconos = {dashboard:'dashboard', nuevaentrega:'add_circle', calendario:'calendar_today', lista:'list_alt', traslados:'local_shipping', faltantes:'assignment_late', preparacion:'checklist', reportes:'analytics', historialcoms:'forum', casos:'report', notificaciones:'notifications', manual:'menu_book', maestro:'settings', tv:'tv'};
 function abrirModalPermisos_(usuario){
   var u = (window._usuariosCache||[]).find(function(x){return x.usuario===usuario;});
   if(!u) return;
@@ -3671,7 +3670,7 @@ function activarVistaPrevia(){
 // ============================================================
 // NAVEGACIÓN POR VISTAS (Dashboard / Calendario / Lista / Maestro)
 // ============================================================
-var VISTAS_APP = ['dashboard','calendario','lista','kanban','historialcoms','casos','notificaciones','traslados','faltantes','preparacion','maestro','nuevaentrega','tv'];
+var VISTAS_APP = ['dashboard','calendario','lista','historialcoms','casos','notificaciones','traslados','faltantes','preparacion','maestro','nuevaentrega','tv'];
 // ============================================================
 // MODO TV — pantalla de solo lectura para monitor de la concesionaria.
 // Se actualiza sola (usa el mismo refresco silencioso de cada 25s que
@@ -3941,7 +3940,7 @@ function setAppView(view){
     var navMaestro = document.getElementById('navMaestro'); if(navMaestro) navMaestro.classList.remove('expanded');
     if(window._intervalUsuariosTabla){ clearInterval(window._intervalUsuariosTabla); window._intervalUsuariosTabla = null; }
   }
-  var VISTAS_LOGISTICA_ = {kanban:'subLogisticaAsignacion', traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', preparacion:'subLogisticaPreparacion'};
+  var VISTAS_LOGISTICA_ = {traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', preparacion:'subLogisticaPreparacion'};
   var subL = document.getElementById('submenuLogistica');
   var navL = document.getElementById('navSeccionLogistica');
   if(VISTAS_LOGISTICA_[view]){
@@ -5122,10 +5121,40 @@ function reconciliarChecklistConConfig_(u){
   }
   return reconciliado;
 }
+// Cambios en la ficha (estado, responsable, prioridad, checklist) se acumulan
+// acá en vez de guardarse solos en cada click — recién se mandan al server
+// cuando se aprieta "Guardar cambios" (ver guardarCambiosPreparacionUI_).
+var _prepPendientes_ = null;
+var _prepDirty_ = false;
+function prepPendientesVacios_(){
+  return {estado:null, responsable:null, prioridad:null, checklist:{}};
+}
+function prepHayPendientes_(){
+  if(!_prepPendientes_) return false;
+  return _prepPendientes_.estado!==null || _prepPendientes_.responsable!==null || _prepPendientes_.prioridad!==null || Object.keys(_prepPendientes_.checklist).length>0;
+}
+function prepMarcarDirty_(){
+  _prepDirty_ = true;
+  actualizarBotonGuardarPrep_();
+}
+function actualizarBotonGuardarPrep_(){
+  var btn = document.getElementById('prepBtnGuardarCambios');
+  if(!btn) return;
+  var hay = prepHayPendientes_();
+  btn.style.display = hay ? 'flex' : 'none';
+  btn.disabled = false;
+  btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">save</span> Guardar cambios';
+}
 function abrirFichaPreparacion_(id){
   var u = PREP_UNIDADES.find(function(x){return x.id===id;});
   if(!u) return;
+  // Si es una unidad distinta a la que ya estaba abierta (o no había ninguna
+  // abierta), es una apertura nueva: arrancamos sin cambios pendientes. Si es
+  // la misma (un repintado interno tras editar un campo), mantenemos lo que
+  // el usuario todavía no guardó.
+  if(_prepFichaAbierta_ !== id) _prepPendientes_ = prepPendientesVacios_();
   _prepFichaAbierta_ = id;
+  actualizarBotonGuardarPrep_();
   var b = BRANDS.find(function(x){return x.id===u.marca;}) || BRANDS[0];
   document.getElementById('prepFichaTitulo').innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">directions_car</span> '+(u.cliente||'—')+' · '+(u.modelo||'—');
   document.getElementById('prepFichaSub').textContent = u.id+' · '+b.label+' · '+(u.sucursal||'—');
@@ -5170,36 +5199,33 @@ function abrirFichaPreparacion_(id){
   document.getElementById('overlay').classList.add('show');
   document.getElementById('modalFichaPreparacion').classList.add('show');
 }
-function cerrarFichaPreparacion_(){
+function cerrarFichaPreparacion_(forzar){
+  if(!forzar && prepHayPendientes_()){
+    if(!confirm('Tenés cambios sin guardar en esta ficha. ¿Salir igual y descartarlos?')) return;
+  }
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('modalFichaPreparacion').classList.remove('show');
   _prepFichaAbierta_ = null;
+  _prepPendientes_ = null;
+  _prepDirty_ = false;
   renderPrepDashboardKpis_();
   renderPreparacionKanban_();
 }
 function cambiarEstadoPreparacionUI_(estado){
   if(!_prepFichaAbierta_) return;
   var u = PREP_UNIDADES.find(function(x){return x.id===_prepFichaAbierta_;});
-  var estadoAnterior = u.estado;
-  gasPost('prepCambiarEstado', {id:u.id, estado:estado, autor:usuarioActual()}).then(function(res){
-    if(!res.ok){
-      showToast(res.error||'No se pudo cambiar el estado');
-      abrirFichaPreparacion_(u.id); // repinta con el estado real (sin el cambio, rechazado)
-      return;
-    }
-    u.estado = estado;
-    u.historial = u.historial||[]; u.historial.push({fecha:fechaHoraAhora_(), texto:'Cambió a estado "'+estado+'"', autor:usuarioActual()});
-    if(estado==='Listo para entregar') u.fechaListoParaEntregar = fechaHoraAhora_();
-    showToast('Estado actualizado');
-    abrirFichaPreparacion_(u.id);
-    renderPrepDashboardKpis_();
-    renderPreparacionKanban_();
-  });
+  u.estado = estado; // reflejo visual inmediato (nomás en pantalla, todavía no se guardó)
+  _prepPendientes_.estado = estado;
+  var btnProgramar = document.getElementById('prepBtnProgramarEntrega');
+  if(btnProgramar) btnProgramar.style.display = (estado==='Listo para entregar') ? 'block' : 'none';
+  prepMarcarDirty_();
 }
 function asignarResponsablePreparacionUI_(nombre){
   if(!_prepFichaAbierta_) return;
-  asignarResponsablePreparacion_(_prepFichaAbierta_, nombre);
-  abrirFichaPreparacion_(_prepFichaAbierta_);
+  var u = PREP_UNIDADES.find(function(x){return x.id===_prepFichaAbierta_;});
+  u.responsable = nombre; // reflejo visual inmediato
+  _prepPendientes_.responsable = nombre;
+  prepMarcarDirty_();
 }
 var _prepOrigenParaNuevaEntrega_ = null;
 function abrirNuevaEntregaDesdePreparacion_(idExplicito){
@@ -5235,9 +5261,9 @@ function abrirNuevaEntregaDesdePreparacion_(idExplicito){
 function cambiarPrioridadPreparacionUI_(prioridad){
   if(!_prepFichaAbierta_) return;
   var u = PREP_UNIDADES.find(function(x){return x.id===_prepFichaAbierta_;});
-  u.prioridad = prioridad;
-  gasPost('prepCambiarPrioridad', {id:u.id, prioridad:prioridad, autor:usuarioActual()});
-  showToast('Prioridad actualizada');
+  u.prioridad = prioridad; // reflejo visual inmediato
+  _prepPendientes_.prioridad = prioridad;
+  prepMarcarDirty_();
 }
 function marcarChecklistItemPreparacionUI_(itemNombre, hecho){
   if(!_prepFichaAbierta_) return;
@@ -5248,8 +5274,69 @@ function marcarChecklistItemPreparacionUI_(itemNombre, hecho){
   item.hecho = hecho;
   item.usuario = hecho ? usuarioActual() : '';
   item.fecha = hecho ? fechaHoraAhora_() : '';
-  gasPost('prepMarcarChecklistItem', {id:u.id, item:itemNombre, hecho:hecho, autor:usuarioActual()});
-  abrirFichaPreparacion_(u.id);
+  _prepPendientes_.checklist[itemNombre] = hecho;
+  abrirFichaPreparacion_(u.id); // repinta el checklist (tachado, etc.) — mantiene los pendientes
+  prepMarcarDirty_();
+}
+// Manda todos los cambios acumulados de la ficha (estado, responsable,
+// prioridad, checklist) al server de una sola vez, cuando el usuario
+// aprieta "Guardar cambios".
+function guardarCambiosPreparacionUI_(){
+  if(!_prepFichaAbierta_ || !prepHayPendientes_()) return;
+  var u = PREP_UNIDADES.find(function(x){return x.id===_prepFichaAbierta_;});
+  if(!u) return;
+  var btn = document.getElementById('prepBtnGuardarCambios');
+  if(btn){ btn.disabled = true; btn.innerHTML = 'Guardando...'; }
+  var pend = _prepPendientes_;
+  var tareas = [];
+
+  if(pend.estado!==null){
+    (function(estadoNuevo){
+      tareas.push(gasPost('prepCambiarEstado', {id:u.id, estado:estadoNuevo, autor:usuarioActual()}).then(function(res){
+        if(!res.ok) return {ok:false, campo:'Estado', error:res.error};
+        u.historial = u.historial||[]; u.historial.push({fecha:fechaHoraAhora_(), texto:'Cambió a estado "'+estadoNuevo+'"', autor:usuarioActual()});
+        if(estadoNuevo==='Listo para entregar') u.fechaListoParaEntregar = fechaHoraAhora_();
+        pend.estado = null;
+        return {ok:true};
+      }));
+    })(pend.estado);
+  }
+  if(pend.responsable!==null){
+    (function(respNuevo){
+      tareas.push(gasPost('prepAsignarResponsable', {id:u.id, responsable:respNuevo, autor:usuarioActual()}).then(function(res){
+        pend.responsable = null;
+        return {ok:true};
+      }));
+    })(pend.responsable);
+  }
+  if(pend.prioridad!==null){
+    (function(prioNueva){
+      tareas.push(gasPost('prepCambiarPrioridad', {id:u.id, prioridad:prioNueva, autor:usuarioActual()}).then(function(res){
+        pend.prioridad = null;
+        return {ok:true};
+      }));
+    })(pend.prioridad);
+  }
+  Object.keys(pend.checklist).forEach(function(itemNombre){
+    var hecho = pend.checklist[itemNombre];
+    tareas.push(gasPost('prepMarcarChecklistItem', {id:u.id, item:itemNombre, hecho:hecho, autor:usuarioActual()}).then(function(res){
+      delete pend.checklist[itemNombre];
+      return {ok:true};
+    }));
+  });
+
+  Promise.all(tareas).then(function(resultados){
+    var fallidos = resultados.filter(function(r){ return r && r.ok===false; });
+    if(fallidos.length){
+      showToast('No se pudieron guardar algunos cambios: '+fallidos.map(function(f){return f.error||f.campo;}).join(', '));
+    } else {
+      showToast('Cambios guardados');
+    }
+    actualizarBotonGuardarPrep_();
+    abrirFichaPreparacion_(u.id);
+    renderPrepDashboardKpis_();
+    renderPreparacionKanban_();
+  });
 }
 function marcarVentaCaidaUI_(){
   if(!_prepFichaAbierta_) return;
@@ -9468,7 +9555,7 @@ function mostrarSubmenu_(grupo){
 
 function irALogistica(){
   var abierto = document.getElementById('submenuLogistica').style.display==='flex';
-  var enLogistica = ['kanban','traslados','faltantes'].indexOf(currentAppView)>-1;
+  var enLogistica = ['traslados','faltantes','preparacion'].indexOf(currentAppView)>-1;
   if(abierto && enLogistica){
     // Ya estabas en Logística con el submenú abierto: un segundo click lo cierra y vuelve al dashboard.
     document.getElementById('submenuLogistica').style.display='none';
@@ -9476,7 +9563,7 @@ function irALogistica(){
     setAppView('dashboard');
     return;
   }
-  setAppView('kanban');
+  setAppView('preparacion');
 }
 function irAReportes(){
   if(!puedeEditar()){ showToast('No tenés permiso para ver los reportes.'); return; }
