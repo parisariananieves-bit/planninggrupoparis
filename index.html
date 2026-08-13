@@ -205,6 +205,11 @@
   .at-error{background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:8px 10px;font-size:11.5px;font-weight:600;margin-top:10px;text-align:left;}
   .nps-modal.show{display:block;}
   #npsOverlay{z-index:205;}
+  /* El modal de "omitir encuesta" se abre ARRIBA del at-modal (z-index 220),
+     que sigue abierto detrás. Sin esto, quedaba tapado y los botones no
+     respondían al click. */
+  #atOmitirOverlay{z-index:225;}
+  #atOmitirModal{z-index:230;}
   .nps-modal-icon{font-size:32px;margin-bottom:8px;}
   .nps-modal h3{font-family:'Space Grotesk',sans-serif;font-size:16px;margin:0 0 18px;color:var(--text);}
   .nps-scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px;}
