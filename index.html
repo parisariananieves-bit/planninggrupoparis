@@ -2566,6 +2566,7 @@
   <div class="modal-body" style="padding:16px 20px;">
     <div class="field-grid">
       <div class="field"><div class="l">Cliente *</div><input id="prepNCliente"></div>
+      <div class="field"><div class="l">N° de referencia</div><input id="prepNReferencia" class="mono"></div>
       <div class="field"><div class="l">VIN</div><input id="prepNVin" class="mono"></div>
       <div class="field"><div class="l">Patente</div><input id="prepNPatente" class="mono"></div>
       <div class="field"><div class="l">Modelo</div><input id="prepNModelo"></div>
@@ -2574,8 +2575,8 @@
       <div class="field"><div class="l">Motor</div><input id="prepNMotor"></div>
       <div class="field"><div class="l">Marca</div><select id="prepNMarca"></select></div>
       <div class="field"><div class="l">Sucursal</div><select id="prepNSucursal"></select></div>
-      <div class="field"><div class="l">Vendedor</div><input id="prepNVendedor"></div>
-      <div class="field"><div class="l">Administrativo</div><input id="prepNAdministrativo"></div>
+      <div class="field" style="position:relative;"><div class="l">Vendedor</div><input class="combo-input" id="prepNVendedor" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('prepNVendedor','prepNVendedor_lista')" onfocus="comboAbrir('prepNVendedor','prepNVendedor_lista')" onkeydown="comboTeclado(event,'prepNVendedor','prepNVendedor_lista')"><div class="combo-lista" id="prepNVendedor_lista"></div></div>
+      <div class="field" style="position:relative;"><div class="l">Administrativo</div><input class="combo-input" id="prepNAdministrativo" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('prepNAdministrativo','prepNAdministrativo_lista')" onfocus="comboAbrir('prepNAdministrativo','prepNAdministrativo_lista')" onkeydown="comboTeclado(event,'prepNAdministrativo','prepNAdministrativo_lista')"><div class="combo-lista" id="prepNAdministrativo_lista"></div></div>
       <div class="field"><div class="l">Fecha de venta</div><input type="date" id="prepNFechaVenta"></div>
       <div class="field"><div class="l">Fecha prometida</div><input type="date" id="prepNFechaPrometida"></div>
       <div class="field"><div class="l">Prioridad</div><select id="prepNPrioridad"><option value="Media" selected>Media</option><option value="Alta">Alta</option><option value="Baja">Baja</option></select></div>
@@ -2761,18 +2762,30 @@ var GAS_URL = null; // alias interno, se mantiene por compatibilidad con el rest
 // pasajera (típico cuando Apps Script "recién se despierta" después de un
 // rato sin uso). Solo se usa para lecturas (GET) — nunca para guardar
 // datos, para no correr el riesgo de duplicar un envío.
-function conReintentos_(fn, intentos, esperaMs){
+// Le pone un límite de tiempo a cualquier fetch — sin esto, si Apps Script
+// se cuelga, el navegador puede quedarse esperando en silencio un minuto
+// entero antes de avisar nada. Con este límite, a los 15s se da por
+// vencido y dispara el reintento, en vez de sentirse "trabado".
+function fetchConLimite_(url, opciones, timeoutMs){
+  timeoutMs = timeoutMs===undefined ? 15000 : timeoutMs;
+  var controller = new AbortController();
+  var timer = setTimeout(function(){ controller.abort(); }, timeoutMs);
+  opciones = Object.assign({}, opciones||{}, {signal: controller.signal});
+  return fetch(url, opciones).finally(function(){ clearTimeout(timer); });
+}
+function conReintentos_(fn, intentos, esperaMs, onReintento){
   intentos = intentos===undefined ? 2 : intentos;
   esperaMs = esperaMs===undefined ? 800 : esperaMs;
   return fn().catch(function(err){
     if(intentos<=0) throw err;
+    if(onReintento) onReintento();
     return new Promise(function(resolve){ setTimeout(resolve, esperaMs); })
-      .then(function(){ return conReintentos_(fn, intentos-1, esperaMs*2); });
+      .then(function(){ return conReintentos_(fn, intentos-1, esperaMs*2, onReintento); });
   });
 }
 function cargarConfigBackend(){
   return conReintentos_(function(){
-    return fetch('/api/config').then(function(r){
+    return fetchConLimite_('/api/config').then(function(r){
       if(!r.ok) throw new Error('config no disponible');
       return r.json();
     }).then(function(cfg){
@@ -2788,14 +2801,14 @@ function gasGet(action, params){
   params = params || {};
   var url = API_URL + '?action=' + encodeURIComponent(action);
   Object.keys(params).forEach(function(k){ url += '&'+k+'='+encodeURIComponent(params[k]); });
-  return fetch(url).then(function(r){ return r.json(); });
+  return fetchConLimite_(url).then(function(r){ return r.json(); });
 }
 function gasPost(action, params){
-  return fetch(API_URL, {
+  return fetchConLimite_(API_URL, {
     method:'POST',
     headers:{'Content-Type':'text/plain;charset=utf-8'},
     body: JSON.stringify({action:action, params:params||{}})
-  }).then(function(r){ return r.json(); });
+  }, 25000).then(function(r){ return r.json(); }); // los POST (guardar) tienen más margen — no conviene cortarlos a mitad de un guardado
 }
 
 var LOGO_CHEVROLET = 'assets/logos/logo-chevrolet.png';
@@ -3536,9 +3549,18 @@ function cargarTodo(){
     setAppView('dashboard');
     return;
   }
-  conReintentos_(function(){ return Promise.all([gasGet('entregas'), gasGet('config')]); }, 2, 1000).then(function(res){
+  var intentoActual = 0;
+  conReintentos_(function(){ return Promise.all([gasGet('entregas'), gasGet('config')]); }, 2, 1000, function(){
+    intentoActual++;
+    var msg = document.getElementById('loadingMsg');
+    if(msg) msg.textContent = 'La planilla está tardando en responder — reintentando (' + intentoActual + '/2)...';
+  }).then(function(res){
     ENTREGAS = res[0];
     CONFIG = res[1];
+    // Guardamos una copia local de lo último que sí cargó bien — si alguna
+    // vez el backend falla del todo, mostramos esto en vez de dejar a la
+    // persona sin nada. Se guarda comprimido/liviano: solo lo esencial.
+    try{ localStorage.setItem('cacheEntregas', JSON.stringify(ENTREGAS)); localStorage.setItem('cacheConfig', JSON.stringify(CONFIG)); localStorage.setItem('cacheFecha', new Date().toISOString()); }catch(e){}
     document.getElementById('loadingMsg').style.display='none';
     document.getElementById('mainShell').style.display='block';
     restaurarFiltroPreferido_();
@@ -3549,6 +3571,28 @@ function cargarTodo(){
     else { setAppView(currentAppView); showToast('Datos actualizados'); }
     primeraCargaApp_ = false;
   }).catch(function(err){
+    // Último recurso: si hay algo guardado de una carga anterior exitosa,
+    // mostramos eso (con aviso de que puede estar desactualizado) en vez
+    // de dejar a la persona con la pantalla de error sin poder hacer nada.
+    var cacheEntregas, cacheConfig, cacheFecha;
+    try{
+      cacheEntregas = JSON.parse(localStorage.getItem('cacheEntregas'));
+      cacheConfig = JSON.parse(localStorage.getItem('cacheConfig'));
+      cacheFecha = localStorage.getItem('cacheFecha');
+    }catch(e){}
+    if(cacheEntregas && cacheConfig){
+      ENTREGAS = cacheEntregas; CONFIG = cacheConfig;
+      document.getElementById('loadingMsg').style.display='none';
+      document.getElementById('mainShell').style.display='block';
+      restaurarFiltroPreferido_();
+      renderSwitcher(); updateDayLabel(); checkBloqueado(); renderAll(); renderDatalists();
+      aplicarPermisosUI();
+      if(primeraCargaApp_) setAppView('dashboard');
+      primeraCargaApp_ = false;
+      var fechaTexto = cacheFecha ? new Date(cacheFecha).toLocaleString('es-AR') : '';
+      showToast('⚠ Sin conexión con la planilla — mostrando datos guardados de '+fechaTexto+'. Tocá "Actualizar datos" cuando vuelva la conexión.');
+      return;
+    }
     document.getElementById('loadingMsg').textContent = 'No se pudo conectar con la planilla. Revisá la URL guardada.';
   });
 }
@@ -5173,7 +5217,7 @@ function eliminarUnidadPreparacionUI_(){
 // ---- Nueva unidad (manual) ----
 function abrirModalNuevaPreparacion_(){
   if(!puedeEditarModulo_('preparacion')){ showToast('Tenés acceso de solo lectura al Centro de Preparación.'); return; }
-  ['prepNCliente','prepNVin','prepNPatente','prepNModelo','prepNVersion','prepNColor','prepNMotor','prepNVendedor','prepNAdministrativo','prepNFechaVenta','prepNFechaPrometida'].forEach(function(id){ document.getElementById(id).value=''; });
+  ['prepNCliente','prepNReferencia','prepNVin','prepNPatente','prepNModelo','prepNVersion','prepNColor','prepNMotor','prepNVendedor','prepNAdministrativo','prepNFechaVenta','prepNFechaPrometida'].forEach(function(id){ document.getElementById(id).value=''; });
   document.getElementById('prepNPrioridad').value = 'Media';
   var selMarca = document.getElementById('prepNMarca');
   selMarca.innerHTML = BRANDS.map(function(b){return '<option value="'+b.id+'">'+b.label+'</option>';}).join('');
@@ -5201,7 +5245,7 @@ function crearUnidadPreparacionUI_(){
   var cliente = document.getElementById('prepNCliente').value.trim();
   if(!cliente){ showToast('Falta el nombre del cliente'); return; }
   var payload = {
-    cliente:cliente, vin:document.getElementById('prepNVin').value.trim(), patente:document.getElementById('prepNPatente').value.trim(),
+    cliente:cliente, referencia:document.getElementById('prepNReferencia').value.trim(), vin:document.getElementById('prepNVin').value.trim(), patente:document.getElementById('prepNPatente').value.trim(),
     modelo:document.getElementById('prepNModelo').value.trim(), version:document.getElementById('prepNVersion').value.trim(),
     marca:document.getElementById('prepNMarca').value, sucursal:document.getElementById('prepNSucursal').value,
     vendedor:document.getElementById('prepNVendedor').value.trim(), administrativo:document.getElementById('prepNAdministrativo').value.trim(),
@@ -7307,8 +7351,8 @@ function renderDatalists(){
   var vend = (CONFIG.maestros.vendedores||[]).map(function(n){var nom=nombreDeMaestro_(n); return {label:nom, value:nom};});
   var admin = (CONFIG.maestros.administrativos||[]).map(function(a){return {label:a.nombre+(a.flota?' (Flota '+a.flota+')':''), value:a.nombre};});
   var resp = (CONFIG.maestros.responsables||[]).map(function(n){var nom=nombreDeMaestro_(n); return {label:nom, value:nom};});
-  comboSetFuente('dVendedor', vend); comboSetFuente('nVendedor', vend);
-  comboSetFuente('dAdministrativo', admin); comboSetFuente('nAdministrativo', admin);
+  comboSetFuente('dVendedor', vend); comboSetFuente('nVendedor', vend); comboSetFuente('prepNVendedor', vend);
+  comboSetFuente('dAdministrativo', admin); comboSetFuente('nAdministrativo', admin); comboSetFuente('prepNAdministrativo', admin);
   comboSetFuente('dResponsable', resp); comboSetFuente('nResponsable', resp);
 }
 
