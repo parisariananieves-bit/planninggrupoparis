@@ -2771,17 +2771,58 @@ function conReintentos_(fn, intentos, esperaMs){
       .then(function(){ return conReintentos_(fn, intentos-1, esperaMs*2); });
   });
 }
-function cargarConfigBackend(){
+// Caché de la URL del backend: /api/config casi nunca cambia de un
+// deploy a otro (depende de una env var de Vercel), así que pedirla en
+// CADA carga de la app suma un viaje de red entero antes de arrancar.
+// La guardamos en localStorage con un TTL de 24hs: si está fresca, se usa
+// directo (0ms) y se revalida en segundo plano sin bloquear nada; si está
+// vencida o no existe, se pide normal (con reintentos) y se cachea.
+var API_URL_CACHE_KEY = 'apiUrlCache_v1';
+var API_URL_CACHE_TTL_MS = 24*60*60*1000; // 24hs
+function leerApiUrlCache_(){
+  try{
+    var raw = localStorage.getItem(API_URL_CACHE_KEY);
+    if(!raw) return null;
+    var data = JSON.parse(raw);
+    if(!data || !data.apiUrl) return null;
+    return data;
+  }catch(e){ return null; }
+}
+function guardarApiUrlCache_(apiUrl){
+  try{ localStorage.setItem(API_URL_CACHE_KEY, JSON.stringify({apiUrl:apiUrl, guardadoEn:Date.now()})); }catch(e){}
+}
+function pedirApiUrlDeRed_(){
   return conReintentos_(function(){
     return fetch('/api/config').then(function(r){
       if(!r.ok) throw new Error('config no disponible');
       return r.json();
     }).then(function(cfg){
       if(!cfg || !cfg.apiUrl) throw new Error('API_URL no configurada');
-      API_URL = cfg.apiUrl;
-      GAS_URL = cfg.apiUrl;
-      return API_URL;
+      return cfg.apiUrl;
     });
+  });
+}
+function cargarConfigBackend(){
+  var cache = leerApiUrlCache_();
+  var cacheFresca = cache && (Date.now() - cache.guardadoEn) < API_URL_CACHE_TTL_MS;
+  if(cache){
+    // Usamos lo que haya en caché al toque (fresco o vencido, da igual:
+    // sirve mientras se revalida) para no bloquear el arranque nunca.
+    API_URL = cache.apiUrl;
+    GAS_URL = cache.apiUrl;
+    if(!cacheFresca){
+      // Revalidación silenciosa: si la URL cambió, se actualiza para la
+      // próxima vez, pero no interrumpe la sesión actual.
+      pedirApiUrlDeRed_().then(function(apiUrl){ guardarApiUrlCache_(apiUrl); }).catch(function(){});
+    }
+    return Promise.resolve(API_URL);
+  }
+  // Primera vez en este navegador: no hay caché, hace falta esperar la red.
+  return pedirApiUrlDeRed_().then(function(apiUrl){
+    API_URL = apiUrl;
+    GAS_URL = apiUrl;
+    guardarApiUrlCache_(apiUrl);
+    return API_URL;
   });
 }
 
@@ -3522,11 +3563,43 @@ function restaurarFiltroPreferido_(){
     currentBrand = currentBrands[0];
   }catch(e){}
 }
+// Caché local de ENTREGAS+CONFIG por usuario: permite mostrar la app al
+// instante con los últimos datos vistos, mientras se refresca en segundo
+// plano contra Apps Script. No reemplaza la red — solo evita que el
+// usuario mire una pantalla de "Cargando..." en cada apertura cuando ya
+// tenemos algo reciente para mostrar.
+function datosCacheKey_(){
+  var s = sesionActual();
+  return 'datosCache_' + (s && s.usuario ? s.usuario : 'anon');
+}
+function leerDatosCache_(){
+  try{
+    var raw = localStorage.getItem(datosCacheKey_());
+    if(!raw) return null;
+    var data = JSON.parse(raw);
+    if(!data || !data.entregas || !data.config) return null;
+    return data;
+  }catch(e){ return null; }
+}
+function guardarDatosCache_(entregas, config){
+  try{ localStorage.setItem(datosCacheKey_(), JSON.stringify({entregas:entregas, config:config, guardadoEn:Date.now()})); }
+  catch(e){ /* localStorage lleno o no disponible: no pasa nada, seguimos sin caché */ }
+}
+function pintarDatosCargados_(esPrimeraVezReal){
+  document.getElementById('loadingMsg').style.display='none';
+  document.getElementById('mainShell').style.display='block';
+  restaurarFiltroPreferido_();
+  renderSwitcher(); updateDayLabel(); checkBloqueado(); renderAll(); renderDatalists();
+  aplicarPermisosUI();
+  if(esTvRecepcion() && primeraCargaApp_){ abrirModoTV(); }
+  else if(primeraCargaApp_){ setAppView('dashboard'); }
+  else if(!esPrimeraVezReal){ setAppView(currentAppView); }
+}
 function cargarTodo(){
-  document.getElementById('loadingMsg').style.display='block';
   document.getElementById('setupUI').style.display='none';
-  document.getElementById('mainShell').style.display='none';
   if(MODO_VISTA_PREVIA){
+    document.getElementById('loadingMsg').style.display='block';
+    document.getElementById('mainShell').style.display='none';
     ENTREGAS = [];
     CONFIG = {duracionEntrega:60, bloqueos:[], maestros:[], stockMinimos:[], stockRegalos:[], historicoKit:[], historicoRegalos:[], direcciones:{}, distribucionRegalos:{}, usuariosAutorizados:[], alertaAccesoriosEmails:[], copiaSiempreA:'', telefonoContacto:''};
     document.getElementById('loadingMsg').style.display='none';
@@ -3537,20 +3610,45 @@ function cargarTodo(){
     setAppView('dashboard');
     return;
   }
+
+  var pedidoManual = !primeraCargaApp_; // click en "Actualizar datos", no la carga inicial
+  var cache = leerDatosCache_();
+
+  if(cache && !pedidoManual){
+    // Hay caché y es la carga inicial de la app: pintamos YA con lo último
+    // guardado (0ms de espera) y refrescamos en segundo plano sin bloquear.
+    ENTREGAS = cache.entregas;
+    CONFIG = cache.config;
+    pintarDatosCargados_(false);
+    primeraCargaApp_ = false;
+
+    conReintentos_(function(){ return Promise.all([gasGet('entregas'), gasGet('config')]); }, 2, 1000).then(function(res){
+      ENTREGAS = res[0];
+      CONFIG = res[1];
+      guardarDatosCache_(ENTREGAS, CONFIG);
+      renderAll(); renderDatalists(); aplicarPermisosUI();
+    }).catch(function(){
+      // Falló el refresco en segundo plano: no rompemos nada, la persona
+      // sigue viendo los últimos datos cacheados sin darse cuenta.
+    });
+    return;
+  }
+
+  // Sin caché disponible (primera vez en este navegador) o refresco manual
+  // explícito: mostramos el loading clásico y esperamos la red.
+  document.getElementById('loadingMsg').style.display='block';
+  document.getElementById('mainShell').style.display= cache ? 'block' : 'none';
   conReintentos_(function(){ return Promise.all([gasGet('entregas'), gasGet('config')]); }, 2, 1000).then(function(res){
     ENTREGAS = res[0];
     CONFIG = res[1];
-    document.getElementById('loadingMsg').style.display='none';
-    document.getElementById('mainShell').style.display='block';
-    restaurarFiltroPreferido_();
-    renderSwitcher(); updateDayLabel(); checkBloqueado(); renderAll(); renderDatalists();
-    aplicarPermisosUI();
-    if(esTvRecepcion() && primeraCargaApp_){ abrirModoTV(); }
-    else if(primeraCargaApp_){ setAppView('dashboard'); }
-    else { setAppView(currentAppView); showToast('Datos actualizados'); }
+    guardarDatosCache_(ENTREGAS, CONFIG);
+    pintarDatosCargados_(pedidoManual);
+    if(pedidoManual) showToast('Datos actualizados');
     primeraCargaApp_ = false;
   }).catch(function(err){
-    document.getElementById('loadingMsg').textContent = 'No se pudo conectar con la planilla. Revisá la URL guardada.';
+    document.getElementById('loadingMsg').style.display='none';
+    if(cache){ showToast('No se pudo actualizar — mostrando los últimos datos guardados'); }
+    else { document.getElementById('loadingMsg').style.display='block'; document.getElementById('loadingMsg').textContent = 'No se pudo conectar con la planilla. Revisá la URL guardada.'; }
   });
 }
 // Vista previa sin backend: sirve para abrir el HTML local (doble click, file://)
@@ -6642,6 +6740,7 @@ function actualizacionSilenciosa(){
   gasGet('entregas').then(function(data){
     ENTREGAS=data;
     renderAll();
+    guardarDatosCache_(ENTREGAS, CONFIG); // mantiene la caché fresca para la próxima apertura
   }).catch(function(){});
 }
 setInterval(actualizacionSilenciosa, 25000);
