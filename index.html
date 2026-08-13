@@ -1083,7 +1083,7 @@
       <nav class="sidebar-nav">
         <button class="nav-item" id="navNotificaciones" title="Bandeja de entrada" onclick="setAppView('notificaciones')" style="position:relative;color:var(--caso);"><span class="material-symbols-outlined" style="color:var(--caso);">notifications</span><span class="nav-label">Bandeja de entrada</span><span id="navNotifBadge" style="display:none;position:absolute;top:6px;left:26px;background:var(--danger);color:#fff;font-size:9.5px;font-weight:800;min-width:15px;height:15px;border-radius:20px;align-items:center;justify-content:center;padding:0 3px;line-height:1;">0</span></button>
         <button class="nav-item active" id="navDashboard" title="Dashboard" onclick="setAppView('dashboard')"><span class="material-symbols-outlined">dashboard</span><span class="nav-label">Dashboard</span></button>
-        <button class="nav-item nav-item-highlight" id="navNuevaentrega" title="Nueva Entrega" onclick="openNewDelivery()"><span class="material-symbols-outlined">add_circle</span><span class="nav-label">Nueva Entrega</span></button>
+        <button class="nav-item nav-item-highlight" id="navNuevaentrega" title="Programar Entrega" onclick="abrirElegirTipoEntrega_()"><span class="material-symbols-outlined">add_circle</span><span class="nav-label">Programar Entrega</span></button>
         <button class="nav-item" id="navCalendario" title="Calendario" onclick="setAppView('calendario')"><span class="material-symbols-outlined">calendar_today</span><span class="nav-label">Calendario</span></button>
         <button class="nav-item" id="navLista" title="Lista de Entregas" onclick="setAppView('lista')"><span class="material-symbols-outlined">list_alt</span><span class="nav-label">Lista de Entregas</span></button>
         <button class="nav-item" id="navSeccionLogistica" title="Logística" onclick="irALogistica()"><span class="material-symbols-outlined">local_shipping</span><span class="nav-label">Logística</span></button>
@@ -1103,7 +1103,6 @@
         </div>
         <button class="nav-item" id="navHistorialComs" title="Historial de Comunicaciones" onclick="setAppView('historialcoms')"><span class="material-symbols-outlined">forum</span><span class="nav-label">Historial de Comunicaciones</span></button>
         <button class="nav-item" id="navCasos" title="Reportar Caso" onclick="setAppView('casos')" style="color:var(--caso);"><span class="material-symbols-outlined" style="color:var(--caso);">report</span><span class="nav-label">Reportar Caso</span></button>
-        <a class="nav-item" id="navManual" href="manual_rapido.html" target="_blank" title="Manual del sistema" style="text-decoration:none;"><span class="material-symbols-outlined">menu_book</span><span class="nav-label">Manual</span></a>
         <button class="nav-item" id="navMaestro" title="Maestro (Config)" onclick="irAMaestro()"><span class="material-symbols-outlined">settings</span><span class="nav-label">Maestro (Config)</span></button>
         <div class="nav-submenu" id="submenuMaestro" style="display:none;">
           <button class="nav-subitem" id="subMaestroConfig" onclick="setMaestroTab('config')">Configuración</button>
@@ -1145,7 +1144,7 @@
 
     <nav class="bottom-nav" id="bottomNav">
       <button class="bn-item" id="bnDashboard" onclick="setAppView('dashboard')"><span class="material-symbols-outlined">dashboard</span><span>Inicio</span></button>
-      <button class="bn-item" id="bnNuevaentrega" onclick="openNewDelivery()"><span class="material-symbols-outlined">add_circle</span><span>Nueva</span></button>
+      <button class="bn-item" id="bnNuevaentrega" onclick="abrirElegirTipoEntrega_()"><span class="material-symbols-outlined">add_circle</span><span>Programar</span></button>
       <button class="bn-item" id="bnCalendario" onclick="setAppView('calendario')"><span class="material-symbols-outlined">calendar_today</span><span>Agenda</span></button>
       <button class="bn-item" id="bnLista" onclick="setAppView('lista')"><span class="material-symbols-outlined">list_alt</span><span>Lista</span></button>
       <button class="bn-item" id="bnMas" onclick="toggleSidebarPin()"><span class="material-symbols-outlined">menu</span><span>Más</span></button>
@@ -1183,6 +1182,7 @@
 
           <div id="heroProximaEntrega" style="display:none;"></div>
           <div id="proximasHorasWrap" style="display:none;"></div>
+          <div id="ventasFuturasWidget" style="display:none;margin-bottom:18px;"></div>
 
           <div class="section-title" id="mananaTitulo" style="margin-top:22px;">Próximas entregas</div>
           <div class="manana-grid" id="mananaStrip" style="margin-bottom:18px;"></div>
@@ -1334,6 +1334,7 @@
       <div class="form-field"><label>Vendedor</label><input class="combo-input" id="nVendedor" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('nVendedor','nVendedor_lista')" onfocus="comboAbrir('nVendedor','nVendedor_lista')" onkeydown="comboTeclado(event,'nVendedor','nVendedor_lista')"><div class="combo-lista" id="nVendedor_lista"></div></div>
       <div class="form-field"><label>Administrativo</label><input class="combo-input" id="nAdministrativo" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('nAdministrativo','nAdministrativo_lista')" onfocus="comboAbrir('nAdministrativo','nAdministrativo_lista')" onkeydown="comboTeclado(event,'nAdministrativo','nAdministrativo_lista')"><div class="combo-lista" id="nAdministrativo_lista"></div></div>
       <div class="form-field full"><label>Responsable de entrega</label><input class="combo-input" id="nResponsable" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('nResponsable','nResponsable_lista')" onfocus="comboAbrir('nResponsable','nResponsable_lista')" onkeydown="comboTeclado(event,'nResponsable','nResponsable_lista')"><div class="combo-lista" id="nResponsable_lista"></div></div>
+      <div class="form-field full" id="nResponsablePreparacionWrap" style="display:none;"><label>Responsable de preparación</label><input id="nResponsablePreparacion" readonly style="background:var(--panel);color:var(--text-dim);cursor:not-allowed;"></div>
       <div class="form-field full"><label>Observaciones</label><textarea id="nObservaciones"></textarea></div>
     </div>
     <button class="save-btn" id="nSaveBtn" onclick="submitNewDelivery()">Guardar entrega</button>
@@ -1453,6 +1454,7 @@
               <button class="comms-btn primary" style="width:auto;margin:0;" onclick="abrirModalNuevaPreparacion_()"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">add_circle</span> Nueva unidad</button>
             </div>
           </div>
+          <div id="prepVencimientosWidget" style="margin-top:14px;"></div>
           <div id="prepDashboardKpis" class="stats-grid" style="margin-top:14px;"></div>
           <div class="filter-bar" style="flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center;">
             <input type="text" id="prepBuscar" placeholder="Buscar por VIN, cliente, patente o modelo..." oninput="debounce_('prepBuscar', renderPreparacionKanban_, 150)" style="flex:1;min-width:200px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 11px;font-size:12.5px;">
@@ -2178,6 +2180,7 @@
 <div class="toast" id="toast"></div>
 
 <div class="overlay" id="pendientesOverlay" onclick="if(event.target===this)cerrarPendientesEntrega_()"></div>
+<div class="overlay" id="tipoEntregaOverlay" onclick="if(event.target===this)cerrarElegirTipoEntrega_()"></div>
 <div class="overlay" id="motivoOverlay"></div>
 <div class="nps-modal" id="motivoModal" style="max-width:420px;">
   <div class="nps-modal-icon">📝</div>
@@ -2197,6 +2200,20 @@
   <div style="font-size:12.5px;color:var(--text-dim);margin-bottom:14px;">No podés marcar la unidad como entregada hasta que decidas cada uno de estos ítems (colocado, o marcado como "no corresponde"):</div>
   <div id="pendientesLista" style="text-align:left;background:var(--panel-2);border-radius:10px;padding:10px 14px;margin-bottom:16px;"></div>
   <button class="save-btn" style="margin:0;" onclick="cerrarPendientesEntrega_()">Entendido, lo completo</button>
+</div>
+
+<div class="nps-modal" id="tipoEntregaModal" style="max-width:420px;">
+  <button class="close" onclick="cerrarElegirTipoEntrega_()" style="position:absolute;top:14px;right:16px;">✕</button>
+  <div class="nps-modal-icon">🚗</div>
+  <h3>¿Qué querés cargar?</h3>
+  <div style="font-size:12.5px;color:var(--text-dim);margin-bottom:16px;">Elegí según si ya tenés el día y horario de entrega, o todavía no.</div>
+  <button class="save-btn" style="margin:0 0 10px;" onclick="cerrarElegirTipoEntrega_();openNewDelivery();">
+    <span class="material-symbols-outlined">event_available</span> Nueva Entrega
+  </button>
+  <button class="comms-btn" style="margin:0;text-align:center;" onclick="cerrarElegirTipoEntrega_();abrirModalNuevaPreparacion_();">
+    <span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">build</span> Entrega Futura
+  </button>
+  <div style="font-size:10.5px;color:var(--text-faint);margin-top:12px;">La venta futura queda en el Centro de Preparación — cuando Logística la deje lista, la programás desde ahí con un clic.</div>
 </div>
 
 <div class="overlay" id="atOverlay"></div>
@@ -2283,6 +2300,7 @@
         <div class="field"><div class="l">Vendedor</div><input class="combo-input" id="dVendedor" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('dVendedor','dVendedor_lista')" onfocus="comboAbrir('dVendedor','dVendedor_lista')" onkeydown="comboTeclado(event,'dVendedor','dVendedor_lista')" onchange="guardarCampo('vendedor', this.value)"><div class="combo-lista" id="dVendedor_lista"></div></div>
         <div class="field"><div class="l">Administrativo</div><input class="combo-input" id="dAdministrativo" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('dAdministrativo','dAdministrativo_lista')" onfocus="comboAbrir('dAdministrativo','dAdministrativo_lista')" onkeydown="comboTeclado(event,'dAdministrativo','dAdministrativo_lista')" onchange="guardarCampo('administrativo', this.value)"><div class="combo-lista" id="dAdministrativo_lista"></div></div>
         <div class="field"><div class="l">Responsable de entrega</div><input class="combo-input" id="dResponsable" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('dResponsable','dResponsable_lista')" onfocus="comboAbrir('dResponsable','dResponsable_lista')" onkeydown="comboTeclado(event,'dResponsable','dResponsable_lista')" onchange="guardarCampo('responsableEntrega', this.value)"><div class="combo-lista" id="dResponsable_lista"></div></div>
+        <div class="field" id="dResponsablePreparacionWrap" style="display:none;"><div class="l">Responsable de preparación</div><div id="dResponsablePreparacionTexto" style="font-size:13px;padding:2px 0;">—</div></div>
         <div class="field"><div class="l">Sucursal / Lugar de entrega</div><select id="dLugar" onchange="cambiarSucursalDetalle(this.value)" style="font-weight:600;"></select></div>
       </div>
     </div>
@@ -2575,7 +2593,7 @@
     <div id="prepFichaInfoGeneral" class="field-grid" style="margin-bottom:16px;"></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
       <div class="field" style="flex:1;min-width:160px;"><div class="l">Estado</div><select id="prepFichaEstado" onchange="cambiarEstadoPreparacionUI_(this.value)"></select></div>
-      <div class="field" style="flex:1;min-width:160px;"><div class="l">Responsable</div><select id="prepFichaResponsable" onchange="asignarResponsablePreparacionUI_(this.value)"></select></div>
+      <div class="field" style="flex:1;min-width:160px;"><div class="l">Responsable de preparación</div><select id="prepFichaResponsable" onchange="asignarResponsablePreparacionUI_(this.value)"></select></div>
       <div class="field" style="flex:1;min-width:160px;"><div class="l">Prioridad</div><select id="prepFichaPrioridad" onchange="cambiarPrioridadPreparacionUI_(this.value)"><option value="Alta">Alta</option><option value="Media">Media</option><option value="Baja">Baja</option></select></div>
     </div>
     <div class="section-title" style="margin-bottom:8px;">Checklist</div>
@@ -2739,15 +2757,30 @@
 var API_URL = null;
 var GAS_URL = null; // alias interno, se mantiene por compatibilidad con el resto del código
 
+// Reintenta automáticamente una promesa que puede fallar por una demora
+// pasajera (típico cuando Apps Script "recién se despierta" después de un
+// rato sin uso). Solo se usa para lecturas (GET) — nunca para guardar
+// datos, para no correr el riesgo de duplicar un envío.
+function conReintentos_(fn, intentos, esperaMs){
+  intentos = intentos===undefined ? 2 : intentos;
+  esperaMs = esperaMs===undefined ? 800 : esperaMs;
+  return fn().catch(function(err){
+    if(intentos<=0) throw err;
+    return new Promise(function(resolve){ setTimeout(resolve, esperaMs); })
+      .then(function(){ return conReintentos_(fn, intentos-1, esperaMs*2); });
+  });
+}
 function cargarConfigBackend(){
-  return fetch('/api/config').then(function(r){
-    if(!r.ok) throw new Error('config no disponible');
-    return r.json();
-  }).then(function(cfg){
-    if(!cfg || !cfg.apiUrl) throw new Error('API_URL no configurada');
-    API_URL = cfg.apiUrl;
-    GAS_URL = cfg.apiUrl;
-    return API_URL;
+  return conReintentos_(function(){
+    return fetch('/api/config').then(function(r){
+      if(!r.ok) throw new Error('config no disponible');
+      return r.json();
+    }).then(function(cfg){
+      if(!cfg || !cfg.apiUrl) throw new Error('API_URL no configurada');
+      API_URL = cfg.apiUrl;
+      GAS_URL = cfg.apiUrl;
+      return API_URL;
+    });
   });
 }
 
@@ -2973,8 +3006,8 @@ function olvidePasswordUI(){
 }
 // Oculta/deshabilita lo que el rol actual no puede tocar. Se llama al loguearse
 // y cada vez que se renderiza la tabla o se abre el detalle de una entrega.
-var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','kanban','traslados','faltantes','preparacion','reportes','historialcoms','casos','notificaciones','manual','maestro','tv'];
-var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'subLogisticaAsignacion', traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', preparacion:'subLogisticaPreparacion', reportes:'navReportes', historialcoms:'navHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', manual:'navManual', maestro:'navMaestro', tv:'navTv'};
+var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','kanban','traslados','faltantes','preparacion','reportes','historialcoms','casos','notificaciones','maestro','tv'];
+var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', kanban:'subLogisticaAsignacion', traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', preparacion:'subLogisticaPreparacion', reportes:'navReportes', historialcoms:'navHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', maestro:'navMaestro', tv:'navTv'};
 function aplicarPermisosUI(){
   var puede = puedeEditar();
   var modulosDelUsuario = modulosUsuarioActual();
@@ -2983,7 +3016,13 @@ function aplicarPermisosUI(){
   // Módulos que SOLO ve el admin (Calidad/Maestro) por defecto — para todos
   // los demás, ni por rol ni por defecto: hay que dárselos a mano, uno por
   // uno, desde Maestro → Permisos. Nada de esto aparece solo.
-  var MODULOS_SOLO_ADMIN_POR_DEFECTO_ = ['casos','notificaciones','traslados','faltantes','kanban','manual','preparacion'];
+  var MODULOS_SOLO_ADMIN_POR_DEFECTO_ = ['casos','notificaciones','traslados','faltantes','kanban'];
+  // El Centro de Preparación completo (Kanban, ficha, checklist) es solo
+  // para quien lo trabaja día a día: Logística y Supervisor. Administrativo
+  // NO entra a este módulo — ve el estado de sus ventas futuras desde una
+  // tarjeta chica en el Dashboard (ver renderVentasFuturasWidget_), sin
+  // necesitar el módulo completo.
+  var ROLES_CON_PREPARACION_POR_DEFECTO_ = ['maestro','logistica','supervisor_logistica'];
   MODULOS_LIST.forEach(function(mod){
     var el = document.getElementById(MODULOS_NAV_ID[mod]);
     if(!el) return;
@@ -2995,6 +3034,11 @@ function aplicarPermisosUI(){
       visible = true;
     }
     else if(mod==='maestro') visible = esCalidad();
+    else if(mod==='preparacion'){
+      visible = ROLES_CON_PREPARACION_POR_DEFECTO_.indexOf(rolActual())>-1;
+      if(modulosUsuario && modulosUsuario.indexOf(mod)>-1) visible = true; // se lo diste a mano
+      if(modulosGlobales[mod]===false) visible = false;
+    }
     else if(MODULOS_SOLO_ADMIN_POR_DEFECTO_.indexOf(mod)>-1){
       // Por defecto SOLO el rol "maestro" (el usuario madre/admin) — ni
       // siquiera Calidad lo ve automáticamente. Para cualquier otra persona,
@@ -3168,7 +3212,7 @@ var GRUPOS_MODULOS_ = [
   {titulo:'General', modulos:['dashboard','nuevaentrega','calendario','lista','reportes','tv']},
   {titulo:'Logística', modulos:['preparacion','kanban','traslados','faltantes']},
   {titulo:'Comunicación y casos', modulos:['historialcoms','casos','notificaciones']},
-  {titulo:'Administración', modulos:['manual','maestro']}
+  {titulo:'Administración', modulos:['maestro']}
 ];
 var iconos = {dashboard:'dashboard', nuevaentrega:'add_circle', calendario:'calendar_today', lista:'list_alt', kanban:'view_kanban', traslados:'local_shipping', faltantes:'assignment_late', preparacion:'checklist', reportes:'analytics', historialcoms:'forum', casos:'report', notificaciones:'notifications', manual:'menu_book', maestro:'settings', tv:'tv'};
 function abrirModalPermisos_(usuario){
@@ -3492,7 +3536,7 @@ function cargarTodo(){
     setAppView('dashboard');
     return;
   }
-  Promise.all([gasGet('entregas'), gasGet('config')]).then(function(res){
+  conReintentos_(function(){ return Promise.all([gasGet('entregas'), gasGet('config')]); }, 2, 1000).then(function(res){
     ENTREGAS = res[0];
     CONFIG = res[1];
     document.getElementById('loadingMsg').style.display='none';
@@ -3821,7 +3865,7 @@ function setAppView(view){
   if(view==='notificaciones'){ renderNotificaciones(); }
   if(view==='traslados'){ renderTraslados(); }
   if(view==='faltantes'){ renderFaltantes(); }
-  if(view==='preparacion'){ cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPreparacionKanban_(); }); }
+  if(view==='preparacion'){ cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPrepVencimientos_(); renderPreparacionKanban_(); }); }
 }
 
 function fmtFecha(d){ var dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0'); return dd+'/'+mm+'/'+d.getFullYear(); }
@@ -4478,6 +4522,37 @@ function renderProximasHoras_(resto, etiquetaDia, tituloSeccion){
       }).join('')+
     '</div>';
 }
+// Widget del Dashboard para quien NO tiene acceso al Centro de Preparación
+// completo (típicamente Administrativo): les deja ver el estado de las
+// ventas futuras que cargaron, y programar la entrega apenas Logística la
+// deja lista — sin necesitar el módulo entero (Kanban, checklist, etc.).
+var COLORES_ESTADO_PREP_ = {
+  'Listo para entregar':'var(--ok)', 'Agendado':'var(--ok)', 'Bloqueado':'var(--danger)'
+};
+function renderVentasFuturasWidget_(){
+  var el = document.getElementById('ventasFuturasWidget');
+  if(!el) return;
+  var tieneModuloCompleto = document.getElementById('subLogisticaPreparacion') && getComputedStyle(document.getElementById('subLogisticaPreparacion')).display!=='none';
+  if(tieneModuloCompleto || !puedeEditar()){ el.style.display='none'; return; }
+  cargarPreparacionSiHaceFalta_().then(function(){
+    var propias = PREP_UNIDADES.filter(function(u){
+      return u.estado!=='Agendado' && u.estado!=='Entregado' && u.estado!=='Venta caída';
+    });
+    if(propias.length===0){ el.style.display='none'; return; }
+    el.style.display='block';
+    el.innerHTML = '<div class="section-title" style="margin-top:0;">Ventas futuras — estado de preparación</div>'+
+      '<div style="display:flex;flex-direction:column;gap:8px;">'+
+      propias.map(function(u){
+        var color = COLORES_ESTADO_PREP_[u.estado] || 'var(--warn)';
+        var listo = u.estado==='Listo para entregar';
+        return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel);border:1px solid var(--hairline);border-left:4px solid '+color+';border-radius:9px;padding:10px 12px;">'+
+          '<div style="min-width:0;"><b style="font-size:12.5px;">'+(u.cliente||'—')+'</b><div style="font-size:11px;color:var(--text-dim);">'+(u.modelo||'—')+' · <span style="color:'+color+';font-weight:700;">'+u.estado+'</span></div></div>'+
+          (listo ? '<button class="save-btn" style="width:auto;margin:0;padding:8px 14px;white-space:nowrap;" onclick="abrirNuevaEntregaDesdePreparacion_(\''+u.id+'\')">Programar →</button>' : '<span style="font-size:10.5px;color:var(--text-faint);white-space:nowrap;">Todavía no está lista</span>')+
+        '</div>';
+      }).join('')+
+      '</div>';
+  });
+}
 function renderResumenHoyManana(){
   var rows = pendientes().filter(function(r){ return filterTipo==='todos'||r.tipoVenta===filterTipo; }); // canal ya viene filtrado desde entregasContexto()
   var hoyStr = fmtFecha(new Date());
@@ -4544,7 +4619,7 @@ function renderResumenHoyManana(){
 function renderAll(){
   renderCanalToggle(); renderFiltroAdministrativo();
   if(currentAppView==='lista'){ renderTable(); renderListaResumenCards(); }
-  if(currentAppView==='dashboard'){ renderStats(); renderResumenHoyManana(); renderPrediccionVentas_(); renderRankingVendedores_(); }
+  if(currentAppView==='dashboard'){ renderStats(); renderResumenHoyManana(); renderPrediccionVentas_(); renderRankingVendedores_(); renderVentasFuturasWidget_(); }
   if(currentView==='mes' || currentAppView==='calendario') renderCalendar();
   if(currentAppView==='calendario' && calVistaActual==='linea') renderTimelineActiva_();
   if(typeof renderHorariosDia_==='function' && diaSeleccionadoCalendario) renderHorariosDia_();
@@ -4552,7 +4627,7 @@ function renderAll(){
   if(currentAppView==='kanban') renderKanban();
   if(currentAppView==='traslados') renderTraslados();
   if(currentAppView==='faltantes') renderFaltantes();
-  if(currentAppView==='preparacion') renderPreparacionKanban_();
+  if(currentAppView==='preparacion'){ renderPreparacionKanban_(); renderPrepVencimientos_(); }
 }
 function renderCanalToggle(){
   var htmlFiltros =
@@ -4783,6 +4858,41 @@ function prepProgresoChecklist_(u){
 function prepColorPrioridad_(p){
   return p==='Alta' ? 'var(--danger)' : p==='Baja' ? 'var(--text-faint)' : 'var(--warn)';
 }
+// Semáforo de urgencia por fecha prometida — NO es un calendario, es
+// una forma visual de agrupar por qué tan cerca está el vencimiento,
+// sin repetir la lógica de horarios/turnos que ya tiene el Calendario real.
+function renderPrepVencimientos_(){
+  var el = document.getElementById('prepVencimientosWidget');
+  if(!el) return;
+  var activas = PREP_UNIDADES.filter(function(u){ return u.estado!=='Entregado' && u.estado!=='Venta caída' && u.estado!=='Agendado'; });
+  var conFecha = activas.filter(function(u){ return prepDiasRestantes_(u)!==null; });
+  if(conFecha.length===0){ el.innerHTML=''; return; }
+  var grupos = {vencidas:[], hoyManiana:[], estaSemana:[], sinApuro:[]};
+  conFecha.forEach(function(u){
+    var d = prepDiasRestantes_(u);
+    if(d<0) grupos.vencidas.push(u);
+    else if(d<=1) grupos.hoyManiana.push(u);
+    else if(d<=7) grupos.estaSemana.push(u);
+    else grupos.sinApuro.push(u);
+  });
+  function tarjetaGrupo(titulo, color, colorSoft, lista, icono){
+    if(lista.length===0) return '';
+    return '<div style="flex:1;min-width:220px;background:'+colorSoft+';border:1px solid '+color+';border-radius:12px;padding:12px 14px;">'+
+      '<div style="display:flex;align-items:center;gap:6px;font-weight:800;font-size:11.5px;color:'+color+';text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px;"><span class="material-symbols-outlined" style="font-size:15px;">'+icono+'</span>'+titulo+' ('+lista.length+')</div>'+
+      lista.slice(0,5).map(function(u){
+        return '<div style="font-size:12px;padding:4px 0;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.08);" onclick="abrirFichaPreparacion_(\''+u.id+'\')"><b>'+(u.cliente||'—')+'</b> — '+(u.modelo||'—')+'</div>';
+      }).join('')+
+      (lista.length>5 ? '<div style="font-size:10.5px;color:var(--text-faint);margin-top:4px;">+ '+(lista.length-5)+' más</div>' : '')+
+    '</div>';
+  }
+  el.innerHTML = '<div class="section-title" style="margin-top:0;">Vencimientos</div>'+
+    '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:6px;">'+
+    tarjetaGrupo('Vencidas', 'var(--danger)', 'var(--danger-soft)', grupos.vencidas, 'error')+
+    tarjetaGrupo('Hoy / Mañana', 'var(--warn)', 'var(--warn-soft)', grupos.hoyManiana, 'today')+
+    tarjetaGrupo('Esta semana', 'var(--accent)', 'var(--accent-soft)', grupos.estaSemana, 'date_range')+
+    tarjetaGrupo('Sin apuro', 'var(--text-faint)', 'var(--panel-2)', grupos.sinApuro, 'schedule')+
+    '</div>';
+}
 function renderPrepDashboardKpis_(){
   var cont = document.getElementById('prepDashboardKpis');
   if(!cont) return;
@@ -4988,10 +5098,12 @@ function asignarResponsablePreparacionUI_(nombre){
   abrirFichaPreparacion_(_prepFichaAbierta_);
 }
 var _prepOrigenParaNuevaEntrega_ = null;
-function abrirNuevaEntregaDesdePreparacion_(){
-  if(!_prepFichaAbierta_) return;
-  var u = PREP_UNIDADES.find(function(x){return x.id===_prepFichaAbierta_;});
-  cerrarFichaPreparacion_();
+function abrirNuevaEntregaDesdePreparacion_(idExplicito){
+  var idUsar = idExplicito || _prepFichaAbierta_;
+  if(!idUsar) return;
+  var u = PREP_UNIDADES.find(function(x){return x.id===idUsar;});
+  if(!u) return;
+  if(_prepFichaAbierta_) cerrarFichaPreparacion_();
   currentBrand = u.marca;
   openNewDelivery();
   document.getElementById('nCliente').value = u.cliente || '';
@@ -5001,10 +5113,20 @@ function abrirNuevaEntregaDesdePreparacion_(){
   document.getElementById('nChasis').value = u.vin || '';
   if(u.vendedor) document.getElementById('nVendedor').value = u.vendedor;
   if(u.administrativo) document.getElementById('nAdministrativo').value = u.administrativo;
-  if(u.responsable) document.getElementById('nResponsable').value = u.responsable;
+  // El responsable de PREPARACIÓN no se pisa automáticamente en el
+  // responsable de ENTREGA — a veces no es la misma persona. Queda como
+  // su propio campo, de solo lectura (se define en el Centro de
+  // Preparación, no acá), para que ambos datos convivan sin mezclarse.
+  var wrapPrep = document.getElementById('nResponsablePreparacionWrap');
+  if(u.responsable){
+    document.getElementById('nResponsablePreparacion').value = u.responsable;
+    wrapPrep.style.display = 'block';
+  } else {
+    wrapPrep.style.display = 'none';
+  }
   document.getElementById('nObservaciones').value = 'Viene del Centro de Preparación ('+u.id+(u.version?' — '+u.version:'')+(u.motor?' — Motor '+u.motor:'')+')';
   _prepOrigenParaNuevaEntrega_ = u.id;
-  showToast('Datos precargados desde el Centro de Preparación — completá fecha, hora y lugar de entrega');
+  showToast('Datos precargados desde el Centro de Preparación — completá fecha, hora, lugar y responsable de entrega');
 }
 function cambiarPrioridadPreparacionUI_(prioridad){
   if(!_prepFichaAbierta_) return;
@@ -5092,7 +5214,7 @@ function crearUnidadPreparacionUI_(){
     showToast('Unidad creada: '+res.id);
     cerrarModalNuevaPreparacion_();
     _preparacionCargada_ = false;
-    cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPreparacionKanban_(); });
+    cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPrepVencimientos_(); renderPreparacionKanban_(); });
   });
 }
 // Convierte la fecha serial de Excel (así vienen Fec.aper, F.matric, etc. en
@@ -5163,7 +5285,7 @@ function importarUnidadesPreparacionArchivo_(event){
         if(!res.ok){ showToast(res.error||'No se pudo importar'); return; }
         showToast(res.creadas+' unidad(es) importada(s)'+(res.saltadas?' — '+res.saltadas+' ya existían (mismo VIN o referencia)':'')+(esFormatoConocido?' · Formato U19 detectado':''));
         _preparacionCargada_ = false;
-        cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPreparacionKanban_(); });
+        cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPrepVencimientos_(); renderPreparacionKanban_(); });
       });
     }catch(err){
       showToast('No se pudo leer el archivo: '+err.message);
@@ -6549,6 +6671,15 @@ function cerrarPendientesEntrega_(){
   document.getElementById('pendientesOverlay').classList.remove('show');
   document.getElementById('pendientesModal').classList.remove('show');
 }
+function abrirElegirTipoEntrega_(){
+  if(!puedeEditar()){ showToast('Tu usuario no tiene permiso para agendar entregas.'); return; }
+  document.getElementById('tipoEntregaOverlay').classList.add('show');
+  document.getElementById('tipoEntregaModal').classList.add('show');
+}
+function cerrarElegirTipoEntrega_(){
+  document.getElementById('tipoEntregaOverlay').classList.remove('show');
+  document.getElementById('tipoEntregaModal').classList.remove('show');
+}
 function marcarEntregaFallida_(){
   if(!detailId) return;
   if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
@@ -7212,6 +7343,13 @@ function openDetail(marca, id){
   document.getElementById('dVendedor').value = r.vendedor || '';
   document.getElementById('dAdministrativo').value = r.administrativo || '';
   document.getElementById('dResponsable').value = r.responsableEntrega || '';
+  var wrapPrepDetalle = document.getElementById('dResponsablePreparacionWrap');
+  if(r.responsablePreparacion){
+    wrapPrepDetalle.style.display = 'block';
+    document.getElementById('dResponsablePreparacionTexto').textContent = r.responsablePreparacion;
+  } else {
+    wrapPrepDetalle.style.display = 'none';
+  }
   var brandDetalle=BRANDS.find(function(x){return x.id===r.marca;});
   var selLugar=document.getElementById('dLugar');
   if(brandDetalle && brandDetalle.branches){
@@ -8229,7 +8367,8 @@ function openNewDelivery(){
   document.getElementById('nTipoVenta').value='OKM';
   document.getElementById('nUsado').value='No';
   actualizarSucursalYContextoNuevaEntrega_(brand);
-  ['nCliente','nTelefono','nEmail','nModelo','nColor','nDominio','nChasis','nObservaciones'].forEach(function(id){document.getElementById(id).value='';});
+  ['nCliente','nTelefono','nEmail','nModelo','nColor','nDominio','nChasis','nObservaciones','nResponsablePreparacion'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('nResponsablePreparacionWrap').style.display='none';
   window._nuevaEntregaAccesorios = [];
   renderNAccesoriosLista_();
   document.getElementById('nCampana').value='';
@@ -8450,6 +8589,7 @@ function submitNewDelivery(){
     lugar:document.getElementById('nLugar').value.trim(), observaciones:document.getElementById('nObservaciones').value.trim(),
     vendedor:document.getElementById('nVendedor').value, administrativo:document.getElementById('nAdministrativo').value,
     responsableEntrega:document.getElementById('nResponsable').value,
+    responsablePreparacion:document.getElementById('nResponsablePreparacion').value,
     usado: document.getElementById('nUsado').value, onstar: brand.onstar?'pending':null,
     onstarEnvio:false, onstarApp:false, onstarLlamado:false, onstarUso:false,
     estado:'pending', recordatorio:'programado', confirmado:false, entregada:false, reprogramada:false,
@@ -10869,10 +11009,20 @@ function exportarReporteExcel(){
   XLSX.writeFile(libro, 'Reporte_GrupoParis.xlsx');
 }
 
+// Se saca el Service Worker: estaba guardando versiones viejas en caché y
+// haciendo que la app pareciera "trabada" o desactualizada aunque ya se
+// hubiera subido una versión nueva a Vercel. Esto desinstala cualquier
+// Service Worker que haya quedado activo en el navegador de cada persona
+// (una sola vez, la próxima vez que entren) y borra sus cachés viejas.
 if('serviceWorker' in navigator){
-  window.addEventListener('load', function(){
-    navigator.serviceWorker.register('/sw.js').catch(function(){});
-  });
+  navigator.serviceWorker.getRegistrations().then(function(regs){
+    regs.forEach(function(reg){ reg.unregister(); });
+  }).catch(function(){});
+  if(window.caches && caches.keys){
+    caches.keys().then(function(keys){
+      keys.forEach(function(k){ caches.delete(k); });
+    }).catch(function(){});
+  }
 }
 init();
 </script>
