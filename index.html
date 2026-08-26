@@ -669,7 +669,7 @@
   .cal-legend .sw{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;}
   .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(118px,auto);gap:7px;min-width:0;}
   .cal-dow{font-size:9.5px;color:var(--text-faint);text-transform:uppercase;text-align:center;padding-bottom:7px;letter-spacing:.6px;font-weight:700;}
-  .cal-day{background:var(--panel-2);border:1px solid var(--hairline);border-radius:13px;height:100%;min-width:0;overflow:visible;padding:8px;cursor:pointer;position:relative;transition:transform .12s,border-color .12s,box-shadow .12s;}
+  .cal-day{background:var(--panel-2);border:1px solid var(--hairline);border-radius:13px;height:100%;min-width:0;overflow:hidden;padding:8px;cursor:pointer;position:relative;transition:transform .12s,border-color .12s,box-shadow .12s;}
   .cal-day-cliente{margin-top:5px;font-size:9.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .cal-day-cliente:hover{filter:brightness(1.15);text-decoration:underline;}
   .cal-day-cliente.mas{color:var(--text-faint);background:none;padding:2px 6px 0;font-weight:700;}
@@ -1463,7 +1463,10 @@
           <div class="filter-bar" style="flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center;">
             <input type="text" id="prepBuscar" placeholder="Buscar por VIN, cliente, patente o modelo..." oninput="debounce_('prepBuscar', renderPreparacionKanban_, 150)" style="flex:1;min-width:200px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 11px;font-size:12.5px;">
             <select id="prepFiltroEstado" onchange="renderPreparacionKanban_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:12px;"><option value="">Todos los estados</option></select>
-            <select id="prepFiltroResponsable" onchange="renderPreparacionKanban_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:12px;"><option value="">Todos los responsables</option></select>
+            <div style="position:relative;">
+              <button type="button" onclick="togglePrepFiltroResponsablePanel_(event)" id="prepFiltroResponsableBtn" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;">Todos los responsables <span class="material-symbols-outlined" style="font-size:15px;">expand_more</span></button>
+              <div id="prepFiltroResponsablePanel" style="display:none;position:absolute;top:calc(100% + 4px);left:0;background:var(--panel);border:1px solid var(--hairline);border-radius:8px;padding:8px;min-width:200px;max-height:260px;overflow-y:auto;z-index:40;box-shadow:0 8px 24px rgba(0,0,0,.4);"></div>
+            </div>
             <select id="prepFiltroPrioridad" onchange="renderPreparacionKanban_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:12px;">
               <option value="">Toda prioridad</option><option value="Alta">Alta</option><option value="Media">Media</option><option value="Baja">Baja</option>
             </select>
@@ -3118,24 +3121,26 @@ function aplicarPermisosUI(){
     var el = document.getElementById(MODULOS_NAV_ID[mod]);
     if(!el) return;
     var visible;
-    // El maestro (usuario madre) ve TODO, siempre, sin excepción — ni el
-    // interruptor global ni una desmarcación accidental en su propia ficha
-    // de permisos lo pueden dejar afuera de nada.
-    if(rolActual()==='maestro'){
-      visible = true;
-    }
-    else if(mod==='maestro') visible = esCalidad();
+    // El acceso a cada módulo respeta SIEMPRE lo configurado en Permisos,
+    // para cualquier usuario y cualquier rol — incluido Maestro. Antes acá
+    // había una excepción que mostraba TODO el menú a cualquier usuario con
+    // rol "maestro" sin importar lo que tuviera marcado en Permisos; se
+    // sacó a pedido explícito, para que la configuración de permisos sea
+    // la única fuente de verdad (igual que ya se hizo con puedeEditarModulo_).
+    if(mod==='maestro') visible = esCalidad();
     else if(mod==='preparacion'){
-      visible = ROLES_CON_PREPARACION_POR_DEFECTO_.indexOf(rolActual())>-1;
-      if(modulosUsuario && modulosUsuario.indexOf(mod)>-1) visible = true; // se lo diste a mano
+      // Mismo criterio: por defecto lo ven Logística/Supervisor/Maestro,
+      // pero si hay una lista explícita en Permisos, esa lista manda —
+      // sin excepción de rol.
+      visible = modulosUsuario ? (modulosUsuario.indexOf(mod)>-1) : (ROLES_CON_PREPARACION_POR_DEFECTO_.indexOf(rolActual())>-1);
       if(modulosGlobales[mod]===false) visible = false;
     }
     else if(MODULOS_SOLO_ADMIN_POR_DEFECTO_.indexOf(mod)>-1){
-      // Por defecto SOLO el rol "maestro" (el usuario madre/admin) — ni
-      // siquiera Calidad lo ve automáticamente. Para cualquier otra persona,
-      // incluido Calidad, hay que dárselo a mano desde Maestro → Permisos.
-      visible = rolActual()==='maestro';
-      if(modulosUsuario && modulosUsuario.indexOf(mod)>-1) visible = true; // se lo diste a mano
+      // Por defecto (sin nada configurado a mano en Permisos) SOLO el rol
+      // "maestro" los ve. Pero si el usuario YA tiene una lista de módulos
+      // explícita en Permisos, esa lista manda — para todos, sin excepción
+      // de rol — así se puede sacar este módulo aunque el rol sea maestro.
+      visible = modulosUsuario ? (modulosUsuario.indexOf(mod)>-1) : (rolActual()==='maestro');
       if(modulosGlobales[mod]===false) visible = false; // interruptor global, por si hace falta apagarlo hasta para el maestro
     }
     else if(mod==='historialcoms') visible = esCalidad();
@@ -4862,10 +4867,14 @@ function renderCalendar(){
     var cls='cal-day';
     if(fechaStr===hoyStr) cls+=' today';
     if(feriado || (regla && regla.desde==='00:00')) cls+=' blocked';
-    var clientesHtml = entregasDia.map(function(r){
+    var MAX_CHIPS_POR_DIA_ = 3;
+    var clientesHtml = entregasDia.slice(0, MAX_CHIPS_POR_DIA_).map(function(r){
       var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
       return '<div class="cal-day-cliente" onclick="event.stopPropagation();openDetail(\''+r.marca+'\',\''+r.id+'\')" title="'+r.hora+' hs · '+r.cliente+' · '+b.label+'" style="background:var('+b.soft+');color:var('+b.color+');border-left:3px solid var('+b.color+');">'+r.hora+' '+r.cliente+'</div>';
     }).join('');
+    if(entregasDia.length > MAX_CHIPS_POR_DIA_){
+      clientesHtml += '<div class="cal-day-cliente mas">+'+(entregasDia.length-MAX_CHIPS_POR_DIA_)+' más</div>';
+    }
     html+='<div class="'+cls+'" onclick="verHorariosDia('+y+','+m+','+d+')"><div class="num">'+d+'</div>'+clientesHtml+'</div>';
   }
   document.getElementById('calGrid').innerHTML=html;
@@ -5014,13 +5023,50 @@ function poblarFiltrosPreparacion_(){
   if(selEstado && selEstado.options.length<=1){
     selEstado.innerHTML = '<option value="">Todos los estados</option>' + PREP_ESTADOS.map(function(e){return '<option value="'+e+'">'+e+'</option>';}).join('');
   }
-  var selResp = document.getElementById('prepFiltroResponsable');
-  if(selResp){
+  var panel = document.getElementById('prepFiltroResponsablePanel');
+  if(panel){
     var responsablesConfig = ((CONFIG.maestros && CONFIG.maestros.responsables) || []).map(function(r){return nombreDeMaestro_(r);});
-    var actual = selResp.value;
-    selResp.innerHTML = '<option value="">Todos los responsables</option>' + responsablesConfig.map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join('');
-    selResp.value = actual;
+    panel.innerHTML = responsablesConfig.map(function(n){
+      var checked = _prepFiltroResponsables_.indexOf(n)>-1;
+      return '<label style="display:flex;align-items:center;gap:8px;padding:6px 4px;font-size:12px;cursor:pointer;white-space:nowrap;">'+
+        '<input type="checkbox" '+(checked?'checked':'')+' onchange="togglePrepResponsableFiltro_(\''+n.replace(/'/g,"\\'")+'\',this.checked)"> '+n+
+      '</label>';
+    }).join('') || '<div style="font-size:11.5px;color:var(--text-faint);padding:4px;">No hay responsables cargados.</div>';
+    actualizarBotonPrepFiltroResponsable_();
   }
+}
+// ---- Filtro multi-selección de Responsable (Centro de Preparación) ----
+var _prepFiltroResponsables_ = [];
+function togglePrepFiltroResponsablePanel_(ev){
+  ev.stopPropagation();
+  var panel = document.getElementById('prepFiltroResponsablePanel');
+  if(!panel) return;
+  var abrir = panel.style.display==='none';
+  panel.style.display = abrir ? 'block' : 'none';
+  if(abrir){
+    setTimeout(function(){
+      document.addEventListener('click', function cerrar(e){
+        if(!panel.contains(e.target) && e.target.id!=='prepFiltroResponsableBtn'){
+          panel.style.display='none';
+          document.removeEventListener('click', cerrar);
+        }
+      });
+    }, 0);
+  }
+}
+function togglePrepResponsableFiltro_(nombre, checked){
+  var idx = _prepFiltroResponsables_.indexOf(nombre);
+  if(checked && idx===-1) _prepFiltroResponsables_.push(nombre);
+  if(!checked && idx>-1) _prepFiltroResponsables_.splice(idx,1);
+  actualizarBotonPrepFiltroResponsable_();
+  renderPreparacionKanban_();
+}
+function actualizarBotonPrepFiltroResponsable_(){
+  var btn = document.getElementById('prepFiltroResponsableBtn');
+  if(!btn) return;
+  var n = _prepFiltroResponsables_.length;
+  var texto = n===0 ? 'Todos los responsables' : (n===1 ? _prepFiltroResponsables_[0] : n+' responsables seleccionados');
+  btn.innerHTML = texto+' <span class="material-symbols-outlined" style="font-size:15px;">expand_more</span>';
 }
 function prepDiasRestantes_(u){
   var f = parsearFecha_(u.fechaPrometida);
@@ -5107,7 +5153,7 @@ function renderPreparacionKanban_(){
   if(!board) return;
   var q = (document.getElementById('prepBuscar').value||'').trim().toLowerCase();
   var fEstado = document.getElementById('prepFiltroEstado').value;
-  var fResponsable = document.getElementById('prepFiltroResponsable').value;
+  var fResponsables = _prepFiltroResponsables_; // array — vacío = todos
   var fPrioridad = document.getElementById('prepFiltroPrioridad').value;
   var soloMias = document.getElementById('prepSoloMias').checked;
 
@@ -5115,7 +5161,7 @@ function renderPreparacionKanban_(){
     if(u.marca && currentBrands.indexOf(u.marca)===-1) return false;
     if(u.sucursal && currentBranches.length>0 && currentBranches.indexOf(u.sucursal)===-1) return false;
     if(soloMias && u.responsable!==usuarioActual()) return false;
-    if(fResponsable && u.responsable!==fResponsable) return false;
+    if(fResponsables.length && fResponsables.indexOf(u.responsable)===-1) return false;
     if(fEstado && u.estado!==fEstado) return false;
     if(fPrioridad && u.prioridad!==fPrioridad) return false;
     if(!fEstado && (u.estado==='Entregado' || u.estado==='Venta caída')) return false; // por defecto no ocupan lugar, salvo que se filtren a propósito
@@ -5152,10 +5198,12 @@ function renderPreparacionKanban_(){
   }
 
   var sinAsignar = filtradas.filter(function(u){ return !u.responsable; });
-  var html = '<div class="kanban-col sin-asignar"><div class="kanban-col-header"><span>⚠ Sin asignar</span><span class="cant">'+sinAsignar.length+'</span></div><div class="kanban-col-body">'+
+  var mostrarSinAsignar = fResponsables.length===0;
+  var html = mostrarSinAsignar ? '<div class="kanban-col sin-asignar"><div class="kanban-col-header"><span>⚠ Sin asignar</span><span class="cant">'+sinAsignar.length+'</span></div><div class="kanban-col-body">'+
     (sinAsignar.length ? sinAsignar.map(tarjeta).join('') : '<div style="color:var(--text-faint);font-size:11.5px;text-align:center;padding:14px;">Nadie sin asignar 🎉</div>') +
-  '</div></div>';
-  responsables.forEach(function(nombre){
+  '</div></div>' : '';
+  var responsablesAMostrar = fResponsables.length ? responsables.filter(function(n){return fResponsables.indexOf(n)>-1;}) : responsables;
+  responsablesAMostrar.forEach(function(nombre){
     var suyas = filtradas.filter(function(u){ return u.responsable===nombre; });
     html += '<div class="kanban-col"><div class="kanban-col-header"><span>'+nombre+'</span><span class="cant">'+suyas.length+'</span></div><div class="kanban-col-body">'+
       (suyas.length ? suyas.map(tarjeta).join('') : '<div style="color:var(--text-faint);font-size:11.5px;text-align:center;padding:14px;">Sin unidades asignadas.</div>') +
