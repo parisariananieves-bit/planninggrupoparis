@@ -1462,9 +1462,8 @@
           <div id="prepDashboardKpis" class="stats-grid" style="margin-top:14px;"></div>
           <div class="filter-bar" style="flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center;">
             <input type="text" id="prepBuscar" placeholder="Buscar por VIN, cliente, patente o modelo..." oninput="debounce_('prepBuscar', renderPreparacionKanban_, 150)" style="flex:1;min-width:200px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 11px;font-size:12.5px;">
-            <select id="prepFiltroMarca" onchange="renderPreparacionKanban_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:12px;"><option value="">Todas las marcas</option></select>
-            <select id="prepFiltroSucursal" onchange="renderPreparacionKanban_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
             <select id="prepFiltroEstado" onchange="renderPreparacionKanban_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:12px;"><option value="">Todos los estados</option></select>
+            <select id="prepFiltroResponsable" onchange="renderPreparacionKanban_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:12px;"><option value="">Todos los responsables</option></select>
             <select id="prepFiltroPrioridad" onchange="renderPreparacionKanban_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 9px;font-size:12px;">
               <option value="">Toda prioridad</option><option value="Alta">Alta</option><option value="Media">Media</option><option value="Baja">Baja</option>
             </select>
@@ -2282,6 +2281,9 @@
     <div id="dTrasladoAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">local_shipping</span></div>
     <div id="dComentariosAlerta" style="display:none;margin-top:8px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionComentarios_()"><span class="material-symbols-outlined" style="font-size:15px;">chat</span></div>
     <div id="dNpsAlerta" style="display:none;margin-top:8px;border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">star</span></div>
+    <div id="dNpsContactoPosteriorAlerta" style="display:none;margin-top:8px;border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;"><span class="material-symbols-outlined" style="font-size:15px;">forum</span></div>
+    <div id="dGarantiaAlerta" style="display:none;margin-top:8px;border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">verified</span></div>
+    <div id="dNpsFabricaAlerta" style="display:none;margin-top:8px;border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">factory</span></div>
     <div id="dCasoAbiertoAlerta" style="display:none;margin-top:8px;background:var(--caso-soft);color:var(--caso);border:1px solid var(--caso);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;"><span class="material-symbols-outlined" style="font-size:15px;">report</span></div>
   </div>
   <div class="drawer-body">
@@ -2485,22 +2487,48 @@
       <div id="dHistorial"></div>
     </div>
 
-    <div class="section">
-      <div class="section-title">Comunicaciones (post-entrega)</div>
+    <div class="section" style="border:1.5px solid var(--caso);border-radius:12px;padding:14px;background:var(--caso-soft);">
+      <div class="section-title" style="color:var(--caso);margin-top:0;font-size:13px;">🩺 Calidad</div>
+
+      <div class="section-title" style="margin-top:6px;">Comunicaciones (post-entrega)</div>
       <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:10px;">Mensaje de bienvenida y encuesta post-entrega — por WhatsApp o Email.</div>
       <div id="dBienvenidaEstado" style="display:none;font-size:12px;color:var(--ok);background:var(--ok-soft);padding:9px 11px;border-radius:7px;margin-bottom:8px;"></div>
       <button class="comms-btn" onclick="abrirModalBienvenida()" style="margin-bottom:14px;"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">forum</span> Ver / enviar mensaje de bienvenida</button>
       <div id="dComunicaciones"></div>
-    </div>
 
-    <div class="section">
-      <div class="section-title">Contacto Posterior</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-bottom:7px;">Cruza VIN o patente con la encuesta pública de satisfacción 0km (post-venta). Solo lectura.</div>
+      <div class="section-title" style="margin-top:18px;">NPS Contacto Posterior</div>
+      <div style="font-size:11px;color:var(--text-faint);margin-bottom:7px;">Cruza VIN o patente con la encuesta pública de satisfacción 0km (post-venta). Se busca una sola vez y queda guardado.</div>
+      <div id="dContactoPosteriorResumen" style="display:none;margin-bottom:8px;"></div>
       <button id="dBtnContactoPosterior" onclick="verContactoPosterior_(detailMarca, detailId)" style="width:100%;background:var(--panel-2);color:var(--text);border:1px solid var(--hairline);border-radius:7px;padding:8px 13px;font-weight:600;font-size:11.5px;cursor:pointer;"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">forum</span> Ver contacto posterior</button>
-    </div>
 
-    <div class="section">
-      <div class="section-title">Comentarios</div>
+      <div class="section-title" style="margin-top:18px;">Garantía</div>
+      <div class="field-grid">
+        <div class="field">
+          <div class="l" style="display:flex;align-items:center;gap:6px;">Fecha de carga
+            <span id="dGarantiaFiltradaDot" onclick="toggleGarantiaFiltrada_()" title="Marcar como filtrada (no le va a llegar la encuesta de fábrica)" style="width:8px;height:8px;border-radius:50%;background:var(--hairline);cursor:pointer;display:inline-block;"></span>
+          </div>
+          <input type="date" id="dGarantiaFecha" onchange="guardarCampo('garantiaFecha', this.value, false); renderAlertaGarantia_(ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;})); renderAlertaNpsFabrica_(ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}));">
+        </div>
+      </div>
+
+      <div id="dNpsFabricaWrap" style="margin-top:18px;">
+        <div class="section-title">NPS de Fábrica</div>
+        <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:7px;">Carga manual — solo aplica si se cargó el cupón de garantía.</div>
+        <div class="field-grid">
+          <div class="field"><div class="l">NPS de Fábrica (0-10)</div><input type="number" min="0" max="10" id="dNpsFabricaScore" onchange="guardarNpsFabricaCampo_('npsFabricaScore', this.value)"></div>
+          <div class="field"><div class="l">Fecha de respuesta</div><input type="date" id="dNpsFabricaFecha" onchange="guardarNpsFabricaCampo_('npsFabricaFecha', this.value)"></div>
+          <div class="field full"><div class="l">Comentario</div><textarea id="dNpsFabricaComentario" onchange="guardarNpsFabricaCampo_('npsFabricaComentario', this.value)" style="width:100%;box-sizing:border-box;background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:8px 9px;font-family:inherit;font-size:12px;resize:vertical;min-height:36px;"></textarea></div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top:18px;display:flex;align-items:center;gap:6px;">Contacto <input id="dContactoSofiNombre" onchange="guardarContactoSofiCampo_('contactoSofiNombre', this.value)" style="width:80px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:6px;color:var(--text);padding:3px 7px;font-size:12px;font-weight:700;"></div>
+      <div class="field-grid">
+        <div class="field"><div class="l">Nota</div><input id="dContactoSofiNota" onchange="guardarContactoSofiCampo_('contactoSofiNota', this.value)"></div>
+        <div class="field full"><div class="l">Comentario</div><textarea id="dContactoSofiComentario" onchange="guardarContactoSofiCampo_('contactoSofiComentario', this.value)" style="width:100%;box-sizing:border-box;background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:8px 9px;font-family:inherit;font-size:12px;resize:vertical;min-height:36px;"></textarea></div>
+        <div class="field full"><div class="l">Mail <span id="dContactoSofiMailBadge" style="font-weight:700;"></span></div><input id="dContactoSofiMail" onchange="guardarContactoSofiCampo_('contactoSofiMail', this.value)"></div>
+      </div>
+
+      <div class="section-title" style="margin-top:18px;">Comentarios</div>
       <div id="dComentarios"></div>
       <div style="margin-top:7px;">
         <textarea id="cNuevo" placeholder="Dejar un comentario para el equipo..." style="width:100%;box-sizing:border-box;background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:8px 9px;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;resize:none;height:36px;"></textarea>
@@ -2630,7 +2658,7 @@
 
 <div class="modal" id="modalNpsDetalle">
   <div class="modal-head">
-    <div><h3><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">star</span> Encuesta de satisfacción</h3><div class="sub" id="npsDetalleSub"></div></div>
+    <div><h3><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">star</span> NPS Alerta Temprana</h3><div class="sub" id="npsDetalleSub"></div></div>
     <button class="close" onclick="cerrarModalNpsDetalle_()">✕</button>
   </div>
   <div class="modal-body" id="npsDetalleBody"></div>
@@ -2949,12 +2977,13 @@ function modulosUsuarioActual(){
   var s=sesionActual(); return (s && s.modulos) || [];
 }
 function esCalidad(){ var r=rolActual(); return r==='calidad' || r==='maestro' || modulosUsuarioActual().indexOf('maestro')>-1; }
-// El maestro siempre puede editar todo. Para el resto, se fija si ese
-// módulo puntual está marcado como "solo ver" en su ficha de permisos —
-// si no está en esa lista, puede editar normalmente (así los usuarios
-// viejos, de antes de que existiera esto, no pierden nada por defecto).
+// El acceso de Ver/Editar por módulo se respeta SIEMPRE tal cual lo dejaste
+// configurado en Permisos, para cualquier usuario y cualquier rol — incluido
+// Maestro. Antes acá había una excepción que le daba edición total a
+// cualquier usuario con rol "maestro" sin importar lo que tuviera marcado
+// en modulosSoloVer; se sacó a pedido explícito para que la configuración
+// de permisos sea la única fuente de verdad.
 function puedeEditarModulo_(mod){
-  if(rolActual()==='maestro') return true;
   var s = sesionActual();
   var soloVer = (s && s.modulosSoloVer) || [];
   return soloVer.indexOf(mod)===-1;
@@ -4946,19 +4975,16 @@ function cargarPreparacionSiHaceFalta_(){
   });
 }
 function poblarFiltrosPreparacion_(){
-  var selMarca = document.getElementById('prepFiltroMarca');
-  if(selMarca && selMarca.options.length<=1){
-    selMarca.innerHTML = '<option value="">Todas las marcas</option>' + BRANDS.map(function(b){return '<option value="'+b.id+'">'+b.label+'</option>';}).join('');
-  }
-  var selSucursal = document.getElementById('prepFiltroSucursal');
-  if(selSucursal && selSucursal.options.length<=1){
-    var todasSucursales = [];
-    BRANDS.forEach(function(b){ if(b.branches) b.branches.forEach(function(s){ if(todasSucursales.indexOf(s)===-1) todasSucursales.push(s); }); });
-    selSucursal.innerHTML = '<option value="">Todas las sucursales</option>' + todasSucursales.map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join('');
-  }
   var selEstado = document.getElementById('prepFiltroEstado');
   if(selEstado && selEstado.options.length<=1){
     selEstado.innerHTML = '<option value="">Todos los estados</option>' + PREP_ESTADOS.map(function(e){return '<option value="'+e+'">'+e+'</option>';}).join('');
+  }
+  var selResp = document.getElementById('prepFiltroResponsable');
+  if(selResp){
+    var responsablesConfig = ((CONFIG.maestros && CONFIG.maestros.responsables) || []).map(function(r){return nombreDeMaestro_(r);});
+    var actual = selResp.value;
+    selResp.innerHTML = '<option value="">Todos los responsables</option>' + responsablesConfig.map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join('');
+    selResp.value = actual;
   }
 }
 function prepDiasRestantes_(u){
@@ -5045,9 +5071,8 @@ function renderPreparacionKanban_(){
   var board = document.getElementById('preparacionBoard');
   if(!board) return;
   var q = (document.getElementById('prepBuscar').value||'').trim().toLowerCase();
-  var fMarca = document.getElementById('prepFiltroMarca').value;
-  var fSucursal = document.getElementById('prepFiltroSucursal').value;
   var fEstado = document.getElementById('prepFiltroEstado').value;
+  var fResponsable = document.getElementById('prepFiltroResponsable').value;
   var fPrioridad = document.getElementById('prepFiltroPrioridad').value;
   var soloMias = document.getElementById('prepSoloMias').checked;
 
@@ -5055,8 +5080,7 @@ function renderPreparacionKanban_(){
     if(u.marca && currentBrands.indexOf(u.marca)===-1) return false;
     if(u.sucursal && currentBranches.length>0 && currentBranches.indexOf(u.sucursal)===-1) return false;
     if(soloMias && u.responsable!==usuarioActual()) return false;
-    if(fMarca && u.marca!==fMarca) return false;
-    if(fSucursal && u.sucursal!==fSucursal) return false;
+    if(fResponsable && u.responsable!==fResponsable) return false;
     if(fEstado && u.estado!==fEstado) return false;
     if(fPrioridad && u.prioridad!==fPrioridad) return false;
     if(!fEstado && (u.estado==='Entregado' || u.estado==='Venta caída')) return false; // por defecto no ocupan lugar, salvo que se filtren a propósito
@@ -5141,7 +5165,7 @@ function reconciliarChecklistConConfig_(u){
 var _prepPendientes_ = null;
 var _prepDirty_ = false;
 function prepPendientesVacios_(){
-  return {estado:null, responsable:null, prioridad:null, checklist:{}};
+  return {estado:null, responsable:null, prioridad:null, checklist:{}, checklistObs:{}};
 }
 function prepHayPendientes_(){
   if(!_prepPendientes_) return false;
@@ -5197,10 +5221,18 @@ function abrirFichaPreparacion_(id){
   var checklistCont = document.getElementById('prepFichaChecklist');
   var items = reconciliarChecklistConConfig_(u);
   checklistCont.innerHTML = items.map(function(it){
+    var esAutoElectrico = it.item==='Auto Eléctrico';
+    var cargador = {fecha:'', estado:'Pendiente'};
+    if(esAutoElectrico && it.observaciones){ try{ cargador = Object.assign(cargador, JSON.parse(it.observaciones)); }catch(e){} }
     return '<div style="display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid var(--hairline);">'+
       '<input type="checkbox" '+(it.hecho?'checked':'')+' '+(puedeEditarFicha?'':'disabled')+' onchange="marcarChecklistItemPreparacionUI_(\''+it.item.replace(/'/g,"\\'")+'\',this.checked)" style="margin-top:3px;width:16px;height:16px;flex-shrink:0;cursor:pointer;">'+
-      '<div style="flex:1;"><div style="font-size:12.5px;font-weight:'+(it.hecho?'400':'600')+';text-decoration:'+(it.hecho?'line-through':'none')+';color:'+(it.hecho?'var(--text-faint)':'var(--text)')+';">'+it.item+'</div>'+
-      (it.hecho?'<div style="font-size:10.5px;color:var(--text-faint);margin-top:2px;">'+it.usuario+' · '+it.fecha+'</div>':'')+'</div>'+
+      '<div style="flex:1;"><div style="font-size:12.5px;font-weight:'+(it.hecho?'400':'600')+';text-decoration:'+(it.hecho&&!esAutoElectrico?'line-through':'none')+';color:'+(it.hecho&&!esAutoElectrico?'var(--text-faint)':'var(--text)')+';">'+it.item+'</div>'+
+      (it.hecho?'<div style="font-size:10.5px;color:var(--text-faint);margin-top:2px;">'+it.usuario+' · '+it.fecha+'</div>':'')+
+      (esAutoElectrico && it.hecho ? '<div style="display:flex;gap:8px;margin-top:7px;flex-wrap:wrap;">'+
+        '<div class="field" style="flex:1;min-width:140px;"><div class="l">Fecha de envío de cargador</div><input type="date" value="'+(cargador.fecha||'')+'" '+(puedeEditarFicha?'':'disabled')+' onchange="guardarCargadorAutoElectrico_(this.value, null)"></div>'+
+        '<div class="field" style="flex:1;min-width:140px;"><div class="l">Estado del cargador</div><select '+(puedeEditarFicha?'':'disabled')+' onchange="guardarCargadorAutoElectrico_(null, this.value)"><option value="Pendiente" '+(cargador.estado==='Pendiente'?'selected':'')+'>Pendiente</option><option value="Enviado" '+(cargador.estado==='Enviado'?'selected':'')+'>Enviado</option></select></div>'+
+      '</div>' : '')+
+      '</div>'+
     '</div>';
   }).join('');
 
@@ -5292,6 +5324,23 @@ function marcarChecklistItemPreparacionUI_(itemNombre, hecho){
   abrirFichaPreparacion_(u.id); // repinta el checklist (tachado, etc.) — mantiene los pendientes
   prepMarcarDirty_();
 }
+// "Auto Eléctrico" es el único ítem del checklist con datos extra (fecha de
+// envío de cargador + estado). Se guarda en el mismo campo "observaciones"
+// del ítem (como JSON) — así no hace falta tocar nada del backend.
+function guardarCargadorAutoElectrico_(fecha, estado){
+  if(!_prepFichaAbierta_) return;
+  var u = PREP_UNIDADES.find(function(x){return x.id===_prepFichaAbierta_;});
+  var item = u.checklist && u.checklist.find(function(x){return x.item==='Auto Eléctrico';});
+  if(!item) return;
+  var cargador = {fecha:'', estado:'Pendiente'};
+  try{ if(item.observaciones) cargador = Object.assign(cargador, JSON.parse(item.observaciones)); }catch(e){}
+  if(fecha!==null) cargador.fecha = fecha;
+  if(estado!==null) cargador.estado = estado;
+  item.observaciones = JSON.stringify(cargador);
+  _prepPendientes_.checklist['Auto Eléctrico'] = item.hecho; // reafirma el hecho actual para que viaje junto con la observación
+  _prepPendientes_.checklistObs['Auto Eléctrico'] = item.observaciones;
+  prepMarcarDirty_();
+}
 // Manda todos los cambios acumulados de la ficha (estado, responsable,
 // prioridad, checklist) al server de una sola vez, cuando el usuario
 // aprieta "Guardar cambios".
@@ -5333,8 +5382,10 @@ function guardarCambiosPreparacionUI_(){
   }
   Object.keys(pend.checklist).forEach(function(itemNombre){
     var hecho = pend.checklist[itemNombre];
-    tareas.push(gasPost('prepMarcarChecklistItem', {id:u.id, item:itemNombre, hecho:hecho, autor:usuarioActual()}).then(function(res){
+    var obs = pend.checklistObs && pend.checklistObs[itemNombre];
+    tareas.push(gasPost('prepMarcarChecklistItem', {id:u.id, item:itemNombre, hecho:hecho, observaciones:obs, autor:usuarioActual()}).then(function(res){
       delete pend.checklist[itemNombre];
+      if(obs!==undefined && pend.checklistObs) delete pend.checklistObs[itemNombre];
       return {ok:true};
     }));
   });
@@ -5672,43 +5723,208 @@ function cerrarModalSeguimientoGC_(){
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('modalSeguimientoGC').classList.remove('show');
 }
+// Categoría + colores para cualquier puntaje NPS (0-10) — helper compartido
+// por los bloques nuevos (Contacto Posterior, NPS Fábrica). No reemplaza los
+// cálculos que ya existían en Alerta Temprana, para no tocar nada de eso.
+function categoriaNps_(score){
+  if(score===null || score===undefined || score==='') return {texto:'', color:'var(--text-faint)', colorSoft:'var(--panel-2)'};
+  var n = Number(score);
+  if(n<=6) return {texto:'Detractor', color:'var(--danger)', colorSoft:'var(--danger-soft)'};
+  if(n<=8) return {texto:'Pasivo', color:'#E8B23D', colorSoft:'rgba(232,178,61,.14)'};
+  return {texto:'Promotor', color:'var(--ok)', colorSoft:'var(--ok-soft)'};
+}
+// Tarjeta grande con el puntaje en color, igual estilo que la de Alerta
+// Temprana — reusada por Contacto Posterior y NPS Fábrica.
+function bloqueNpsGrande_(score, fechaLabel, comentario){
+  if(score===null || score===undefined || score==='') return '';
+  var cat = categoriaNps_(score);
+  return '<div style="background:'+cat.colorSoft+';border-radius:10px;padding:16px;text-align:center;margin-bottom:10px;">'+
+      '<div style="font-size:30px;font-weight:800;color:'+cat.color+';">'+score+'<span style="font-size:15px;font-weight:600;">/10</span></div>'+
+      '<div style="font-weight:700;color:'+cat.color+';font-size:13px;">'+cat.texto+'</div>'+
+      (fechaLabel ? '<div style="font-size:11px;color:var(--text-faint);margin-top:2px;">'+fechaLabel+'</div>' : '')+
+    '</div>'+
+    (comentario ? '<div style="background:var(--panel-2);border-radius:7px;padding:10px 12px;font-size:12px;margin-bottom:10px;"><b>Comentario</b><br>"'+comentario+'"</div>' : '');
+}
+
 // Cruce de solo lectura contra la encuesta pública de satisfacción 0km
 // (Google Forms post-venta) — busca primero por VIN, y si no aparece,
 // por patente. No toca nada de la Alerta Temprana (NPS interno).
+// Se busca UNA sola vez: el resultado queda guardado en la entrega
+// (r.contactoPosteriorData) y de ahí en más se usa ese dato guardado,
+// sin volver a golpear la planilla externa.
+function contactoPosteriorCache_(r){
+  try{ return r.contactoPosteriorData ? JSON.parse(r.contactoPosteriorData) : null; }catch(e){ return null; }
+}
+function guardarContactoPosteriorCache_(marca, id, datos){
+  var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
+  if(r) r.contactoPosteriorData = JSON.stringify(datos);
+  gasPost('updateEntregaFields',{marca:marca, id:id, fields:{contactoPosteriorData: JSON.stringify(datos)}});
+}
+function pintarBodyContactoPosterior_(cache){
+  var body = document.getElementById('contactoPosteriorBody');
+  if(!cache || !cache.encontrado){
+    body.innerHTML = '<div style="padding:18px;color:var(--text-faint);font-size:12.5px;">Todavía no hay ninguna respuesta en la encuesta de satisfacción para este VIN o esta patente.</div>';
+    return;
+  }
+  var e = cache.respuesta;
+  function fila(label, valor){
+    return '<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--hairline);font-size:12px;">'+
+      '<span style="color:var(--text-faint);">'+label+'</span><span style="font-weight:600;text-align:right;">'+(valor||'—')+'</span></div>';
+  }
+  body.innerHTML =
+    bloqueNpsGrande_(e.recomienda, 'Respondida '+(e.fecha||''), e.comentario)+
+    '<div style="border:1px solid var(--hairline);border-radius:9px;padding:12px 14px;">'+
+      fila('Fecha de respuesta', e.fecha)+
+      fila('Nombre', e.nombre)+
+      fila('Email', e.email)+
+      fila('VIN / Patente (como lo cargó el cliente)', e.vinPatente)+
+      fila('Atención del asesor de ventas', e.atencionAsesor)+
+      fila('Gestión administrativa', e.gestionAdmin)+
+      fila('Experiencia de entrega del 0km', e.experienciaEntrega)+
+      fila('¿Entregó usado como parte de pago?', e.usado)+
+    '</div>';
+}
 function verContactoPosterior_(marca, id){
   var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r) return;
   document.getElementById('overlay').classList.add('show');
   document.getElementById('modalContactoPosterior').classList.add('show');
+  var cache = contactoPosteriorCache_(r);
+  if(cache && cache.buscado){
+    pintarBodyContactoPosterior_(cache);
+    return;
+  }
   document.getElementById('contactoPosteriorBody').innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-faint);font-size:12.5px;">Buscando en la encuesta…</div>';
   gasGet('encuestaPosterior', {vin:r.chasis||'', patente:r.dominio||''}).then(function(res){
-    var body = document.getElementById('contactoPosteriorBody');
-    if(!res.ok){ body.innerHTML = '<div style="padding:18px;color:var(--danger);font-size:12.5px;">'+res.error+'</div>'; return; }
-    if(!res.encontrado){
-      body.innerHTML = '<div style="padding:18px;color:var(--text-faint);font-size:12.5px;">Todavía no hay ninguna respuesta en la encuesta de satisfacción para este VIN o esta patente.</div>';
-      return;
-    }
-    var e = res.respuesta;
-    function fila(label, valor){
-      return '<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--hairline);font-size:12px;">'+
-        '<span style="color:var(--text-faint);">'+label+'</span><span style="font-weight:600;text-align:right;">'+(valor||'—')+'</span></div>';
-    }
-    body.innerHTML =
-      '<div style="border:1px solid var(--hairline);border-radius:9px;padding:12px 14px;">'+
-        fila('Fecha de respuesta', e.fecha)+
-        fila('Nombre', e.nombre)+
-        fila('Email', e.email)+
-        fila('VIN / Patente (como lo cargó el cliente)', e.vinPatente)+
-        fila('¿Recomendaría la concesionaria? (0-10)', e.recomienda)+
-        fila('Atención del asesor de ventas', e.atencionAsesor)+
-        fila('Gestión administrativa', e.gestionAdmin)+
-        fila('Experiencia de entrega del 0km', e.experienciaEntrega)+
-        fila('¿Entregó usado como parte de pago?', e.usado)+
-      '</div>'+
-      (e.comentario ? '<div style="margin-top:10px;background:var(--panel-2);border-radius:7px;padding:10px 12px;font-size:12px;"><b>Comentario del cliente</b><br>'+e.comentario+'</div>' : '');
+    if(!res.ok){ document.getElementById('contactoPosteriorBody').innerHTML = '<div style="padding:18px;color:var(--danger);font-size:12.5px;">'+res.error+'</div>'; return; }
+    var datos = {buscado:true, encontrado:res.encontrado, respuesta:res.respuesta||null};
+    guardarContactoPosteriorCache_(marca, id, datos);
+    pintarBodyContactoPosterior_(datos);
+    renderAlertaNpsContactoPosterior_(r);
+    renderContactoPosteriorResumen_(r);
   }).catch(function(){
     document.getElementById('contactoPosteriorBody').innerHTML = '<div style="padding:18px;color:var(--danger);font-size:12.5px;">No se pudo conectar con la encuesta.</div>';
   });
+}
+// Busca en silencio (sin abrir el modal) al abrir la ficha, solo si
+// todavía no se había buscado nunca para esta entrega.
+function buscarContactoPosteriorSilencioso_(r){
+  var cache = contactoPosteriorCache_(r);
+  if(cache && cache.buscado){ renderAlertaNpsContactoPosterior_(r); renderContactoPosteriorResumen_(r); return; }
+  if(!r.chasis && !r.dominio) return;
+  gasGet('encuestaPosterior', {vin:r.chasis||'', patente:r.dominio||''}).then(function(res){
+    if(!res.ok) return;
+    var datos = {buscado:true, encontrado:res.encontrado, respuesta:res.respuesta||null};
+    guardarContactoPosteriorCache_(r.marca, r.id, datos);
+    if(detailId===r.id && detailMarca===r.marca){ renderAlertaNpsContactoPosterior_(r); renderContactoPosteriorResumen_(r); }
+  }).catch(function(){});
+}
+function renderContactoPosteriorResumen_(r){
+  var wrap = document.getElementById('dContactoPosteriorResumen');
+  if(!wrap) return;
+  var cache = contactoPosteriorCache_(r);
+  if(!cache || !cache.buscado || !cache.encontrado){ wrap.style.display='none'; return; }
+  var e = cache.respuesta;
+  wrap.style.display = 'block';
+  wrap.innerHTML = bloqueNpsGrande_(e.recomienda, 'Respondida '+(e.fecha||''), '');
+}
+function renderAlertaNpsContactoPosterior_(r){
+  var alerta = document.getElementById('dNpsContactoPosteriorAlerta');
+  if(!alerta) return;
+  var cache = contactoPosteriorCache_(r);
+  if(!cache || !cache.buscado || !cache.encontrado){ alerta.style.display='none'; alerta.onclick=null; return; }
+  var e = cache.respuesta;
+  var cat = categoriaNps_(e.recomienda);
+  alerta.style.display = 'flex';
+  alerta.style.background = cat.colorSoft;
+  alerta.style.color = cat.color;
+  alerta.style.borderColor = cat.color;
+  alerta.style.borderWidth = '1px';
+  alerta.style.borderStyle = 'solid';
+  alerta.onclick = function(){ verContactoPosterior_(r.marca, r.id); };
+  alerta.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">forum</span>NPS Contacto Posterior '+e.recomienda+'/10 — '+cat.texto+(e.comentario?' — "'+e.comentario.slice(0,60)+(e.comentario.length>60?'…':'')+'"':'')+' <span style="text-decoration:underline;margin-left:4px;">Ver todo →</span>';
+}
+
+// ---- Garantía ----
+function toggleGarantiaFiltrada_(){
+  if(!detailId) return;
+  var r = ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  if(!r) return;
+  r.garantiaFiltrada = !r.garantiaFiltrada;
+  gasPost('updateEntregaFields',{marca:detailMarca, id:detailId, fields:{garantiaFiltrada: r.garantiaFiltrada}});
+  pintarGarantiaFiltradaDot_(r);
+}
+function pintarGarantiaFiltradaDot_(r){
+  var dot = document.getElementById('dGarantiaFiltradaDot');
+  if(!dot) return;
+  dot.style.background = r.garantiaFiltrada ? 'var(--danger)' : 'var(--hairline)';
+  dot.title = r.garantiaFiltrada ? 'Marcada como filtrada — no le va a llegar la encuesta de fábrica. Click para desmarcar.' : 'Click para marcar como filtrada (no le va a llegar la encuesta de fábrica).';
+}
+function renderAlertaGarantia_(r){
+  var alerta = document.getElementById('dGarantiaAlerta');
+  if(!alerta) return;
+  var cargada = !!r.garantiaFecha;
+  alerta.style.display = 'flex';
+  alerta.style.background = cargada ? 'var(--ok-soft)' : 'var(--panel-2)';
+  alerta.style.color = cargada ? 'var(--ok)' : 'var(--text-faint)';
+  alerta.style.borderColor = cargada ? 'var(--ok)' : 'var(--hairline)';
+  alerta.style.borderWidth = '1px';
+  alerta.style.borderStyle = 'solid';
+  alerta.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">verified</span>'+(cargada ? 'Garantía cargada — '+r.garantiaFecha : 'Garantía no cargada');
+}
+
+// ---- NPS de Fábrica (carga manual, solo si hay garantía cargada) ----
+function guardarNpsFabricaCampo_(campo, valor){
+  if(!detailId) return;
+  var r = ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  if(!r) return;
+  r[campo] = valor;
+  var fields = {}; fields[campo] = valor;
+  gasPost('updateEntregaFields',{marca:detailMarca, id:detailId, fields:fields});
+  renderAlertaNpsFabrica_(r);
+}
+function renderAlertaNpsFabrica_(r){
+  var alerta = document.getElementById('dNpsFabricaAlerta');
+  var wrap = document.getElementById('dNpsFabricaWrap');
+  if(!alerta) return;
+  var hayGarantia = !!r.garantiaFecha;
+  if(wrap) wrap.style.opacity = hayGarantia ? '1' : '.45';
+  if(!hayGarantia){ alerta.style.display='none'; return; }
+  alerta.style.display = 'flex';
+  if(r.npsFabricaScore!==undefined && r.npsFabricaScore!==null && r.npsFabricaScore!==''){
+    var cat = categoriaNps_(r.npsFabricaScore);
+    alerta.style.background = cat.colorSoft;
+    alerta.style.color = cat.color;
+    alerta.style.borderColor = cat.color;
+    alerta.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">factory</span>NPS Fábrica '+r.npsFabricaScore+'/10'+(r.npsFabricaComentario?' — "'+r.npsFabricaComentario.slice(0,60)+(r.npsFabricaComentario.length>60?'…':'')+'"':'');
+  } else {
+    alerta.style.background = 'var(--panel-2)';
+    alerta.style.color = 'var(--text-faint)';
+    alerta.style.borderColor = 'var(--hairline)';
+    alerta.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">factory</span>NPS Fábrica — todavía no respondió';
+  }
+  alerta.style.borderWidth = '1px';
+  alerta.style.borderStyle = 'solid';
+}
+
+// ---- Contacto Sofi (o el nombre que le pongan) ----
+function guardarContactoSofiCampo_(campo, valor){
+  if(!detailId) return;
+  var r = ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  if(!r) return;
+  r[campo] = valor;
+  var fields = {}; fields[campo] = valor;
+  gasPost('updateEntregaFields',{marca:detailMarca, id:detailId, fields:fields});
+  if(campo==='contactoSofiMail') pintarContactoSofiMailBadge_(r);
+}
+function pintarContactoSofiMailBadge_(r){
+  var badge = document.getElementById('dContactoSofiMailBadge');
+  if(!badge) return;
+  var mailSofi = (r.contactoSofiMail||'').trim().toLowerCase();
+  if(!mailSofi){ badge.textContent=''; return; }
+  var coincide = mailSofi === (r.email||'').trim().toLowerCase();
+  badge.textContent = coincide ? '✓ coincide' : '✕ no coincide';
+  badge.style.color = coincide ? 'var(--ok)' : 'var(--danger)';
 }
 function cerrarModalContactoPosterior_(){
   document.getElementById('overlay').classList.remove('show');
@@ -7645,6 +7861,20 @@ function openDetail(marca, id){
   }
   renderAlertaOnstar_(r);
   renderAlertaCasoAbierto_(r);
+  document.getElementById('dGarantiaFecha').value = r.garantiaFecha || '';
+  pintarGarantiaFiltradaDot_(r);
+  renderAlertaGarantia_(r);
+  document.getElementById('dNpsFabricaScore').value = (r.npsFabricaScore!==undefined && r.npsFabricaScore!==null) ? r.npsFabricaScore : '';
+  document.getElementById('dNpsFabricaFecha').value = r.npsFabricaFecha || '';
+  document.getElementById('dNpsFabricaComentario').value = r.npsFabricaComentario || '';
+  renderAlertaNpsFabrica_(r);
+  document.getElementById('dContactoSofiNombre').value = r.contactoSofiNombre || 'Sofi';
+  document.getElementById('dContactoSofiNota').value = r.contactoSofiNota || '';
+  document.getElementById('dContactoSofiComentario').value = r.contactoSofiComentario || '';
+  document.getElementById('dContactoSofiMail').value = r.contactoSofiMail || '';
+  pintarContactoSofiMailBadge_(r);
+  renderContactoPosteriorResumen_(r);
+  buscarContactoPosteriorSilencioso_(r);
   var alertaTraslado = document.getElementById('dTrasladoAlerta');
   if(alertaTraslado){
     if(r.traslado){
@@ -7682,7 +7912,7 @@ function openDetail(marca, id){
       alertaNps.style.cursor = 'pointer';
       alertaNps.title = 'Ver la encuesta completa';
       alertaNps.onclick = function(){ verNpsCompleto_(marca, id); };
-      alertaNps.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">star</span>NPS '+r.npsScore+'/10 — '+categoriaNps+(r.npsComentario?' — "'+r.npsComentario.slice(0,60)+(r.npsComentario.length>60?'…':'')+'"':'')+' <span style="text-decoration:underline;margin-left:4px;">Ver todo →</span>';
+      alertaNps.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">star</span>NPS Alerta Temprana '+r.npsScore+'/10 — '+categoriaNps+(r.npsComentario?' — "'+r.npsComentario.slice(0,60)+(r.npsComentario.length>60?'…':'')+'"':'')+' <span style="text-decoration:underline;margin-left:4px;">Ver todo →</span>';
     } else {
       alertaNps.style.display = 'none';
       alertaNps.onclick = null;
