@@ -2593,6 +2593,7 @@
     <div><h3 id="permisosModalTitulo"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">tune</span> Permisos</h3><div class="sub">Sin acceso · Solo puede ver · Puede ver y editar</div></div>
     <button class="close" onclick="cerrarModalPermisos_()">✕</button>
   </div>
+  <button id="permisosBtnGuardar" onclick="guardarPermisosUI_()" style="display:none;margin:12px 20px 0;width:calc(100% - 40px);align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,var(--accent),#c99a2e);color:#1a1206;border:none;border-radius:8px;padding:11px;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">save</span> Guardar cambios</button>
   <div class="modal-body" id="permisosModalBody" style="padding:16px 20px;max-height:60vh;overflow-y:auto;"></div>
 </div>
 
@@ -3308,15 +3309,33 @@ function abrirModalPermisos_(usuario){
   var u = (window._usuariosCache||[]).find(function(x){return x.usuario===usuario;});
   if(!u) return;
   document.getElementById('permisosModalTitulo').innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">tune</span> Permisos — '+u.nombre;
+  _permisosDirty_ = false;
+  _permisosUsuarioAbierto_ = usuario;
+  actualizarBotonGuardarPermisos_();
   pintarModalPermisos_(u);
   document.getElementById('overlay').classList.add('show');
   document.getElementById('modalPermisos').classList.add('show');
 }
-function cerrarModalPermisos_(){
+function cerrarModalPermisos_(forzar){
+  if(!forzar && _permisosDirty_){
+    if(!confirm('Tenés cambios de permisos sin guardar. ¿Salir igual y descartarlos?')) return;
+    // Descartamos: volvemos a traer el usuario tal como está en el servidor la próxima vez que se abra.
+  }
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('modalPermisos').classList.remove('show');
+  _permisosDirty_ = false;
+  _permisosUsuarioAbierto_ = null;
   var s = sesionActual();
   if(s) renderUsuariosTabla_(); // refresca el contador "X módulos" de la tabla de atrás
+}
+var _permisosDirty_ = false;
+var _permisosUsuarioAbierto_ = null;
+function actualizarBotonGuardarPermisos_(){
+  var btn = document.getElementById('permisosBtnGuardar');
+  if(!btn) return;
+  btn.style.display = _permisosDirty_ ? 'flex' : 'none';
+  btn.disabled = false;
+  btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">save</span> Guardar cambios';
 }
 function pintarModalPermisos_(u){
   var modulosUsuario = u.modulos || [];
@@ -3363,12 +3382,28 @@ function setEstadoModuloUsuario_(usuario, modulo, nuevoEstado){
     if(idxVer2>-1) u.modulosSoloVer.splice(idxVer2,1);
   }
   pintarModalPermisos_(u); // repinta al toque, se ve la respuesta inmediata
-
+  _permisosDirty_ = true;
+  actualizarBotonGuardarPermisos_();
+}
+// Manda TODOS los cambios de permisos juntos, de una sola vez, cuando se
+// aprieta "Guardar cambios" — en vez de un POST por cada click.
+function guardarPermisosUI_(){
+  if(!_permisosUsuarioAbierto_) return;
+  var u = (window._usuariosCache||[]).find(function(x){return x.usuario===_permisosUsuarioAbierto_;});
+  if(!u) return;
   var s = sesionActual();
   var pass = window._ultimaPasswordActor || credencialesActor_();
   if(pass===null) return;
-  gasPost('editarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuario, nombre:u.nombre, email:u.email||'', rol:u.rol, modulos:u.modulos, sector:u.sector||'', modulosSoloVer:u.modulosSoloVer}).then(function(res){
-    if(res.error){ showToast(res.error); return; }
+  var btn = document.getElementById('permisosBtnGuardar');
+  if(btn){ btn.disabled = true; btn.innerHTML = 'Guardando...'; }
+  gasPost('editarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:u.usuario, nombre:u.nombre, email:u.email||'', rol:u.rol, modulos:u.modulos, sector:u.sector||'', modulosSoloVer:u.modulosSoloVer}).then(function(res){
+    if(res.error){ showToast(res.error); actualizarBotonGuardarPermisos_(); return; }
+    showToast('Permisos guardados');
+    _permisosDirty_ = false;
+    actualizarBotonGuardarPermisos_();
+  }).catch(function(){
+    showToast('No se pudo conectar para guardar los permisos');
+    actualizarBotonGuardarPermisos_();
   });
 }
 function cicloModuloUsuarioInline(usuario, modulo, estadoActual, btn){
