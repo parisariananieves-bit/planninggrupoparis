@@ -2494,6 +2494,12 @@
     </div>
 
     <div class="section">
+      <div class="section-title">Contacto Posterior</div>
+      <div style="font-size:11px;color:var(--text-faint);margin-bottom:7px;">Cruza VIN o patente con la encuesta pública de satisfacción 0km (post-venta). Solo lectura.</div>
+      <button id="dBtnContactoPosterior" onclick="verContactoPosterior_(detailMarca, detailId)" style="width:100%;background:var(--panel-2);color:var(--text);border:1px solid var(--hairline);border-radius:7px;padding:8px 13px;font-weight:600;font-size:11.5px;cursor:pointer;"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">forum</span> Ver contacto posterior</button>
+    </div>
+
+    <div class="section">
       <div class="section-title">Comentarios</div>
       <div id="dComentarios"></div>
       <div style="margin-top:7px;">
@@ -2628,6 +2634,14 @@
     <button class="close" onclick="cerrarModalNpsDetalle_()">✕</button>
   </div>
   <div class="modal-body" id="npsDetalleBody"></div>
+</div>
+
+<div class="modal" id="modalContactoPosterior">
+  <div class="modal-head">
+    <div><h3><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">forum</span> Contacto Posterior</h3><div class="sub">Encuesta pública de satisfacción 0km (post-venta) — solo lectura, cruce por VIN o patente.</div></div>
+    <button class="close" onclick="cerrarModalContactoPosterior_()">✕</button>
+  </div>
+  <div class="modal-body" id="contactoPosteriorBody"></div>
 </div>
 
 <div class="modal" id="modalCaso">
@@ -5658,6 +5672,48 @@ function cerrarModalSeguimientoGC_(){
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('modalSeguimientoGC').classList.remove('show');
 }
+// Cruce de solo lectura contra la encuesta pública de satisfacción 0km
+// (Google Forms post-venta) — busca primero por VIN, y si no aparece,
+// por patente. No toca nada de la Alerta Temprana (NPS interno).
+function verContactoPosterior_(marca, id){
+  var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
+  if(!r) return;
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('modalContactoPosterior').classList.add('show');
+  document.getElementById('contactoPosteriorBody').innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-faint);font-size:12.5px;">Buscando en la encuesta…</div>';
+  gasGet('encuestaPosterior', {vin:r.chasis||'', patente:r.dominio||''}).then(function(res){
+    var body = document.getElementById('contactoPosteriorBody');
+    if(!res.ok){ body.innerHTML = '<div style="padding:18px;color:var(--danger);font-size:12.5px;">'+res.error+'</div>'; return; }
+    if(!res.encontrado){
+      body.innerHTML = '<div style="padding:18px;color:var(--text-faint);font-size:12.5px;">Todavía no hay ninguna respuesta en la encuesta de satisfacción para este VIN o esta patente.</div>';
+      return;
+    }
+    var e = res.respuesta;
+    function fila(label, valor){
+      return '<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--hairline);font-size:12px;">'+
+        '<span style="color:var(--text-faint);">'+label+'</span><span style="font-weight:600;text-align:right;">'+(valor||'—')+'</span></div>';
+    }
+    body.innerHTML =
+      '<div style="border:1px solid var(--hairline);border-radius:9px;padding:12px 14px;">'+
+        fila('Fecha de respuesta', e.fecha)+
+        fila('Nombre', e.nombre)+
+        fila('Email', e.email)+
+        fila('VIN / Patente (como lo cargó el cliente)', e.vinPatente)+
+        fila('¿Recomendaría la concesionaria? (0-10)', e.recomienda)+
+        fila('Atención del asesor de ventas', e.atencionAsesor)+
+        fila('Gestión administrativa', e.gestionAdmin)+
+        fila('Experiencia de entrega del 0km', e.experienciaEntrega)+
+        fila('¿Entregó usado como parte de pago?', e.usado)+
+      '</div>'+
+      (e.comentario ? '<div style="margin-top:10px;background:var(--panel-2);border-radius:7px;padding:10px 12px;font-size:12px;"><b>Comentario del cliente</b><br>'+e.comentario+'</div>' : '');
+  }).catch(function(){
+    document.getElementById('contactoPosteriorBody').innerHTML = '<div style="padding:18px;color:var(--danger);font-size:12.5px;">No se pudo conectar con la encuesta.</div>';
+  });
+}
+function cerrarModalContactoPosterior_(){
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('modalContactoPosterior').classList.remove('show');
+}
 function eliminarCasoUI_(codigo){
   if(!puedeEditarModulo_('casos')){ showToast('Tenés acceso de solo lectura a Reportar Caso — no podés eliminar casos.'); return; }
   if(!confirm('¿Eliminar el caso '+codigo+'? Esta acción no se puede deshacer — usalo solo si se cargó por error.')) return;
@@ -6954,12 +7010,12 @@ var npsContexto_ = null;
 // ALERTA TEMPRANA (Chevrolet) — asistente paso a paso, una pregunta por pantalla
 // ============================================================
 var _atContexto_ = null;
-var AT_TOTAL_PASOS = 7;
+var AT_TOTAL_PASOS = 8;
 function abrirAlertaTemprana_(marca, id, alFinalizar){
   var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   _atContexto_ = {
     marca:marca, id:id, paso:1, alFinalizar:alFinalizar,
-    respuestas:{nps:null, satisfaccionCompra:null, satisfaccionAtencion:null, onstarActivado:null, comentario:'', email:(r?r.email:'')||'', fechaNacimiento:''}
+    respuestas:{nps:null, satisfaccionCompra:null, satisfaccionAtencion:null, onstarActivado:null, comentario:'', email:(r?r.email:'')||'', telefono:(r?r.telefono:'')||'', fechaNacimiento:''}
   };
   document.getElementById('atOverlay').classList.add('show');
   document.getElementById('atModal').classList.add('show');
@@ -7017,6 +7073,10 @@ function atRenderPaso_(){
       '<div style="font-size:11.5px;color:var(--text-dim);margin-bottom:8px;text-align:center;">Este es el correo que tenemos registrado. Corregilo si hace falta.</div>'+
       '<input type="email" id="atEmailInput" value="'+(c.respuestas.email||'')+'" placeholder="correo@ejemplo.com" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:10px;font-size:13px;text-align:center;" oninput="_atContexto_.respuestas.email=this.value;">';
   } else if(c.paso===7){
+    html = '<div class="at-pregunta">Confirmación del teléfono</div>'+
+      '<div style="font-size:11.5px;color:var(--text-dim);margin-bottom:8px;text-align:center;">Este es el teléfono que tenemos registrado. Corregilo si hace falta.</div>'+
+      '<input type="tel" id="atTelefonoInput" value="'+(c.respuestas.telefono||'')+'" placeholder="Ej: 2664123456" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:10px;font-size:13px;text-align:center;" oninput="_atContexto_.respuestas.telefono=this.value;">';
+  } else if(c.paso===8){
     html = '<div class="at-pregunta">Fecha de nacimiento <span style="color:var(--danger);">*</span></div>'+
       '<div style="font-size:11.5px;color:var(--text-dim);margin-bottom:8px;text-align:center;">La guardamos para futuras gestiones de garantía.</div>'+
       '<input type="date" id="atFechaNacInput" value="'+(c.respuestas.fechaNacimiento||'')+'" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:10px;font-size:13px;text-align:center;" onchange="_atContexto_.respuestas.fechaNacimiento=this.value;">';
@@ -7048,6 +7108,11 @@ function atSiguiente_(){
     if(!email || email.indexOf('@')===-1){ atMostrarErrorPaso_('Ingresá un correo válido.'); return; }
   }
   if(r===7){
+    var telefono = document.getElementById('atTelefonoInput').value.trim();
+    c.respuestas.telefono = telefono;
+    if(!telefono || telefono.length<6){ atMostrarErrorPaso_('Ingresá un teléfono válido.'); return; }
+  }
+  if(r===8){
     var fnac = document.getElementById('atFechaNacInput').value;
     c.respuestas.fechaNacimiento = fnac;
     if(!fnac){ atMostrarErrorPaso_('La fecha de nacimiento es obligatoria.'); return; }
@@ -7171,6 +7236,8 @@ function atFinalizar_(){
   r.alertaTempranaUsuario = usuarioActual() || '';
   var emailCambio = resp.email && resp.email!==(r.email||'');
   if(emailCambio) r.email = resp.email;
+  var telefonoCambio = resp.telefono && resp.telefono!==(r.telefono||'');
+  if(telefonoCambio) r.telefono = resp.telefono;
   var fields = {
     npsScore:r.npsScore, npsComentario:r.npsComentario, npsFecha:r.npsFecha,
     alertaTempranaSatisfaccionCompra:resp.satisfaccionCompra, alertaTempranaSatisfaccionAtencion:resp.satisfaccionAtencion,
@@ -7179,9 +7246,10 @@ function atFinalizar_(){
     alertaTempranaFechaRespuesta:ahora, alertaTempranaUsuario:r.alertaTempranaUsuario
   };
   if(emailCambio) fields.email = r.email;
+  if(telefonoCambio) fields.telefono = r.telefono;
   gasPost('updateEntregaFields',{marca:marca,id:id,fields:fields});
   var categoria = resp.nps<=6 ? 'Detractor' : (resp.nps<=8 ? 'Pasivo' : 'Promotor');
-  logHistorial_(marca, id, '⭐ Alerta Temprana respondida — NPS '+resp.nps+'/10 ('+categoria+')'+(emailCambio?' — Email actualizado':''));
+  logHistorial_(marca, id, '⭐ Alerta Temprana respondida — NPS '+resp.nps+'/10 ('+categoria+')'+(emailCambio?' — Email actualizado':'')+(telefonoCambio?' — Teléfono actualizado':''));
 
   // Pantalla de agradecimiento
   document.getElementById('atIndicador').textContent = '';
@@ -7752,7 +7820,14 @@ function aplicarSoloLecturaDrawer_(){
     banner.style.display = 'none';
   }
 }
-function closeDetail(){ document.getElementById('overlay').classList.remove('show'); document.getElementById('drawer').classList.remove('show'); detailId=null; detailMarca=null; }
+function closeDetail(){
+  // Si había un comentario de accesorio recién tipeado (todavía no guardado
+  // por el debounce), lo guardamos ahora antes de cerrar para no perderlo.
+  document.querySelectorAll('#dAccesoriosLista textarea.acc-item-editable').forEach(function(ta, idx){
+    guardarMotivoAccesorioItem_(idx, ta.value);
+  });
+  document.getElementById('overlay').classList.remove('show'); document.getElementById('drawer').classList.remove('show'); detailId=null; detailMarca=null;
+}
 function closeAll(){ closeDetail(); closeNewDelivery(); closeReport(); closeEmailPreview(); closePlantillas(); closeConfig(); closeMaestro(); }
 
 function renderAlertaOnstar_(r){
@@ -7868,8 +7943,21 @@ function marcarEstadoAccesorioItem_(idx, estado){
 function guardarMotivoAccesorioItem_(idx, motivo){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  if(!r || !r.accesoriosItems || !r.accesoriosItems[idx]) return;
+  if(r.accesoriosItems[idx].motivo === motivo.trim()) return; // ya estaba guardado, no repetir el POST
   r.accesoriosItems[idx].motivo = motivo.trim();
   gasPost('updateEntregaFields', {marca:detailMarca, id:detailId, fields:{accesoriosItems: r.accesoriosItems}});
+}
+// Guarda mientras el usuario escribe (no solo al salir del campo), para que
+// cerrar la ficha sin haber hecho click afuera del textarea no pierda el
+// comentario. Espera una pausa breve de tipeo para no mandar un POST por
+// cada letra.
+var _debounceMotivoAccesorio_ = {};
+function guardarMotivoAccesorioItemConDebounce_(idx, motivo){
+  clearTimeout(_debounceMotivoAccesorio_[idx]);
+  _debounceMotivoAccesorio_[idx] = setTimeout(function(){
+    guardarMotivoAccesorioItem_(idx, motivo);
+  }, 800);
 }
 function renderAccesoriosItemsUI_(r){
   var cont = document.getElementById('dAccesoriosLista');
@@ -7889,7 +7977,7 @@ function renderAccesoriosItemsUI_(r){
           '<button class="dual-toggle-btn no acc-item-editable'+(it.estado==='no_colocado'?' active':'')+'" onclick="marcarEstadoAccesorioItem_('+idx+',\'no_colocado\')"><span class="material-symbols-outlined">cancel</span>No colocado</button>'+
           '<button class="dual-toggle-btn si acc-item-editable'+(it.estado==='colocado'?' active':'')+'" onclick="marcarEstadoAccesorioItem_('+idx+',\'colocado\')"><span class="material-symbols-outlined">check_circle</span>Colocado</button>'+
         '</div>'+
-        (it.estado!=='colocado' ? '<textarea class="acc-item-editable" placeholder="Observación (ej: sin stock, cliente no lo quiso)..." onchange="guardarMotivoAccesorioItem_('+idx+',this.value)" style="width:100%;min-height:38px;margin-top:6px;background:var(--panel);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:6px 8px;font-size:11.5px;font-family:inherit;resize:vertical;">'+(it.motivo||'')+'</textarea>' : '')+
+        (it.estado!=='colocado' ? '<textarea class="acc-item-editable" placeholder="Observación (ej: sin stock, cliente no lo quiso)..." oninput="guardarMotivoAccesorioItemConDebounce_('+idx+',this.value)" onblur="guardarMotivoAccesorioItem_('+idx+',this.value)" style="width:100%;min-height:38px;margin-top:6px;background:var(--panel);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:6px 8px;font-size:11.5px;font-family:inherit;resize:vertical;">'+(it.motivo||'')+'</textarea>' : '')+
       '</div>';
     }).join('');
   }
