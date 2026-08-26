@@ -669,7 +669,7 @@
   .cal-legend .sw{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;}
   .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(118px,auto);gap:7px;min-width:0;}
   .cal-dow{font-size:9.5px;color:var(--text-faint);text-transform:uppercase;text-align:center;padding-bottom:7px;letter-spacing:.6px;font-weight:700;}
-  .cal-day{background:var(--panel-2);border:1px solid var(--hairline);border-radius:13px;height:100%;min-width:0;overflow:hidden;padding:8px;cursor:pointer;position:relative;transition:transform .12s,border-color .12s,box-shadow .12s;}
+  .cal-day{background:var(--panel-2);border:1px solid var(--hairline);border-radius:13px;height:100%;min-width:0;overflow:visible;padding:8px;cursor:pointer;position:relative;transition:transform .12s,border-color .12s,box-shadow .12s;}
   .cal-day-cliente{margin-top:5px;font-size:9.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .cal-day-cliente:hover{filter:brightness(1.15);text-decoration:underline;}
   .cal-day-cliente.mas{color:var(--text-faint);background:none;padding:2px 6px 0;font-weight:700;}
@@ -682,7 +682,7 @@
   .cal-day .num{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:700;}
   .cal-day .count{margin-top:7px;font-size:9.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:20px;padding:2px 7px;display:inline-flex;align-items:center;gap:4px;}
   .cal-day .count .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);}
-  @media(max-width:640px){ .cal-grid{grid-auto-rows:78px;gap:3px;} .cal-day{padding:5px;} .cal-day-cliente{font-size:8.5px;} .cal-legend{display:none;} }
+  @media(max-width:640px){ .cal-grid{grid-auto-rows:78px;gap:3px;} .cal-day{padding:5px;overflow:hidden;} .cal-day-cliente{font-size:8.5px;} .cal-legend{display:none;} }
   @media(max-width:640px){ #topbarBrandsRow{flex-wrap:wrap !important;} #branchToggle{flex-shrink:1 !important;max-width:100%;} }
 
   /* ---- Calendario: vista línea de tiempo ---- */
@@ -2491,7 +2491,7 @@
     </div>
 
     <div class="section" style="border:1.5px solid var(--caso);border-radius:12px;padding:14px;background:var(--caso-soft);">
-      <div class="section-title" style="color:var(--caso);margin-top:0;font-size:13px;">🩺 Calidad</div>
+      <div class="section-title" style="color:var(--caso);margin-top:0;font-size:13px;">Calidad</div>
 
       <div class="section-title" style="margin-top:6px;">Comunicaciones (post-entrega)</div>
       <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:10px;">Mensaje de bienvenida y encuesta post-entrega — por WhatsApp o Email.</div>
@@ -2622,6 +2622,7 @@
       <div class="field"><div class="l">Fecha de venta</div><input type="date" id="prepNFechaVenta"></div>
       <div class="field"><div class="l">Fecha prometida</div><input type="date" id="prepNFechaPrometida"></div>
       <div class="field"><div class="l">Prioridad</div><select id="prepNPrioridad"><option value="Media" selected>Media</option><option value="Alta">Alta</option><option value="Baja">Baja</option></select></div>
+      <div class="field full"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;"><input type="checkbox" id="prepNAutoElectrico" style="width:16px;height:16px;"> Auto Eléctrico (queda marcado en el checklist al crearla)</label></div>
     </div>
     <button class="reprog-btn" style="margin-top:14px;" onclick="crearUnidadPreparacionUI_()">Crear unidad</button>
   </div>
@@ -4883,12 +4884,14 @@ function renderCalendar(){
     var cls='cal-day';
     if(fechaStr===hoyStr) cls+=' today';
     if(feriado || (regla && regla.desde==='00:00')) cls+=' blocked';
+    var esVistaCompacta = window.innerWidth <= 640; // modo app / celular — en escritorio se sigue viendo todo, sin tope
     var MAX_CHIPS_POR_DIA_ = 3;
-    var clientesHtml = entregasDia.slice(0, MAX_CHIPS_POR_DIA_).map(function(r){
+    var entregasAMostrar = esVistaCompacta ? entregasDia.slice(0, MAX_CHIPS_POR_DIA_) : entregasDia;
+    var clientesHtml = entregasAMostrar.map(function(r){
       var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
       return '<div class="cal-day-cliente" onclick="event.stopPropagation();openDetail(\''+r.marca+'\',\''+r.id+'\')" title="'+r.hora+' hs · '+r.cliente+' · '+b.label+'" style="background:var('+b.soft+');color:var('+b.color+');border-left:3px solid var('+b.color+');">'+r.hora+' '+r.cliente+'</div>';
     }).join('');
-    if(entregasDia.length > MAX_CHIPS_POR_DIA_){
+    if(esVistaCompacta && entregasDia.length > MAX_CHIPS_POR_DIA_){
       clientesHtml += '<div class="cal-day-cliente mas">+'+(entregasDia.length-MAX_CHIPS_POR_DIA_)+' más</div>';
     }
     html+='<div class="'+cls+'" onclick="verHorariosDia('+y+','+m+','+d+')"><div class="num">'+d+'</div>'+clientesHtml+'</div>';
@@ -5530,6 +5533,7 @@ function abrirModalNuevaPreparacion_(){
   if(!puedeEditarModulo_('preparacion')){ showToast('Tenés acceso de solo lectura al Centro de Preparación.'); return; }
   ['prepNCliente','prepNReferencia','prepNVin','prepNPatente','prepNModelo','prepNVersion','prepNColor','prepNMotor','prepNVendedor','prepNAdministrativo','prepNFechaVenta','prepNFechaPrometida'].forEach(function(id){ document.getElementById(id).value=''; });
   document.getElementById('prepNPrioridad').value = 'Media';
+  document.getElementById('prepNAutoElectrico').checked = false;
   var selMarca = document.getElementById('prepNMarca');
   selMarca.innerHTML = BRANDS.map(function(b){return '<option value="'+b.id+'">'+b.label+'</option>';}).join('');
   actualizarSucursalesPrepNueva_();
@@ -5562,7 +5566,8 @@ function crearUnidadPreparacionUI_(){
     vendedor:document.getElementById('prepNVendedor').value.trim(), administrativo:document.getElementById('prepNAdministrativo').value.trim(),
     fechaVenta:fechaInputADDMMYYYY_(document.getElementById('prepNFechaVenta').value), fechaPrometida:fechaInputADDMMYYYY_(document.getElementById('prepNFechaPrometida').value),
     color:document.getElementById('prepNColor').value.trim(), motor:document.getElementById('prepNMotor').value.trim(),
-    prioridad:document.getElementById('prepNPrioridad').value, autor:usuarioActual()
+    prioridad:document.getElementById('prepNPrioridad').value, autor:usuarioActual(),
+    autoElectrico: document.getElementById('prepNAutoElectrico').checked
   };
   gasPost('crearUnidadPreparacion', payload).then(function(res){
     if(!res.ok){ showToast(res.error||'No se pudo crear'); return; }
