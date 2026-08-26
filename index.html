@@ -3070,14 +3070,23 @@ function intentarLogin(){
   if(!usuario||!password){ err.textContent='Completá usuario y contraseña.'; err.style.display='block'; return; }
   var btn=document.getElementById('loginBtn');
   btn.disabled=true; btn.textContent='Ingresando...';
-  gasPost('login',{usuario:usuario, password:password}).then(function(res){
+  gasPost('loginYCargarTodo',{usuario:usuario, password:password}).then(function(res){
     btn.disabled=false; btn.textContent='Ingresar';
     if(res.error){ err.textContent=res.error; err.style.display='block'; return; }
     guardarSesion_({usuario:res.usuario, nombre:res.nombre, rol:res.rol, password:password, modulos:res.modulos||[], sector:res.sector||'', modulosSoloVer:res.modulosSoloVer||[]}, document.getElementById('loginRecordar').checked);
     document.getElementById('loginUI').style.display='none';
     actualizarBotonUsuario();
     aplicarPermisosUI();
-    cargarTodo();
+    // El login ya trajo las entregas y la config en el mismo viaje al
+    // servidor (antes eran 2 pedidos seguidos: login, y después entregas+
+    // config — esto ahorra el segundo viaje completo). Las dejamos en
+    // caché para que cargarTodo() las pinte al toque, sin volver a pedirlas.
+    if(res.entregas && res.config){
+      guardarDatosCache_(res.entregas, res.config);
+      cargarTodo(true);
+    } else {
+      cargarTodo();
+    }
   }).catch(function(){
     btn.disabled=false; btn.textContent='Ingresar';
     err.textContent='No se pudo conectar. Revisá tu conexión.'; err.style.display='block';
@@ -3144,7 +3153,12 @@ function aplicarPermisosUI(){
       if(modulosGlobales[mod]===false) visible = false; // interruptor global, por si hace falta apagarlo hasta para el maestro
     }
     else if(mod==='historialcoms') visible = esCalidad();
-    else if(mod==='nuevaentrega' || mod==='reportes') visible = puede;
+    else if(mod==='nuevaentrega' || mod==='reportes'){
+      // Mismo criterio que el resto: si hay una lista explícita en
+      // Permisos, esa lista manda. Si no, cae al criterio por rol de
+      // siempre (puede editar = lo ve).
+      visible = modulosUsuario ? (modulosUsuario.indexOf(mod)>-1) : puede;
+    }
     else {
       visible = true;
       if(modulosUsuario) visible = modulosUsuario.indexOf(mod)>-1;
@@ -3298,7 +3312,7 @@ function mostrarUltimoIngreso_(nombre, ultimoIngreso){
 // Nombres legibles + agrupación por tema, para la pantalla de Permisos
 // (antes se mostraban solo los íconos, todos amontonados en una fila).
 var ETIQUETAS_MODULOS_ = {
-  dashboard:'Dashboard', nuevaentrega:'Nueva Entrega', calendario:'Calendario', lista:'Lista de Entregas',
+  dashboard:'Dashboard', nuevaentrega:'Programar Entrega', calendario:'Calendario', lista:'Lista de Entregas',
   traslados:'Traslados', faltantes:'Faltantes', preparacion:'Centro de Preparación', reportes:'Reportes',
   historialcoms:'Historial de Comunicaciones', casos:'Reportar Caso', notificaciones:'Bandeja de entrada',
   manual:'Manual', maestro:'Panel Maestro (Config)', tv:'TV Entregas'
@@ -3682,7 +3696,7 @@ function pintarDatosCargados_(esPrimeraVezReal){
   else if(primeraCargaApp_){ setAppView('dashboard'); }
   else if(!esPrimeraVezReal){ setAppView(currentAppView); }
 }
-function cargarTodo(){
+function cargarTodo(omitirRefrescoInicial){
   document.getElementById('setupUI').style.display='none';
   if(MODO_VISTA_PREVIA){
     document.getElementById('loadingMsg').style.display='block';
@@ -3708,6 +3722,8 @@ function cargarTodo(){
     CONFIG = cache.config;
     pintarDatosCargados_(false);
     primeraCargaApp_ = false;
+
+    if(omitirRefrescoInicial) return; // el login combinado ya trajo datos frescos — no hace falta pedirlos de nuevo
 
     conReintentos_(function(){ return Promise.all([gasGet('entregas'), gasGet('config')]); }, 2, 1000).then(function(res){
       ENTREGAS = res[0];
@@ -8941,7 +8957,7 @@ function buscarEnPreparacion_(valor){
   if(esCaida) showToast('⚠ Ojo: esta unidad figura como "Venta caída" en el Centro de Preparación');
 }
 function openNewDelivery(){
-  if(!puedeEditar()){ showToast('Tu usuario no tiene permiso para agendar entregas.'); setAppView('dashboard'); return; }
+  if(!puedeEditar() || !puedeEditarModulo_('nuevaentrega')){ showToast('Tu usuario no tiene permiso para agendar entregas.'); setAppView('dashboard'); return; }
   cargarPreparacionSiHaceFalta_(); // para poder cruzar por VIN/dominio contra el Centro de Preparación
   document.getElementById('nPreparacionLegend').style.display='none';
   document.getElementById('nMarca').innerHTML = BRANDS.map(function(b){
