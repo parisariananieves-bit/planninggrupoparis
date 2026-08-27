@@ -1298,6 +1298,7 @@
       <div class="form-field"><label>¿Entrega usado (parte de pago)?</label><select id="nUsado"><option value="No">No</option><option value="Sí">Sí</option></select></div>
       <div class="form-field"><label>Lugar de entrega</label><input id="nLugar"></div>
       <div class="form-field full"><label>Cliente</label><input id="nCliente" placeholder="Ej: GÓMEZ MARÍA"></div>
+      <div class="form-field"><label>DNI / CUIT</label><input id="nDni" class="mono"></div>
       <div class="form-field"><label>Teléfono</label><input id="nTelefono"></div>
       <div class="form-field"><label>E-mail</label><input id="nEmail"></div>
       <div class="form-field full"><label>Modelo</label><input id="nModelo"></div>
@@ -2304,7 +2305,7 @@
       <div class="section-title">Datos del cliente</div>
       <div class="field-grid">
         <div class="field full"><div class="l">Cliente</div><input id="dCliente" onchange="guardarCampo('cliente', this.value.toUpperCase(), true)"></div>
-        <div class="field"><div class="l">DNI</div><input id="dDni" class="mono" onchange="guardarCampo('dni', this.value)"></div>
+        <div class="field"><div class="l">DNI / CUIT</div><input id="dDni" class="mono" onchange="guardarCampo('dni', this.value)"></div>
         <div class="field"><div class="l">Teléfono</div><input id="dTelefono" onchange="guardarCampo('telefono', this.value)"></div>
         <div class="field"><div class="l">E-mail</div><input id="dEmail" onchange="guardarCampo('email', this.value)"></div>
         <div class="field"><div class="l">Tipo de venta</div><select id="dTipoVenta" onchange="guardarCampo('tipoVenta', this.value)"><option value="OKM">0KM</option><option value="USADO">Usado</option></select></div>
@@ -2508,7 +2509,7 @@
       <button id="dBtnContactoPosterior" onclick="verContactoPosterior_(detailMarca, detailId)" style="width:100%;background:var(--panel-2);color:var(--text);border:1px solid var(--hairline);border-radius:7px;padding:8px 13px;font-weight:600;font-size:11.5px;cursor:pointer;"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">forum</span> Ver contacto posterior</button>
 
       <div class="section-title" style="margin-top:18px;">Garantía</div>
-      <div class="field-grid">
+      <div id="dGarantiaSection" class="field-grid">
         <div class="field">
           <div class="l" style="display:flex;align-items:center;gap:6px;">Fecha de carga
             <span id="dGarantiaFiltradaDot" onclick="toggleGarantiaFiltrada_()" title="Marcar como filtrada (no le va a llegar la encuesta de fábrica)" style="width:8px;height:8px;border-radius:50%;background:var(--hairline);cursor:pointer;display:inline-block;"></span>
@@ -5863,14 +5864,25 @@ function contactoPosteriorCache_(r){
   try{ return r.contactoPosteriorData ? JSON.parse(r.contactoPosteriorData) : null; }catch(e){ return null; }
 }
 function guardarContactoPosteriorCache_(marca, id, datos){
+  datos.fechaUltimoIntento = Date.now(); // para saber cuándo reintentar si no se encontró nada
   var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(r) r.contactoPosteriorData = JSON.stringify(datos);
   gasPost('updateEntregaFields',{marca:marca, id:id, fields:{contactoPosteriorData: JSON.stringify(datos)}});
 }
+// Si la última vez no se encontró nada, no lo dejamos así para siempre —
+// cada 3 días se reintenta solo (por si el cliente respondió la encuesta
+// más tarde). Una vez que se encuentra, ahí sí queda fijo y no se vuelve
+// a tocar (eso lo pediste explícitamente).
+var CONTACTO_POSTERIOR_REINTENTO_MS_ = 3*24*60*60*1000;
+function debeReintentarContactoPosterior_(cache){
+  if(!cache.fechaUltimoIntento) return true; // caché vieja, de antes de este cambio — probamos una vez más
+  return (Date.now() - cache.fechaUltimoIntento) > CONTACTO_POSTERIOR_REINTENTO_MS_;
+}
 function pintarBodyContactoPosterior_(cache){
   var body = document.getElementById('contactoPosteriorBody');
+  var linkReintentar = '<div onclick="var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}); if(r) buscarContactoPosteriorAhora_(r);" style="text-align:center;font-size:11px;color:var(--text-faint);cursor:pointer;margin-top:10px;text-decoration:underline;">Buscar de nuevo ahora</div>';
   if(!cache || !cache.encontrado){
-    body.innerHTML = '<div style="padding:18px;color:var(--text-faint);font-size:12.5px;">Todavía no hay ninguna respuesta en la encuesta de satisfacción para este VIN o esta patente.</div>';
+    body.innerHTML = '<div style="padding:18px;color:var(--text-faint);font-size:12.5px;">Todavía no hay ninguna respuesta en la encuesta de satisfacción para este VIN o esta patente. Se reintenta solo cada 3 días.</div>'+linkReintentar;
     return;
   }
   var e = cache.respuesta;
@@ -5897,15 +5909,18 @@ function verContactoPosterior_(marca, id){
   document.getElementById('overlay').classList.add('show');
   document.getElementById('modalContactoPosterior').classList.add('show');
   var cache = contactoPosteriorCache_(r);
-  if(cache && cache.buscado){
+  if(cache && cache.buscado && (cache.encontrado || !debeReintentarContactoPosterior_(cache))){
     pintarBodyContactoPosterior_(cache);
     return;
   }
+  buscarContactoPosteriorAhora_(r);
+}
+function buscarContactoPosteriorAhora_(r){
   document.getElementById('contactoPosteriorBody').innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-faint);font-size:12.5px;">Buscando en la encuesta…</div>';
   gasGet('encuestaPosterior', {vin:r.chasis||'', patente:r.dominio||''}).then(function(res){
     if(!res.ok){ document.getElementById('contactoPosteriorBody').innerHTML = '<div style="padding:18px;color:var(--danger);font-size:12.5px;">'+res.error+'</div>'; return; }
     var datos = {buscado:true, encontrado:res.encontrado, respuesta:res.respuesta||null};
-    guardarContactoPosteriorCache_(marca, id, datos);
+    guardarContactoPosteriorCache_(r.marca, r.id, datos);
     pintarBodyContactoPosterior_(datos);
     renderAlertaNpsContactoPosterior_(r);
     renderContactoPosteriorResumen_(r);
@@ -5917,7 +5932,9 @@ function verContactoPosterior_(marca, id){
 // todavía no se había buscado nunca para esta entrega.
 function buscarContactoPosteriorSilencioso_(r){
   var cache = contactoPosteriorCache_(r);
-  if(cache && cache.buscado){ renderAlertaNpsContactoPosterior_(r); renderContactoPosteriorResumen_(r); return; }
+  if(cache && cache.buscado && (cache.encontrado || !debeReintentarContactoPosterior_(cache))){
+    renderAlertaNpsContactoPosterior_(r); renderContactoPosteriorResumen_(r); return;
+  }
   if(!r.chasis && !r.dominio) return;
   gasGet('encuestaPosterior', {vin:r.chasis||'', patente:r.dominio||''}).then(function(res){
     if(!res.ok) return;
@@ -5968,17 +5985,28 @@ function pintarGarantiaFiltradaDot_(r){
   dot.style.background = r.garantiaFiltrada ? 'var(--danger)' : 'var(--hairline)';
   dot.title = r.garantiaFiltrada ? 'Marcada como filtrada — no le va a llegar la encuesta de fábrica. Click para desmarcar.' : 'Click para marcar como filtrada (no le va a llegar la encuesta de fábrica).';
 }
+// Si la fecha vino mal guardada como fecha real de Google Sheets (ej:
+// "2026-08-24T03:00:00.000Z" en vez de "2026-08-24"), la recorta a los
+// primeros 10 caracteres para que el input type=date la acepte. Una vez
+// que se vuelve a guardar con el patch de backend, ya no pasa más.
+function soloFechaISO_(v){
+  if(!v) return '';
+  return String(v).slice(0,10);
+}
 function renderAlertaGarantia_(r){
   var alerta = document.getElementById('dGarantiaAlerta');
   if(!alerta) return;
-  var cargada = !!r.garantiaFecha;
+  var fechaLimpia = soloFechaISO_(r.garantiaFecha);
+  var cargada = !!fechaLimpia;
   alerta.style.display = 'flex';
+  alerta.style.cursor = 'pointer';
+  alerta.onclick = function(){ abrirYScrollearA_('dGarantiaSection'); };
   alerta.style.background = cargada ? 'var(--ok-soft)' : 'var(--panel-2)';
   alerta.style.color = cargada ? 'var(--ok)' : 'var(--text-faint)';
   alerta.style.borderColor = cargada ? 'var(--ok)' : 'var(--hairline)';
   alerta.style.borderWidth = '1px';
   alerta.style.borderStyle = 'solid';
-  alerta.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">verified</span>'+(cargada ? 'Garantía cargada — '+r.garantiaFecha : 'Garantía no cargada');
+  alerta.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">verified</span>'+(cargada ? 'Garantía cargada — '+fechaLimpia : 'Garantía no cargada');
 }
 
 // ---- NPS de Fábrica (carga manual, solo si hay garantía cargada) ----
@@ -5999,6 +6027,8 @@ function renderAlertaNpsFabrica_(r){
   if(wrap) wrap.style.opacity = hayGarantia ? '1' : '.45';
   if(!hayGarantia){ alerta.style.display='none'; return; }
   alerta.style.display = 'flex';
+  alerta.style.cursor = 'pointer';
+  alerta.onclick = function(){ abrirYScrollearA_('dNpsFabricaWrap'); };
   if(r.npsFabricaScore!==undefined && r.npsFabricaScore!==null && r.npsFabricaScore!==''){
     var cat = categoriaNps_(r.npsFabricaScore);
     alerta.style.background = cat.colorSoft;
@@ -7948,6 +7978,7 @@ function openDetail(marca, id){
   var btnAbrirCaso = document.getElementById('dBtnAbrirCaso');
   renderBotonAbrirCaso_(r);
   document.getElementById('dCliente').value=r.cliente;
+  document.getElementById('dDni').value=r.dni||'';
   document.getElementById('dTelefono').value=r.telefono||'';
   document.getElementById('dEmail').value=r.email||'';
   document.getElementById('dTipoVenta').value=r.tipoVenta;
@@ -8009,11 +8040,11 @@ function openDetail(marca, id){
   }
   renderAlertaOnstar_(r);
   renderAlertaCasoAbierto_(r);
-  document.getElementById('dGarantiaFecha').value = r.garantiaFecha || '';
+  document.getElementById('dGarantiaFecha').value = soloFechaISO_(r.garantiaFecha);
   pintarGarantiaFiltradaDot_(r);
   renderAlertaGarantia_(r);
   document.getElementById('dNpsFabricaScore').value = (r.npsFabricaScore!==undefined && r.npsFabricaScore!==null) ? r.npsFabricaScore : '';
-  document.getElementById('dNpsFabricaFecha').value = r.npsFabricaFecha || '';
+  document.getElementById('dNpsFabricaFecha').value = soloFechaISO_(r.npsFabricaFecha);
   document.getElementById('dNpsFabricaComentario').value = r.npsFabricaComentario || '';
   renderAlertaNpsFabrica_(r);
   document.getElementById('dContactoSofiNombre').value = r.contactoSofiNombre || 'Sofi';
@@ -8103,6 +8134,13 @@ function abrirSeccionAccesorio_(){
   var wrap = document.getElementById('dAccesoriosLista');
   var seccion = wrap ? wrap.closest('.section') : null;
   if(seccion){ seccion.classList.remove('collapsed'); seccion.scrollIntoView({behavior:'smooth', block:'center'}); }
+}
+function abrirYScrollearA_(elementId){
+  var el = document.getElementById(elementId);
+  if(!el) return;
+  var seccion = el.closest('.section');
+  if(seccion) seccion.classList.remove('collapsed');
+  el.scrollIntoView({behavior:'smooth', block:'center'});
 }
 function abrirSeccionOnstar_(){
   var seccion = document.getElementById('dOnstarSection');
@@ -9061,7 +9099,7 @@ function openNewDelivery(){
   document.getElementById('nTipoVenta').value='OKM';
   document.getElementById('nUsado').value='No';
   actualizarSucursalYContextoNuevaEntrega_(brand);
-  ['nCliente','nTelefono','nEmail','nModelo','nColor','nDominio','nChasis','nObservaciones','nResponsablePreparacion'].forEach(function(id){document.getElementById(id).value='';});
+  ['nCliente','nDni','nTelefono','nEmail','nModelo','nColor','nDominio','nChasis','nObservaciones','nResponsablePreparacion'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('nResponsablePreparacionWrap').style.display='none';
   window._nuevaEntregaAccesorios = [];
   renderNAccesoriosLista_();
@@ -9266,6 +9304,7 @@ function submitNewDelivery(){
   var campana=document.getElementById('nCampana').value.trim();
   var nueva={
     fecha:fecha, hora:horaVal, sucursal: sucursalElegida, tipoVenta:tipoVenta, cliente:cliente.toUpperCase(),
+    dni:document.getElementById('nDni').value.trim(),
     telefono:document.getElementById('nTelefono').value.trim(), email:document.getElementById('nEmail').value.trim(),
     modelo:modelo, color:document.getElementById('nColor').value.trim(), dominio:dominio.toUpperCase(),
     chasis:document.getElementById('nChasis').value.trim()||'—',
