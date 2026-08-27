@@ -790,7 +790,11 @@
   .nav-label,.sidebar-user-toggle .info{opacity:0;max-width:0;overflow:hidden;transition:opacity .08s ease,max-width .16s ease;}
   .sidebar:hover .nav-label,.sidebar.pinned .nav-label,
   .sidebar:hover .sidebar-user-toggle .info,.sidebar.pinned .sidebar-user-toggle .info{opacity:1;max-width:160px;}
-  .sidebar-nav{padding:0 10px;display:flex;flex-direction:column;gap:1px;overflow-y:auto;min-height:0;flex:1 1 auto;}
+  .sidebar-nav{padding:0 10px;display:flex;flex-direction:column;gap:1px;overflow-y:auto;overflow-x:hidden;min-height:0;flex:1 1 auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent;}
+  .sidebar-nav::-webkit-scrollbar{width:5px;}
+  .sidebar-nav::-webkit-scrollbar-track{background:transparent;}
+  .sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:10px;}
+  .sidebar-nav::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.32);}
   .nav-item{display:flex;align-items:center;gap:8px;padding:5px 13px;border-radius:9px;color:#9099ac;font-size:10.5px;font-weight:600;cursor:pointer;border:none;background:none;text-align:left;width:100%;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;white-space:nowrap;}
   .sidebar:not(:hover):not(.pinned) .nav-item{justify-content:center;padding-left:0;padding-right:0;}
   .nav-item .material-symbols-outlined{font-size:18px;flex-shrink:0;}
@@ -11702,29 +11706,50 @@ function detectarCanalArchivoFabrica_(filas){
 function guardarResumenArchivoFabrica_(canal, nombreArchivo, conteo){
   var guardado = {};
   try{ guardado = JSON.parse(localStorage.getItem('fabResumenArchivo')||'{}'); }catch(e){}
-  guardado[canal] = {nombreArchivo:nombreArchivo, conteo:conteo, fecha:fmtFecha(new Date())};
+  guardado[canal] = {nombreArchivo:nombreArchivo, conteo:conteo, fecha:fmtFecha(new Date()), fechaCorte:new Date().toISOString().slice(0,10)};
   localStorage.setItem('fabResumenArchivo', JSON.stringify(guardado));
 }
+// Convierte "dd/mm/aaaa" (como guarda el input de fecha de la ficha) a
+// "aaaa-mm-dd" para poder comparar contra la fecha de corte ISO.
+function fechaAIso_(str){
+  if(!str) return '';
+  var soloFecha = soloFechaISO_(str);
+  if(/^\d{4}-\d{2}-\d{2}$/.test(soloFecha)) return soloFecha;
+  var m = String(str).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(!m) return '';
+  return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
+}
 // Pinta la base del archivo + lo que se fue cargando a mano en el sistema
-// desde entonces, SUMADOS (sin cruzar por VIN — solo se suman los totales,
-// como pediste). conteosVivosPorCanal = {directa:{...}, pda:{...}} con los
-// conteos de las entregas de Planning (con garantía cargada) de cada canal.
-function pintarResumenArchivoFabrica_(conteosVivosPorCanal){
+// DESPUÉS de la fecha en que se subió ese archivo (para no duplicar lo que
+// ya venía en el Excel) — sin cruzar por VIN, solo suma cantidades.
+// respondidasPorCanal = {directa:[entregas...], pda:[entregas...]} — TODAS
+// las respondidas de Planning (con garantía y NPS Fábrica cargado), sin
+// filtrar por fecha todavía; acá adentro se filtra según cada corte.
+function pintarResumenArchivoFabrica_(respondidasPorCanal){
   var cont = document.getElementById('fabResumenArchivo');
   var guardado = {};
   try{ guardado = JSON.parse(localStorage.getItem('fabResumenArchivo')||'{}'); }catch(e){}
   if(!guardado.directa && !guardado.pda){ cont.style.display='none'; return; }
-  conteosVivosPorCanal = conteosVivosPorCanal || {};
+  respondidasPorCanal = respondidasPorCanal || {};
   function bloqueCanal_(titulo, canalKey){
     var entrada = guardado[canalKey];
     if(!entrada) return '<div class="chart-panel"><div class="chart-panel-title">'+titulo+'</div><div style="color:var(--text-faint);font-size:12px;padding:14px 0;text-align:center;">Todavía no subiste el archivo de este canal.</div></div>';
     var base = entrada.conteo;
-    var vivo = conteosVivosPorCanal[canalKey];
+    var corte = entrada.fechaCorte || new Date().toISOString().slice(0,10);
+    var todasCanal = respondidasPorCanal[canalKey] || [];
+    // Solo cuentan las que se respondieron DESDE la fecha en que se subió
+    // el archivo (o sin fecha cargada, por las dudas de no perderlas) —
+    // así lo que ya venía en el Excel no se cuenta dos veces.
+    var nuevas = todasCanal.filter(function(r){
+      var f = fechaAIso_(r.npsFabricaFecha);
+      return !f || f>=corte;
+    });
+    var vivo = contarNpsCrudo_(nuevas.map(function(r){return Number(r.npsFabricaScore);}));
     var combinado = sumarConteos_(base, vivo);
     var nps = npsDeConteo_(combinado);
     return '<div class="chart-panel">'+
       '<div class="chart-panel-title">'+titulo+'</div>'+
-      '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+entrada.fecha+') + '+(vivo?vivo.total:0)+' cargadas después en el sistema</div>'+
+      '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+entrada.fecha+') + '+vivo.total+' cargadas desde entonces en el sistema</div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(nps>=50?'var(--ok)':(nps>=0?'var(--warn)':'var(--danger)'))+';">'+nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+combinado.total+' respuestas en total</div>'+
     '</div>';
@@ -11791,8 +11816,8 @@ function renderNpsFabricaPanel_(){
     statChipCalidad_(respondidas.length+' / '+elegibles.length, 'Respondidas', 'pending', 'fact_check')+
     statChipCalidad_(pct+'%', 'Tasa de respuesta', pct>=50?'ok':'warn', 'percent');
   pintarResumenArchivoFabrica_({
-    directa: contarNpsCrudo_(respondidas.filter(function(r){return !esCanalPDA_(r);}).map(function(r){return Number(r.npsFabricaScore);})),
-    pda: contarNpsCrudo_(respondidas.filter(function(r){return esCanalPDA_(r);}).map(function(r){return Number(r.npsFabricaScore);}))
+    directa: respondidas.filter(function(r){return !esCanalPDA_(r);}),
+    pda: respondidas.filter(function(r){return esCanalPDA_(r);})
   });
   window._fabElegibles = elegibles;
   document.getElementById('fabTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Fecha garantía</th><th>Fecha respuesta</th><th>Puntaje</th><th>Comentario</th></tr>'+
