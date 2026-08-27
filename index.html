@@ -11133,6 +11133,10 @@ function encuestasQueFaltan_(conteo, targetPct){
   var frac = targetPct/100;
   if(frac>=1) return null;
   var k = (frac*T - (p-d)) / (1-frac);
+  // Redondeamos primero a 6 decimales antes de Math.ceil — si no, casos
+  // como "1-0.9" en JS dan 0.09999999999999998 en vez de 0.1 justo, y eso
+  // hacía que a veces pidiera una encuesta de más de lo que hace falta.
+  k = Math.round(k*1e6)/1e6;
   return Math.max(1, Math.ceil(k));
 }
 function renderTarjetaPuntajeGM_(titulo, nps, puntosMax, umbral, nacional, zona, repartoMax, conteo){
@@ -11753,7 +11757,7 @@ function dibujarNpsGeneral_(){
     tarjetaInstancia_('Alerta Temprana', atNps, atRespondidas.length, total, 'campaign', 'teal')+
     tarjetaInstancia_('Contacto Posterior', cpNps, cpRows.length, total, 'forum', 'morado')+
     tarjetaInstancia_('NPS Fábrica', fabNps, fabRespondidas.length, fabElegibles.length, 'factory', 'ambar')+
-    tarjetaInstancia_('General', npsGeneral, totalRespGeneral, totalEsperadoGeneral, 'insights', 'ok');
+    tarjetaInstancia_('General', npsGeneral, totalRespGeneralArchivo, totalEsperadoGeneral, 'insights', 'ok');
 
   // ---- Cobertura de medición ----
   var coberturaItems = rows.map(coberturaEntrega_);
