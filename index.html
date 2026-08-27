@@ -805,7 +805,7 @@
   .nav-item-highlight .material-symbols-outlined{color:#1a1206;}
   .nav-submenu{display:flex;flex-direction:column;gap:1px;margin:2px 0 6px;padding-left:14px;border-left:1px solid var(--hairline);margin-left:22px;}
   .sidebar:not(:hover):not(.pinned) .nav-submenu{display:none !important;}
-  .nav-subitem{display:block;text-align:left;background:none;border:none;color:var(--text-faint);font-size:12px;font-weight:500;padding:7px 10px;border-radius:7px;cursor:pointer;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;white-space:nowrap;}
+  .nav-subitem{display:block;text-align:left;background:none;border:none;color:var(--text-faint);font-size:11px;font-weight:500;padding:6px 9px;border-radius:7px;cursor:pointer;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;white-space:nowrap;}
   .nav-subitem:hover{background:#161b28;color:#fff;}
   .nav-subitem.active{color:var(--accent);font-weight:700;background:var(--accent-soft);}
   .sidebar-foot{padding:14px 20px 0;border-top:1px solid var(--hairline);margin-top:10px;font-size:10.5px;color:var(--text-faint);line-height:1.6;}
@@ -1925,6 +1925,15 @@
 
       <div class="costos-grid" id="atRepIndicadores" style="margin-bottom:20px;"></div>
 
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;">Puntaje de Recomendación GM (regla oficial)</div>
+      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Nacional y Zona los actualiza GM cada tanto — por eso son editables. Se guardan en este navegador.</div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
+        <div class="field" style="width:130px;"><div class="l">Umbral máximo (%)</div><input type="number" id="gmUmbralMaximo" value="90" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();"></div>
+        <div class="field" style="width:130px;"><div class="l">Nacional (%)</div><input type="number" id="gmNacional" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();"></div>
+        <div class="field" style="width:130px;"><div class="l">Zona (%)</div><input type="number" id="gmZona" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();"></div>
+      </div>
+      <div class="two-col-grid" style="margin-bottom:20px;" id="gmPuntajeCards"></div>
+
       <div class="section-title">Evolución mensual del NPS</div>
       <div class="chart-panel" style="margin-bottom:18px;"><canvas id="atChartEvolucion" height="90"></canvas></div>
 
@@ -2157,16 +2166,18 @@
     <div id="paneMaestroNpsgeneral" style="display:none;padding:10px 0;">
       <div class="filter-bar" style="flex-wrap:wrap;">
         <select id="calidadFiltroSucursal" onchange="renderNpsGeneralPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
+        <div id="npsGeneralCanalToggle" class="filter-pills" style="margin:0;"></div>
         <div class="filter-field"><label>Desde</label><input type="date" id="calidadFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
         <div class="filter-field"><label>Hasta</label><input type="date" id="calidadFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
         <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
+        <button class="xlsx-btn" style="margin:0;" onclick="exportarExcelCalidad_()"><span class="material-symbols-outlined">download</span> Exportar Excel</button>
         <div style="font-size:10.5px;color:var(--text-faint);margin-left:auto;">La marca se filtra con los botones de arriba de la página.</div>
       </div>
 
       <div class="stats-grid" id="calidadKpis" style="margin-top:14px;"></div>
 
       <div class="section-title" style="margin-top:20px;">NPS por instancia</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">"Total" = entregas del período elegido (para NPS Fábrica, solo las que ya tienen garantía cargada — son las únicas elegibles). El detalle de cada instancia está en su propia página, en el menú.</div>
+      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Cada tarjeta cuenta cuántos clientes ya respondieron esa encuesta, sobre cuántos debían responderla. En Fábrica solo cuentan los que ya tienen la garantía cargada. El detalle completo de cada una está en su propia página, en el menú.</div>
       <div class="costos-grid" id="calidadNpsInstancias"></div>
 
       <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">insights</span>Evolución del NPS</div>
@@ -2179,7 +2190,7 @@
 
       <div class="two-col-grid" style="margin-bottom:14px;">
         <div class="chart-panel">
-          <div class="chart-panel-title"><span class="chart-icon morado"><span class="material-symbols-outlined">donut_large</span></span>Distribución NPS (Alerta Temprana)</div>
+          <div class="chart-panel-title"><span class="chart-icon morado"><span class="material-symbols-outlined">bar_chart</span></span>Promotores / Neutrales / Detractores por mes (Alerta Temprana)</div>
           <canvas id="calidadChartDistribucion" height="200"></canvas>
         </div>
         <div class="chart-panel">
@@ -2189,9 +2200,8 @@
       </div>
 
       <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">fact_check</span>Cobertura de Medición</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-bottom:8px;">¿Quién respondió las encuestas que le correspondían? NPS Fábrica solo cuenta para los que ya tienen garantía cargada — a los demás no se les exige.</div>
-      <div class="stats-grid" id="calidadCoberturaKpis" style="margin-bottom:8px;"></div>
-      <div id="calidadCoberturaTotal" style="margin-bottom:14px;max-width:260px;"></div>
+      <div style="font-size:11px;color:var(--text-faint);margin-bottom:8px;">Cuántos clientes respondieron todas las encuestas que les correspondían, y a cuántos les falta alguna.</div>
+      <div class="stats-grid" id="calidadCoberturaKpis" style="margin-bottom:14px;"></div>
       <div class="report-wrap"><table class="report-table" id="calidadCoberturaTabla"></table></div>
       <div id="calidadCoberturaVerMas" style="text-align:center;margin-top:8px;"></div>
     </div>
@@ -2199,11 +2209,21 @@
     <div id="paneMaestroNpscontactoposterior" style="display:none;padding:10px 0;">
       <div class="filter-bar" style="flex-wrap:wrap;">
         <select id="cpFiltroSucursal" onchange="renderNpsContactoPosteriorPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
+        <div id="cpCanalToggle" class="filter-pills" style="margin:0;"></div>
         <div class="filter-field"><label>Desde</label><input type="date" id="cpFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
         <div class="filter-field"><label>Hasta</label><input type="date" id="cpFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
         <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
       </div>
       <div class="costos-grid" id="cpResumen" style="margin:14px 0;"></div>
+
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;">Puntaje de Recomendación GM (regla oficial)</div>
+      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Mismos valores de Nacional/Zona que en Alerta Temprana — se comparten entre las tres páginas de NPS.</div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
+        <div class="field" style="width:130px;"><div class="l">Umbral máximo (%)</div><input type="number" id="gmUmbralMaximoCp" value="90" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();"></div>
+        <div class="field" style="width:130px;"><div class="l">Nacional (%)</div><input type="number" id="gmNacionalCp" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();"></div>
+        <div class="field" style="width:130px;"><div class="l">Zona (%)</div><input type="number" id="gmZonaCp" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();"></div>
+      </div>
+      <div class="two-col-grid" style="margin-bottom:20px;" id="gmPuntajeCardsCp"></div>
       <div class="section-title">Respuestas</div>
       <div class="report-wrap"><table class="report-table" id="cpTabla"></table></div>
       <div id="cpVerMas" style="text-align:center;margin-top:8px;"></div>
@@ -2212,12 +2232,27 @@
     <div id="paneMaestroNpsfabrica" style="display:none;padding:10px 0;">
       <div class="filter-bar" style="flex-wrap:wrap;">
         <select id="fabFiltroSucursal" onchange="renderNpsFabricaPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
+        <div id="fabCanalToggle" class="filter-pills" style="margin:0;"></div>
         <div class="filter-field"><label>Desde</label><input type="date" id="fabFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
         <div class="filter-field"><label>Hasta</label><input type="date" id="fabFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
         <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
+        <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text-dim);">
+          📎 Cargar planilla de Fábrica
+          <input type="file" accept=".xlsx,.xls" id="npsFabricaFileInput" onchange="importarNpsFabricaArchivo_(event)" style="display:none;">
+        </label>
       </div>
-      <div style="font-size:11px;color:var(--text-faint);margin:10px 0;">Solo entran acá las entregas que ya tienen garantía cargada — son las únicas elegibles para esta encuesta.</div>
+      <div style="font-size:11px;color:var(--text-faint);margin:10px 0;">Solo entran acá las entregas que ya tienen garantía cargada — son las únicas elegibles para esta encuesta. Si querés el NPS tal cual sale de la planilla que manda Fábrica (sin cruzar con las entregas), subila con el botón de arriba.</div>
+      <div id="fabResumenArchivo" style="display:none;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
       <div class="costos-grid" id="fabResumen" style="margin-bottom:14px;"></div>
+
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;">Puntaje de Recomendación GM (regla oficial)</div>
+      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Mismos valores de Nacional/Zona que en Alerta Temprana — se comparten entre las tres páginas de NPS.</div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
+        <div class="field" style="width:130px;"><div class="l">Umbral máximo (%)</div><input type="number" id="gmUmbralMaximoFab" value="90" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();"></div>
+        <div class="field" style="width:130px;"><div class="l">Nacional (%)</div><input type="number" id="gmNacionalFab" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();"></div>
+        <div class="field" style="width:130px;"><div class="l">Zona (%)</div><input type="number" id="gmZonaFab" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();"></div>
+      </div>
+      <div class="two-col-grid" style="margin-bottom:20px;" id="gmPuntajeCardsFab"></div>
       <div class="section-title">Elegibles (con garantía cargada)</div>
       <div class="report-wrap"><table class="report-table" id="fabTabla"></table></div>
       <div id="fabVerMas" style="text-align:center;margin-top:8px;"></div>
@@ -4207,6 +4242,7 @@ function setFilterCanal(v){
   filterCanal = (filterCanal===v) ? null : v;
   renderAll();
   if(typeof renderDashboard==='function') renderDashboard();
+  if(typeof refrescarPanelCalidadActivo_==='function') refrescarPanelCalidadActivo_();
 }
 function setFilterAdministrativo(v){
   filterAdministrativo = v || null;
@@ -10576,8 +10612,21 @@ function renderAlertaTempranaReporte_(){
     '<div class="costo-card"><div class="icon-badge"><span class="material-symbols-outlined">shopping_bag</span></div><div class="valor">'+(promCompra===null?'—':promCompra)+'</div><div class="label">Satisf. compra/entrega</div></div>'+
     '<div class="costo-card"><div class="icon-badge"><span class="material-symbols-outlined">support_agent</span></div><div class="valor">'+(promAtencion===null?'—':promAtencion)+'</div><div class="label">Satisf. atención</div></div>'+
     '<div class="costo-card ok"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_very_satisfied</span></div><div class="valor">'+promotores+'</div><div class="label">Promotores</div></div>'+
-    '<div class="costo-card ambar"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_neutral</span></div><div class="valor">'+pasivos+'</div><div class="label">Pasivos</div></div>'+
+    '<div class="costo-card ambar"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_neutral</span></div><div class="valor">'+pasivos+'</div><div class="label">Neutrales</div></div>'+
     '<div class="costo-card"><div class="icon-badge" style="background:var(--danger-soft);color:var(--danger);"><span class="material-symbols-outlined">sentiment_dissatisfied</span></div><div class="valor" style="color:var(--danger);">'+detractores+'</div><div class="label">Detractores</div></div>';
+
+  // ---- Puntaje de Recomendación GM (regla oficial, por canal) ----
+  cargarBenchmarksGM_();
+  var npsTD = respondidas.filter(function(r){return !esCanalPDA_(r);});
+  npsTD = npsTD.length ? calcularNps_(npsTD) : null;
+  var npsPDA = respondidas.filter(function(r){return esCanalPDA_(r);});
+  npsPDA = npsPDA.length ? calcularNps_(npsPDA) : null;
+  var umbral = Number(document.getElementById('gmUmbralMaximo').value)||0;
+  var nacional = Number(document.getElementById('gmNacional').value)||0;
+  var zona = Number(document.getElementById('gmZona').value)||0;
+  document.getElementById('gmPuntajeCards').innerHTML =
+    renderTarjetaPuntajeGM_('Ventas TD (Tradicional)', npsTD, 6, umbral, nacional, zona, [4,2]) +
+    renderTarjetaPuntajeGM_('Entrega Vehículo PDA', npsPDA, 3, umbral, nacional, zona, [2,1]);
 
   // OnStar
   var conOnstarDato = respondidas.filter(function(r){ return typeof r.alertaTempranaOnstarActivado==='boolean'; });
@@ -10778,7 +10827,7 @@ function renderSeccionNPSCompleta_(){
     elNPS.innerHTML =
       '<div class="costo-card '+(npsValor>=50?'ok':(npsValor>=0?'ambar':'morado'))+'" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'NPS — todas las respuestas\', window._conNPSActual, null, \'dashNPS\')"><div class="icon-badge"><span class="material-symbols-outlined">insights</span></div><div class="valor" style="'+(npsValor<0?'color:var(--danger);':'')+'">'+(npsValor>0?'+':'')+npsValor+'</div><div class="label">NPS general</div><div class="sub">'+total+' respuesta'+(total>1?'s':'')+'</div></div>'+
       '<div class="costo-card ok" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Promotores (9-10)\', window._conNPSActual.filter(function(r){return r.npsScore>=9;}), null, \'dashNPS\')"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_very_satisfied</span></div><div class="valor">'+promotores+'</div><div class="label">Promotores (9-10)</div><div class="sub">'+Math.round(promotores/total*100)+'% del total</div></div>'+
-      '<div class="costo-card ambar" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Pasivos (7-8)\', window._conNPSActual.filter(function(r){return r.npsScore===7||r.npsScore===8;}), null, \'dashNPS\')"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_neutral</span></div><div class="valor">'+pasivos+'</div><div class="label">Pasivos (7-8)</div><div class="sub">'+Math.round(pasivos/total*100)+'% del total</div></div>'+
+      '<div class="costo-card ambar" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Neutrales (7-8)\', window._conNPSActual.filter(function(r){return r.npsScore===7||r.npsScore===8;}), null, \'dashNPS\')"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_neutral</span></div><div class="valor">'+pasivos+'</div><div class="label">Neutrales (7-8)</div><div class="sub">'+Math.round(pasivos/total*100)+'% del total</div></div>'+
       '<div class="costo-card" style="cursor:pointer;" onclick="mostrarDetalleFiltrado(\'Detractores (0-6)\', window._conNPSActual.filter(function(r){return r.npsScore<=6;}), null, \'dashNPS\')"><div class="icon-badge" style="background:var(--danger-soft);color:var(--danger);"><span class="material-symbols-outlined">sentiment_dissatisfied</span></div><div class="valor" style="color:var(--danger);">'+detractores+'</div><div class="label">Detractores (0-6)</div><div class="sub">'+Math.round(detractores/total*100)+'% del total</div></div>';
   }
 
@@ -10836,6 +10885,63 @@ function renderReporteAccesorios_(){
     }).join('');
     tabla.innerHTML = '<tr><th>Accesorio</th><th>Vendido (veces)</th><th>Colocados</th><th>Pendientes</th><th style="text-align:right;">Monto colocado</th></tr>'+filas;
   });
+}
+// ---- Puntaje de Recomendación GM (regla oficial) ----
+// Nacional y Zona los cambia GM de tanto en tanto, por eso quedan
+// guardados en este navegador (localStorage) en vez de hardcodeados.
+function cargarBenchmarksGM_(sufijo){
+  sufijo = sufijo || '';
+  var guardado = {};
+  try{ guardado = JSON.parse(localStorage.getItem('gmBenchmarks')||'{}'); }catch(e){}
+  var umbral = document.getElementById('gmUmbralMaximo'+sufijo);
+  var nacional = document.getElementById('gmNacional'+sufijo);
+  var zona = document.getElementById('gmZona'+sufijo);
+  if(umbral && !umbral.value) umbral.value = guardado.umbral!==undefined ? guardado.umbral : 90;
+  if(nacional && !nacional.value) nacional.value = guardado.nacional!==undefined ? guardado.nacional : '';
+  if(zona && !zona.value) zona.value = guardado.zona!==undefined ? guardado.zona : '';
+}
+function guardarBenchmarksGM_(sufijo){
+  sufijo = sufijo || '';
+  localStorage.setItem('gmBenchmarks', JSON.stringify({
+    umbral: document.getElementById('gmUmbralMaximo'+sufijo).value,
+    nacional: document.getElementById('gmNacional'+sufijo).value,
+    zona: document.getElementById('gmZona'+sufijo).value
+  }));
+}
+// puntosMax: 6 (Tradicional) o 3 (PDA). repartoMax: [puntos para Nacional, puntos para Zona]
+// — [4,2] para Tradicional, [2,1] para PDA, tal cual la regla oficial.
+function renderTarjetaPuntajeGM_(titulo, nps, puntosMax, umbral, nacional, zona, repartoMax){
+  if(nps===null){
+    return '<div class="chart-panel"><div class="chart-panel-title">'+titulo+' — '+puntosMax+' pts</div><div style="color:var(--text-faint);font-size:12px;padding:14px 0;text-align:center;">Sin respuestas de este canal en el período.</div></div>';
+  }
+  var maxNacional = repartoMax[0], maxZona = repartoMax[1];
+  var puntos, detalleNacional, detalleZona, cumpleMax = nacional>0 && zona>0 && umbral>0 && nps>=umbral;
+  if(cumpleMax){
+    puntos = puntosMax;
+    detalleNacional = maxNacional; detalleZona = maxZona;
+  } else {
+    if(nacional>0){
+      detalleNacional = nps>=nacional ? maxNacional : (nps>=nacional*0.9 ? maxNacional/2 : 0);
+    } else detalleNacional = 0;
+    if(zona>0){
+      detalleZona = maxZona===1 ? (nps>=zona?maxZona:0) : (nps>=zona ? maxZona : (nps>=zona*0.9 ? maxZona/2 : 0));
+    } else detalleZona = 0;
+    puntos = detalleNacional + detalleZona;
+  }
+  function filaComp_(label, cumplida){
+    return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--hairline);font-size:11.5px;'+(cumplida?'color:var(--ok);font-weight:700;':'color:var(--text-faint);')+'">'+
+      (cumplida?'✓ ':'— ')+label+'</div>';
+  }
+  return '<div class="chart-panel">'+
+    '<div class="chart-panel-title">'+titulo+' — '+puntos+' / '+puntosMax+' pts</div>'+
+    '<div style="font-size:22px;font-weight:800;margin:4px 0 8px;">'+nps+' <span style="font-size:12px;font-weight:500;color:var(--text-faint);">NPS del canal</span></div>'+
+    (nacional>0 ? ('<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:2px;">vs. Nacional (hasta '+maxNacional+' pts)</div>'+
+      filaComp_('NPS ≥ Nacional ('+nacional+')', nps>=nacional)+
+      filaComp_('NPS ≥ 90% Nacional ('+Math.round(nacional*0.9)+')', nps>=nacional*0.9 && nps<nacional)) : '<div style="font-size:10.5px;color:var(--text-faint);">Cargá el valor de Nacional arriba para ver el detalle.</div>')+
+    (zona>0 ? ('<div style="font-size:10.5px;color:var(--text-faint);margin:8px 0 2px;">vs. Zona (hasta '+maxZona+' pts)</div>'+
+      filaComp_('NPS ≥ Zona ('+zona+')', nps>=zona)+
+      (maxZona>1 ? filaComp_('NPS ≥ 90% Zona ('+Math.round(zona*0.9)+')', nps>=zona*0.9 && nps<zona) : '')) : '<div style="font-size:10.5px;color:var(--text-faint);margin-top:6px;">Cargá el valor de Zona arriba para ver el detalle.</div>')+
+  '</div>';
 }
 function toggleSeccionNPS_(){
   var cuerpo = document.getElementById('npsSeccionCuerpo');
@@ -11289,8 +11395,17 @@ function refrescarPanelCalidadActivo_(){
 // NPS — Resumen general: KPIs, NPS por instancia, evolución,
 // distribución, alertas y cobertura cruzada.
 // ============================================================
+function renderCanalToggleGenerico_(elId){
+  var el = document.getElementById(elId);
+  if(!el) return;
+  el.innerHTML =
+    '<button class="filter-pill '+(filterCanal===null?'active':'')+'" onclick="setFilterCanal(null)">Todos los canales</button>'+
+    '<button class="filter-pill '+(filterCanal==='pda'?'active':'')+'" onclick="setFilterCanal(\'pda\')">Solo PDA</button>'+
+    '<button class="filter-pill '+(filterCanal==='tradicional'?'active':'')+'" onclick="setFilterCanal(\'tradicional\')">Solo Tradicional</button>';
+}
 function renderNpsGeneralPanel_(){
   poblarFiltroSucursalGenerico_('calidadFiltroSucursal');
+  renderCanalToggleGenerico_('npsGeneralCanalToggle');
   dibujarNpsGeneral_();
   cargarCasosGCSiHaceFalta_().then(dibujarNpsGeneral_);
 }
@@ -11362,11 +11477,11 @@ function dibujarNpsGeneral_(){
   var covAplicSum = coberturaItems.reduce(function(a,x){return a+x.aplicables;},0);
   var pctCobertura = covAplicSum ? Math.round(covRespSum/covAplicSum*100) : 0;
   document.getElementById('calidadCoberturaKpis').innerHTML =
-    '<div class="stat-chip ok" id="covChipTodas" style="cursor:pointer;min-width:150px;" onclick="filtrarCoberturaCalidad_(\'todas\')"><div class="icon-badge"><span class="material-symbols-outlined">task_alt</span></div><div class="n">'+covTodas.length+'</div><div class="l">Respondieron todo lo que aplica</div></div>'+
+    '<div class="stat-chip ok" id="covChipTodas" style="cursor:pointer;min-width:150px;" onclick="filtrarCoberturaCalidad_(\'todas\')"><div class="icon-badge"><span class="material-symbols-outlined">task_alt</span></div><div class="n">'+covTodas.length+'</div><div class="l">Respondieron todo</div></div>'+
     '<div class="stat-chip warn" id="covChipFalta1" style="cursor:pointer;min-width:150px;" onclick="filtrarCoberturaCalidad_(\'falta1\')"><div class="icon-badge"><span class="material-symbols-outlined">exposure_neg_1</span></div><div class="n">'+covFalta1.length+'</div><div class="l">Le falta 1</div></div>'+
     '<div class="stat-chip pending" id="covChipFalta2" style="cursor:pointer;min-width:150px;" onclick="filtrarCoberturaCalidad_(\'falta2\')"><div class="icon-badge"><span class="material-symbols-outlined">exposure</span></div><div class="n">'+covFalta2.length+'</div><div class="l">Le faltan 2 o más</div></div>'+
-    '<div class="stat-chip danger" id="covChipNinguna" style="cursor:pointer;min-width:150px;" onclick="filtrarCoberturaCalidad_(\'ninguna\')"><div class="icon-badge"><span class="material-symbols-outlined">block</span></div><div class="n">'+covNinguna.length+'</div><div class="l">No respondió ninguna</div></div>';
-  document.getElementById('calidadCoberturaTotal').innerHTML = statChipCalidad_(pctCobertura+'%', 'Cobertura total — '+covRespSum+' / '+covAplicSum+' encuestas', pctCobertura>=70?'ok':(pctCobertura>=40?'warn':'danger'), 'donut_large');
+    '<div class="stat-chip danger" id="covChipNinguna" style="cursor:pointer;min-width:150px;" onclick="filtrarCoberturaCalidad_(\'ninguna\')"><div class="icon-badge"><span class="material-symbols-outlined">block</span></div><div class="n">'+covNinguna.length+'</div><div class="l">No respondió nada</div></div>'+
+    statChipCalidad_(pctCobertura+'%', 'Cobertura total ('+covRespSum+'/'+covAplicSum+')', pctCobertura>=70?'ok':(pctCobertura>=40?'warn':'danger'), 'donut_large');
   filtrarCoberturaCalidad_('todas');
 
   // ---- Alertas de calidad ----
@@ -11426,15 +11541,25 @@ function dibujarNpsGeneral_(){
       (mejorInstancia ? statChipCalidad_(mejorInstancia.v, 'Mejor instancia: '+mejorInstancia.n, 'ok', 'trending_up') : '')+
       (peorInstancia ? statChipCalidad_(peorInstancia.v, 'A mejorar: '+peorInstancia.n, 'danger', 'trending_down') : '');
 
-    var promotores = atRespondidas.filter(function(r){return r.npsScore>=9;}).length;
-    var pasivos = atRespondidas.filter(function(r){return r.npsScore>=7 && r.npsScore<=8;}).length;
-    var detrDist = atRespondidas.filter(function(r){return r.npsScore<=6;}).length;
-    var sinResp = total - atRespondidas.length;
+    var promotoresPorMes = mesesCalidad.map(function(m){ return porMesCalidad[m].at.filter(function(n){return n>=9;}).length; });
+    var pasivosPorMes = mesesCalidad.map(function(m){ return porMesCalidad[m].at.filter(function(n){return n>=7 && n<=8;}).length; });
+    var detractoresPorMes = mesesCalidad.map(function(m){ return porMesCalidad[m].at.filter(function(n){return n<=6;}).length; });
     destroyChart_('calidadDistribucion');
     _dashCharts.calidadDistribucion = new Chart(document.getElementById('calidadChartDistribucion'), {
-      type:'doughnut',
-      data:{ labels:['Promotores (9-10)','Pasivos (7-8)','Detractores (0-6)','Sin respuesta'], datasets:[{ data:[promotores,pasivos,detrDist,sinResp], backgroundColor:['#3ECF6A','#E8B23D','#D6304A','#9099ac'] }] },
-      options:{ plugins:{legend:{position:'bottom', labels:{boxWidth:10,font:{size:10}}}} }
+      data:{ labels: mesesCalidad, datasets:[
+        {type:'bar', label:'Promotores (9-10)', data:promotoresPorMes, backgroundColor:'#3ECF6A', stack:'nps'},
+        {type:'bar', label:'Neutrales (7-8)', data:pasivosPorMes, backgroundColor:'#E8B23D', stack:'nps'},
+        {type:'bar', label:'Detractores (0-6)', data:detractoresPorMes, backgroundColor:'#D6304A', stack:'nps'},
+        {type:'line', label:'NPS', data:serieAt, borderColor:'#3E67CE', backgroundColor:'transparent', yAxisID:'y1', tension:.3, spanGaps:true}
+      ]},
+      options:{
+        plugins:{legend:{position:'bottom', labels:{boxWidth:10,font:{size:10}}}},
+        scales:{
+          x:{stacked:true},
+          y:{stacked:true, beginAtZero:true, title:{display:true,text:'Respuestas',font:{size:10}}},
+          y1:{position:'right', min:-100, max:100, grid:{drawOnChartArea:false}, title:{display:true,text:'NPS',font:{size:10}}}
+        }
+      }
     });
   }
 }
@@ -11454,6 +11579,7 @@ function coberturaEntrega_(r){
 // ============================================================
 function renderNpsContactoPosteriorPanel_(){
   poblarFiltroSucursalGenerico_('cpFiltroSucursal');
+  renderCanalToggleGenerico_('cpCanalToggle');
   if(!document.getElementById('cpResumen')) return;
   var rows = entregasCalidadFiltro_('cpFiltroSucursal');
   var conDato = rows.map(function(r){ return {r:r, d:contactoPosteriorInfo_(r)}; }).filter(function(x){ return x.d && x.d.recomienda!==undefined && x.d.recomienda!==''; });
@@ -11471,6 +11597,19 @@ function renderNpsContactoPosteriorPanel_(){
       return '<tr style="cursor:pointer;" onclick="openDetail(\''+x.r.marca+'\',\''+x.r.id+'\')"><td>'+x.r.cliente+'</td><td>'+(b?b.label:x.r.marca)+'</td><td>'+(x.d.fecha||'—')+'</td><td style="font-weight:700;">'+x.d.recomienda+'</td><td>'+(x.d.atencionAsesor||'—')+'</td><td>'+(x.d.gestionAdmin||'—')+'</td><td>'+(x.d.experienciaEntrega||'—')+'</td><td>'+(x.d.comentario||'—')+'</td></tr>';
     }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text-faint);">Sin respuestas todavía en este período.</td></tr>');
   document.getElementById('cpVerMas').innerHTML = conDato.length>10 ? '<button class="print-btn" style="margin:0;" onclick="mostrarTablaCpCompleta_()">Ver las '+conDato.length+' respuestas</button>' : '';
+
+  // ---- Puntaje de Recomendación GM (por canal) ----
+  cargarBenchmarksGM_('Cp');
+  var npsTDCp = conDato.filter(function(x){return !esCanalPDA_(x.r);}).map(function(x){return {npsScore:Number(x.d.recomienda)};});
+  npsTDCp = npsTDCp.length ? calcularNps_(npsTDCp) : null;
+  var npsPDACp = conDato.filter(function(x){return esCanalPDA_(x.r);}).map(function(x){return {npsScore:Number(x.d.recomienda)};});
+  npsPDACp = npsPDACp.length ? calcularNps_(npsPDACp) : null;
+  var umbralCp = Number(document.getElementById('gmUmbralMaximoCp').value)||0;
+  var nacionalCp = Number(document.getElementById('gmNacionalCp').value)||0;
+  var zonaCp = Number(document.getElementById('gmZonaCp').value)||0;
+  document.getElementById('gmPuntajeCardsCp').innerHTML =
+    renderTarjetaPuntajeGM_('Ventas TD (Tradicional)', npsTDCp, 6, umbralCp, nacionalCp, zonaCp, [4,2]) +
+    renderTarjetaPuntajeGM_('Entrega Vehículo PDA', npsPDACp, 3, umbralCp, nacionalCp, zonaCp, [2,1]);
 }
 function mostrarTablaCpCompleta_(){
   var conDato = window._cpConDato||[];
@@ -11485,8 +11624,96 @@ function mostrarTablaCpCompleta_(){
 // ============================================================
 // NPS — Fábrica (su propia página)
 // ============================================================
+// Lee el Excel de Fábrica y calcula el NPS DIRECTO de esa planilla — no
+// cruza ni actualiza ninguna entrega, es solo una lectura y un cálculo
+// (promedio de la columna "NPS de Fabrica"), para tener el número al día
+// sin depender de que cada entrega esté vinculada acá.
+function calcularNpsDesdeFilas_(filas, idxHeaderRow, headers){
+  var colScore = buscarColPorNombre_(headers, ['NPS','FABRICA']);
+  var colAnio = buscarColPorNombre_(headers, ['AÑO']);
+  var colMes = buscarColPorNombre_(headers, ['MES']);
+  if(colScore===-1) return null;
+  var porAnio = {};
+  var todas = [];
+  for(var r=idxHeaderRow+1; r<filas.length; r++){
+    var fila = filas[r];
+    if(!fila || !fila.length) continue;
+    var score = fila[colScore];
+    if(score===''||score===undefined||score===null) continue;
+    var n = Number(score);
+    if(isNaN(n)) continue;
+    todas.push(n);
+    var anio = colAnio>-1 ? String(fila[colAnio]||'').trim() : '';
+    if(anio){
+      if(!porAnio[anio]) porAnio[anio] = [];
+      porAnio[anio].push(n);
+    }
+  }
+  if(todas.length===0) return null;
+  function npsDe_(arr){ return calcularNps_(arr.map(function(n){return {npsScore:n};})); }
+  var anios = Object.keys(porAnio).sort();
+  var anioActual = String(new Date().getFullYear());
+  return {
+    npsGeneral: npsDe_(todas), totalRespuestas: todas.length,
+    npsAnioActual: porAnio[anioActual] ? npsDe_(porAnio[anioActual]) : null,
+    respuestasAnioActual: porAnio[anioActual] ? porAnio[anioActual].length : 0,
+    porAnio: anios.map(function(a){ return {anio:a, nps:npsDe_(porAnio[a]), respuestas:porAnio[a].length}; })
+  };
+}
+function importarNpsFabricaArchivo_(event){
+  var file = event.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
+      var nombreHoja = wb.SheetNames.find(function(n){ return n.toUpperCase().indexOf('CARGA DE DATOS')>-1; }) || wb.SheetNames[0];
+      var filas = XLSX.utils.sheet_to_json(wb.Sheets[nombreHoja], {header:1, raw:false, defval:''});
+
+      var idxHeaderRow = -1, headers = null;
+      for(var i=0;i<Math.min(filas.length,6);i++){
+        var f = (filas[i]||[]).map(function(x){return String(x||'').toUpperCase();});
+        if(f.some(function(x){return x.indexOf('VIN')>-1;}) && f.some(function(x){return x.indexOf('NPS DE FABRICA')>-1;})){
+          idxHeaderRow = i; headers = filas[i];
+          break;
+        }
+      }
+      if(idxHeaderRow===-1){ showToast('No se encontró la fila de encabezados (VIN + NPS de Fábrica) en el archivo.'); event.target.value=''; return; }
+
+      var res = calcularNpsDesdeFilas_(filas, idxHeaderRow, headers);
+      if(!res){ showToast('No se encontraron respuestas de NPS de Fábrica en el archivo.'); event.target.value=''; return; }
+
+      var cont = document.getElementById('fabResumenArchivo');
+      var anioActual = String(new Date().getFullYear());
+      cont.style.display = 'block';
+      cont.innerHTML =
+        '<div class="section-title" style="margin-top:0;">NPS de Fábrica — según el archivo cargado</div>'+
+        '<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:8px;">Calculado directo de "'+file.name+'" — no está cruzado con las entregas de Planning.</div>'+
+        '<div class="costos-grid">'+
+          statChipCalidad_(res.npsGeneral, 'NPS general del archivo', res.npsGeneral>=50?'ok':(res.npsGeneral>=0?'warn':'danger'), 'factory')+
+          statChipCalidad_(res.totalRespuestas, 'Respuestas totales', 'pending', 'fact_check')+
+          statChipCalidad_(res.npsAnioActual===null?'—':res.npsAnioActual, 'NPS '+anioActual, res.npsAnioActual===null?'pending':(res.npsAnioActual>=50?'ok':(res.npsAnioActual>=0?'warn':'danger')), 'calendar_today')+
+        '</div>'+
+        (res.porAnio.length>1 ? '<div class="report-wrap" style="margin-top:10px;"><table class="report-table"><tr><th>Año</th><th>NPS</th><th>Respuestas</th></tr>'+
+          res.porAnio.map(function(x){ return '<tr><td>'+x.anio+'</td><td style="font-weight:700;">'+x.nps+'</td><td>'+x.respuestas+'</td></tr>'; }).join('')+
+        '</table></div>' : '');
+    }catch(err){
+      showToast('No se pudo leer el archivo: '+err.message);
+    }
+    event.target.value = '';
+  };
+  reader.readAsArrayBuffer(file);
+}
+function buscarColPorNombre_(headers, keywords){
+  for(var i=0;i<headers.length;i++){
+    var h = String(headers[i]||'').toUpperCase();
+    if(keywords.every(function(k){return h.indexOf(k)>-1;})) return i;
+  }
+  return -1;
+}
 function renderNpsFabricaPanel_(){
   poblarFiltroSucursalGenerico_('fabFiltroSucursal');
+  renderCanalToggleGenerico_('fabCanalToggle');
   if(!document.getElementById('fabResumen')) return;
   var rows = entregasCalidadFiltro_('fabFiltroSucursal');
   var elegibles = rows.filter(function(r){ return !!r.garantiaFecha; });
@@ -11506,6 +11733,19 @@ function renderNpsFabricaPanel_(){
       return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td>'+r.garantiaFecha+'</td><td>'+(r.npsFabricaFecha||'—')+'</td><td style="font-weight:700;">'+(respondio?r.npsFabricaScore:'—')+'</td><td>'+(r.npsFabricaComentario||'—')+'</td></tr>';
     }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-faint);">Sin entregas con garantía cargada en este período.</td></tr>');
   document.getElementById('fabVerMas').innerHTML = elegibles.length>10 ? '<button class="print-btn" style="margin:0;" onclick="mostrarTablaFabCompleta_()">Ver las '+elegibles.length+' entregas elegibles</button>' : '';
+
+  // ---- Puntaje de Recomendación GM (por canal) ----
+  cargarBenchmarksGM_('Fab');
+  var npsTDFab = respondidas.filter(function(r){return !esCanalPDA_(r);});
+  npsTDFab = npsTDFab.length ? calcularNps_(npsTDFab) : null;
+  var npsPDAFab = respondidas.filter(function(r){return esCanalPDA_(r);});
+  npsPDAFab = npsPDAFab.length ? calcularNps_(npsPDAFab) : null;
+  var umbralFab = Number(document.getElementById('gmUmbralMaximoFab').value)||0;
+  var nacionalFab = Number(document.getElementById('gmNacionalFab').value)||0;
+  var zonaFab = Number(document.getElementById('gmZonaFab').value)||0;
+  document.getElementById('gmPuntajeCardsFab').innerHTML =
+    renderTarjetaPuntajeGM_('Ventas TD (Tradicional)', npsTDFab, 6, umbralFab, nacionalFab, zonaFab, [4,2]) +
+    renderTarjetaPuntajeGM_('Entrega Vehículo PDA', npsPDAFab, 3, umbralFab, nacionalFab, zonaFab, [2,1]);
 }
 function mostrarTablaFabCompleta_(){
   var elegibles = window._fabElegibles||[];
@@ -11615,6 +11855,61 @@ function mostrarTablaCasosCalidadCompleta_(){
   document.getElementById('calidadCasosTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Motivo</th><th>Prioridad</th><th>Responsable</th><th>Estado</th></tr>'+
     casos.map(function(c){ return '<tr><td>'+c.cliente+'</td><td>'+c.marca+'</td><td>'+c.motivo+'</td><td>'+c.prioridad+'</td><td>'+(c.responsable||'Sin asignar')+'</td><td>'+c.estado+'</td></tr>'; }).join('');
   document.getElementById('calidadCasosVerMas').innerHTML = '';
+}
+// Excel de Calidad — varias hojas, con colores, reutilizando el mismo
+// helper (hojaConEstilo_) que ya usa el reporte general de entregas.
+function exportarExcelCalidad_(){
+  var rows = entregasCalidadFiltro_('calidadFiltroSucursal');
+  var total = rows.length;
+
+  var atRespondidas = rows.filter(function(r){ return r.npsScore!==null && r.npsScore!==undefined && r.npsScore!==''; });
+  var atNps = atRespondidas.length ? calcularNps_(atRespondidas) : null;
+  var cpConDato = rows.map(function(r){ return {r:r, d:contactoPosteriorInfo_(r)}; }).filter(function(x){ return x.d && x.d.recomienda!==undefined && x.d.recomienda!==''; });
+  var cpNps = cpConDato.length ? calcularNps_(cpConDato.map(function(x){return {npsScore:Number(x.d.recomienda)};})) : null;
+  var fabElegibles = rows.filter(function(r){ return !!r.garantiaFecha; });
+  var fabRespondidas = fabElegibles.filter(function(r){ return r.npsFabricaScore!==null && r.npsFabricaScore!==undefined && r.npsFabricaScore!==''; });
+  var fabNps = fabRespondidas.length ? calcularNps_(fabRespondidas.map(function(r){return {npsScore:Number(r.npsFabricaScore)};})) : null;
+  var totalEsperadoGeneral = total+total+fabElegibles.length;
+  var totalRespGeneral = atRespondidas.length+cpConDato.length+fabRespondidas.length;
+  var npsGeneral = totalRespGeneral ? calcularNps_(atRespondidas.concat(cpConDato.map(function(x){return {npsScore:Number(x.d.recomienda)};})).concat(fabRespondidas.map(function(r){return {npsScore:Number(r.npsFabricaScore)};}))) : null;
+
+  var garFaltan = rows.filter(function(r){ return !r.garantiaFecha; });
+  var casosAbiertos = casosGCFiltrados_('calidadFiltroSucursal').filter(function(c){ var e=(c.estado||'').toLowerCase(); return e.indexOf('cerrad')===-1 && e.indexOf('resuelt')===-1; });
+  var coberturaItems = rows.map(coberturaEntrega_);
+
+  var libro = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(libro, hojaConEstilo_(['Métrica','Valor'], [
+    ['NPS General', npsGeneral===null?'—':npsGeneral],
+    ['Respuestas totales (3 encuestas)', totalRespGeneral+' / '+totalEsperadoGeneral],
+    ['Detractores (Alerta Temprana)', atRespondidas.filter(function(r){return r.npsScore<=6;}).length],
+    ['Casos abiertos', casosAbiertos.length],
+    ['Garantías pendientes', garFaltan.length]
+  ], '1D2330', 'FFFFFF'), 'Resumen');
+
+  XLSX.utils.book_append_sheet(libro, hojaConEstilo_(['Instancia','NPS','Respondidas','Total','% Respuesta'], [
+    ['Alerta Temprana', atNps===null?'—':atNps, atRespondidas.length, total, total?Math.round(atRespondidas.length/total*100)+'%':'—'],
+    ['Contacto Posterior', cpNps===null?'—':cpNps, cpConDato.length, total, total?Math.round(cpConDato.length/total*100)+'%':'—'],
+    ['NPS Fábrica', fabNps===null?'—':fabNps, fabRespondidas.length, fabElegibles.length, fabElegibles.length?Math.round(fabRespondidas.length/fabElegibles.length*100)+'%':'—'],
+    ['General', npsGeneral===null?'—':npsGeneral, totalRespGeneral, totalEsperadoGeneral, totalEsperadoGeneral?Math.round(totalRespGeneral/totalEsperadoGeneral*100)+'%':'—']
+  ], '2FA891', 'FFFFFF'), 'NPS por instancia');
+
+  XLSX.utils.book_append_sheet(libro, hojaConEstilo_(['Cliente','Marca','Alerta Temprana','Contacto Posterior','NPS Fábrica'],
+    coberturaItems.map(function(x){
+      var b=BRANDS.find(function(y){return y.id===x.r.marca;});
+      return [x.r.cliente, b?b.label:x.r.marca, x.at?'Respondida':'Pendiente', x.cp?'Respondida':'Pendiente', x.fabAplica?(x.fab?'Respondida':'Pendiente'):'N/A'];
+    }), '3E67CE', 'FFFFFF'), 'Cobertura');
+
+  XLSX.utils.book_append_sheet(libro, hojaConEstilo_(['Cliente','Marca','Modelo','Fecha entrega','Administrativo'],
+    garFaltan.map(function(r){ var b=BRANDS.find(function(x){return x.id===r.marca;}); return [r.cliente, b?b.label:r.marca, r.modelo, r.fecha, r.administrativo]; }),
+    'E8A33D', '1A1A1A'), 'Garantías pendientes');
+
+  XLSX.utils.book_append_sheet(libro, hojaConEstilo_(['Cliente','Marca','Motivo','Prioridad','Responsable','Estado'],
+    casosAbiertos.map(function(c){ return [c.cliente, c.marca, c.motivo, c.prioridad, c.responsable||'Sin asignar', c.estado]; }),
+    'D6304A', 'FFFFFF'), 'Casos abiertos');
+
+  var fechaArchivo = fmtFecha(new Date()).replace(/\//g,'-');
+  XLSX.writeFile(libro, 'Calidad_GrupoParis_'+fechaArchivo+'.xlsx');
 }
 function exportarDetalleFiltradoExcel(){
   if(detalleFiltradoFilas.length===0){ showToast('No hay datos para exportar'); return; }
