@@ -1931,11 +1931,18 @@
       <div class="costos-grid" id="atRepIndicadores" style="margin-bottom:20px;"></div>
 
       <div class="section-title" style="display:flex;align-items:center;gap:7px;">Puntaje de Recomendación GM (regla oficial)</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Nacional y Zona los actualiza GM cada tanto — por eso son editables. Se guardan en este navegador.</div>
-      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
-        <div class="field" style="width:130px;"><div class="l">Umbral máximo (%)</div><input type="number" id="gmUmbralMaximo" value="90" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();"></div>
-        <div class="field" style="width:130px;"><div class="l">Nacional (%)</div><input type="number" id="gmNacional" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();"></div>
-        <div class="field" style="width:130px;"><div class="l">Zona (%)</div><input type="number" id="gmZona" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();"></div>
+      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Nacional y Zona los actualiza GM cada tanto, por eso son editables — se guardan en este navegador. Son distintos para TD y para PDA.</div>
+      <div style="font-size:10px;font-weight:700;color:var(--text-faint);margin-bottom:4px;">Ventas TD (Tradicional)</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Umbral (%)</div><input type="number" id="gmUmbralMaximoTD" value="90" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="padding:6px 8px;font-size:11.5px;"></div>
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Nacional (%)</div><input type="number" id="gmNacionalTD" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="padding:6px 8px;font-size:11.5px;"></div>
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Zona (%)</div><input type="number" id="gmZonaTD" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="padding:6px 8px;font-size:11.5px;"></div>
+      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--text-faint);margin-bottom:4px;">PDA</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Umbral (%)</div><input type="number" id="gmUmbralMaximoPDA" value="90" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="padding:6px 8px;font-size:11.5px;"></div>
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Nacional (%)</div><input type="number" id="gmNacionalPDA" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="padding:6px 8px;font-size:11.5px;"></div>
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Zona (%)</div><input type="number" id="gmZonaPDA" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="padding:6px 8px;font-size:11.5px;"></div>
       </div>
       <div class="two-col-grid" style="margin-bottom:20px;" id="gmPuntajeCards"></div>
 
@@ -2222,11 +2229,18 @@
       <div class="costos-grid" id="cpResumen" style="margin:14px 0;"></div>
 
       <div class="section-title" style="display:flex;align-items:center;gap:7px;">Puntaje de Recomendación GM (regla oficial)</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Mismos valores de Nacional/Zona que en Alerta Temprana — se comparten entre las tres páginas de NPS.</div>
-      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
-        <div class="field" style="width:130px;"><div class="l">Umbral máximo (%)</div><input type="number" id="gmUmbralMaximoCp" value="90" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();"></div>
-        <div class="field" style="width:130px;"><div class="l">Nacional (%)</div><input type="number" id="gmNacionalCp" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();"></div>
-        <div class="field" style="width:130px;"><div class="l">Zona (%)</div><input type="number" id="gmZonaCp" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();"></div>
+      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Mismos valores que en Alerta Temprana y Fábrica — se comparten entre las tres páginas. Son distintos para TD y para PDA.</div>
+      <div style="font-size:10px;font-weight:700;color:var(--text-faint);margin-bottom:4px;">Ventas TD (Tradicional)</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Umbral (%)</div><input type="number" id="gmUmbralMaximoTDCp" value="90" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="padding:6px 8px;font-size:11.5px;"></div>
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Nacional (%)</div><input type="number" id="gmNacionalTDCp" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="padding:6px 8px;font-size:11.5px;"></div>
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Zona (%)</div><input type="number" id="gmZonaTDCp" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="padding:6px 8px;font-size:11.5px;"></div>
+      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--text-faint);margin-bottom:4px;">PDA</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Umbral (%)</div><input type="number" id="gmUmbralMaximoPDACp" value="90" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="padding:6px 8px;font-size:11.5px;"></div>
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Nacional (%)</div><input type="number" id="gmNacionalPDACp" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="padding:6px 8px;font-size:11.5px;"></div>
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Zona (%)</div><input type="number" id="gmZonaPDACp" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="padding:6px 8px;font-size:11.5px;"></div>
       </div>
       <div class="two-col-grid" style="margin-bottom:20px;" id="gmPuntajeCardsCp"></div>
       <div class="section-title">Respuestas</div>
@@ -2248,14 +2262,32 @@
       </div>
       <div style="font-size:11px;color:var(--text-faint);margin:10px 0;">Solo entran acá las entregas que ya tienen garantía cargada — son las únicas elegibles para esta encuesta. Si querés el NPS tal cual sale de la planilla que manda Fábrica (sin cruzar con las entregas), subila con el botón de arriba.</div>
       <div id="fabResumenArchivo" style="display:none;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
+
+      <div style="background:var(--panel-2);border:1px dashed var(--hairline);border-radius:10px;padding:12px 14px;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;margin-bottom:2px;">+ Agregar respuesta anónima</div>
+        <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:8px;">Para encuestas de Fábrica que llegan sin VIN — no se puede atar a ninguna entrega puntual, pero igual suma al acumulado de arriba.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+          <div class="field" style="width:110px;"><div class="l">Canal</div><select id="fabAnonCanal"><option value="TD">Tradicional</option><option value="PDA">PDA</option></select></div>
+          <div class="field" style="width:80px;"><div class="l">Puntaje (0-10)</div><input type="number" min="0" max="10" id="fabAnonPuntaje"></div>
+          <div class="field" style="flex:1;min-width:160px;"><div class="l">Comentario (opcional)</div><input id="fabAnonComentario"></div>
+          <button class="save-btn" style="width:auto;margin:0;padding:8px 16px;" onclick="agregarNpsFabricaAnonimoUI_()">Agregar</button>
+        </div>
+      </div>
       <div class="costos-grid" id="fabResumen" style="margin-bottom:14px;"></div>
 
       <div class="section-title" style="display:flex;align-items:center;gap:7px;">Puntaje de Recomendación GM (regla oficial)</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Mismos valores de Nacional/Zona que en Alerta Temprana — se comparten entre las tres páginas de NPS.</div>
-      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;">
-        <div class="field" style="width:130px;"><div class="l">Umbral máximo (%)</div><input type="number" id="gmUmbralMaximoFab" value="90" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();"></div>
-        <div class="field" style="width:130px;"><div class="l">Nacional (%)</div><input type="number" id="gmNacionalFab" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();"></div>
-        <div class="field" style="width:130px;"><div class="l">Zona (%)</div><input type="number" id="gmZonaFab" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();"></div>
+      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Mismos valores que en Alerta Temprana y Contacto Posterior — se comparten entre las tres páginas. Son distintos para TD y para PDA.</div>
+      <div style="font-size:10px;font-weight:700;color:var(--text-faint);margin-bottom:4px;">Ventas TD (Tradicional)</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Umbral (%)</div><input type="number" id="gmUmbralMaximoTDFab" value="90" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="padding:6px 8px;font-size:11.5px;"></div>
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Nacional (%)</div><input type="number" id="gmNacionalTDFab" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="padding:6px 8px;font-size:11.5px;"></div>
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Zona (%)</div><input type="number" id="gmZonaTDFab" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="padding:6px 8px;font-size:11.5px;"></div>
+      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--text-faint);margin-bottom:4px;">PDA</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Umbral (%)</div><input type="number" id="gmUmbralMaximoPDAFab" value="90" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="padding:6px 8px;font-size:11.5px;"></div>
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Nacional (%)</div><input type="number" id="gmNacionalPDAFab" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="padding:6px 8px;font-size:11.5px;"></div>
+        <div class="field" style="width:92px;"><div class="l" style="font-size:9.5px;">Zona (%)</div><input type="number" id="gmZonaPDAFab" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="padding:6px 8px;font-size:11.5px;"></div>
       </div>
       <div class="two-col-grid" style="margin-bottom:20px;" id="gmPuntajeCardsFab"></div>
       <div class="section-title">Elegibles (con garantía cargada)</div>
@@ -10645,12 +10677,15 @@ function renderAlertaTempranaReporte_(){
   npsTD = npsTD.length ? calcularNpsDecimal_(npsTD) : null;
   var npsPDA = respondidas.filter(function(r){return esCanalPDA_(r);});
   npsPDA = npsPDA.length ? calcularNpsDecimal_(npsPDA) : null;
-  var umbral = Number(document.getElementById('gmUmbralMaximo').value)||0;
-  var nacional = Number(document.getElementById('gmNacional').value)||0;
-  var zona = Number(document.getElementById('gmZona').value)||0;
+  var umbralTD = Number(document.getElementById('gmUmbralMaximoTD').value)||0;
+  var nacionalTD = Number(document.getElementById('gmNacionalTD').value)||0;
+  var zonaTD = Number(document.getElementById('gmZonaTD').value)||0;
+  var umbralPDA = Number(document.getElementById('gmUmbralMaximoPDA').value)||0;
+  var nacionalPDA = Number(document.getElementById('gmNacionalPDA').value)||0;
+  var zonaPDA = Number(document.getElementById('gmZonaPDA').value)||0;
   document.getElementById('gmPuntajeCards').innerHTML =
-    renderTarjetaPuntajeGM_('Ventas TD (Tradicional)', npsTD, 6, umbral, nacional, zona, [4,2]) +
-    renderTarjetaPuntajeGM_('Entrega Vehículo PDA', npsPDA, 3, umbral, nacional, zona, [2,1]);
+    renderTarjetaPuntajeGM_('Ventas TD (Tradicional)', npsTD, 6, umbralTD, nacionalTD, zonaTD, [4,2]) +
+    renderTarjetaPuntajeGM_('Entrega Vehículo PDA', npsPDA, 3, umbralPDA, nacionalPDA, zonaPDA, [2,1]);
 
   // OnStar
   var conOnstarDato = respondidas.filter(function(r){ return typeof r.alertaTempranaOnstarActivado==='boolean'; });
@@ -10915,22 +10950,28 @@ function renderReporteAccesorios_(){
 // guardados en este navegador (localStorage) en vez de hardcodeados.
 function cargarBenchmarksGM_(sufijo){
   sufijo = sufijo || '';
-  var guardado = {};
-  try{ guardado = JSON.parse(localStorage.getItem('gmBenchmarks')||'{}'); }catch(e){}
-  var umbral = document.getElementById('gmUmbralMaximo'+sufijo);
-  var nacional = document.getElementById('gmNacional'+sufijo);
-  var zona = document.getElementById('gmZona'+sufijo);
-  if(umbral && !umbral.value) umbral.value = guardado.umbral!==undefined ? guardado.umbral : 90;
-  if(nacional && !nacional.value) nacional.value = guardado.nacional!==undefined ? guardado.nacional : '';
-  if(zona && !zona.value) zona.value = guardado.zona!==undefined ? guardado.zona : '';
+  ['TD','PDA'].forEach(function(canal){
+    var guardado = {};
+    try{ guardado = JSON.parse(localStorage.getItem('gmBenchmarks'+canal)||'{}'); }catch(e){}
+    var umbral = document.getElementById('gmUmbralMaximo'+canal+sufijo);
+    var nacional = document.getElementById('gmNacional'+canal+sufijo);
+    var zona = document.getElementById('gmZona'+canal+sufijo);
+    if(umbral && !umbral.value) umbral.value = guardado.umbral!==undefined ? guardado.umbral : 90;
+    if(nacional && !nacional.value) nacional.value = guardado.nacional!==undefined ? guardado.nacional : '';
+    if(zona && !zona.value) zona.value = guardado.zona!==undefined ? guardado.zona : '';
+  });
 }
 function guardarBenchmarksGM_(sufijo){
   sufijo = sufijo || '';
-  localStorage.setItem('gmBenchmarks', JSON.stringify({
-    umbral: document.getElementById('gmUmbralMaximo'+sufijo).value,
-    nacional: document.getElementById('gmNacional'+sufijo).value,
-    zona: document.getElementById('gmZona'+sufijo).value
-  }));
+  ['TD','PDA'].forEach(function(canal){
+    var umbral = document.getElementById('gmUmbralMaximo'+canal+sufijo);
+    if(!umbral) return;
+    localStorage.setItem('gmBenchmarks'+canal, JSON.stringify({
+      umbral: umbral.value,
+      nacional: document.getElementById('gmNacional'+canal+sufijo).value,
+      zona: document.getElementById('gmZona'+canal+sufijo).value
+    }));
+  });
 }
 // puntosMax: 6 (Tradicional) o 3 (PDA). repartoMax: [puntos para Nacional, puntos para Zona]
 // — [4,2] para Tradicional, [2,1] para PDA, tal cual la regla oficial.
@@ -11628,12 +11669,15 @@ function renderNpsContactoPosteriorPanel_(){
   npsTDCp = npsTDCp.length ? calcularNpsDecimal_(npsTDCp) : null;
   var npsPDACp = conDato.filter(function(x){return esCanalPDA_(x.r);}).map(function(x){return {npsScore:Number(x.d.recomienda)};});
   npsPDACp = npsPDACp.length ? calcularNpsDecimal_(npsPDACp) : null;
-  var umbralCp = Number(document.getElementById('gmUmbralMaximoCp').value)||0;
-  var nacionalCp = Number(document.getElementById('gmNacionalCp').value)||0;
-  var zonaCp = Number(document.getElementById('gmZonaCp').value)||0;
+  var umbralTDCp = Number(document.getElementById('gmUmbralMaximoTDCp').value)||0;
+  var nacionalTDCp = Number(document.getElementById('gmNacionalTDCp').value)||0;
+  var zonaTDCp = Number(document.getElementById('gmZonaTDCp').value)||0;
+  var umbralPDACp = Number(document.getElementById('gmUmbralMaximoPDACp').value)||0;
+  var nacionalPDACp = Number(document.getElementById('gmNacionalPDACp').value)||0;
+  var zonaPDACp = Number(document.getElementById('gmZonaPDACp').value)||0;
   document.getElementById('gmPuntajeCardsCp').innerHTML =
-    renderTarjetaPuntajeGM_('Ventas TD (Tradicional)', npsTDCp, 6, umbralCp, nacionalCp, zonaCp, [4,2]) +
-    renderTarjetaPuntajeGM_('Entrega Vehículo PDA', npsPDACp, 3, umbralCp, nacionalCp, zonaCp, [2,1]);
+    renderTarjetaPuntajeGM_('Ventas TD (Tradicional)', npsTDCp, 6, umbralTDCp, nacionalTDCp, zonaTDCp, [4,2]) +
+    renderTarjetaPuntajeGM_('Entrega Vehículo PDA', npsPDACp, 3, umbralPDACp, nacionalPDACp, zonaPDACp, [2,1]);
 }
 function mostrarTablaCpCompleta_(){
   var conDato = window._cpConDato||[];
@@ -11731,7 +11775,7 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
   try{ guardado = JSON.parse(localStorage.getItem('fabResumenArchivo')||'{}'); }catch(e){}
   if(!guardado.directa && !guardado.pda){ cont.style.display='none'; return; }
   respondidasPorCanal = respondidasPorCanal || {};
-  function bloqueCanal_(titulo, canalKey){
+  function bloqueCanal_(titulo, canalKey, totalesPorCanal){
     var entrada = guardado[canalKey];
     if(!entrada) return '<div class="chart-panel"><div class="chart-panel-title">'+titulo+'</div><div style="color:var(--text-faint);font-size:12px;padding:14px 0;text-align:center;">Todavía no subiste el archivo de este canal.</div></div>';
     var base = entrada.conteo;
@@ -11744,21 +11788,38 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
       var f = fechaAIso_(r.npsFabricaFecha);
       return !f || f>=corte;
     });
-    var vivo = contarNpsCrudo_(nuevas.map(function(r){return Number(r.npsFabricaScore);}));
+    // Sumamos también las respuestas anónimas (sin VIN) de este mismo canal,
+    // cargadas desde la fecha de corte para acá.
+    var canalLabel = canalKey==='directa' ? 'TD' : 'PDA';
+    var anonimasCanal = ANONIMAS_FABRICA_.filter(function(a){
+      if(a.canal!==canalLabel) return false;
+      var f = fechaAIso_(a.fecha);
+      return !f || f>=corte;
+    });
+    var vivo = contarNpsCrudo_(
+      nuevas.map(function(r){return Number(r.npsFabricaScore);}).concat(anonimasCanal.map(function(a){return Number(a.puntaje);}))
+    );
     var combinado = sumarConteos_(base, vivo);
     var nps = npsDeConteo_(combinado);
+    if(totalesPorCanal) totalesPorCanal.push(combinado.total);
     return '<div class="chart-panel">'+
       '<div class="chart-panel-title">'+titulo+'</div>'+
-      '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+entrada.fecha+') + '+vivo.total+' cargadas desde entonces en el sistema</div>'+
+      '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+entrada.fecha+') + '+nuevas.length+' con VIN + '+anonimasCanal.length+' anónimas, desde entonces</div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(nps>=50?'var(--ok)':(nps>=0?'var(--warn)':'var(--danger)'))+';">'+nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+combinado.total+' respuestas en total</div>'+
     '</div>';
   }
+  var totalesPorCanal = [];
+  var htmlDirecta = bloqueCanal_('Directa / Tradicional', 'directa', totalesPorCanal);
+  var htmlPda = bloqueCanal_('PDA', 'pda', totalesPorCanal);
+  var totalCombinado = totalesPorCanal.reduce(function(a,x){return a+x;}, 0);
   cont.style.display = 'block';
   cont.innerHTML =
-    '<div class="section-title" style="margin-top:0;">NPS de Fábrica — acumulado (archivo + lo cargado en el sistema)</div>'+
+    '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;">NPS de Fábrica — acumulado (archivo + lo cargado en el sistema)'+
+      (totalCombinado ? '<span style="font-size:10px;font-weight:700;color:var(--text-faint);background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:2px 9px;">'+totalCombinado+' encuestas en total (Directa + PDA)</span>' : '')+
+    '</div>'+
     '<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:8px;">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades.</div>'+
-    '<div class="two-col-grid">'+ bloqueCanal_('Directa / Tradicional', 'directa') + bloqueCanal_('PDA', 'pda') +'</div>';
+    '<div class="two-col-grid">'+ htmlDirecta + htmlPda +'</div>';
 }
 function importarNpsFabricaArchivo_(event){
   var file = event.target.files[0];
@@ -11801,9 +11862,51 @@ function buscarColPorNombre_(headers, keywords){
   }
   return -1;
 }
+// Mientras estés parado en NPS Fábrica, cada 30 segundos vuelve a pedir
+// las entregas al servidor (por si se cargó algo nuevo desde otra pestaña
+// o dispositivo) y repinta solo. Se corta solo si te vas de esta página.
+var _fabricaAutoRefrescoInterval_ = null;
+function iniciarAutoRefrescoFabrica_(){
+  clearInterval(_fabricaAutoRefrescoInterval_);
+  _fabricaAutoRefrescoInterval_ = setInterval(function(){
+    if(maestroTabActual!=='npsfabrica'){ clearInterval(_fabricaAutoRefrescoInterval_); return; }
+    gasGet('entregas').then(function(res){
+      if(res) ENTREGAS = res;
+      if(maestroTabActual==='npsfabrica') renderNpsFabricaPanel_();
+    }).catch(function(){});
+  }, 30000);
+}
+// Respuestas de NPS Fábrica sin VIN (anónimas) — viven en su propia hoja
+// del backend, se cargan una vez y se suman al acumulado de cada canal.
+var ANONIMAS_FABRICA_ = [];
+var _anonimasFabricaCargadas_ = false;
+var _ultimoRespondidasPorCanalFabrica_ = {directa:[], pda:[]};
+function cargarAnonimasFabricaSiHaceFalta_(){
+  if(_anonimasFabricaCargadas_) return Promise.resolve();
+  return gasGet('npsFabricaAnonimas').then(function(res){
+    ANONIMAS_FABRICA_ = (res && res.ok) ? res.respuestas : [];
+    _anonimasFabricaCargadas_ = true;
+  }).catch(function(){ ANONIMAS_FABRICA_ = []; _anonimasFabricaCargadas_ = true; });
+}
+function agregarNpsFabricaAnonimoUI_(){
+  var canal = document.getElementById('fabAnonCanal').value;
+  var puntaje = document.getElementById('fabAnonPuntaje').value;
+  var comentario = document.getElementById('fabAnonComentario').value.trim();
+  if(puntaje===''){ showToast('Falta el puntaje'); return; }
+  gasPost('agregarNpsFabricaAnonimo', {canal:canal, puntaje:puntaje, comentario:comentario, autor:usuarioActual()}).then(function(res){
+    if(!res.ok){ showToast(res.error||'No se pudo agregar'); return; }
+    document.getElementById('fabAnonPuntaje').value=''; document.getElementById('fabAnonComentario').value='';
+    showToast('Respuesta anónima agregada al acumulado');
+    _anonimasFabricaCargadas_ = false;
+    cargarAnonimasFabricaSiHaceFalta_().then(function(){
+      pintarResumenArchivoFabrica_(_ultimoRespondidasPorCanalFabrica_);
+    });
+  });
+}
 function renderNpsFabricaPanel_(){
   poblarFiltroSucursalGenerico_('fabFiltroSucursal');
   renderCanalToggleGenerico_('fabCanalToggle');
+  iniciarAutoRefrescoFabrica_();
   if(!document.getElementById('fabResumen')) return;
   var rows = entregasCalidadFiltro_('fabFiltroSucursal');
   var elegibles = rows.filter(function(r){ return !!r.garantiaFecha; });
@@ -11818,6 +11921,13 @@ function renderNpsFabricaPanel_(){
   pintarResumenArchivoFabrica_({
     directa: respondidas.filter(function(r){return !esCanalPDA_(r);}),
     pda: respondidas.filter(function(r){return esCanalPDA_(r);})
+  });
+  _ultimoRespondidasPorCanalFabrica_ = {
+    directa: respondidas.filter(function(r){return !esCanalPDA_(r);}),
+    pda: respondidas.filter(function(r){return esCanalPDA_(r);})
+  };
+  cargarAnonimasFabricaSiHaceFalta_().then(function(){
+    if(maestroTabActual==='npsfabrica') pintarResumenArchivoFabrica_(_ultimoRespondidasPorCanalFabrica_);
   });
   window._fabElegibles = elegibles;
   document.getElementById('fabTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Fecha garantía</th><th>Fecha respuesta</th><th>Puntaje</th><th>Comentario</th></tr>'+
@@ -11834,12 +11944,15 @@ function renderNpsFabricaPanel_(){
   npsTDFab = npsTDFab.length ? calcularNpsDecimal_(npsTDFab) : null;
   var npsPDAFab = respondidas.filter(function(r){return esCanalPDA_(r);});
   npsPDAFab = npsPDAFab.length ? calcularNpsDecimal_(npsPDAFab) : null;
-  var umbralFab = Number(document.getElementById('gmUmbralMaximoFab').value)||0;
-  var nacionalFab = Number(document.getElementById('gmNacionalFab').value)||0;
-  var zonaFab = Number(document.getElementById('gmZonaFab').value)||0;
+  var umbralTDFab = Number(document.getElementById('gmUmbralMaximoTDFab').value)||0;
+  var nacionalTDFab = Number(document.getElementById('gmNacionalTDFab').value)||0;
+  var zonaTDFab = Number(document.getElementById('gmZonaTDFab').value)||0;
+  var umbralPDAFab = Number(document.getElementById('gmUmbralMaximoPDAFab').value)||0;
+  var nacionalPDAFab = Number(document.getElementById('gmNacionalPDAFab').value)||0;
+  var zonaPDAFab = Number(document.getElementById('gmZonaPDAFab').value)||0;
   document.getElementById('gmPuntajeCardsFab').innerHTML =
-    renderTarjetaPuntajeGM_('Ventas TD (Tradicional)', npsTDFab, 6, umbralFab, nacionalFab, zonaFab, [4,2]) +
-    renderTarjetaPuntajeGM_('Entrega Vehículo PDA', npsPDAFab, 3, umbralFab, nacionalFab, zonaFab, [2,1]);
+    renderTarjetaPuntajeGM_('Ventas TD (Tradicional)', npsTDFab, 6, umbralTDFab, nacionalTDFab, zonaTDFab, [4,2]) +
+    renderTarjetaPuntajeGM_('Entrega Vehículo PDA', npsPDAFab, 3, umbralPDAFab, nacionalPDAFab, zonaPDAFab, [2,1]);
 }
 function mostrarTablaFabCompleta_(){
   var elegibles = window._fabElegibles||[];
