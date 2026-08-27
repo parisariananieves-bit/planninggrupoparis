@@ -2121,10 +2121,12 @@
     </div>
     <div class="maestro-block">
       <div class="section-title">Catálogo de accesorios y precios</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Estos son los accesorios que aparecen al buscar en una entrega — con su precio, para que se calcule solo. Se puede cargar uno por uno o importar una lista completa desde Excel (2 columnas: Nombre y Precio, sin encabezado o con "Nombre"/"Precio" arriba).</div>
+      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Estos son los accesorios que aparecen al buscar en una entrega — con su precio, para que se calcule solo. Se puede cargar uno por uno o importar una lista completa desde Excel. Si un accesorio tiene una columna "Marca" (o "Modelo"/"PN"), se guarda asociado a esa marca — al buscar en una entrega, solo aparecen los de su propia marca (más los que no tengan marca cargada, que se ofrecen para todas).</div>
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
         <input id="catAccNombre" placeholder="Nombre del accesorio" style="flex:1;min-width:160px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;">
-        <input id="catAccPrecio" type="number" placeholder="Precio" style="width:120px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;">
+        <input id="catAccPrecio" type="number" placeholder="Precio" style="width:110px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;">
+        <select id="catAccMarca" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;"><option value="">Todas las marcas</option></select>
+        <input id="catAccModelo" placeholder="Modelo (opcional)" style="width:140px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;">
         <button class="save-btn" style="width:auto;margin:0;" onclick="agregarItemCatalogoAccesoriosUI_()">+ Agregar</button>
         <label style="display:inline-block;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:12px;color:var(--text-dim);">
           📎 Importar Excel
@@ -2302,6 +2304,7 @@
       <div class="section-title">Datos del cliente</div>
       <div class="field-grid">
         <div class="field full"><div class="l">Cliente</div><input id="dCliente" onchange="guardarCampo('cliente', this.value.toUpperCase(), true)"></div>
+        <div class="field"><div class="l">DNI</div><input id="dDni" class="mono" onchange="guardarCampo('dni', this.value)"></div>
         <div class="field"><div class="l">Teléfono</div><input id="dTelefono" onchange="guardarCampo('telefono', this.value)"></div>
         <div class="field"><div class="l">E-mail</div><input id="dEmail" onchange="guardarCampo('email', this.value)"></div>
         <div class="field"><div class="l">Tipo de venta</div><select id="dTipoVenta" onchange="guardarCampo('tipoVenta', this.value)"><option value="OKM">0KM</option><option value="USADO">Usado</option></select></div>
@@ -5930,7 +5933,8 @@ function renderContactoPosteriorResumen_(r){
   if(!cache || !cache.buscado || !cache.encontrado){ wrap.style.display='none'; return; }
   var e = cache.respuesta;
   wrap.style.display = 'block';
-  wrap.innerHTML = bloqueNpsGrande_(e.recomienda, 'Respondida '+(e.fecha||''), '');
+  wrap.innerHTML = bloqueNpsGrande_(e.recomienda, 'Respondida '+(e.fecha||''), '')+
+    '<div onclick="abrirModalCaso(detailMarca, detailId)" style="display:flex;align-items:center;gap:5px;justify-content:center;cursor:pointer;font-size:11px;color:var(--caso);margin-top:-4px;margin-bottom:8px;"><span class="material-symbols-outlined" style="font-size:14px;">report</span>Enviar a Gestión de Casos a mano</div>';
 }
 function renderAlertaNpsContactoPosterior_(r){
   var alerta = document.getElementById('dNpsContactoPosteriorAlerta');
@@ -6000,7 +6004,8 @@ function renderAlertaNpsFabrica_(r){
     alerta.style.background = cat.colorSoft;
     alerta.style.color = cat.color;
     alerta.style.borderColor = cat.color;
-    alerta.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">factory</span>NPS Fábrica '+r.npsFabricaScore+'/10'+(r.npsFabricaComentario?' — "'+r.npsFabricaComentario.slice(0,60)+(r.npsFabricaComentario.length>60?'…':'')+'"':'');
+    alerta.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">factory</span>NPS Fábrica '+r.npsFabricaScore+'/10'+(r.npsFabricaComentario?' — "'+r.npsFabricaComentario.slice(0,60)+(r.npsFabricaComentario.length>60?'…':'')+'"':'')+
+      ' <span onclick="event.stopPropagation();abrirModalCaso(detailMarca, detailId);" title="Enviar a Gestión de Casos a mano" style="cursor:pointer;margin-left:4px;"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px;">report</span></span>';
   } else {
     alerta.style.background = 'var(--panel-2)';
     alerta.style.color = 'var(--text-faint)';
@@ -7146,35 +7151,47 @@ function eliminarItemChecklistPrepUI_(nombre){
 function renderCatalogoAccesoriosTabla_(){
   var cont = document.getElementById('catalogoAccesoriosTabla');
   if(!cont) return;
+  var selMarca = document.getElementById('catAccMarca');
+  if(selMarca && selMarca.options.length<=1){
+    selMarca.innerHTML = '<option value="">Todas las marcas</option>' + BRANDS.map(function(b){return '<option value="'+b.id+'">'+b.label+'</option>';}).join('');
+  }
   if(CATALOGO_ACCESORIOS_.length===0){
     cont.innerHTML = '<div style="font-size:11.5px;color:var(--text-faint);padding:10px 0;">Sin accesorios cargados todavía.</div>';
     return;
   }
   var filas = CATALOGO_ACCESORIOS_.map(function(it){
-    return '<tr><td>'+it.nombre+'</td><td>$'+it.precio.toLocaleString('es-AR')+'</td>'+
-      '<td style="text-align:right;"><button onclick="eliminarItemCatalogoAccesoriosUI_(\''+it.nombre.replace(/'/g,"\\'")+'\')" style="background:none;border:none;color:var(--text-faint);cursor:pointer;"><span class="material-symbols-outlined" style="font-size:16px;">delete</span></button></td></tr>';
+    var b = it.marca ? BRANDS.find(function(x){return x.id===it.marca;}) : null;
+    return '<tr><td>'+it.nombre+'</td><td>'+(b?'<span style="font-size:10.5px;font-weight:700;color:var('+b.color+');">'+b.label+'</span>':'<span style="color:var(--text-faint);font-size:10.5px;">Todas</span>')+'</td><td>'+(it.modelo||'—')+'</td><td>$'+it.precio.toLocaleString('es-AR')+'</td>'+
+      '<td style="text-align:right;"><button onclick="eliminarItemCatalogoAccesoriosUI_(\''+it.nombre.replace(/'/g,"\\'")+'\',\''+(it.marca||'')+'\',\''+(it.modelo||'').replace(/'/g,"\\'")+'\')" style="background:none;border:none;color:var(--text-faint);cursor:pointer;"><span class="material-symbols-outlined" style="font-size:16px;">delete</span></button></td></tr>';
   }).join('');
-  cont.innerHTML = '<table class="report-table" style="width:100%;"><tr><th>Nombre</th><th>Precio</th><th></th></tr>'+filas+'</table>';
+  cont.innerHTML = '<table class="report-table" style="width:100%;"><tr><th>Nombre</th><th>Marca</th><th>Modelo</th><th>Precio</th><th></th></tr>'+filas+'</table>';
 }
 function agregarItemCatalogoAccesoriosUI_(){
   var nombre = document.getElementById('catAccNombre').value.trim();
   var precio = document.getElementById('catAccPrecio').value;
+  var marca = document.getElementById('catAccMarca').value;
+  var modelo = document.getElementById('catAccModelo').value.trim();
   if(!nombre){ showToast('Falta el nombre'); return; }
-  gasPost('agregarItemCatalogoAccesorios', {nombre:nombre, precio:precio}).then(function(res){
+  gasPost('agregarItemCatalogoAccesorios', {nombre:nombre, precio:precio, marca:marca, modelo:modelo}).then(function(res){
     if(!res.ok){ showToast(res.error||'No se pudo agregar'); return; }
-    document.getElementById('catAccNombre').value=''; document.getElementById('catAccPrecio').value='';
+    document.getElementById('catAccNombre').value=''; document.getElementById('catAccPrecio').value=''; document.getElementById('catAccModelo').value='';
     showToast('Accesorio agregado al catálogo');
     cargarCatalogoAccesorios_().then(renderCatalogoAccesoriosTabla_);
   });
 }
-function eliminarItemCatalogoAccesoriosUI_(nombre){
+function eliminarItemCatalogoAccesoriosUI_(nombre, marca, modelo){
   if(!confirm('¿Sacar "'+nombre+'" del catálogo? (no afecta a las entregas que ya lo tengan cargado)')) return;
-  gasPost('eliminarItemCatalogoAccesorios', {nombre:nombre}).then(function(res){
+  gasPost('eliminarItemCatalogoAccesorios', {nombre:nombre, marca:marca, modelo:modelo}).then(function(res){
     if(!res.ok){ showToast(res.error||'No se pudo eliminar'); return; }
     showToast('Accesorio quitado del catálogo');
     cargarCatalogoAccesorios_().then(renderCatalogoAccesoriosTabla_);
   });
 }
+// Importa el catálogo desde Excel. Soporta 2 formatos:
+// - El viejo, simple, sin encabezados reconocibles: columna A = nombre, B = precio.
+// - Uno con encabezados tipo "MODELO, ACCESORIO, APLICA, PN, PRECIO..., Marca"
+//   (el que usa el listado del taller) — ahí lo detecta por nombre de columna,
+//   sin importar el orden en que vengan.
 function importarCatalogoAccesoriosArchivo_(event){
   var file = event.target.files[0];
   if(!file) return;
@@ -7183,9 +7200,36 @@ function importarCatalogoAccesoriosArchivo_(event){
     try{
       var wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
       var hoja = wb.Sheets[wb.SheetNames[0]];
-      var filas = XLSX.utils.sheet_to_json(hoja, {header:1});
-      // Si la primera fila parece encabezado (texto, no número en la col precio), la salteamos.
-      if(filas.length && isNaN(Number(filas[0][1]))) filas = filas.slice(1);
+      var objetos = XLSX.utils.sheet_to_json(hoja, {defval:''});
+      var filas = [];
+      if(objetos.length && Object.keys(objetos[0]).length>1){
+        // Formato con encabezados — buscamos las columnas por nombre, sin importar mayúsculas/orden.
+        var headersOriginales = Object.keys(objetos[0]);
+        function colQueContenga(subs){
+          return headersOriginales.find(function(h){
+            var hu = h.toUpperCase();
+            return subs.some(function(s){ return hu.indexOf(s)>-1; });
+          });
+        }
+        var colNombre = colQueContenga(['ACCESORIO','NOMBRE']);
+        var colPrecio = colQueContenga(['PRECIO','COSTO']);
+        var colMarca = colQueContenga(['MARCA']);
+        var colModelo = colQueContenga(['MODELO']);
+        var colPn = headersOriginales.find(function(h){ return h.toUpperCase().trim()==='PN'; });
+        if(colNombre && colPrecio){
+          filas = objetos.map(function(o){
+            var marcaTexto = String(o[colMarca]||'').trim().toLowerCase();
+            var marcaId = BRANDS.find(function(b){ return marcaTexto.indexOf(b.id)>-1 || marcaTexto.indexOf(b.label.toLowerCase())>-1; });
+            return [String(o[colNombre]||'').trim(), o[colPrecio], marcaId?marcaId.id:'', String(o[colModelo]||'').trim(), colPn?String(o[colPn]||'').trim():''];
+          });
+        }
+      }
+      if(filas.length===0){
+        // Fallback: formato viejo de 2 columnas sin encabezados reconocidos.
+        var crudo = XLSX.utils.sheet_to_json(hoja, {header:1});
+        if(crudo.length && isNaN(Number(crudo[0][1]))) crudo = crudo.slice(1);
+        filas = crudo.filter(function(f){ return f && f[0]; }).map(function(f){ return [f[0], f[1], '', '', '']; });
+      }
       filas = filas.filter(function(f){ return f && f[0]; });
       if(filas.length===0){ showToast('El archivo no tiene filas para importar'); return; }
       gasPost('importarCatalogoAccesorios', {filas: filas}).then(function(res){
@@ -8230,8 +8274,13 @@ function filtrarBuscadorAccesorios_(q){
   var lista = document.getElementById('dAccesoriosBuscadorLista');
   q = (q||'').trim().toLowerCase();
   if(!q){ lista.style.display='none'; lista.innerHTML=''; return; }
+  // Solo se ofrecen los accesorios de la MARCA de esta entrega (más los que
+  // no tengan marca cargada en el catálogo, que aplican a todas) — así no
+  // se mezclan precios/ítems de otra marca por error.
   var coincidencias = CATALOGO_ACCESORIOS_.filter(function(it){
-    return it.activo!==false && it.nombre.toLowerCase().indexOf(q)>-1;
+    if(it.activo===false) return false;
+    if(it.marca && it.marca!==detailMarca) return false;
+    return it.nombre.toLowerCase().indexOf(q)>-1;
   });
   var opciones = coincidencias.map(function(it){
     return '<div class="combo-item" onclick="agregarAccesorioAEntrega_(\''+it.nombre.replace(/'/g,"\\'")+'\','+it.precio+')">'+it.nombre+' <span style="color:var(--text-faint);float:right;">$'+it.precio.toLocaleString('es-AR')+'</span></div>';
@@ -9111,8 +9160,11 @@ function filtrarBuscadorAccesoriosNueva_(q){
   var lista = document.getElementById('nAccesoriosBuscadorLista');
   q = (q||'').trim().toLowerCase();
   if(!q){ lista.style.display='none'; lista.innerHTML=''; return; }
+  var marcaSeleccionada = document.getElementById('nMarca').value;
   var coincidencias = CATALOGO_ACCESORIOS_.filter(function(it){
-    return it.activo!==false && it.nombre.toLowerCase().indexOf(q)>-1;
+    if(it.activo===false) return false;
+    if(it.marca && it.marca!==marcaSeleccionada) return false;
+    return it.nombre.toLowerCase().indexOf(q)>-1;
   });
   var opciones = coincidencias.map(function(it){
     return '<div class="combo-item" onclick="agregarAccesorioNueva_(\''+it.nombre.replace(/'/g,"\\'")+'\','+it.precio+')">'+it.nombre+' <span style="color:var(--text-faint);float:right;">$'+it.precio.toLocaleString('es-AR')+'</span></div>';
