@@ -2222,7 +2222,7 @@
       <div class="stats-grid" id="calidadKpis" style="margin-top:14px;"></div>
 
       <div class="section-title" style="margin-top:20px;">NPS por instancia</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Cada tarjeta cuenta cuántos clientes ya respondieron esa encuesta, sobre cuántos debían responderla. En Fábrica solo cuentan los que ya tienen la garantía cargada. El detalle completo de cada una está en su propia página, en el menú.</div>
+      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Cada tarjeta cuenta cuántos clientes ya respondieron esa encuesta, sobre cuántos debían responderla. En Fábrica solo cuentan los que ya tienen la garantía cargada. El detalle completo de cada una está en su propia página, en el menú. Si importaste algún Excel de encuestas, esas respuestas también suman acá — por eso a veces hay más respuestas que entregas del período (vienen de un histórico más largo). Los botones "Todos los canales / Solo PDA / Solo Tradicional" de arriba filtran también estos números.</div>
       <div class="costos-grid" id="calidadNpsInstancias"></div>
 
       <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">insights</span>Evolución del NPS</div>
@@ -2788,7 +2788,7 @@
           <div class="l" style="display:flex;align-items:center;gap:6px;">Fecha de carga
             <span id="dGarantiaFiltradaDot" onclick="toggleGarantiaFiltrada_()" title="Marcar como filtrada (no le va a llegar la encuesta de fábrica)" style="width:8px;height:8px;border-radius:50%;background:var(--hairline);cursor:pointer;display:inline-block;"></span>
           </div>
-          <input type="date" id="dGarantiaFecha" onchange="guardarCampo('garantiaFecha', this.value, false); renderAlertaGarantia_(ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;})); renderAlertaNpsFabrica_(ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}));">
+          <input type="date" id="dGarantiaFecha" onchange="guardarGarantiaFechaUI_(this.value);">
         </div>
       </div>
 
@@ -2952,6 +2952,7 @@
     <div><h3><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">forum</span> Contacto Posterior</h3><div class="sub">Encuesta pública de satisfacción 0km (post-venta) — solo lectura, cruce por VIN o patente.</div></div>
     <button class="close" onclick="cerrarModalContactoPosterior_()">✕</button>
   </div>
+  <div id="contactoPosteriorClienteHeader" style="padding:10px 20px;background:var(--panel-2);border-bottom:1px solid var(--hairline);font-size:11.5px;color:var(--text-dim);"></div>
   <div class="modal-body" id="contactoPosteriorBody"></div>
 </div>
 
@@ -6132,7 +6133,7 @@ function categoriaNps_(score){
   if(score===null || score===undefined || score==='') return {texto:'', color:'var(--text-faint)', colorSoft:'var(--panel-2)'};
   var n = Number(score);
   if(n<=6) return {texto:'Detractor', color:'var(--danger)', colorSoft:'var(--danger-soft)'};
-  if(n<=8) return {texto:'Pasivo', color:'#E8B23D', colorSoft:'rgba(232,178,61,.14)'};
+  if(n<=8) return {texto:'Neutral', color:'#E8B23D', colorSoft:'rgba(232,178,61,.14)'};
   return {texto:'Promotor', color:'var(--ok)', colorSoft:'var(--ok-soft)'};
 }
 // Tarjeta grande con el puntaje en color, igual estilo que la de Alerta
@@ -6202,6 +6203,8 @@ function verContactoPosterior_(marca, id){
   if(!r) return;
   document.getElementById('overlay').classList.add('show');
   document.getElementById('modalContactoPosterior').classList.add('show');
+  document.getElementById('contactoPosteriorClienteHeader').innerHTML =
+    '<b>'+(r.cliente||'—')+'</b> · VIN '+(r.chasis||'—')+' · Adm: '+(r.administrativo||'—')+' · Vend: '+(r.vendedor||'—');
   var cache = contactoPosteriorCache_(r);
   if(cache && cache.buscado && (cache.encontrado || !debeReintentarContactoPosterior_(cache))){
     pintarBodyContactoPosterior_(cache);
@@ -6213,8 +6216,13 @@ function buscarContactoPosteriorAhora_(r){
   document.getElementById('contactoPosteriorBody').innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-faint);font-size:12.5px;">Buscando en la encuesta…</div>';
   gasGet('encuestaPosterior', {vin:r.chasis||'', patente:r.dominio||''}).then(function(res){
     if(!res.ok){ document.getElementById('contactoPosteriorBody').innerHTML = '<div style="padding:18px;color:var(--danger);font-size:12.5px;">'+res.error+'</div>'; return; }
+    var yaEstabaEncontrado = (function(){ var c=contactoPosteriorCache_(r); return c && c.encontrado; })();
     var datos = {buscado:true, encontrado:res.encontrado, respuesta:res.respuesta||null};
     guardarContactoPosteriorCache_(r.marca, r.id, datos);
+    if(res.encontrado && !yaEstabaEncontrado){
+      logHistorial_(r.marca, r.id, '📋 Contacto Posterior encontrado — NPS '+res.respuesta.recomienda+'/10');
+      renderHistorialUI(r);
+    }
     pintarBodyContactoPosterior_(datos);
     renderAlertaNpsContactoPosterior_(r);
     renderContactoPosteriorResumen_(r);
@@ -6234,7 +6242,10 @@ function buscarContactoPosteriorSilencioso_(r){
     if(!res.ok) return;
     var datos = {buscado:true, encontrado:res.encontrado, respuesta:res.respuesta||null};
     guardarContactoPosteriorCache_(r.marca, r.id, datos);
-    if(detailId===r.id && detailMarca===r.marca){ renderAlertaNpsContactoPosterior_(r); renderContactoPosteriorResumen_(r); }
+    if(res.encontrado){
+      logHistorial_(r.marca, r.id, '📋 Contacto Posterior encontrado — NPS '+res.respuesta.recomienda+'/10');
+    }
+    if(detailId===r.id && detailMarca===r.marca){ renderAlertaNpsContactoPosterior_(r); renderContactoPosteriorResumen_(r); renderHistorialUI(r); }
   }).catch(function(){});
 }
 function renderContactoPosteriorResumen_(r){
@@ -6271,7 +6282,10 @@ function toggleGarantiaFiltrada_(){
   if(!r) return;
   r.garantiaFiltrada = !r.garantiaFiltrada;
   gasPost('updateEntregaFields',{marca:detailMarca, id:detailId, fields:{garantiaFiltrada: r.garantiaFiltrada}});
+  logHistorial_(detailMarca, detailId, r.garantiaFiltrada ? '🛡️ Garantía marcada como filtrada (no le llega encuesta de fábrica)' : '🛡️ Garantía desmarcada como filtrada');
   pintarGarantiaFiltradaDot_(r);
+  renderAlertaGarantia_(r);
+  renderHistorialUI(r);
 }
 function pintarGarantiaFiltradaDot_(r){
   var dot = document.getElementById('dGarantiaFiltradaDot');
@@ -6300,7 +6314,8 @@ function renderAlertaGarantia_(r){
   alerta.style.borderColor = cargada ? 'var(--ok)' : 'var(--hairline)';
   alerta.style.borderWidth = '1px';
   alerta.style.borderStyle = 'solid';
-  alerta.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">verified</span>'+(cargada ? 'Garantía cargada — '+fechaLimpia : 'Garantía no cargada');
+  alerta.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">verified</span>'+(cargada ? 'Garantía cargada — '+fechaLimpia : 'Garantía no cargada')+
+    (r.garantiaFiltrada ? ' <span title="Marcada como filtrada — no le va a llegar la encuesta de fábrica" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--danger);margin-left:4px;vertical-align:2px;"></span>' : '');
 }
 
 // ---- NPS de Fábrica (carga manual, solo si hay garantía cargada) ----
@@ -6311,6 +6326,10 @@ function guardarNpsFabricaCampo_(campo, valor){
   r[campo] = valor;
   var fields = {}; fields[campo] = valor;
   gasPost('updateEntregaFields',{marca:detailMarca, id:detailId, fields:fields});
+  if(campo==='npsFabricaScore' && valor!==''){
+    logHistorial_(detailMarca, detailId, '🏭 NPS de Fábrica cargado — '+valor+'/10');
+    renderHistorialUI(r);
+  }
   renderAlertaNpsFabrica_(r);
 }
 function renderAlertaNpsFabrica_(r){
@@ -6349,6 +6368,12 @@ function guardarContactoSofiCampo_(campo, valor){
   var fields = {}; fields[campo] = valor;
   gasPost('updateEntregaFields',{marca:detailMarca, id:detailId, fields:fields});
   if(campo==='contactoSofiMail') pintarContactoSofiMailBadge_(r);
+  if((campo==='contactoSofiNota' || campo==='contactoSofiComentario') && valor.trim()!==''){
+    var nombreContacto = r.contactoSofiNombre || 'Sofi';
+    var etiqueta = campo==='contactoSofiNota' ? 'nota' : 'comentario';
+    logHistorial_(detailMarca, detailId, '💬 '+nombreContacto+' cargó '+etiqueta+' de contacto posventa');
+    renderHistorialUI(r);
+  }
 }
 function pintarContactoSofiMailBadge_(r){
   var badge = document.getElementById('dContactoSofiMailBadge');
@@ -7863,7 +7888,7 @@ function verNpsCompleto_(marca, id){
   var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r || typeof r.npsScore!=='number') return;
   var b = BRANDS.find(function(x){return x.id===marca;});
-  var categoria = r.npsScore<=6 ? 'Detractor' : (r.npsScore<=8 ? 'Pasivo' : 'Promotor');
+  var categoria = r.npsScore<=6 ? 'Detractor' : (r.npsScore<=8 ? 'Neutral' : 'Promotor');
   var colorNps = r.npsScore<=6 ? 'var(--danger)' : (r.npsScore<=8 ? '#E8B23D' : 'var(--ok)');
   var colorNpsSoft = r.npsScore<=6 ? 'var(--danger-soft)' : (r.npsScore<=8 ? 'rgba(232,178,61,.14)' : 'var(--ok-soft)');
   document.getElementById('npsDetalleSub').textContent = r.cliente+' · '+(b?b.label:marca)+' '+r.modelo+' · '+r.fecha;
@@ -7936,7 +7961,7 @@ function atFinalizar_(){
   if(emailCambio) fields.email = r.email;
   if(telefonoCambio) fields.telefono = r.telefono;
   gasPost('updateEntregaFields',{marca:marca,id:id,fields:fields});
-  var categoria = resp.nps<=6 ? 'Detractor' : (resp.nps<=8 ? 'Pasivo' : 'Promotor');
+  var categoria = resp.nps<=6 ? 'Detractor' : (resp.nps<=8 ? 'Neutral' : 'Promotor');
   logHistorial_(marca, id, '⭐ Alerta Temprana respondida — NPS '+resp.nps+'/10 ('+categoria+')'+(emailCambio?' — Email actualizado':'')+(telefonoCambio?' — Teléfono actualizado':''));
 
   // Pantalla de agradecimiento
@@ -8027,7 +8052,7 @@ function guardarEncuestaNPS_(){
   r.npsComentario = comentario;
   r.npsFecha = fechaHoraAhora_();
   gasPost('updateEntregaFields',{marca:marca,id:id,fields:{npsScore:puntaje, npsComentario:comentario, npsFecha:r.npsFecha}});
-  var categoria = puntaje<=6 ? 'Detractor' : (puntaje<=8 ? 'Pasivo' : 'Promotor');
+  var categoria = puntaje<=6 ? 'Detractor' : (puntaje<=8 ? 'Neutral' : 'Promotor');
   logHistorial_(marca, id, '⭐ Encuesta NPS: '+puntaje+'/10 ('+categoria+')'+(comentario?' — "'+comentario+'"':''));
   var callback = npsContexto_.alGuardar;
   cerrarEncuestaNPS_();
@@ -8375,7 +8400,7 @@ function openDetail(marca, id){
   var alertaNps = document.getElementById('dNpsAlerta');
   if(alertaNps){
     if(typeof r.npsScore==='number'){
-      var categoriaNps = r.npsScore<=6 ? 'Detractor' : (r.npsScore<=8 ? 'Pasivo' : 'Promotor');
+      var categoriaNps = r.npsScore<=6 ? 'Detractor' : (r.npsScore<=8 ? 'Neutral' : 'Promotor');
       var colorNps = r.npsScore<=6 ? 'var(--danger)' : (r.npsScore<=8 ? '#E8B23D' : 'var(--ok)');
       var colorNpsSoft = r.npsScore<=6 ? 'var(--danger-soft)' : (r.npsScore<=8 ? 'rgba(232,178,61,.14)' : 'var(--ok-soft)');
       alertaNps.style.display = 'flex';
@@ -8573,6 +8598,15 @@ function guardarCampo(campo, valor, refrescarHead){
   if(campo==='tipoVenta'){ renderOnstarPasos(r); renderAlertaOnstar_(r); }
   renderAll();
   showToast('Actualizado');
+}
+function guardarGarantiaFechaUI_(valor){
+  if(!detailId) return;
+  guardarCampo('garantiaFecha', valor, false);
+  var r = ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  logHistorial_(detailMarca, detailId, valor ? '🛡️ Garantía cargada — '+valor : '🛡️ Garantía quitada');
+  renderAlertaGarantia_(r);
+  renderAlertaNpsFabrica_(r);
+  renderHistorialUI(r);
 }
 function cambiarSucursalDetalle(nuevaSucursal){
   if(!detailId) return;
@@ -10333,7 +10367,11 @@ function showToast(msg){
 }
 
 document.addEventListener('keydown', function(e){
-  if(e.key==='Escape'){ closeAll(); }
+  if(e.key==='Escape'){
+    closeAll();
+    var mcp = document.getElementById('modalContactoPosterior');
+    if(mcp && mcp.classList.contains('show')) cerrarModalContactoPosterior_();
+  }
   if(e.key==='Enter' && currentAppView==='nuevaentrega'){
     var activo = document.activeElement;
     if(activo && activo.tagName!=='TEXTAREA' && !activo.classList.contains('combo-input')){
@@ -11635,6 +11673,27 @@ function renderNpsGeneralPanel_(){
   renderCanalToggleGenerico_('npsGeneralCanalToggle');
   dibujarNpsGeneral_();
   cargarCasosGCSiHaceFalta_().then(dibujarNpsGeneral_);
+  Promise.all([cargarAnonimasATSiHaceFalta_(), cargarAnonimasCpSiHaceFalta_(), cargarAnonimasFabricaSiHaceFalta_()]).then(function(){
+    if(maestroTabActual==='npsgeneral') dibujarNpsGeneral_();
+  });
+}
+// Combina, para una instancia (AT/CP/Fábrica), el archivo importado + lo
+// cargado en el sistema + las anónimas — respetando el filtro de canal
+// de arriba (Todos/Solo PDA/Solo Tradicional), igual que en cada página
+// individual. Así el Resumen General usa el mismo número que ves en la
+// página de cada instancia.
+function conteoAcumuladoGeneral_(localStorageKey, anonimasArr, scoresVivos){
+  var guardado = {};
+  try{ guardado = JSON.parse(localStorage.getItem(localStorageKey)||'{}'); }catch(e){}
+  var canales = filterCanal==='tradicional' ? ['directa'] : (filterCanal==='pda' ? ['pda'] : ['directa','pda']);
+  var conteoBase = {promotores:0, pasivos:0, detractores:0, total:0};
+  canales.forEach(function(c){
+    if(guardado[c] && guardado[c].conteo) conteoBase = sumarConteos_(conteoBase, guardado[c].conteo);
+  });
+  var canalLabels = filterCanal==='tradicional' ? ['TD'] : (filterCanal==='pda' ? ['PDA'] : ['TD','PDA']);
+  var anonScores = anonimasArr.filter(function(a){return canalLabels.indexOf(a.canal)>-1;}).map(function(a){return Number(a.puntaje);});
+  var conteoVivo = contarNpsCrudo_((scoresVivos||[]).concat(anonScores));
+  return sumarConteos_(conteoBase, conteoVivo);
 }
 function dibujarNpsGeneral_(){
   if(!document.getElementById('calidadKpis')) return;
@@ -11642,21 +11701,24 @@ function dibujarNpsGeneral_(){
   var total = rows.length;
 
   var atRespondidas = rows.filter(function(r){ return r.npsScore!==null && r.npsScore!==undefined && r.npsScore!==''; });
-  var atNps = atRespondidas.length ? calcularNps_(atRespondidas) : null;
+  var conteoAT = conteoAcumuladoGeneral_('atResumenArchivo', ANONIMAS_AT_, atRespondidas.map(function(r){return Number(r.npsScore);}));
+  var atNps = conteoAT.total ? npsDeConteo_(conteoAT) : null;
 
   var cpConDato = rows.map(function(r){ return {r:r, d:contactoPosteriorInfo_(r)}; }).filter(function(x){ return x.d && x.d.recomienda!==undefined && x.d.recomienda!==''; });
   var cpRows = cpConDato.map(function(x){ return {npsScore:Number(x.d.recomienda)}; });
-  var cpNps = cpRows.length ? calcularNps_(cpRows) : null;
+  var conteoCP = conteoAcumuladoGeneral_('cpResumenArchivo', ANONIMAS_CP_, cpRows.map(function(x){return x.npsScore;}));
+  var cpNps = conteoCP.total ? npsDeConteo_(conteoCP) : null;
 
   var fabElegibles = rows.filter(function(r){ return !!r.garantiaFecha; });
   var fabRespondidas = fabElegibles.filter(function(r){ return r.npsFabricaScore!==null && r.npsFabricaScore!==undefined && r.npsFabricaScore!==''; });
   var fabRows = fabRespondidas.map(function(r){ return {npsScore:Number(r.npsFabricaScore)}; });
-  var fabNps = fabRows.length ? calcularNps_(fabRows) : null;
+  var conteoFAB = conteoAcumuladoGeneral_('fabResumenArchivo', ANONIMAS_FABRICA_, fabRows.map(function(x){return x.npsScore;}));
+  var fabNps = conteoFAB.total ? npsDeConteo_(conteoFAB) : null;
 
   var totalEsperadoGeneral = total + total + fabElegibles.length;
-  var totalRespGeneral = atRespondidas.length + cpRows.length + fabRespondidas.length;
-  var poolGeneral = atRespondidas.map(function(r){return {npsScore:r.npsScore};}).concat(cpRows).concat(fabRows);
-  var npsGeneral = poolGeneral.length ? calcularNps_(poolGeneral) : null;
+  var totalRespGeneralArchivo = conteoAT.total + conteoCP.total + conteoFAB.total;
+  var conteoGeneral = sumarConteos_(sumarConteos_(conteoAT, conteoCP), conteoFAB);
+  var npsGeneral = conteoGeneral.total ? npsDeConteo_(conteoGeneral) : null;
 
   var detractores = atRespondidas.filter(function(r){ return r.npsScore<=6; }).length;
   var casosAbiertos = casosGCFiltrados_('calidadFiltroSucursal').filter(function(c){ var e=(c.estado||'').toLowerCase(); return e.indexOf('cerrad')===-1 && e.indexOf('resuelt')===-1; });
@@ -11666,7 +11728,7 @@ function dibujarNpsGeneral_(){
 
   window._calidadChipsFiltros = [
     {n: npsGeneral===null?'—':npsGeneral, l:'NPS General', cls: npsGeneral===null?'pending':(npsGeneral>=50?'ok':(npsGeneral>=0?'warn':'danger')), icon:'star'},
-    {n: totalRespGeneral+' / '+totalEsperadoGeneral, l:'Respuestas totales (3 encuestas)', cls:'pending', icon:'forum'},
+    {n: totalRespGeneralArchivo+' / '+totalEsperadoGeneral, l:'Respuestas totales (3 encuestas)', cls:'pending', icon:'forum'},
     {n: detractores, l:'Detractores (Alerta Temprana)', cls: detractores?'danger':'ok', icon:'thumb_down', filtro:function(r){return r.npsScore<=6;}, titulo:'Detractores — Alerta Temprana'},
     {n: casosAbiertos.length, l:'Casos abiertos', cls: casosAbiertos.length?'warn':'ok', icon:'report'},
     {n: garFaltan.length, l:'Garantías pendientes', cls: garFaltan.length?'warn':'ok', icon:'verified', filtro:function(r){return !r.garantiaFecha;}, titulo:'Garantías sin cargar'},
@@ -11854,8 +11916,8 @@ function renderNpsContactoPosteriorPanel_(){
   var nacionalPDACp = Number(document.getElementById('gmNacionalPDACp').value)||0;
   var zonaPDACp = Number(document.getElementById('gmZonaPDACp').value)||0;
   document.getElementById('gmPuntajeCardsCp').innerHTML =
-    renderTarjetaPuntajeGM_('Ventas TD (Tradicional)', npsTDCp, 6, umbralTDCp, nacionalTDCp, zonaTDCp, [4,2], conteoTDCp) +
-    renderTarjetaPuntajeGM_('Entrega Vehículo PDA', npsPDACp, 3, umbralPDACp, nacionalPDACp, zonaPDACp, [2,1], conteoPDACp);
+    renderTarjetaPuntajeGM_('Posterior — Tradicional', npsTDCp, 6, umbralTDCp, nacionalTDCp, zonaTDCp, [4,2], conteoTDCp) +
+    renderTarjetaPuntajeGM_('Posterior — PDA', npsPDACp, 3, umbralPDACp, nacionalPDACp, zonaPDACp, [2,1], conteoPDACp);
 }
 function mostrarTablaCpCompleta_(){
   var conDato = window._cpConDato||[];
@@ -11993,6 +12055,7 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
       '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+entrada.fecha+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
+      '<div style="font-size:10px;color:var(--text-faint);margin-top:3px;">'+r.conteo.promotores+' promotoras · '+r.conteo.pasivos+' neutrales · '+r.conteo.detractores+' detractoras</div>'+
     '</div>';
   }
   var totalesPorCanal = [];
@@ -12143,6 +12206,7 @@ function pintarResumenArchivoAT_(respondidasPorCanal){
       '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+entrada.fecha+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
+      '<div style="font-size:10px;color:var(--text-faint);margin-top:3px;">'+r.conteo.promotores+' promotoras · '+r.conteo.pasivos+' neutrales · '+r.conteo.detractores+' detractoras</div>'+
     '</div>';
   }
   var totalesPorCanal = [];
@@ -12307,6 +12371,7 @@ function pintarResumenArchivoCp_(respondidasPorCanal){
       '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+entrada.fecha+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
+      '<div style="font-size:10px;color:var(--text-faint);margin-top:3px;">'+r.conteo.promotores+' promotoras · '+r.conteo.pasivos+' neutrales · '+r.conteo.detractores+' detractoras</div>'+
     '</div>';
   }
   var totalesPorCanal = [];
@@ -12434,6 +12499,7 @@ function renderEvolucionMensualNps_(canvasId, chartKey, puntosDirecta, puntosPda
       {type:'line', label:'NPS', data:npsPorMes, borderColor:'#E8A33D', backgroundColor:'transparent', yAxisID:'y1', tension:.3, spanGaps:true}
     ]},
     options:{
+      layout:{padding:{top:22}},
       plugins:{legend:{position:'bottom', labels:{boxWidth:10,font:{size:10}}}},
       scales:{
         x:{stacked:true},
@@ -12456,7 +12522,7 @@ function renderEvolucionMensualNps_(canvasId, chartKey, puntosDirecta, puntosPda
         meta.data.forEach(function(point, i){
           var val = npsPorMes[i];
           if(val===null || val===undefined) return;
-          ctx.fillText(val.toFixed(1)+'%', point.x, point.y - 10);
+          ctx.fillText(val.toFixed(1)+'%', point.x, Math.max(point.y - 10, 12));
         });
         ctx.restore();
       }
@@ -12551,8 +12617,8 @@ function renderNpsFabricaPanel_(){
   var nacionalPDAFab = Number(document.getElementById('gmNacionalPDAFab').value)||0;
   var zonaPDAFab = Number(document.getElementById('gmZonaPDAFab').value)||0;
   document.getElementById('gmPuntajeCardsFab').innerHTML =
-    renderTarjetaPuntajeGM_('Ventas TD (Tradicional)', npsTDFab, 6, umbralTDFab, nacionalTDFab, zonaTDFab, [4,2], acumTD.conteo) +
-    renderTarjetaPuntajeGM_('Entrega Vehículo PDA', npsPDAFab, 3, umbralPDAFab, nacionalPDAFab, zonaPDAFab, [2,1], acumPDA.conteo);
+    renderTarjetaPuntajeGM_('Fábrica — Tradicional', npsTDFab, 6, umbralTDFab, nacionalTDFab, zonaTDFab, [4,2], acumTD.conteo) +
+    renderTarjetaPuntajeGM_('Fábrica — PDA', npsPDAFab, 3, umbralPDAFab, nacionalPDAFab, zonaPDAFab, [2,1], acumPDA.conteo);
 }
 function mostrarTablaFabCompleta_(){
   var elegibles = window._fabElegibles||[];
