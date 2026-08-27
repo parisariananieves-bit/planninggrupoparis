@@ -1937,6 +1937,10 @@
         </label>
       </div>
       <div id="atResumenArchivo" style="display:none;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
+      <div class="chart-panel" style="margin-bottom:16px;">
+        <div class="chart-panel-title"><span class="chart-icon ambar"><span class="material-symbols-outlined">show_chart</span></span>Evolución mensual (archivo + sistema — respeta el filtro de canal de arriba)</div>
+        <canvas id="atChartEvolucionMensual" height="90"></canvas>
+      </div>
       <div style="background:var(--panel-2);border:1px dashed var(--hairline);border-radius:10px;padding:12px 14px;margin-bottom:16px;">
         <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toggleSeccionAnonimaAT_()">
           <div style="font-size:12px;font-weight:700;">+ Agregar respuesta anónima</div>
@@ -1959,17 +1963,17 @@
         <div>
           <div style="font-size:10px;font-weight:700;color:var(--text-faint);margin-bottom:4px;">Ventas TD (Tradicional)</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Umbral</div><input type="number" id="gmUmbralMaximoTD" value="90" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="padding:5px 6px;font-size:11px;"></div>
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Nacional</div><input type="number" id="gmNacionalTD" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="padding:5px 6px;font-size:11px;"></div>
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Zona</div><input type="number" id="gmZonaTD" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="padding:5px 6px;font-size:11px;"></div>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Umbral</span><input type="number" id="gmUmbralMaximoTD" value="90" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Nacional</span><input type="number" id="gmNacionalTD" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Zona</span><input type="number" id="gmZonaTD" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
           </div>
         </div>
         <div>
           <div style="font-size:10px;font-weight:700;color:var(--text-faint);margin-bottom:4px;">PDA</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Umbral</div><input type="number" id="gmUmbralMaximoPDA" value="90" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="padding:5px 6px;font-size:11px;"></div>
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Nacional</div><input type="number" id="gmNacionalPDA" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="padding:5px 6px;font-size:11px;"></div>
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Zona</div><input type="number" id="gmZonaPDA" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="padding:5px 6px;font-size:11px;"></div>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Umbral</span><input type="number" id="gmUmbralMaximoPDA" value="90" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Nacional</span><input type="number" id="gmNacionalPDA" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Zona</span><input type="number" id="gmZonaPDA" onchange="guardarBenchmarksGM_(); renderAlertaTempranaReporte_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
           </div>
         </div>
       </div>
@@ -2266,9 +2270,13 @@
           📎 Cargar planilla de Contacto Posterior (mismo Excel de Fábrica)
           <input type="file" accept=".xlsx,.xls" id="cpArchivoFileInput" onchange="importarNpsContactoPosteriorArchivo_(event)" style="display:none;">
         </label>
-        <div style="font-size:9.5px;color:var(--warn);margin-top:4px;">⚠ Ojo: en este archivo no hay una columna llamada "Contacto Posterior" — estoy usando la primera de las 4 columnas de puntaje que vienen después de "Fecha de recordatorio de fábrica". Si el número no te cierra, avisame y ajustamos cuál es.</div>
+        <div style="font-size:9.5px;color:var(--text-faint);margin-top:4px;">Toma el puntaje de la columna AH y la fecha de la columna AN del archivo.</div>
       </div>
       <div id="cpResumenArchivo" style="display:none;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
+      <div class="chart-panel" style="margin-bottom:16px;">
+        <div class="chart-panel-title"><span class="chart-icon ambar"><span class="material-symbols-outlined">show_chart</span></span>Evolución mensual (archivo + sistema — respeta el filtro de canal de arriba)</div>
+        <canvas id="cpChartEvolucionMensual" height="90"></canvas>
+      </div>
       <div style="background:var(--panel-2);border:1px dashed var(--hairline);border-radius:10px;padding:12px 14px;margin-bottom:16px;">
         <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toggleSeccionAnonimaCp_()">
           <div style="font-size:12px;font-weight:700;">+ Agregar respuesta anónima</div>
@@ -2291,17 +2299,17 @@
         <div>
           <div style="font-size:10px;font-weight:700;color:var(--text-faint);margin-bottom:4px;">Ventas TD (Tradicional)</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Umbral</div><input type="number" id="gmUmbralMaximoTDCp" value="90" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="padding:5px 6px;font-size:11px;"></div>
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Nacional</div><input type="number" id="gmNacionalTDCp" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="padding:5px 6px;font-size:11px;"></div>
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Zona</div><input type="number" id="gmZonaTDCp" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="padding:5px 6px;font-size:11px;"></div>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Umbral</span><input type="number" id="gmUmbralMaximoTDCp" value="90" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Nacional</span><input type="number" id="gmNacionalTDCp" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Zona</span><input type="number" id="gmZonaTDCp" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
           </div>
         </div>
         <div>
           <div style="font-size:10px;font-weight:700;color:var(--text-faint);margin-bottom:4px;">PDA</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Umbral</div><input type="number" id="gmUmbralMaximoPDACp" value="90" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="padding:5px 6px;font-size:11px;"></div>
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Nacional</div><input type="number" id="gmNacionalPDACp" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="padding:5px 6px;font-size:11px;"></div>
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Zona</div><input type="number" id="gmZonaPDACp" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="padding:5px 6px;font-size:11px;"></div>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Umbral</span><input type="number" id="gmUmbralMaximoPDACp" value="90" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Nacional</span><input type="number" id="gmNacionalPDACp" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Zona</span><input type="number" id="gmZonaPDACp" onchange="guardarBenchmarksGM_('Cp'); renderNpsContactoPosteriorPanel_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
           </div>
         </div>
       </div>
@@ -2325,6 +2333,10 @@
       </div>
       <div style="font-size:11px;color:var(--text-faint);margin:10px 0;">Solo entran acá las entregas que ya tienen garantía cargada — son las únicas elegibles para esta encuesta. Si querés el NPS tal cual sale de la planilla que manda Fábrica (sin cruzar con las entregas), subila con el botón de arriba.</div>
       <div id="fabResumenArchivo" style="display:none;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
+      <div class="chart-panel" style="margin-bottom:16px;">
+        <div class="chart-panel-title"><span class="chart-icon ambar"><span class="material-symbols-outlined">show_chart</span></span>Evolución mensual (archivo + sistema — respeta el filtro de canal de arriba)</div>
+        <canvas id="fabChartEvolucionMensual" height="90"></canvas>
+      </div>
 
       <div style="background:var(--panel-2);border:1px dashed var(--hairline);border-radius:10px;padding:12px 14px;margin-bottom:16px;">
         <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toggleSeccionAnonimaFabrica_()">
@@ -2353,17 +2365,17 @@
         <div>
           <div style="font-size:10px;font-weight:700;color:var(--text-faint);margin-bottom:4px;">Ventas TD (Tradicional)</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Umbral</div><input type="number" id="gmUmbralMaximoTDFab" value="90" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="padding:5px 6px;font-size:11px;"></div>
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Nacional</div><input type="number" id="gmNacionalTDFab" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="padding:5px 6px;font-size:11px;"></div>
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Zona</div><input type="number" id="gmZonaTDFab" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="padding:5px 6px;font-size:11px;"></div>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Umbral</span><input type="number" id="gmUmbralMaximoTDFab" value="90" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Nacional</span><input type="number" id="gmNacionalTDFab" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Zona</span><input type="number" id="gmZonaTDFab" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
           </div>
         </div>
         <div>
           <div style="font-size:10px;font-weight:700;color:var(--text-faint);margin-bottom:4px;">PDA</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Umbral</div><input type="number" id="gmUmbralMaximoPDAFab" value="90" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="padding:5px 6px;font-size:11px;"></div>
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Nacional</div><input type="number" id="gmNacionalPDAFab" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="padding:5px 6px;font-size:11px;"></div>
-            <div class="field" style="width:70px;"><div class="l" style="font-size:9px;">Zona</div><input type="number" id="gmZonaPDAFab" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="padding:5px 6px;font-size:11px;"></div>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Umbral</span><input type="number" id="gmUmbralMaximoPDAFab" value="90" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Nacional</span><input type="number" id="gmNacionalPDAFab" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
+            <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:5px 12px;"><span style="font-size:9.5px;color:var(--text-faint);">Zona</span><input type="number" id="gmZonaPDAFab" onchange="guardarBenchmarksGM_('Fab'); renderNpsFabricaPanel_();" style="width:34px;background:transparent;border:none;padding:0;font-size:12px;color:var(--text);text-align:center;"><span style="font-size:9.5px;color:var(--text-faint);">%</span></label>
           </div>
         </div>
       </div>
@@ -10756,8 +10768,12 @@ function renderAlertaTempranaReporte_(){
   };
   pintarResumenArchivoAT_(_ultimoRespondidasPorCanalAT_);
   cargarAnonimasATSiHaceFalta_().then(function(){
-    if(maestroTabActual==='alertatemprana') pintarResumenArchivoAT_(_ultimoRespondidasPorCanalAT_);
+    if(maestroTabActual==='alertatemprana'){
+      pintarResumenArchivoAT_(_ultimoRespondidasPorCanalAT_);
+      dibujarEvolucionMensualAT_();
+    }
   });
+  dibujarEvolucionMensualAT_();
 
   // ---- Puntaje de Recomendación GM (regla oficial, por canal) — usa el
   // acumulado (archivo + sistema + anónimas), igual que en Fábrica.
@@ -11118,19 +11134,23 @@ function renderTarjetaPuntajeGM_(titulo, nps, puntosMax, umbral, nacional, zona,
     (zona>0 ? ('<div style="font-size:10.5px;color:var(--text-faint);margin:8px 0 2px;">vs. Zona (hasta '+maxZona+' pts)</div>'+
       filaComp_('NPS ≥ Zona ('+zona+')', nps>=zona)+
       (maxZona>1 ? filaComp_('NPS ≥ 90% Zona ('+Math.round(zona*0.9)+')', nps>=zona*0.9 && nps<zona) : '')) : '<div style="font-size:10.5px;color:var(--text-faint);margin-top:6px;">Cargá el valor de Zona arriba para ver el detalle.</div>')+
-    (conteo ? renderProyeccionGM_(conteo, umbral, nacional, zona) : '')+
+    (conteo ? renderProyeccionGM_(conteo, umbral, nacional, zona, maxZona) : '')+
   '</div>';
 }
 // Tarjetitas "cuántas encuestas promotoras faltan para cada objetivo",
 // como en la planilla de Fábrica que mandó GM.
-function renderProyeccionGM_(conteo, umbral, nacional, zona){
+function renderProyeccionGM_(conteo, umbral, nacional, zona, maxZona){
   var objetivos = [
     {label:'Umbral máximo ('+umbral+'%)', target:umbral},
     {label:'Igualar Nacional', target:nacional},
     {label:'90% de Nacional', target:nacional*0.9},
-    {label:'Igualar Zona', target:zona},
-    {label:'90% de Zona', target:zona*0.9}
-  ].filter(function(o){ return o.target>0; });
+    {label:'Igualar Zona', target:zona}
+  ];
+  // El escalón intermedio "90% de Zona" solo existe en la regla oficial
+  // para Ventas TD (maxZona=2) — PDA (maxZona=1) va directo de "Igualar
+  // Zona" a 0, sin paso intermedio.
+  if(maxZona>1) objetivos.push({label:'90% de Zona', target:zona*0.9});
+  objetivos = objetivos.filter(function(o){ return o.target>0; });
   if(objetivos.length===0) return '';
   return '<div style="font-size:10.5px;color:var(--text-faint);margin:10px 0 4px;">Encuestas promotoras que faltan sumar (sin tocar lo que ya hay):</div>'+
     '<div style="display:flex;gap:6px;flex-wrap:wrap;">'+
@@ -11587,7 +11607,8 @@ function casosGCFiltrados_(selectId){
 function refrescarPanelCalidadActivo_(){
   var mapa = {
     npsgeneral: renderNpsGeneralPanel_, npscontactoposterior: renderNpsContactoPosteriorPanel_,
-    npsfabrica: renderNpsFabricaPanel_, garantiascalidad: renderGarantiasPanel_, casosgestion: renderCasosGestionPanel_
+    npsfabrica: renderNpsFabricaPanel_, garantiascalidad: renderGarantiasPanel_, casosgestion: renderCasosGestionPanel_,
+    alertatemprana: renderAlertaTempranaReporte_
   };
   var fn = mapa[maestroTabActual];
   if(fn) fn();
@@ -11807,8 +11828,12 @@ function renderNpsContactoPosteriorPanel_(){
   };
   pintarResumenArchivoCp_(_ultimoRespondidasPorCanalCp_);
   cargarAnonimasCpSiHaceFalta_().then(function(){
-    if(maestroTabActual==='npscontactoposterior') pintarResumenArchivoCp_(_ultimoRespondidasPorCanalCp_);
+    if(maestroTabActual==='npscontactoposterior'){
+      pintarResumenArchivoCp_(_ultimoRespondidasPorCanalCp_);
+      dibujarEvolucionMensualCp_();
+    }
   });
+  dibujarEvolucionMensualCp_();
 
   // ---- Puntaje de Recomendación GM (por canal) — usa el acumulado ----
   cargarBenchmarksGM_('Cp');
@@ -11874,8 +11899,9 @@ function sumarConteos_(a, b){
 }
 function calcularNpsDesdeFilas_(filas, idxHeaderRow, headers){
   var colScore = buscarColPorNombre_(headers, ['NPS','FABRICA']);
+  var colFecha = buscarColPorNombre_(headers, ['FECHA','RESPUESTA','NPS']);
   if(colScore===-1) return null;
-  var todas = [];
+  var puntos = [];
   for(var r=idxHeaderRow+1; r<filas.length; r++){
     var fila = filas[r];
     if(!fila || !fila.length) continue;
@@ -11883,10 +11909,10 @@ function calcularNpsDesdeFilas_(filas, idxHeaderRow, headers){
     if(score===''||score===undefined||score===null) continue;
     var n = Number(score);
     if(isNaN(n)) continue;
-    todas.push(n);
+    puntos.push({fecha: colFecha>-1 ? String(fila[colFecha]||'').trim() : '', score:n});
   }
-  if(todas.length===0) return null;
-  return contarNpsCrudo_(todas); // {promotores, pasivos, detractores, total}
+  if(puntos.length===0) return null;
+  return puntos; // [{fecha, score}, ...]
 }
 // Detecta si el archivo es de PDA o Directa/Tradicional mirando el título
 // de la hoja (fila 1) — así se guardan los dos por separado y uno no pisa
@@ -11896,10 +11922,10 @@ function detectarCanalArchivoFabrica_(filas){
   if(texto.indexOf('PDA')>-1) return 'pda';
   return 'directa'; // por defecto, si no dice PDA asumimos Directa/Tradicional
 }
-function guardarResumenArchivoFabrica_(canal, nombreArchivo, conteo){
+function guardarResumenArchivoFabrica_(canal, nombreArchivo, puntos){
   var guardado = {};
   try{ guardado = JSON.parse(localStorage.getItem('fabResumenArchivo')||'{}'); }catch(e){}
-  guardado[canal] = {nombreArchivo:nombreArchivo, conteo:conteo, fecha:fmtFecha(new Date()), fechaCorte:new Date().toISOString().slice(0,10)};
+  guardado[canal] = {nombreArchivo:nombreArchivo, conteo:contarNpsCrudo_(puntos.map(function(p){return p.score;})), puntos:puntos, fecha:fmtFecha(new Date()), fechaCorte:new Date().toISOString().slice(0,10)};
   localStorage.setItem('fabResumenArchivo', JSON.stringify(guardado));
 }
 // Convierte "dd/mm/aaaa" (como guarda el input de fecha de la ficha) a
@@ -11995,13 +12021,13 @@ function importarNpsFabricaArchivo_(event){
       }
       if(idxHeaderRow===-1){ showToast('No se encontró la fila de encabezados (VIN + NPS de Fábrica) en el archivo.'); event.target.value=''; return; }
 
-      var conteo = calcularNpsDesdeFilas_(filas, idxHeaderRow, headers);
-      if(!conteo){ showToast('No se encontraron respuestas de NPS de Fábrica en el archivo.'); event.target.value=''; return; }
+      var puntos = calcularNpsDesdeFilas_(filas, idxHeaderRow, headers);
+      if(!puntos){ showToast('No se encontraron respuestas de NPS de Fábrica en el archivo.'); event.target.value=''; return; }
 
       var canal = detectarCanalArchivoFabrica_(filas);
-      guardarResumenArchivoFabrica_(canal, file.name, conteo);
+      guardarResumenArchivoFabrica_(canal, file.name, puntos);
       renderNpsFabricaPanel_();
-      showToast('Cargado como "'+(canal==='pda'?'PDA':'Directa / Tradicional')+'" — NPS base '+npsDeConteo_(conteo));
+      showToast('Cargado como "'+(canal==='pda'?'PDA':'Directa / Tradicional')+'" — NPS base '+npsDeConteo_(contarNpsCrudo_(puntos.map(function(p){return p.score;}))).toFixed(1));
     }catch(err){
       showToast('No se pudo leer el archivo: '+err.message);
     }
@@ -12063,10 +12089,10 @@ function cargarAnonimasATSiHaceFalta_(){
     _anonimasATCargadas_ = true;
   }).catch(function(){ ANONIMAS_AT_ = []; _anonimasATCargadas_ = true; });
 }
-function guardarResumenArchivoAT_(canal, nombreArchivo, conteo){
+function guardarResumenArchivoAT_(canal, nombreArchivo, puntos){
   var guardado = {};
   try{ guardado = JSON.parse(localStorage.getItem('atResumenArchivo')||'{}'); }catch(e){}
-  guardado[canal] = {nombreArchivo:nombreArchivo, conteo:conteo, fecha:fmtFecha(new Date()), fechaCorte:new Date().toISOString().slice(0,10)};
+  guardado[canal] = {nombreArchivo:nombreArchivo, conteo:contarNpsCrudo_(puntos.map(function(p){return p.score;})), puntos:puntos, fecha:fmtFecha(new Date()), fechaCorte:new Date().toISOString().slice(0,10)};
   localStorage.setItem('atResumenArchivo', JSON.stringify(guardado));
 }
 function conteoAcumuladoAT_(canalKey, respondidasCanal){
@@ -12123,6 +12149,19 @@ function pintarResumenArchivoAT_(respondidasPorCanal){
     '<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:8px;">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades.</div>'+
     '<div class="two-col-grid">'+ htmlDirecta + htmlPda +'</div>';
 }
+function dibujarEvolucionMensualAT_(){
+  var guardado = {};
+  try{ guardado = JSON.parse(localStorage.getItem('atResumenArchivo')||'{}'); }catch(e){}
+  var puntosDirecta = (guardado.directa && guardado.directa.puntos) ? guardado.directa.puntos.slice() : [];
+  var puntosPda = (guardado.pda && guardado.pda.puntos) ? guardado.pda.puntos.slice() : [];
+  (_ultimoRespondidasPorCanalAT_.directa||[]).forEach(function(r){ puntosDirecta.push({fecha:r.alertaTempranaFechaRespuesta, score:r.npsScore}); });
+  (_ultimoRespondidasPorCanalAT_.pda||[]).forEach(function(r){ puntosPda.push({fecha:r.alertaTempranaFechaRespuesta, score:r.npsScore}); });
+  ANONIMAS_AT_.forEach(function(a){
+    var p = {fecha:a.fecha, score:a.puntaje};
+    if(a.canal==='PDA') puntosPda.push(p); else puntosDirecta.push(p);
+  });
+  renderEvolucionMensualNps_('atChartEvolucionMensual', 'atEvolucionMensual', puntosDirecta, puntosPda);
+}
 function toggleSeccionAnonimaAT_(){
   var cuerpo = document.getElementById('atAnonBody');
   var icono = document.getElementById('atAnonAccordionIcon');
@@ -12172,7 +12211,8 @@ function importarNpsAlertaTempranaArchivo_(event){
         if(h==='NPS' && c!==colFabrica){ colAT = c; break; }
       }
       if(colAT===-1){ showToast('No se encontró la columna de NPS de Alerta Temprana en el archivo.'); event.target.value=''; return; }
-      var scores = [];
+      var colFechaAT = buscarColPorNombre_(headers, ['FECH','REALIZO']);
+      var puntos = [];
       for(var r=idxHeaderRow+1; r<filas.length; r++){
         var fila = filas[r];
         if(!fila || !fila.length) continue;
@@ -12180,14 +12220,13 @@ function importarNpsAlertaTempranaArchivo_(event){
         if(score===''||score===undefined||score===null) continue;
         var n = Number(score);
         if(isNaN(n)) continue;
-        scores.push(n);
+        puntos.push({fecha: colFechaAT>-1 ? String(fila[colFechaAT]||'').trim() : '', score:n});
       }
-      if(scores.length===0){ showToast('No se encontraron respuestas de NPS Alerta Temprana en el archivo.'); event.target.value=''; return; }
-      var conteo = contarNpsCrudo_(scores);
+      if(puntos.length===0){ showToast('No se encontraron respuestas de NPS Alerta Temprana en el archivo.'); event.target.value=''; return; }
       var canal = detectarCanalArchivoFabrica_(filas);
-      guardarResumenArchivoAT_(canal, file.name, conteo);
+      guardarResumenArchivoAT_(canal, file.name, puntos);
       renderAlertaTempranaReporte_();
-      showToast('Cargado como "'+(canal==='pda'?'PDA':'Directa / Tradicional')+'" — NPS base '+npsDeConteo_(conteo).toFixed(1));
+      showToast('Cargado como "'+(canal==='pda'?'PDA':'Directa / Tradicional')+'" — NPS base '+npsDeConteo_(contarNpsCrudo_(puntos.map(function(p){return p.score;}))).toFixed(1));
     }catch(err){
       showToast('No se pudo leer el archivo: '+err.message);
     }
@@ -12212,10 +12251,10 @@ function cargarAnonimasCpSiHaceFalta_(){
     _anonimasCpCargadas_ = true;
   }).catch(function(){ ANONIMAS_CP_ = []; _anonimasCpCargadas_ = true; });
 }
-function guardarResumenArchivoCp_(canal, nombreArchivo, conteo){
+function guardarResumenArchivoCp_(canal, nombreArchivo, puntos){
   var guardado = {};
   try{ guardado = JSON.parse(localStorage.getItem('cpResumenArchivo')||'{}'); }catch(e){}
-  guardado[canal] = {nombreArchivo:nombreArchivo, conteo:conteo, fecha:fmtFecha(new Date()), fechaCorte:new Date().toISOString().slice(0,10)};
+  guardado[canal] = {nombreArchivo:nombreArchivo, conteo:contarNpsCrudo_(puntos.map(function(p){return p.score;})), puntos:puntos, fecha:fmtFecha(new Date()), fechaCorte:new Date().toISOString().slice(0,10)};
   localStorage.setItem('cpResumenArchivo', JSON.stringify(guardado));
 }
 function conteoAcumuladoCp_(canalKey, respondidasCanal){
@@ -12272,6 +12311,19 @@ function pintarResumenArchivoCp_(respondidasPorCanal){
     '<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:8px;">Suma los totales del archivo con las respuestas que vayan llegando de la encuesta pública — no cruza por VIN, solo suma cantidades.</div>'+
     '<div class="two-col-grid">'+ htmlDirecta + htmlPda +'</div>';
 }
+function dibujarEvolucionMensualCp_(){
+  var guardado = {};
+  try{ guardado = JSON.parse(localStorage.getItem('cpResumenArchivo')||'{}'); }catch(e){}
+  var puntosDirecta = (guardado.directa && guardado.directa.puntos) ? guardado.directa.puntos.slice() : [];
+  var puntosPda = (guardado.pda && guardado.pda.puntos) ? guardado.pda.puntos.slice() : [];
+  (_ultimoRespondidasPorCanalCp_.directa||[]).forEach(function(x){ puntosDirecta.push({fecha:x.d.fecha, score:Number(x.d.recomienda)}); });
+  (_ultimoRespondidasPorCanalCp_.pda||[]).forEach(function(x){ puntosPda.push({fecha:x.d.fecha, score:Number(x.d.recomienda)}); });
+  ANONIMAS_CP_.forEach(function(a){
+    var p = {fecha:a.fecha, score:a.puntaje};
+    if(a.canal==='PDA') puntosPda.push(p); else puntosDirecta.push(p);
+  });
+  renderEvolucionMensualNps_('cpChartEvolucionMensual', 'cpEvolucionMensual', puntosDirecta, puntosPda);
+}
 function toggleSeccionAnonimaCp_(){
   var cuerpo = document.getElementById('cpAnonBody');
   var icono = document.getElementById('cpAnonAccordionIcon');
@@ -12312,18 +12364,11 @@ function importarNpsContactoPosteriorArchivo_(event){
         }
       }
       if(idxHeaderRow===-1){ showToast('No se encontró la fila de encabezados (VIN + NPS de Fábrica) en el archivo.'); event.target.value=''; return; }
-      // Sin columna con nombre claro para esto — usamos la primera columna
-      // sin encabezado (numérica) que viene después de "Fecha de
-      // recordatorio de fábrica". Si está mal, avisame y la cambiamos.
-      var colRecordatorio = buscarColPorNombre_(headers, ['RECORDATORIO','FABRICA']);
-      var colCp = -1;
-      if(colRecordatorio>-1){
-        for(var c=colRecordatorio+1; c<headers.length; c++){
-          if(!headers[c] || String(headers[c]).trim()===''){ colCp = c; break; }
-        }
-      }
-      if(colCp===-1){ showToast('No se pudo ubicar la columna de Contacto Posterior en el archivo — avisame para ajustarla a mano.'); event.target.value=''; return; }
-      var scores = [];
+      // Columnas fijas confirmadas: AH = puntaje de recomendación, AN = fecha
+      // de ingreso de la respuesta.
+      var colCp = 33; // AH
+      var colFechaCp = 39; // AN
+      var puntos = [];
       for(var r=idxHeaderRow+1; r<filas.length; r++){
         var fila = filas[r];
         if(!fila || !fila.length) continue;
@@ -12331,20 +12376,75 @@ function importarNpsContactoPosteriorArchivo_(event){
         if(score===''||score===undefined||score===null) continue;
         var n = Number(score);
         if(isNaN(n)) continue;
-        scores.push(n);
+        puntos.push({fecha: String(fila[colFechaCp]||'').trim(), score:n});
       }
-      if(scores.length===0){ showToast('No se encontraron respuestas de NPS Contacto Posterior en el archivo.'); event.target.value=''; return; }
-      var conteo = contarNpsCrudo_(scores);
+      if(puntos.length===0){ showToast('No se encontraron respuestas de NPS Contacto Posterior en el archivo.'); event.target.value=''; return; }
       var canal = detectarCanalArchivoFabrica_(filas);
-      guardarResumenArchivoCp_(canal, file.name, conteo);
+      guardarResumenArchivoCp_(canal, file.name, puntos);
       renderNpsContactoPosteriorPanel_();
-      showToast('Cargado como "'+(canal==='pda'?'PDA':'Directa / Tradicional')+'" — NPS base '+npsDeConteo_(conteo).toFixed(1));
+      showToast('Cargado como "'+(canal==='pda'?'PDA':'Directa / Tradicional')+'" — NPS base '+npsDeConteo_(contarNpsCrudo_(puntos.map(function(p){return p.score;}))).toFixed(1));
     }catch(err){
       showToast('No se pudo leer el archivo: '+err.message);
     }
     event.target.value = '';
   };
   reader.readAsArrayBuffer(file);
+}
+// Gráfico mensual (Promotores/Neutrales/Detractores apilados + línea de
+// NPS) combinando archivo + sistema + anónimas — respeta el filtro
+// "Todos los canales / Solo PDA / Solo Tradicional" que ya está arriba
+// de cada página, así el mismo gráfico sirve para verlo junto o separado
+// sin duplicar nada.
+function renderEvolucionMensualNps_(canvasId, chartKey, puntosDirecta, puntosPda){
+  var canvas = document.getElementById(canvasId);
+  if(!canvas || typeof Chart==='undefined') return;
+  var todos = [];
+  if(!filterCanal || filterCanal==='tradicional') todos = todos.concat(puntosDirecta||[]);
+  if(!filterCanal || filterCanal==='pda') todos = todos.concat(puntosPda||[]);
+  var porMes = {};
+  todos.forEach(function(p){
+    var iso = fechaAIso_(p.fecha);
+    if(!iso) return;
+    var mes = iso.slice(0,7);
+    if(!porMes[mes]) porMes[mes]=[];
+    porMes[mes].push(Number(p.score));
+  });
+  var meses = Object.keys(porMes).sort();
+  destroyChart_(chartKey);
+  if(meses.length===0) return;
+  var promotoresPorMes = meses.map(function(m){return porMes[m].filter(function(n){return n>=9;}).length;});
+  var pasivosPorMes = meses.map(function(m){return porMes[m].filter(function(n){return n>=7 && n<=8;}).length;});
+  var detractoresPorMes = meses.map(function(m){return porMes[m].filter(function(n){return n<=6;}).length;});
+  var npsPorMes = meses.map(function(m){return npsDeConteo_(contarNpsCrudo_(porMes[m]));});
+  _dashCharts[chartKey] = new Chart(canvas, {
+    data:{ labels: meses, datasets:[
+      {type:'bar', label:'Promotores', data:promotoresPorMes, backgroundColor:'#3ECF6A', stack:'nps'},
+      {type:'bar', label:'Neutrales', data:pasivosPorMes, backgroundColor:'#E8B23D', stack:'nps'},
+      {type:'bar', label:'Detractores', data:detractoresPorMes, backgroundColor:'#D6304A', stack:'nps'},
+      {type:'line', label:'NPS', data:npsPorMes, borderColor:'#E8A33D', backgroundColor:'transparent', yAxisID:'y1', tension:.3, spanGaps:true}
+    ]},
+    options:{
+      plugins:{legend:{position:'bottom', labels:{boxWidth:10,font:{size:10}}}},
+      scales:{
+        x:{stacked:true},
+        y:{stacked:true, beginAtZero:true, title:{display:true,text:'Respuestas',font:{size:10}}},
+        y1:{position:'right', min:-100, max:100, grid:{drawOnChartArea:false}, title:{display:true,text:'NPS',font:{size:10}}}
+      }
+    }
+  });
+}
+function dibujarEvolucionMensualFab_(){
+  var guardado = {};
+  try{ guardado = JSON.parse(localStorage.getItem('fabResumenArchivo')||'{}'); }catch(e){}
+  var puntosDirecta = (guardado.directa && guardado.directa.puntos) ? guardado.directa.puntos.slice() : [];
+  var puntosPda = (guardado.pda && guardado.pda.puntos) ? guardado.pda.puntos.slice() : [];
+  (_ultimoRespondidasPorCanalFabrica_.directa||[]).forEach(function(r){ puntosDirecta.push({fecha:r.npsFabricaFecha, score:Number(r.npsFabricaScore)}); });
+  (_ultimoRespondidasPorCanalFabrica_.pda||[]).forEach(function(r){ puntosPda.push({fecha:r.npsFabricaFecha, score:Number(r.npsFabricaScore)}); });
+  ANONIMAS_FABRICA_.forEach(function(a){
+    var p = {fecha:a.fecha, score:a.puntaje};
+    if(a.canal==='PDA') puntosPda.push(p); else puntosDirecta.push(p);
+  });
+  renderEvolucionMensualNps_('fabChartEvolucionMensual', 'fabEvolucionMensual', puntosDirecta, puntosPda);
 }
 function toggleSeccionAnonimaFabrica_(){
   var cuerpo = document.getElementById('fabAnonBody');
@@ -12392,8 +12492,12 @@ function renderNpsFabricaPanel_(){
     pda: respondidas.filter(function(r){return esCanalPDA_(r);})
   };
   cargarAnonimasFabricaSiHaceFalta_().then(function(){
-    if(maestroTabActual==='npsfabrica') pintarResumenArchivoFabrica_(_ultimoRespondidasPorCanalFabrica_);
+    if(maestroTabActual==='npsfabrica'){
+      pintarResumenArchivoFabrica_(_ultimoRespondidasPorCanalFabrica_);
+      dibujarEvolucionMensualFab_();
+    }
   });
+  dibujarEvolucionMensualFab_();
   window._fabElegibles = elegibles;
   document.getElementById('fabTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Fecha garantía</th><th>Fecha respuesta</th><th>Puntaje</th><th>Comentario</th></tr>'+
     (elegibles.slice(0,10).map(function(r){
