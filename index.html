@@ -1100,12 +1100,24 @@
         <button class="nav-item" id="navReportes" title="Reportes" onclick="irAReportes()"><span class="material-symbols-outlined">analytics</span><span class="nav-label">Reportes</span></button>
         <div class="nav-submenu" id="submenuReportes" style="display:none;">
           <button class="nav-subitem" id="subReportesDashboard" onclick="setMaestroTab('dashboard')">Dashboard</button>
-          <button class="nav-subitem" id="subReportesRegalos" onclick="setMaestroTab('regalos')">Regalos Corporativos</button>
           <button class="nav-subitem" id="subReportesKit" onclick="setMaestroTab('kit')">Kit de Seguridad</button>
           <button class="nav-subitem" id="subReportesBuscador" onclick="setMaestroTab('reportes')">Buscador de reportes</button>
-          <button class="nav-subitem" id="subReportesAlertaTemprana" onclick="setMaestroTab('alertatemprana')">Alerta Temprana</button>
+          <button class="nav-subitem" id="grupoCalidadToggle" onclick="toggleSubgrupoNav_('grupoCalidad')" style="display:flex;align-items:center;justify-content:space-between;">Calidad <span class="material-symbols-outlined" id="grupoCalidadChevron" style="font-size:15px;transition:transform .15s;">expand_more</span></button>
+          <div id="grupoCalidad" style="display:none;padding-left:10px;border-left:1px solid var(--hairline);margin-left:8px;">
+            <button class="nav-subitem" id="grupoNpsToggle" onclick="toggleSubgrupoNav_('grupoNps')" style="display:flex;align-items:center;justify-content:space-between;">NPS <span class="material-symbols-outlined" id="grupoNpsChevron" style="font-size:15px;transition:transform .15s;">expand_more</span></button>
+            <div id="grupoNps" style="display:none;padding-left:10px;border-left:1px solid var(--hairline);margin-left:8px;">
+              <button class="nav-subitem" id="subCalidadNpsGeneral" onclick="setMaestroTab('npsgeneral')">Resumen general</button>
+              <button class="nav-subitem" id="subReportesAlertaTemprana" onclick="setMaestroTab('alertatemprana')">Alerta Temprana</button>
+              <button class="nav-subitem" id="subCalidadNpsContactoPosterior" onclick="setMaestroTab('npscontactoposterior')">Contacto Posterior</button>
+              <button class="nav-subitem" id="subCalidadNpsFabrica" onclick="setMaestroTab('npsfabrica')">Fábrica</button>
+            </div>
+            <button class="nav-subitem" id="subCalidadAccesorios" onclick="setMaestroTab('accesoriosreporte')">Accesorios</button>
+            <button class="nav-subitem" id="subReportesRegalos" onclick="setMaestroTab('regalos')">Regalos Corporativos</button>
+            <button class="nav-subitem" id="subCalidadHistorialComs" onclick="setAppView('historialcoms')">Historial de Comunicaciones</button>
+            <button class="nav-subitem" id="subCalidadGarantias" onclick="setMaestroTab('garantiascalidad')">Garantías</button>
+            <button class="nav-subitem" id="subCalidadCasos" onclick="setMaestroTab('casosgestion')">Casos</button>
+          </div>
         </div>
-        <button class="nav-item" id="navHistorialComs" title="Historial de Comunicaciones" onclick="setAppView('historialcoms')"><span class="material-symbols-outlined">forum</span><span class="nav-label">Historial de Comunicaciones</span></button>
         <button class="nav-item" id="navCasos" title="Reportar Caso" onclick="setAppView('casos')" style="color:var(--caso);"><span class="material-symbols-outlined" style="color:var(--caso);">report</span><span class="nav-label">Reportar Caso</span></button>
         <button class="nav-item" id="navMaestro" title="Maestro (Config)" onclick="irAMaestro()"><span class="material-symbols-outlined">settings</span><span class="nav-label">Maestro (Config)</span></button>
         <div class="nav-submenu" id="submenuMaestro" style="display:none;">
@@ -1113,7 +1125,6 @@
           <button class="nav-subitem" id="subMaestroAutomatizaciones" onclick="setMaestroTab('automatizaciones')">Automatizaciones</button>
           <button class="nav-subitem" id="subMaestroPlantillas" onclick="setMaestroTab('plantillas')">Plantillas de mail</button>
           <button class="nav-subitem" id="subMaestroPermisos" onclick="setMaestroTab('permisos')">Permisos y usuarios</button>
-          <button class="nav-subitem" id="subMaestroCalidad" onclick="setMaestroTab('calidad')">Calidad y Medición</button>
           <button class="nav-subitem" id="subMaestroCargas" onclick="setMaestroTab('cargas')">Cargas masivas</button>
         </div>
         <button class="nav-item" id="navTv" title="TV Entregas" onclick="abrirModoTV()"><span class="material-symbols-outlined">tv</span><span class="nav-label">TV Entregas</span></button>
@@ -1583,12 +1594,6 @@
         <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
       </div>
       <div class="stats-grid" id="dashIndicadores"></div>
-      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;cursor:pointer;" onclick="toggleSeccionAccesorios_()"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">directions_car</span>Accesorios más vendidos (todas las marcas)<span class="material-symbols-outlined" id="accesoriosAccordionIcon" style="font-size:14px;margin-left:auto;transition:transform .15s;">expand_more</span></div>
-      <div id="reporteAccesoriosWrap">
-        <div class="report-wrap" style="margin-top:10px;">
-          <table class="report-table" id="reporteAccesoriosTabla"></table>
-        </div>
-      </div>
       <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;cursor:pointer;" onclick="toggleSeccionNPS_()"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido);">star</span>Encuestas NPS (todas las marcas)<span class="material-symbols-outlined" id="npsAccordionIcon" style="font-size:14px;margin-left:auto;transition:transform .15s;">expand_more</span></div>
       <div id="npsSeccionCuerpo" style="margin-bottom:18px;">
         <div class="filter-bar" style="flex-wrap:wrap;gap:8px;margin-bottom:12px;">
@@ -2149,9 +2154,9 @@
     </div>
     </div>
 
-    <div id="paneMaestroCalidad" style="display:none;padding:10px 0;">
+    <div id="paneMaestroNpsgeneral" style="display:none;padding:10px 0;">
       <div class="filter-bar" style="flex-wrap:wrap;">
-        <select id="calidadFiltroSucursal" onchange="renderCalidadPanel()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
+        <select id="calidadFiltroSucursal" onchange="renderNpsGeneralPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
         <div class="filter-field"><label>Desde</label><input type="date" id="calidadFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
         <div class="filter-field"><label>Hasta</label><input type="date" id="calidadFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
         <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
@@ -2161,7 +2166,7 @@
       <div class="stats-grid" id="calidadKpis" style="margin-top:14px;"></div>
 
       <div class="section-title" style="margin-top:20px;">NPS por instancia</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">"Total" = entregas del período elegido (para NPS Fábrica, solo las que ya tienen garantía cargada — son las únicas elegibles).</div>
+      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">"Total" = entregas del período elegido (para NPS Fábrica, solo las que ya tienen garantía cargada — son las únicas elegibles). El detalle de cada instancia está en su propia página, en el menú.</div>
       <div class="costos-grid" id="calidadNpsInstancias"></div>
 
       <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">insights</span>Evolución del NPS</div>
@@ -2189,22 +2194,69 @@
       <div id="calidadCoberturaTotal" style="margin-bottom:14px;max-width:260px;"></div>
       <div class="report-wrap"><table class="report-table" id="calidadCoberturaTabla"></table></div>
       <div id="calidadCoberturaVerMas" style="text-align:center;margin-top:8px;"></div>
+    </div>
 
-      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--ok);">verified</span>Garantías</div>
-      <div class="stats-grid" id="calidadGarantiaKpis" style="margin-bottom:10px;"></div>
+    <div id="paneMaestroNpscontactoposterior" style="display:none;padding:10px 0;">
+      <div class="filter-bar" style="flex-wrap:wrap;">
+        <select id="cpFiltroSucursal" onchange="renderNpsContactoPosteriorPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
+        <div class="filter-field"><label>Desde</label><input type="date" id="cpFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
+        <div class="filter-field"><label>Hasta</label><input type="date" id="cpFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
+        <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
+      </div>
+      <div class="costos-grid" id="cpResumen" style="margin:14px 0;"></div>
+      <div class="section-title">Respuestas</div>
+      <div class="report-wrap"><table class="report-table" id="cpTabla"></table></div>
+      <div id="cpVerMas" style="text-align:center;margin-top:8px;"></div>
+    </div>
+
+    <div id="paneMaestroNpsfabrica" style="display:none;padding:10px 0;">
+      <div class="filter-bar" style="flex-wrap:wrap;">
+        <select id="fabFiltroSucursal" onchange="renderNpsFabricaPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
+        <div class="filter-field"><label>Desde</label><input type="date" id="fabFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
+        <div class="filter-field"><label>Hasta</label><input type="date" id="fabFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
+        <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
+      </div>
+      <div style="font-size:11px;color:var(--text-faint);margin:10px 0;">Solo entran acá las entregas que ya tienen garantía cargada — son las únicas elegibles para esta encuesta.</div>
+      <div class="costos-grid" id="fabResumen" style="margin-bottom:14px;"></div>
+      <div class="section-title">Elegibles (con garantía cargada)</div>
+      <div class="report-wrap"><table class="report-table" id="fabTabla"></table></div>
+      <div id="fabVerMas" style="text-align:center;margin-top:8px;"></div>
+    </div>
+
+    <div id="paneMaestroGarantiascalidad" style="display:none;padding:10px 0;">
+      <div class="filter-bar" style="flex-wrap:wrap;">
+        <select id="garFiltroSucursal" onchange="renderGarantiasPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
+        <div class="filter-field"><label>Desde</label><input type="date" id="garFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
+        <div class="filter-field"><label>Hasta</label><input type="date" id="garFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
+        <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
+      </div>
+      <div class="stats-grid" id="calidadGarantiaKpis" style="margin:14px 0 10px;"></div>
       <div class="report-wrap"><table class="report-table" id="calidadGarantiaTabla"></table></div>
       <div id="calidadGarantiaVerMas" style="text-align:center;margin-top:8px;"></div>
+    </div>
 
-      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido);">redeem</span>Regalos Corporativos</div>
-      <div class="stats-grid" id="calidadRegaloKpis" style="margin-bottom:10px;"></div>
-      <div class="report-wrap"><table class="report-table" id="calidadRegaloTabla"></table></div>
-      <div id="calidadRegaloVerMas" style="text-align:center;margin-top:8px;"></div>
-
-      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--caso);">report</span>Casos en Gestión</div>
-      <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:10px;" id="calidadCasosNota"></div>
+    <div id="paneMaestroCasosgestion" style="display:none;padding:10px 0;">
+      <div class="filter-bar" style="flex-wrap:wrap;">
+        <select id="casosFiltroSucursal" onchange="renderCasosGestionPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
+        <div class="filter-field"><label>Desde</label><input type="date" id="casosFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
+        <div class="filter-field"><label>Hasta</label><input type="date" id="casosFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
+        <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
+      </div>
+      <div style="font-size:10.5px;color:var(--text-faint);margin:10px 0;" id="calidadCasosNota"></div>
       <div class="stats-grid" id="calidadCasosKpis" style="margin-bottom:10px;"></div>
       <div class="report-wrap"><table class="report-table" id="calidadCasosTabla"></table></div>
       <div id="calidadCasosVerMas" style="text-align:center;margin-top:8px;"></div>
+    </div>
+
+    <div id="paneMaestroAccesoriosreporte" style="display:none;padding:10px 0;">
+      <div class="filter-bar" style="flex-wrap:wrap;">
+        <div class="filter-field"><label>Desde</label><input type="date" id="accFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
+        <div class="filter-field"><label>Hasta</label><input type="date" id="accFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
+        <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
+      </div>
+      <div class="report-wrap" style="margin-top:14px;">
+        <table class="report-table" id="reporteAccesoriosTabla"></table>
+      </div>
     </div>
 
       </div>
@@ -3175,7 +3227,7 @@ function olvidePasswordUI(){
 // Oculta/deshabilita lo que el rol actual no puede tocar. Se llama al loguearse
 // y cada vez que se renderiza la tabla o se abre el detalle de una entrega.
 var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','traslados','faltantes','preparacion','reportes','historialcoms','casos','notificaciones','maestro','tv'];
-var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', preparacion:'subLogisticaPreparacion', reportes:'navReportes', historialcoms:'navHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', maestro:'navMaestro', tv:'navTv'};
+var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', preparacion:'subLogisticaPreparacion', reportes:'navReportes', historialcoms:'subCalidadHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', maestro:'navMaestro', tv:'navTv'};
 function aplicarPermisosUI(){
   var puede = puedeEditar();
   var modulosDelUsuario = modulosUsuarioActual();
@@ -10118,10 +10170,10 @@ var dashboardMarcasActivas = ['todas']; // array de ids de marca, o ['todas'] = 
 var dashboardFechaDesde = null; // 'YYYY-MM-DD' o null = sin límite
 var dashboardFechaHasta = null;
 function syncDashboardFechaInputs_(){
-  ['dashFechaDesde','regFechaDesde','kitFechaDesde','calidadFechaDesde'].forEach(function(id){
+  ['dashFechaDesde','regFechaDesde','kitFechaDesde','calidadFechaDesde','cpFechaDesde','fabFechaDesde','garFechaDesde','casosFechaDesde','accFechaDesde'].forEach(function(id){
     var el=document.getElementById(id); if(el) el.value = dashboardFechaDesde || '';
   });
-  ['dashFechaHasta','regFechaHasta','kitFechaHasta','calidadFechaHasta'].forEach(function(id){
+  ['dashFechaHasta','regFechaHasta','kitFechaHasta','calidadFechaHasta','cpFechaHasta','fabFechaHasta','garFechaHasta','casosFechaHasta','accFechaHasta'].forEach(function(id){
     var el=document.getElementById(id); if(el) el.value = dashboardFechaHasta || '';
   });
 }
@@ -10132,7 +10184,7 @@ function setDashboardFecha(campo, valor){
   renderDashboard();
   if(typeof renderRegalosPanel==='function') renderRegalosPanel();
   if(typeof renderKitPanel==='function') renderKitPanel();
-  if(typeof renderCalidadPanel==='function') renderCalidadPanel();
+  refrescarPanelCalidadActivo_();
 }
 function limpiarDashboardFecha(){
   dashboardFechaDesde = null; dashboardFechaHasta = null;
@@ -10140,14 +10192,22 @@ function limpiarDashboardFecha(){
   renderDashboard();
   if(typeof renderRegalosPanel==='function') renderRegalosPanel();
   if(typeof renderKitPanel==='function') renderKitPanel();
-  if(typeof renderCalidadPanel==='function') renderCalidadPanel();
+  refrescarPanelCalidadActivo_();
 }
 var detalleFiltradoFilas = [];
 var detalleFiltradoTitulo = '';
 
-var GRUPO_TABS_REPORTES = ['dashboard','regalos','kit','reportes','alertatemprana'];
-var GRUPO_TABS_MAESTRO = ['config','automatizaciones','plantillas','permisos','cargas','calidad'];
+var GRUPO_TABS_REPORTES = ['dashboard','regalos','kit','reportes','alertatemprana','npsgeneral','npscontactoposterior','npsfabrica','accesoriosreporte','garantiascalidad','casosgestion'];
+var GRUPO_TABS_MAESTRO = ['config','automatizaciones','plantillas','permisos','cargas'];
 
+function toggleSubgrupoNav_(id){
+  var el = document.getElementById(id);
+  var chevron = document.getElementById(id+'Chevron');
+  if(!el) return;
+  var abrir = el.style.display==='none';
+  el.style.display = abrir ? 'block' : 'none';
+  if(chevron) chevron.style.transform = abrir ? 'rotate(180deg)' : 'rotate(0deg)';
+}
 function mostrarSubmenu_(grupo){
   var subReportes = document.getElementById('submenuReportes');
   var subMaestro = document.getElementById('submenuMaestro');
@@ -10277,16 +10337,28 @@ function reemplazarVariables_(texto, r){
 }
 function setMaestroTab(tab){
   maestroTabActual = tab;
-  ['dashboard','regalos','kit','reportes','plantillas','config','automatizaciones','alertatemprana','permisos','cargas','calidad'].forEach(function(t){
-    document.getElementById('tabMaestro'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active', t===tab);
-    document.getElementById('paneMaestro'+t.charAt(0).toUpperCase()+t.slice(1)).style.display = (t===tab)?'block':'none';
+  ['dashboard','regalos','kit','reportes','plantillas','config','automatizaciones','alertatemprana','permisos','cargas','npsgeneral','npscontactoposterior','npsfabrica','accesoriosreporte','garantiascalidad','casosgestion'].forEach(function(t){
+    var tabBtn = document.getElementById('tabMaestro'+t.charAt(0).toUpperCase()+t.slice(1));
+    var pane = document.getElementById('paneMaestro'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(tabBtn) tabBtn.classList.toggle('active', t===tab);
+    if(pane) pane.style.display = (t===tab)?'block':'none';
   });
-  var SUBITEM_POR_TAB = {dashboard:'subReportesDashboard', regalos:'subReportesRegalos', kit:'subReportesKit', reportes:'subReportesBuscador', alertatemprana:'subReportesAlertaTemprana', config:'subMaestroConfig', automatizaciones:'subMaestroAutomatizaciones', plantillas:'subMaestroPlantillas', permisos:'subMaestroPermisos', cargas:'subMaestroCargas', calidad:'subMaestroCalidad'};
+  var SUBITEM_POR_TAB = {dashboard:'subReportesDashboard', kit:'subReportesKit', reportes:'subReportesBuscador', alertatemprana:'subReportesAlertaTemprana', config:'subMaestroConfig', automatizaciones:'subMaestroAutomatizaciones', plantillas:'subMaestroPlantillas', permisos:'subMaestroPermisos', cargas:'subMaestroCargas', npsgeneral:'subCalidadNpsGeneral', npscontactoposterior:'subCalidadNpsContactoPosterior', npsfabrica:'subCalidadNpsFabrica', accesoriosreporte:'subCalidadAccesorios', regalos:'subReportesRegalos', garantiascalidad:'subCalidadGarantias', casosgestion:'subCalidadCasos'};
   Object.keys(SUBITEM_POR_TAB).forEach(function(t){
     var el = document.getElementById(SUBITEM_POR_TAB[t]);
     if(el) el.classList.toggle('active', t===tab);
   });
-  document.getElementById('maestroMarcaFiltroWrap').style.display = (['dashboard','regalos','kit','calidad'].indexOf(tab)>-1) ? 'flex' : 'none';
+  document.getElementById('maestroMarcaFiltroWrap').style.display = (['dashboard','regalos','kit','npsgeneral','npscontactoposterior','npsfabrica','accesoriosreporte','garantiascalidad','casosgestion'].indexOf(tab)>-1) ? 'flex' : 'none';
+  var GRUPO_CALIDAD_TABS_ = ['npsgeneral','alertatemprana','npscontactoposterior','npsfabrica','accesoriosreporte','regalos','garantiascalidad','casosgestion'];
+  var GRUPO_NPS_TABS_ = ['npsgeneral','alertatemprana','npscontactoposterior','npsfabrica'];
+  if(GRUPO_CALIDAD_TABS_.indexOf(tab)>-1){
+    document.getElementById('grupoCalidad').style.display = 'block';
+    document.getElementById('grupoCalidadChevron').style.transform = 'rotate(180deg)';
+  }
+  if(GRUPO_NPS_TABS_.indexOf(tab)>-1){
+    document.getElementById('grupoNps').style.display = 'block';
+    document.getElementById('grupoNpsChevron').style.transform = 'rotate(180deg)';
+  }
   var TITULOS_MAESTRO = {
     dashboard:['Dashboard', 'Indicadores y gráficos generales de entregas.'],
     regalos:['Regalos Corporativos', 'Proyección y stock de regalos corporativos.'],
@@ -10298,7 +10370,12 @@ function setMaestroTab(tab){
     plantillas:['Plantillas de mail', 'Una plantilla distinta por marca y por tipo de mail.'],
     permisos:['Usuarios y Permisos', 'Altas, edición, contraseñas y roles de acceso.'],
     cargas:['Cargas masivas', 'Importar bases externas para actualizar entregas ya cargadas.'],
-    calidad:['Calidad y Medición', 'Centro de control: NPS de las 3 instancias, garantías, regalos y casos.']
+    npsgeneral:['NPS — Resumen general', 'Las 3 instancias juntas: evolución, distribución y cobertura de medición.'],
+    npscontactoposterior:['NPS — Contacto Posterior', 'Encuesta pública de satisfacción 0km (post-venta).'],
+    npsfabrica:['NPS — Fábrica', 'Carga manual, solo aplica a entregas con garantía cargada.'],
+    accesoriosreporte:['Accesorios', 'Accesorios más vendidos e instalados, todas las marcas.'],
+    garantiascalidad:['Garantías', 'Carga de garantía por entrega — cargadas, faltantes y filtradas.'],
+    casosgestion:['Casos en Gestión', 'Casos abiertos, prioridad y vencimiento — fuente: Gestión de Casos.']
   };
   var t = TITULOS_MAESTRO[tab];
   if(t){
@@ -10312,7 +10389,12 @@ function setMaestroTab(tab){
   if(tab==='cargas'){ renderCatalogoAccesoriosTabla_(); renderChecklistPrepTabla_(); }
   if(tab==='automatizaciones') renderAutomatizacionesUI_();
   if(tab==='alertatemprana') renderAlertaTempranaReporte_();
-  if(tab==='calidad') renderCalidadPanel();
+  if(tab==='npsgeneral') renderNpsGeneralPanel_();
+  if(tab==='npscontactoposterior') renderNpsContactoPosteriorPanel_();
+  if(tab==='npsfabrica') renderNpsFabricaPanel_();
+  if(tab==='accesoriosreporte') renderReporteAccesorios_();
+  if(tab==='garantiascalidad') renderGarantiasPanel_();
+  if(tab==='casosgestion') renderCasosGestionPanel_();
   if(tab==='permisos'){
     renderUsuariosTabla_();
     if(window._intervalUsuariosTabla) clearInterval(window._intervalUsuariosTabla);
@@ -10358,11 +10440,10 @@ function setDashboardMarca(marca){
   renderDashboard();
   if(typeof renderRegalosPanel==='function') renderRegalosPanel();
   if(typeof renderKitPanel==='function') renderKitPanel();
-  if(typeof renderCalidadPanel==='function') renderCalidadPanel();
+  refrescarPanelCalidadActivo_();
 }
 
 function renderDashboard(){
-  renderReporteAccesorios_();
   var elCanal=document.getElementById('dashCanalToggle');
   if(elCanal){
     elCanal.innerHTML =
@@ -10740,13 +10821,6 @@ function renderSeccionNPSCompleta_(){
       .sort(function(a,b){ return calcularNps_(b.rows)-calcularNps_(a.rows); })
       .map(function(x){ return renderFilaRankingNPS_(x.v, x.rows); }).join('');
   }
-}
-function toggleSeccionAccesorios_(){
-  var cuerpo = document.getElementById('reporteAccesoriosWrap');
-  var icono = document.getElementById('accesoriosAccordionIcon');
-  var abierto = cuerpo.style.display !== 'none';
-  cuerpo.style.display = abierto ? 'none' : 'block';
-  icono.style.transform = abierto ? 'rotate(-90deg)' : 'rotate(0deg)';
 }
 function renderReporteAccesorios_(){
   var tabla = document.getElementById('reporteAccesoriosTabla');
@@ -11166,19 +11240,6 @@ function cargarCasosGCSiHaceFalta_(){
     _casosGCcargados_ = true;
   }).catch(function(){ CASOS_GC_ = []; _casosGCcargados_ = true; });
 }
-function poblarFiltroSucursalCalidad_(){
-  var sel = document.getElementById('calidadFiltroSucursal');
-  if(!sel || sel.options.length>1) return;
-  var todas = [];
-  BRANDS.forEach(function(b){ if(b.branches) b.branches.forEach(function(s){ if(todas.indexOf(s)===-1) todas.push(s); }); });
-  sel.innerHTML = '<option value="">Todas las sucursales</option>' + todas.map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join('');
-}
-function entregasParaCalidad_(){
-  var rows = entregasParaDashboard();
-  var suc = document.getElementById('calidadFiltroSucursal').value;
-  if(suc) rows = rows.filter(function(r){ return r.sucursal===suc; });
-  return rows;
-}
 function contactoPosteriorInfo_(r){
   if(!r.contactoPosteriorData) return null;
   try{ var d = JSON.parse(r.contactoPosteriorData); return (d && d.buscado && d.encontrado) ? d.respuesta : null; }catch(e){ return null; }
@@ -11186,14 +11247,56 @@ function contactoPosteriorInfo_(r){
 function statChipCalidad_(n, l, cls, icon){
   return '<div class="stat-chip '+cls+'" style="min-width:130px;"><div class="icon-badge"><span class="material-symbols-outlined">'+icon+'</span></div><div class="n">'+n+'</div><div class="l">'+l+'</div></div>';
 }
-function renderCalidadPanel(){
-  poblarFiltroSucursalCalidad_();
-  dibujarCalidadPanel_();
-  cargarCasosGCSiHaceFalta_().then(dibujarCalidadPanel_);
+function poblarFiltroSucursalGenerico_(selectId){
+  var sel = document.getElementById(selectId);
+  if(!sel || sel.options.length>1) return;
+  var todas = [];
+  BRANDS.forEach(function(b){ if(b.branches) b.branches.forEach(function(s){ if(todas.indexOf(s)===-1) todas.push(s); }); });
+  sel.innerHTML = '<option value="">Todas las sucursales</option>' + todas.map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join('');
 }
-function dibujarCalidadPanel_(){
+function entregasCalidadFiltro_(selectId){
+  var rows = entregasParaDashboard();
+  var el = document.getElementById(selectId);
+  var suc = el ? el.value : '';
+  if(suc) rows = rows.filter(function(r){ return r.sucursal===suc; });
+  return rows;
+}
+function casosGCFiltrados_(selectId){
+  var sucSel = document.getElementById(selectId) ? document.getElementById(selectId).value : '';
+  return CASOS_GC_.filter(function(c){
+    if(dashboardMarcasActivas.indexOf('todas')===-1 && dashboardMarcasActivas.indexOf(c.marca)===-1) return false;
+    if(sucSel && c.sucursal!==sucSel) return false;
+    if(dashboardFechaDesde || dashboardFechaHasta){
+      var f = parsearFecha_((c.fechaCreacion||'').split(' ')[0]);
+      if(f){
+        if(dashboardFechaDesde && f < new Date(dashboardFechaDesde+'T00:00:00')) return false;
+        if(dashboardFechaHasta && f > new Date(dashboardFechaHasta+'T23:59:59')) return false;
+      }
+    }
+    return true;
+  });
+}
+function refrescarPanelCalidadActivo_(){
+  var mapa = {
+    npsgeneral: renderNpsGeneralPanel_, npscontactoposterior: renderNpsContactoPosteriorPanel_,
+    npsfabrica: renderNpsFabricaPanel_, garantiascalidad: renderGarantiasPanel_, casosgestion: renderCasosGestionPanel_
+  };
+  var fn = mapa[maestroTabActual];
+  if(fn) fn();
+}
+
+// ============================================================
+// NPS — Resumen general: KPIs, NPS por instancia, evolución,
+// distribución, alertas y cobertura cruzada.
+// ============================================================
+function renderNpsGeneralPanel_(){
+  poblarFiltroSucursalGenerico_('calidadFiltroSucursal');
+  dibujarNpsGeneral_();
+  cargarCasosGCSiHaceFalta_().then(dibujarNpsGeneral_);
+}
+function dibujarNpsGeneral_(){
   if(!document.getElementById('calidadKpis')) return;
-  var rows = entregasParaCalidad_();
+  var rows = entregasCalidadFiltro_('calidadFiltroSucursal');
   var total = rows.length;
 
   var atRespondidas = rows.filter(function(r){ return r.npsScore!==null && r.npsScore!==undefined && r.npsScore!==''; });
@@ -11214,33 +11317,10 @@ function dibujarCalidadPanel_(){
   var npsGeneral = poolGeneral.length ? calcularNps_(poolGeneral) : null;
 
   var detractores = atRespondidas.filter(function(r){ return r.npsScore<=6; }).length;
-
-  var garCargadas = rows.filter(function(r){ return !!r.garantiaFecha; });
+  var casosAbiertos = casosGCFiltrados_('calidadFiltroSucursal').filter(function(c){ var e=(c.estado||'').toLowerCase(); return e.indexOf('cerrad')===-1 && e.indexOf('resuelt')===-1; });
   var garFaltan = rows.filter(function(r){ return !r.garantiaFecha; });
-  var garFiltradas = rows.filter(function(r){ return !!r.garantiaFiltrada; });
-
   var regSolicitados = rows.filter(function(r){ return !!r.regaloCorporativo; });
-  var regEntregados = regSolicitados.filter(function(r){ return r.regaloEstado==='Entregado'; });
   var regPendientes = regSolicitados.filter(function(r){ return r.regaloEstado!=='Entregado'; });
-
-  var sucSel = document.getElementById('calidadFiltroSucursal').value;
-  var casosFiltrados = CASOS_GC_.filter(function(c){
-    if(dashboardMarcasActivas.indexOf('todas')===-1 && dashboardMarcasActivas.indexOf(c.marca)===-1) return false;
-    if(sucSel && c.sucursal!==sucSel) return false;
-    if(dashboardFechaDesde || dashboardFechaHasta){
-      var f = parsearFecha_((c.fechaCreacion||'').split(' ')[0]);
-      if(f){
-        if(dashboardFechaDesde && f < new Date(dashboardFechaDesde+'T00:00:00')) return false;
-        if(dashboardFechaHasta && f > new Date(dashboardFechaHasta+'T23:59:59')) return false;
-      }
-    }
-    return true;
-  });
-  var casosAbiertos = casosFiltrados.filter(function(c){ var e=(c.estado||'').toLowerCase(); return e.indexOf('cerrad')===-1 && e.indexOf('resuelt')===-1; });
-  var casosAlta = casosAbiertos.filter(function(c){ return (c.prioridad||'').toLowerCase()==='alta'; });
-  var hoy = new Date();
-  var casosVencidos = casosAbiertos.filter(function(c){ if(!c.slaVencimiento) return false; var f=parsearFecha_(c.slaVencimiento.split(' ')[0]); return f && f<hoy; });
-  var casosSinAsignar = casosAbiertos.filter(function(c){ return !c.responsable; });
 
   window._calidadChipsFiltros = [
     {n: npsGeneral===null?'—':npsGeneral, l:'NPS General', cls: npsGeneral===null?'pending':(npsGeneral>=50?'ok':(npsGeneral>=0?'warn':'danger')), icon:'star'},
@@ -11271,48 +11351,7 @@ function dibujarCalidadPanel_(){
     tarjetaInstancia_('NPS Fábrica', fabNps, fabRespondidas.length, fabElegibles.length, 'factory', 'ambar')+
     tarjetaInstancia_('General', npsGeneral, totalRespGeneral, totalEsperadoGeneral, 'insights', 'ok');
 
-  document.getElementById('calidadGarantiaKpis').innerHTML =
-    statChipCalidad_(total,'Total entregas','pending','local_shipping')+
-    statChipCalidad_(garCargadas.length,'Cargadas','ok','check_circle')+
-    statChipCalidad_(garFaltan.length,'Faltan cargar','warn','schedule')+
-    statChipCalidad_(garFiltradas.length,'Filtradas','danger','block');
-  window._calidadGarFaltan = garFaltan;
-  document.getElementById('calidadGarantiaTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Modelo</th><th>Fecha entrega</th><th>Administrativo</th></tr>'+
-    (garFaltan.slice(0,5).map(function(r){ var b=BRANDS.find(function(x){return x.id===r.marca;}); return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td>'+r.modelo+'</td><td>'+r.fecha+'</td><td>'+r.administrativo+'</td></tr>'; }).join('') ||
-    '<tr><td colspan="5" style="text-align:center;color:var(--text-faint);">Sin pendientes 🎉</td></tr>');
-  document.getElementById('calidadGarantiaVerMas').innerHTML = garFaltan.length>5 ? '<button class="print-btn" style="margin:0;" onclick="mostrarDetalleFiltrado(\'Garantías pendientes\', window._calidadGarFaltan, null, \'calidadGarantiaKpis\')">Ver las '+garFaltan.length+' pendientes</button>' : '';
-
-  document.getElementById('calidadRegaloKpis').innerHTML =
-    statChipCalidad_(regSolicitados.length,'Solicitados','pending','redeem')+
-    statChipCalidad_(regEntregados.length,'Entregados','ok','check_circle')+
-    statChipCalidad_(regPendientes.length,'Pendientes','warn','schedule');
-  window._calidadRegPendientes = regPendientes;
-  document.getElementById('calidadRegaloTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Administrativo</th><th>Estado</th></tr>'+
-    (regPendientes.slice(0,5).map(function(r){ var b=BRANDS.find(function(x){return x.id===r.marca;}); return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td>'+r.administrativo+'</td><td>'+(r.regaloEstado||'Pendiente')+'</td></tr>'; }).join('') ||
-    '<tr><td colspan="4" style="text-align:center;color:var(--text-faint);">Sin pendientes 🎉</td></tr>');
-  document.getElementById('calidadRegaloVerMas').innerHTML = regPendientes.length>5 ? '<button class="print-btn" style="margin:0;" onclick="mostrarDetalleFiltrado(\'Regalos pendientes\', window._calidadRegPendientes, null, \'calidadRegaloKpis\')">Ver los '+regPendientes.length+' pendientes</button>' : '';
-
-  document.getElementById('calidadCasosNota').textContent = _casosGCcargados_ ? 'Fuente: Gestión de Casos (planilla externa, solo lectura).' : 'Cargando casos de Gestión de Casos…';
-  document.getElementById('calidadCasosKpis').innerHTML =
-    statChipCalidad_(casosAbiertos.length,'Abiertos','warn','report')+
-    statChipCalidad_(casosAlta.length,'Alta prioridad','danger','priority_high')+
-    statChipCalidad_(casosVencidos.length,'Vencidos','danger','history_toggle_off')+
-    statChipCalidad_(casosSinAsignar.length,'Sin asignar','pending','person_off');
-  window._calidadCasosAbiertos = casosAbiertos;
-  document.getElementById('calidadCasosTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Motivo</th><th>Prioridad</th><th>Responsable</th><th>Estado</th></tr>'+
-    (casosAbiertos.slice(0,5).map(function(c){ return '<tr><td>'+c.cliente+'</td><td>'+c.marca+'</td><td>'+c.motivo+'</td><td>'+c.prioridad+'</td><td>'+(c.responsable||'Sin asignar')+'</td><td>'+c.estado+'</td></tr>'; }).join('') ||
-    '<tr><td colspan="6" style="text-align:center;color:var(--text-faint);">Sin casos abiertos 🎉</td></tr>');
-  // ---- Cobertura de medición (quién respondió qué) ----
-  function coberturaEntrega_(r){
-    var at = (r.npsScore!==null && r.npsScore!==undefined && r.npsScore!=='');
-    var cpInfo = contactoPosteriorInfo_(r);
-    var cp = !!(cpInfo && cpInfo.recomienda!==undefined && cpInfo.recomienda!=='');
-    var fabAplica = !!r.garantiaFecha;
-    var fab = fabAplica && (r.npsFabricaScore!==null && r.npsFabricaScore!==undefined && r.npsFabricaScore!=='');
-    var aplicables = 2 + (fabAplica?1:0);
-    var respondidas = (at?1:0) + (cp?1:0) + (fab?1:0);
-    return {r:r, at:at, cp:cp, fab:fab, fabAplica:fabAplica, aplicables:aplicables, respondidas:respondidas, faltan:aplicables-respondidas};
-  }
+  // ---- Cobertura de medición ----
   var coberturaItems = rows.map(coberturaEntrega_);
   var covNinguna = coberturaItems.filter(function(x){return x.respondidas===0;});
   var covFalta2 = coberturaItems.filter(function(x){return x.respondidas>0 && x.faltan>=2;});
@@ -11330,10 +11369,9 @@ function dibujarCalidadPanel_(){
   document.getElementById('calidadCoberturaTotal').innerHTML = statChipCalidad_(pctCobertura+'%', 'Cobertura total — '+covRespSum+' / '+covAplicSum+' encuestas', pctCobertura>=70?'ok':(pctCobertura>=40?'warn':'danger'), 'donut_large');
   filtrarCoberturaCalidad_('todas');
 
-  document.getElementById('calidadCasosVerMas').innerHTML = casosAbiertos.length>5 ? '<button class="print-btn" style="margin:0;" onclick="mostrarTablaCasosCalidadCompleta_()">Ver los '+casosAbiertos.length+' casos abiertos</button>' : '';
-
-  // ---- Alertas de calidad (lista accionable) ----
+  // ---- Alertas de calidad ----
   var comentariosNegativos = rows.filter(function(r){ return r.npsScore<=6 && r.npsComentario; }).length;
+  var casosAlta = casosAbiertos.filter(function(c){ return (c.prioridad||'').toLowerCase()==='alta'; });
   function alertaCalidadItem_(icon, cantidad, desc, onclick){
     return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--hairline);">'+
       '<span class="material-symbols-outlined" style="color:'+(cantidad?'var(--warn)':'var(--text-faint)')+';">'+icon+'</span>'+
@@ -11345,11 +11383,11 @@ function dibujarCalidadPanel_(){
     alertaCalidadItem_('thumb_down', detractores, 'detractores (NPS ≤ 6, Alerta Temprana)', 'abrirDetalleFiltradoCalidad_(2)')+
     alertaCalidadItem_('chat', comentariosNegativos, 'comentarios de detractores para revisar')+
     alertaCalidadItem_('forum', (total-atRespondidas.length), 'encuestas de Alerta Temprana pendientes')+
-    alertaCalidadItem_('verified', garFaltan.length, 'garantías sin cargar', 'mostrarDetalleFiltrado(\'Garantías pendientes\', window._calidadGarFaltan, null, \'calidadKpis\')')+
+    alertaCalidadItem_('verified', garFaltan.length, 'garantías sin cargar')+
     alertaCalidadItem_('report', casosAbiertos.length, 'casos abiertos')+
     alertaCalidadItem_('priority_high', casosAlta.length, 'casos de alta prioridad');
 
-  // ---- Gráficos (evolución mensual + distribución) ----
+  // ---- Gráficos ----
   if(typeof Chart!=='undefined'){
     var porMesCalidad = {};
     rows.forEach(function(r){
@@ -11400,6 +11438,142 @@ function dibujarCalidadPanel_(){
     });
   }
 }
+function coberturaEntrega_(r){
+  var at = (r.npsScore!==null && r.npsScore!==undefined && r.npsScore!=='');
+  var cpInfo = contactoPosteriorInfo_(r);
+  var cp = !!(cpInfo && cpInfo.recomienda!==undefined && cpInfo.recomienda!=='');
+  var fabAplica = !!r.garantiaFecha;
+  var fab = fabAplica && (r.npsFabricaScore!==null && r.npsFabricaScore!==undefined && r.npsFabricaScore!=='');
+  var aplicables = 2 + (fabAplica?1:0);
+  var respondidas = (at?1:0) + (cp?1:0) + (fab?1:0);
+  return {r:r, at:at, cp:cp, fab:fab, fabAplica:fabAplica, aplicables:aplicables, respondidas:respondidas, faltan:aplicables-respondidas};
+}
+
+// ============================================================
+// NPS — Contacto Posterior (su propia página)
+// ============================================================
+function renderNpsContactoPosteriorPanel_(){
+  poblarFiltroSucursalGenerico_('cpFiltroSucursal');
+  if(!document.getElementById('cpResumen')) return;
+  var rows = entregasCalidadFiltro_('cpFiltroSucursal');
+  var conDato = rows.map(function(r){ return {r:r, d:contactoPosteriorInfo_(r)}; }).filter(function(x){ return x.d && x.d.recomienda!==undefined && x.d.recomienda!==''; });
+  var npsRows = conDato.map(function(x){ return {npsScore:Number(x.d.recomienda)}; });
+  var nps = npsRows.length ? calcularNps_(npsRows) : null;
+  var pct = rows.length ? Math.round(conDato.length/rows.length*100) : 0;
+  document.getElementById('cpResumen').innerHTML =
+    statChipCalidad_(nps===null?'—':nps, 'NPS Contacto Posterior', nps===null?'pending':(nps>=50?'ok':(nps>=0?'warn':'danger')), 'forum')+
+    statChipCalidad_(conDato.length+' / '+rows.length, 'Respondidas', 'pending', 'fact_check')+
+    statChipCalidad_(pct+'%', 'Tasa de respuesta', pct>=50?'ok':'warn', 'percent');
+  window._cpConDato = conDato;
+  document.getElementById('cpTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Fecha respuesta</th><th>Puntaje</th><th>Atención asesor</th><th>Gestión admin.</th><th>Exp. entrega</th><th>Comentario</th></tr>'+
+    (conDato.slice(0,10).map(function(x){
+      var b=BRANDS.find(function(y){return y.id===x.r.marca;});
+      return '<tr style="cursor:pointer;" onclick="openDetail(\''+x.r.marca+'\',\''+x.r.id+'\')"><td>'+x.r.cliente+'</td><td>'+(b?b.label:x.r.marca)+'</td><td>'+(x.d.fecha||'—')+'</td><td style="font-weight:700;">'+x.d.recomienda+'</td><td>'+(x.d.atencionAsesor||'—')+'</td><td>'+(x.d.gestionAdmin||'—')+'</td><td>'+(x.d.experienciaEntrega||'—')+'</td><td>'+(x.d.comentario||'—')+'</td></tr>';
+    }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text-faint);">Sin respuestas todavía en este período.</td></tr>');
+  document.getElementById('cpVerMas').innerHTML = conDato.length>10 ? '<button class="print-btn" style="margin:0;" onclick="mostrarTablaCpCompleta_()">Ver las '+conDato.length+' respuestas</button>' : '';
+}
+function mostrarTablaCpCompleta_(){
+  var conDato = window._cpConDato||[];
+  document.getElementById('cpTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Fecha respuesta</th><th>Puntaje</th><th>Atención asesor</th><th>Gestión admin.</th><th>Exp. entrega</th><th>Comentario</th></tr>'+
+    conDato.map(function(x){
+      var b=BRANDS.find(function(y){return y.id===x.r.marca;});
+      return '<tr style="cursor:pointer;" onclick="openDetail(\''+x.r.marca+'\',\''+x.r.id+'\')"><td>'+x.r.cliente+'</td><td>'+(b?b.label:x.r.marca)+'</td><td>'+(x.d.fecha||'—')+'</td><td style="font-weight:700;">'+x.d.recomienda+'</td><td>'+(x.d.atencionAsesor||'—')+'</td><td>'+(x.d.gestionAdmin||'—')+'</td><td>'+(x.d.experienciaEntrega||'—')+'</td><td>'+(x.d.comentario||'—')+'</td></tr>';
+    }).join('');
+  document.getElementById('cpVerMas').innerHTML = '';
+}
+
+// ============================================================
+// NPS — Fábrica (su propia página)
+// ============================================================
+function renderNpsFabricaPanel_(){
+  poblarFiltroSucursalGenerico_('fabFiltroSucursal');
+  if(!document.getElementById('fabResumen')) return;
+  var rows = entregasCalidadFiltro_('fabFiltroSucursal');
+  var elegibles = rows.filter(function(r){ return !!r.garantiaFecha; });
+  var respondidas = elegibles.filter(function(r){ return r.npsFabricaScore!==null && r.npsFabricaScore!==undefined && r.npsFabricaScore!==''; });
+  var npsRows = respondidas.map(function(r){ return {npsScore:Number(r.npsFabricaScore)}; });
+  var nps = npsRows.length ? calcularNps_(npsRows) : null;
+  var pct = elegibles.length ? Math.round(respondidas.length/elegibles.length*100) : 0;
+  document.getElementById('fabResumen').innerHTML =
+    statChipCalidad_(nps===null?'—':nps, 'NPS Fábrica', nps===null?'pending':(nps>=50?'ok':(nps>=0?'warn':'danger')), 'factory')+
+    statChipCalidad_(respondidas.length+' / '+elegibles.length, 'Respondidas', 'pending', 'fact_check')+
+    statChipCalidad_(pct+'%', 'Tasa de respuesta', pct>=50?'ok':'warn', 'percent');
+  window._fabElegibles = elegibles;
+  document.getElementById('fabTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Fecha garantía</th><th>Fecha respuesta</th><th>Puntaje</th><th>Comentario</th></tr>'+
+    (elegibles.slice(0,10).map(function(r){
+      var b=BRANDS.find(function(y){return y.id===r.marca;});
+      var respondio = r.npsFabricaScore!==null && r.npsFabricaScore!==undefined && r.npsFabricaScore!=='';
+      return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td>'+r.garantiaFecha+'</td><td>'+(r.npsFabricaFecha||'—')+'</td><td style="font-weight:700;">'+(respondio?r.npsFabricaScore:'—')+'</td><td>'+(r.npsFabricaComentario||'—')+'</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-faint);">Sin entregas con garantía cargada en este período.</td></tr>');
+  document.getElementById('fabVerMas').innerHTML = elegibles.length>10 ? '<button class="print-btn" style="margin:0;" onclick="mostrarTablaFabCompleta_()">Ver las '+elegibles.length+' entregas elegibles</button>' : '';
+}
+function mostrarTablaFabCompleta_(){
+  var elegibles = window._fabElegibles||[];
+  document.getElementById('fabTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Fecha garantía</th><th>Fecha respuesta</th><th>Puntaje</th><th>Comentario</th></tr>'+
+    elegibles.map(function(r){
+      var b=BRANDS.find(function(y){return y.id===r.marca;});
+      var respondio = r.npsFabricaScore!==null && r.npsFabricaScore!==undefined && r.npsFabricaScore!=='';
+      return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td>'+r.garantiaFecha+'</td><td>'+(r.npsFabricaFecha||'—')+'</td><td style="font-weight:700;">'+(respondio?r.npsFabricaScore:'—')+'</td><td>'+(r.npsFabricaComentario||'—')+'</td></tr>';
+    }).join('');
+  document.getElementById('fabVerMas').innerHTML = '';
+}
+
+// ============================================================
+// Garantías (su propia página)
+// ============================================================
+function renderGarantiasPanel_(){
+  poblarFiltroSucursalGenerico_('garFiltroSucursal');
+  if(!document.getElementById('calidadGarantiaKpis')) return;
+  var rows = entregasCalidadFiltro_('garFiltroSucursal');
+  var garCargadas = rows.filter(function(r){ return !!r.garantiaFecha; });
+  var garFaltan = rows.filter(function(r){ return !r.garantiaFecha; });
+  var garFiltradas = rows.filter(function(r){ return !!r.garantiaFiltrada; });
+  document.getElementById('calidadGarantiaKpis').innerHTML =
+    statChipCalidad_(rows.length,'Total entregas','pending','local_shipping')+
+    statChipCalidad_(garCargadas.length,'Cargadas','ok','check_circle')+
+    statChipCalidad_(garFaltan.length,'Faltan cargar','warn','schedule')+
+    statChipCalidad_(garFiltradas.length,'Filtradas','danger','block');
+  window._calidadGarFaltan = garFaltan;
+  document.getElementById('calidadGarantiaTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Modelo</th><th>Fecha entrega</th><th>Administrativo</th></tr>'+
+    (garFaltan.slice(0,10).map(function(r){ var b=BRANDS.find(function(x){return x.id===r.marca;}); return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td>'+r.modelo+'</td><td>'+r.fecha+'</td><td>'+r.administrativo+'</td></tr>'; }).join('') ||
+    '<tr><td colspan="5" style="text-align:center;color:var(--text-faint);">Sin pendientes 🎉</td></tr>');
+  document.getElementById('calidadGarantiaVerMas').innerHTML = garFaltan.length>10 ? '<button class="print-btn" style="margin:0;" onclick="mostrarTablaGarantiaCompleta_()">Ver las '+garFaltan.length+' pendientes</button>' : '';
+}
+function mostrarTablaGarantiaCompleta_(){
+  var garFaltan = window._calidadGarFaltan||[];
+  document.getElementById('calidadGarantiaTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Modelo</th><th>Fecha entrega</th><th>Administrativo</th></tr>'+
+    garFaltan.map(function(r){ var b=BRANDS.find(function(x){return x.id===r.marca;}); return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td>'+r.modelo+'</td><td>'+r.fecha+'</td><td>'+r.administrativo+'</td></tr>'; }).join('');
+  document.getElementById('calidadGarantiaVerMas').innerHTML = '';
+}
+
+// ============================================================
+// Casos en Gestión (su propia página) — fuente: Gestión de Casos
+// ============================================================
+function renderCasosGestionPanel_(){
+  poblarFiltroSucursalGenerico_('casosFiltroSucursal');
+  dibujarCasosGestion_();
+  cargarCasosGCSiHaceFalta_().then(dibujarCasosGestion_);
+}
+function dibujarCasosGestion_(){
+  if(!document.getElementById('calidadCasosKpis')) return;
+  var casosFiltrados = casosGCFiltrados_('casosFiltroSucursal');
+  var casosAbiertos = casosFiltrados.filter(function(c){ var e=(c.estado||'').toLowerCase(); return e.indexOf('cerrad')===-1 && e.indexOf('resuelt')===-1; });
+  var casosAlta = casosAbiertos.filter(function(c){ return (c.prioridad||'').toLowerCase()==='alta'; });
+  var hoy = new Date();
+  var casosVencidos = casosAbiertos.filter(function(c){ if(!c.slaVencimiento) return false; var f=parsearFecha_(c.slaVencimiento.split(' ')[0]); return f && f<hoy; });
+  var casosSinAsignar = casosAbiertos.filter(function(c){ return !c.responsable; });
+  document.getElementById('calidadCasosNota').textContent = _casosGCcargados_ ? 'Fuente: Gestión de Casos (planilla externa, solo lectura).' : 'Cargando casos de Gestión de Casos…';
+  document.getElementById('calidadCasosKpis').innerHTML =
+    statChipCalidad_(casosAbiertos.length,'Abiertos','warn','report')+
+    statChipCalidad_(casosAlta.length,'Alta prioridad','danger','priority_high')+
+    statChipCalidad_(casosVencidos.length,'Vencidos','danger','history_toggle_off')+
+    statChipCalidad_(casosSinAsignar.length,'Sin asignar','pending','person_off');
+  window._calidadCasosAbiertos = casosAbiertos;
+  document.getElementById('calidadCasosTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Motivo</th><th>Prioridad</th><th>Responsable</th><th>Estado</th></tr>'+
+    (casosAbiertos.slice(0,10).map(function(c){ return '<tr><td>'+c.cliente+'</td><td>'+c.marca+'</td><td>'+c.motivo+'</td><td>'+c.prioridad+'</td><td>'+(c.responsable||'Sin asignar')+'</td><td>'+c.estado+'</td></tr>'; }).join('') ||
+    '<tr><td colspan="6" style="text-align:center;color:var(--text-faint);">Sin casos abiertos 🎉</td></tr>');
+  document.getElementById('calidadCasosVerMas').innerHTML = casosAbiertos.length>10 ? '<button class="print-btn" style="margin:0;" onclick="mostrarTablaCasosCalidadCompleta_()">Ver los '+casosAbiertos.length+' casos abiertos</button>' : '';
+}
 function filtrarCoberturaCalidad_(bucket){
   ['covChipTodas','covChipFalta1','covChipFalta2','covChipNinguna'].forEach(function(id){
     var el = document.getElementById(id);
@@ -11433,7 +11607,7 @@ function mostrarTablaCoberturaCompleta_(){
 function abrirDetalleFiltradoCalidad_(i){
   var c = window._calidadChipsFiltros[i];
   if(!c || !c.filtro) return;
-  var filas = entregasParaCalidad_().filter(c.filtro);
+  var filas = entregasCalidadFiltro_('calidadFiltroSucursal').filter(c.filtro);
   mostrarDetalleFiltrado(c.titulo||c.l, filas, null, 'calidadKpis');
 }
 function mostrarTablaCasosCalidadCompleta_(){
