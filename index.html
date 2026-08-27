@@ -790,8 +790,8 @@
   .nav-label,.sidebar-user-toggle .info{opacity:0;max-width:0;overflow:hidden;transition:opacity .08s ease,max-width .16s ease;}
   .sidebar:hover .nav-label,.sidebar.pinned .nav-label,
   .sidebar:hover .sidebar-user-toggle .info,.sidebar.pinned .sidebar-user-toggle .info{opacity:1;max-width:160px;}
-  .sidebar-nav{padding:0 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;min-height:0;flex:1 1 auto;}
-  .nav-item{display:flex;align-items:center;gap:8px;padding:7px 13px;border-radius:9px;color:#9099ac;font-size:10.5px;font-weight:600;cursor:pointer;border:none;background:none;text-align:left;width:100%;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;white-space:nowrap;}
+  .sidebar-nav{padding:0 10px;display:flex;flex-direction:column;gap:1px;overflow-y:auto;min-height:0;flex:1 1 auto;}
+  .nav-item{display:flex;align-items:center;gap:8px;padding:5px 13px;border-radius:9px;color:#9099ac;font-size:10.5px;font-weight:600;cursor:pointer;border:none;background:none;text-align:left;width:100%;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;white-space:nowrap;}
   .sidebar:not(:hover):not(.pinned) .nav-item{justify-content:center;padding-left:0;padding-right:0;}
   .nav-item .material-symbols-outlined{font-size:18px;flex-shrink:0;}
   .nav-item:hover{background:#161b28;color:#fff;}
@@ -803,9 +803,9 @@
   .nav-item-highlight{background:var(--accent) !important;color:#1a1206 !important;font-weight:700;}
   .nav-item-highlight:hover{background:var(--accent) !important;filter:brightness(1.08);}
   .nav-item-highlight .material-symbols-outlined{color:#1a1206;}
-  .nav-submenu{display:flex;flex-direction:column;gap:1px;margin:2px 0 6px;padding-left:14px;border-left:1px solid var(--hairline);margin-left:22px;}
+  .nav-submenu{display:flex;flex-direction:column;gap:1px;margin:1px 0 4px;padding-left:12px;border-left:1px solid var(--hairline);margin-left:22px;}
   .sidebar:not(:hover):not(.pinned) .nav-submenu{display:none !important;}
-  .nav-subitem{display:block;text-align:left;background:none;border:none;color:var(--text-faint);font-size:11px;font-weight:500;padding:6px 9px;border-radius:7px;cursor:pointer;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;white-space:nowrap;}
+  .nav-subitem{display:block;text-align:left;background:none;border:none;color:var(--text-faint);font-size:10.5px;font-weight:500;padding:5px 9px;border-radius:7px;cursor:pointer;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;white-space:nowrap;}
   .nav-subitem:hover{background:#161b28;color:#fff;}
   .nav-subitem.active{color:var(--accent);font-weight:700;background:var(--accent-soft);}
   .sidebar-foot{padding:14px 20px 0;border-top:1px solid var(--hairline);margin-top:10px;font-size:10.5px;color:var(--text-faint);line-height:1.6;}
@@ -1103,9 +1103,9 @@
           <button class="nav-subitem" id="subReportesKit" onclick="setMaestroTab('kit')">Kit de Seguridad</button>
           <button class="nav-subitem" id="subReportesBuscador" onclick="setMaestroTab('reportes')">Buscador de reportes</button>
           <button class="nav-subitem" id="grupoCalidadToggle" onclick="toggleSubgrupoNav_('grupoCalidad')" style="display:flex;align-items:center;justify-content:space-between;">Calidad <span class="material-symbols-outlined" id="grupoCalidadChevron" style="font-size:15px;transition:transform .15s;">expand_more</span></button>
-          <div id="grupoCalidad" style="display:none;padding-left:10px;border-left:1px solid var(--hairline);margin-left:8px;">
+          <div id="grupoCalidad" style="display:none;padding-left:8px;border-left:1px solid var(--hairline);margin-left:6px;">
             <button class="nav-subitem" id="grupoNpsToggle" onclick="toggleSubgrupoNav_('grupoNps')" style="display:flex;align-items:center;justify-content:space-between;">NPS <span class="material-symbols-outlined" id="grupoNpsChevron" style="font-size:15px;transition:transform .15s;">expand_more</span></button>
-            <div id="grupoNps" style="display:none;padding-left:10px;border-left:1px solid var(--hairline);margin-left:8px;">
+            <div id="grupoNps" style="display:none;padding-left:8px;border-left:1px solid var(--hairline);margin-left:6px;">
               <button class="nav-subitem" id="subCalidadNpsGeneral" onclick="setMaestroTab('npsgeneral')">Resumen general</button>
               <button class="nav-subitem" id="subReportesAlertaTemprana" onclick="setMaestroTab('alertatemprana')">Alerta Temprana</button>
               <button class="nav-subitem" id="subCalidadNpsContactoPosterior" onclick="setMaestroTab('npscontactoposterior')">Contacto Posterior</button>
@@ -1141,6 +1141,7 @@
         <div class="sidebar-user-menu" id="menuUsuario" style="display:none;">
           <button onclick="toggleTheme()" id="themeToggleBtn"><span class="material-symbols-outlined">dark_mode</span>Modo oscuro/claro</button>
           <button onclick="cargarTodo()"><span class="material-symbols-outlined">refresh</span>Actualizar datos</button>
+          <button onclick="crearCopiaSeguridadUI_()" id="btnCopiaSeguridad" style="display:none;"><span class="material-symbols-outlined">backup</span>Copia de seguridad completa</button>
           <div id="rolPreviewMenuWrap" style="display:none;">
             <div style="padding:8px 12px 2px;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-faint);font-weight:700;">Vista previa (solo vos ves esto)</div>
             <select id="rolPreviewSelect" onchange="activarRolPreview(this.value)" style="margin:4px 12px 8px;width:calc(100% - 24px);background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:7px 9px;font-size:12px;">
@@ -3197,12 +3198,31 @@ function salirRolPreview(){
   document.getElementById('rolPreviewSelect').value='';
   activarRolPreview(null);
 }
+function crearCopiaSeguridadUI_(){
+  var s = sesionActual();
+  var pass = window._ultimaPasswordActor || credencialesActor_();
+  if(pass===null) return;
+  var btn = document.getElementById('btnCopiaSeguridad');
+  if(btn){ btn.disabled = true; btn.innerHTML = '<span class="material-symbols-outlined">hourglass_top</span>Creando copia…'; }
+  gasPost('crearCopiaSeguridad', {actorUsuario:s.usuario, actorPassword:pass}).then(function(res){
+    if(btn){ btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined">backup</span>Copia de seguridad completa'; }
+    if(!res.ok){ showToast(res.error||'No se pudo crear la copia de seguridad'); return; }
+    showToast('Copia creada en tu Drive: "'+res.nombre+'"');
+    if(res.url) window.open(res.url, '_blank');
+  }).catch(function(){
+    if(btn){ btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined">backup</span>Copia de seguridad completa'; }
+    showToast('No se pudo conectar para crear la copia de seguridad');
+  });
+}
 function toggleMenuUsuario(){
   var menu=document.getElementById('menuUsuario');
   var chev=document.getElementById('menuUsuarioChevron');
   var abrir = menu.style.display==='none' || !menu.style.display;
   menu.style.display = abrir ? 'flex' : 'none';
   if(chev) chev.classList.toggle('open', abrir);
+  var esMaestro = rolActualReal_()==='maestro';
+  var btnCopia = document.getElementById('btnCopiaSeguridad');
+  if(btnCopia) btnCopia.style.display = esMaestro ? 'flex' : 'none';
 }
 document.addEventListener('click', function(ev){
   var widget = document.querySelector('.sidebar-user');
@@ -11637,11 +11657,27 @@ function calcularNpsDecimal_(rows){
   var d = rows.filter(function(r){return r.npsScore<=6;}).length;
   return Math.round((p/rows.length - d/rows.length)*1000)/10;
 }
+function contarNpsCrudo_(scores){
+  var promotores = scores.filter(function(n){return n>=9;}).length;
+  var pasivos = scores.filter(function(n){return n>=7 && n<=8;}).length;
+  var detractores = scores.filter(function(n){return n<=6;}).length;
+  return {promotores:promotores, pasivos:pasivos, detractores:detractores, total:scores.length};
+}
+function npsDeConteo_(c){
+  if(!c || c.total===0) return null;
+  return Math.round((c.promotores/c.total - c.detractores/c.total)*1000)/10;
+}
+function sumarConteos_(a, b){
+  return {
+    promotores: (a?a.promotores:0)+(b?b.promotores:0),
+    pasivos: (a?a.pasivos:0)+(b?b.pasivos:0),
+    detractores: (a?a.detractores:0)+(b?b.detractores:0),
+    total: (a?a.total:0)+(b?b.total:0)
+  };
+}
 function calcularNpsDesdeFilas_(filas, idxHeaderRow, headers){
   var colScore = buscarColPorNombre_(headers, ['NPS','FABRICA']);
-  var colAnio = buscarColPorNombre_(headers, ['AÑO']);
   if(colScore===-1) return null;
-  var porAnio = {};
   var todas = [];
   for(var r=idxHeaderRow+1; r<filas.length; r++){
     var fila = filas[r];
@@ -11651,22 +11687,9 @@ function calcularNpsDesdeFilas_(filas, idxHeaderRow, headers){
     var n = Number(score);
     if(isNaN(n)) continue;
     todas.push(n);
-    var anio = colAnio>-1 ? String(fila[colAnio]||'').trim() : '';
-    if(anio){
-      if(!porAnio[anio]) porAnio[anio] = [];
-      porAnio[anio].push(n);
-    }
   }
   if(todas.length===0) return null;
-  function npsDe_(arr){ return calcularNpsDecimal_(arr.map(function(n){return {npsScore:n};})); }
-  var anios = Object.keys(porAnio).sort();
-  var anioActual = String(new Date().getFullYear());
-  return {
-    npsGeneral: npsDe_(todas), totalRespuestas: todas.length,
-    npsAnioActual: porAnio[anioActual] ? npsDe_(porAnio[anioActual]) : null,
-    respuestasAnioActual: porAnio[anioActual] ? porAnio[anioActual].length : 0,
-    porAnio: anios.map(function(a){ return {anio:a, nps:npsDe_(porAnio[a]), respuestas:porAnio[a].length}; })
-  };
+  return contarNpsCrudo_(todas); // {promotores, pasivos, detractores, total}
 }
 // Detecta si el archivo es de PDA o Directa/Tradicional mirando el título
 // de la hoja (fila 1) — así se guardan los dos por separado y uno no pisa
@@ -11676,34 +11699,41 @@ function detectarCanalArchivoFabrica_(filas){
   if(texto.indexOf('PDA')>-1) return 'pda';
   return 'directa'; // por defecto, si no dice PDA asumimos Directa/Tradicional
 }
-function guardarResumenArchivoFabrica_(canal, nombreArchivo, res){
+function guardarResumenArchivoFabrica_(canal, nombreArchivo, conteo){
   var guardado = {};
   try{ guardado = JSON.parse(localStorage.getItem('fabResumenArchivo')||'{}'); }catch(e){}
-  guardado[canal] = {nombreArchivo:nombreArchivo, res:res, fecha:fmtFecha(new Date())};
+  guardado[canal] = {nombreArchivo:nombreArchivo, conteo:conteo, fecha:fmtFecha(new Date())};
   localStorage.setItem('fabResumenArchivo', JSON.stringify(guardado));
 }
-function pintarResumenArchivoFabrica_(){
+// Pinta la base del archivo + lo que se fue cargando a mano en el sistema
+// desde entonces, SUMADOS (sin cruzar por VIN — solo se suman los totales,
+// como pediste). conteosVivosPorCanal = {directa:{...}, pda:{...}} con los
+// conteos de las entregas de Planning (con garantía cargada) de cada canal.
+function pintarResumenArchivoFabrica_(conteosVivosPorCanal){
   var cont = document.getElementById('fabResumenArchivo');
   var guardado = {};
   try{ guardado = JSON.parse(localStorage.getItem('fabResumenArchivo')||'{}'); }catch(e){}
   if(!guardado.directa && !guardado.pda){ cont.style.display='none'; return; }
-  var anioActual = String(new Date().getFullYear());
-  function bloqueCanal_(titulo, entrada){
+  conteosVivosPorCanal = conteosVivosPorCanal || {};
+  function bloqueCanal_(titulo, canalKey){
+    var entrada = guardado[canalKey];
     if(!entrada) return '<div class="chart-panel"><div class="chart-panel-title">'+titulo+'</div><div style="color:var(--text-faint);font-size:12px;padding:14px 0;text-align:center;">Todavía no subiste el archivo de este canal.</div></div>';
-    var res = entrada.res;
+    var base = entrada.conteo;
+    var vivo = conteosVivosPorCanal[canalKey];
+    var combinado = sumarConteos_(base, vivo);
+    var nps = npsDeConteo_(combinado);
     return '<div class="chart-panel">'+
       '<div class="chart-panel-title">'+titulo+'</div>'+
-      '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">"'+entrada.nombreArchivo+'" — cargado '+entrada.fecha+'</div>'+
-      '<div style="font-size:28px;font-weight:800;color:'+(res.npsGeneral>=50?'var(--ok)':(res.npsGeneral>=0?'var(--warn)':'var(--danger)'))+';">'+res.npsGeneral+'</div>'+
-      '<div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">NPS general — '+res.totalRespuestas+' respuestas</div>'+
-      (res.npsAnioActual!==null ? '<div style="font-size:12px;">NPS '+anioActual+': <b>'+res.npsAnioActual+'</b> ('+res.respuestasAnioActual+' resp.)</div>' : '')+
+      '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+entrada.fecha+') + '+(vivo?vivo.total:0)+' cargadas después en el sistema</div>'+
+      '<div style="font-size:28px;font-weight:800;color:'+(nps>=50?'var(--ok)':(nps>=0?'var(--warn)':'var(--danger)'))+';">'+nps+'</div>'+
+      '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+combinado.total+' respuestas en total</div>'+
     '</div>';
   }
   cont.style.display = 'block';
   cont.innerHTML =
-    '<div class="section-title" style="margin-top:0;">NPS de Fábrica — según los archivos cargados</div>'+
-    '<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:8px;">Calculado directo de cada archivo — no está cruzado con las entregas de Planning.</div>'+
-    '<div class="two-col-grid">'+ bloqueCanal_('Directa / Tradicional', guardado.directa) + bloqueCanal_('PDA', guardado.pda) +'</div>';
+    '<div class="section-title" style="margin-top:0;">NPS de Fábrica — acumulado (archivo + lo cargado en el sistema)</div>'+
+    '<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:8px;">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades.</div>'+
+    '<div class="two-col-grid">'+ bloqueCanal_('Directa / Tradicional', 'directa') + bloqueCanal_('PDA', 'pda') +'</div>';
 }
 function importarNpsFabricaArchivo_(event){
   var file = event.target.files[0];
@@ -11725,13 +11755,13 @@ function importarNpsFabricaArchivo_(event){
       }
       if(idxHeaderRow===-1){ showToast('No se encontró la fila de encabezados (VIN + NPS de Fábrica) en el archivo.'); event.target.value=''; return; }
 
-      var res = calcularNpsDesdeFilas_(filas, idxHeaderRow, headers);
-      if(!res){ showToast('No se encontraron respuestas de NPS de Fábrica en el archivo.'); event.target.value=''; return; }
+      var conteo = calcularNpsDesdeFilas_(filas, idxHeaderRow, headers);
+      if(!conteo){ showToast('No se encontraron respuestas de NPS de Fábrica en el archivo.'); event.target.value=''; return; }
 
       var canal = detectarCanalArchivoFabrica_(filas);
-      guardarResumenArchivoFabrica_(canal, file.name, res);
-      pintarResumenArchivoFabrica_();
-      showToast('Cargado como "'+(canal==='pda'?'PDA':'Directa / Tradicional')+'" — NPS '+res.npsGeneral);
+      guardarResumenArchivoFabrica_(canal, file.name, conteo);
+      renderNpsFabricaPanel_();
+      showToast('Cargado como "'+(canal==='pda'?'PDA':'Directa / Tradicional')+'" — NPS base '+npsDeConteo_(conteo));
     }catch(err){
       showToast('No se pudo leer el archivo: '+err.message);
     }
@@ -11749,7 +11779,6 @@ function buscarColPorNombre_(headers, keywords){
 function renderNpsFabricaPanel_(){
   poblarFiltroSucursalGenerico_('fabFiltroSucursal');
   renderCanalToggleGenerico_('fabCanalToggle');
-  pintarResumenArchivoFabrica_();
   if(!document.getElementById('fabResumen')) return;
   var rows = entregasCalidadFiltro_('fabFiltroSucursal');
   var elegibles = rows.filter(function(r){ return !!r.garantiaFecha; });
@@ -11761,6 +11790,10 @@ function renderNpsFabricaPanel_(){
     statChipCalidad_(nps===null?'—':nps, 'NPS Fábrica', nps===null?'pending':(nps>=50?'ok':(nps>=0?'warn':'danger')), 'factory')+
     statChipCalidad_(respondidas.length+' / '+elegibles.length, 'Respondidas', 'pending', 'fact_check')+
     statChipCalidad_(pct+'%', 'Tasa de respuesta', pct>=50?'ok':'warn', 'percent');
+  pintarResumenArchivoFabrica_({
+    directa: contarNpsCrudo_(respondidas.filter(function(r){return !esCanalPDA_(r);}).map(function(r){return Number(r.npsFabricaScore);})),
+    pda: contarNpsCrudo_(respondidas.filter(function(r){return esCanalPDA_(r);}).map(function(r){return Number(r.npsFabricaScore);}))
+  });
   window._fabElegibles = elegibles;
   document.getElementById('fabTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Fecha garantía</th><th>Fecha respuesta</th><th>Puntaje</th><th>Comentario</th></tr>'+
     (elegibles.slice(0,10).map(function(r){
