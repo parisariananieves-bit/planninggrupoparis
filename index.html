@@ -10618,9 +10618,9 @@ function renderAlertaTempranaReporte_(){
   // ---- Puntaje de Recomendación GM (regla oficial, por canal) ----
   cargarBenchmarksGM_();
   var npsTD = respondidas.filter(function(r){return !esCanalPDA_(r);});
-  npsTD = npsTD.length ? calcularNps_(npsTD) : null;
+  npsTD = npsTD.length ? calcularNpsDecimal_(npsTD) : null;
   var npsPDA = respondidas.filter(function(r){return esCanalPDA_(r);});
-  npsPDA = npsPDA.length ? calcularNps_(npsPDA) : null;
+  npsPDA = npsPDA.length ? calcularNpsDecimal_(npsPDA) : null;
   var umbral = Number(document.getElementById('gmUmbralMaximo').value)||0;
   var nacional = Number(document.getElementById('gmNacional').value)||0;
   var zona = Number(document.getElementById('gmZona').value)||0;
@@ -11601,9 +11601,9 @@ function renderNpsContactoPosteriorPanel_(){
   // ---- Puntaje de Recomendación GM (por canal) ----
   cargarBenchmarksGM_('Cp');
   var npsTDCp = conDato.filter(function(x){return !esCanalPDA_(x.r);}).map(function(x){return {npsScore:Number(x.d.recomienda)};});
-  npsTDCp = npsTDCp.length ? calcularNps_(npsTDCp) : null;
+  npsTDCp = npsTDCp.length ? calcularNpsDecimal_(npsTDCp) : null;
   var npsPDACp = conDato.filter(function(x){return esCanalPDA_(x.r);}).map(function(x){return {npsScore:Number(x.d.recomienda)};});
-  npsPDACp = npsPDACp.length ? calcularNps_(npsPDACp) : null;
+  npsPDACp = npsPDACp.length ? calcularNpsDecimal_(npsPDACp) : null;
   var umbralCp = Number(document.getElementById('gmUmbralMaximoCp').value)||0;
   var nacionalCp = Number(document.getElementById('gmNacionalCp').value)||0;
   var zonaCp = Number(document.getElementById('gmZonaCp').value)||0;
@@ -11628,10 +11628,18 @@ function mostrarTablaCpCompleta_(){
 // cruza ni actualiza ninguna entrega, es solo una lectura y un cálculo
 // (promedio de la columna "NPS de Fabrica"), para tener el número al día
 // sin depender de que cada entrega esté vinculada acá.
+// NPS con un decimal (95.1, no 95) — para que coincida con cómo lo muestra
+// GM. Se usa acá y en el puntaje, para que las comparaciones contra el
+// umbral no se corten mal por el redondeo.
+function calcularNpsDecimal_(rows){
+  if(rows.length===0) return null;
+  var p = rows.filter(function(r){return r.npsScore>=9;}).length;
+  var d = rows.filter(function(r){return r.npsScore<=6;}).length;
+  return Math.round((p/rows.length - d/rows.length)*1000)/10;
+}
 function calcularNpsDesdeFilas_(filas, idxHeaderRow, headers){
   var colScore = buscarColPorNombre_(headers, ['NPS','FABRICA']);
   var colAnio = buscarColPorNombre_(headers, ['AÑO']);
-  var colMes = buscarColPorNombre_(headers, ['MES']);
   if(colScore===-1) return null;
   var porAnio = {};
   var todas = [];
@@ -11650,7 +11658,7 @@ function calcularNpsDesdeFilas_(filas, idxHeaderRow, headers){
     }
   }
   if(todas.length===0) return null;
-  function npsDe_(arr){ return calcularNps_(arr.map(function(n){return {npsScore:n};})); }
+  function npsDe_(arr){ return calcularNpsDecimal_(arr.map(function(n){return {npsScore:n};})); }
   var anios = Object.keys(porAnio).sort();
   var anioActual = String(new Date().getFullYear());
   return {
@@ -11659,6 +11667,43 @@ function calcularNpsDesdeFilas_(filas, idxHeaderRow, headers){
     respuestasAnioActual: porAnio[anioActual] ? porAnio[anioActual].length : 0,
     porAnio: anios.map(function(a){ return {anio:a, nps:npsDe_(porAnio[a]), respuestas:porAnio[a].length}; })
   };
+}
+// Detecta si el archivo es de PDA o Directa/Tradicional mirando el título
+// de la hoja (fila 1) — así se guardan los dos por separado y uno no pisa
+// al otro cuando subís primero uno y después el otro.
+function detectarCanalArchivoFabrica_(filas){
+  var texto = filas.slice(0,3).map(function(f){ return (f||[]).join(' '); }).join(' ').toUpperCase();
+  if(texto.indexOf('PDA')>-1) return 'pda';
+  return 'directa'; // por defecto, si no dice PDA asumimos Directa/Tradicional
+}
+function guardarResumenArchivoFabrica_(canal, nombreArchivo, res){
+  var guardado = {};
+  try{ guardado = JSON.parse(localStorage.getItem('fabResumenArchivo')||'{}'); }catch(e){}
+  guardado[canal] = {nombreArchivo:nombreArchivo, res:res, fecha:fmtFecha(new Date())};
+  localStorage.setItem('fabResumenArchivo', JSON.stringify(guardado));
+}
+function pintarResumenArchivoFabrica_(){
+  var cont = document.getElementById('fabResumenArchivo');
+  var guardado = {};
+  try{ guardado = JSON.parse(localStorage.getItem('fabResumenArchivo')||'{}'); }catch(e){}
+  if(!guardado.directa && !guardado.pda){ cont.style.display='none'; return; }
+  var anioActual = String(new Date().getFullYear());
+  function bloqueCanal_(titulo, entrada){
+    if(!entrada) return '<div class="chart-panel"><div class="chart-panel-title">'+titulo+'</div><div style="color:var(--text-faint);font-size:12px;padding:14px 0;text-align:center;">Todavía no subiste el archivo de este canal.</div></div>';
+    var res = entrada.res;
+    return '<div class="chart-panel">'+
+      '<div class="chart-panel-title">'+titulo+'</div>'+
+      '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">"'+entrada.nombreArchivo+'" — cargado '+entrada.fecha+'</div>'+
+      '<div style="font-size:28px;font-weight:800;color:'+(res.npsGeneral>=50?'var(--ok)':(res.npsGeneral>=0?'var(--warn)':'var(--danger)'))+';">'+res.npsGeneral+'</div>'+
+      '<div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">NPS general — '+res.totalRespuestas+' respuestas</div>'+
+      (res.npsAnioActual!==null ? '<div style="font-size:12px;">NPS '+anioActual+': <b>'+res.npsAnioActual+'</b> ('+res.respuestasAnioActual+' resp.)</div>' : '')+
+    '</div>';
+  }
+  cont.style.display = 'block';
+  cont.innerHTML =
+    '<div class="section-title" style="margin-top:0;">NPS de Fábrica — según los archivos cargados</div>'+
+    '<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:8px;">Calculado directo de cada archivo — no está cruzado con las entregas de Planning.</div>'+
+    '<div class="two-col-grid">'+ bloqueCanal_('Directa / Tradicional', guardado.directa) + bloqueCanal_('PDA', guardado.pda) +'</div>';
 }
 function importarNpsFabricaArchivo_(event){
   var file = event.target.files[0];
@@ -11683,20 +11728,10 @@ function importarNpsFabricaArchivo_(event){
       var res = calcularNpsDesdeFilas_(filas, idxHeaderRow, headers);
       if(!res){ showToast('No se encontraron respuestas de NPS de Fábrica en el archivo.'); event.target.value=''; return; }
 
-      var cont = document.getElementById('fabResumenArchivo');
-      var anioActual = String(new Date().getFullYear());
-      cont.style.display = 'block';
-      cont.innerHTML =
-        '<div class="section-title" style="margin-top:0;">NPS de Fábrica — según el archivo cargado</div>'+
-        '<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:8px;">Calculado directo de "'+file.name+'" — no está cruzado con las entregas de Planning.</div>'+
-        '<div class="costos-grid">'+
-          statChipCalidad_(res.npsGeneral, 'NPS general del archivo', res.npsGeneral>=50?'ok':(res.npsGeneral>=0?'warn':'danger'), 'factory')+
-          statChipCalidad_(res.totalRespuestas, 'Respuestas totales', 'pending', 'fact_check')+
-          statChipCalidad_(res.npsAnioActual===null?'—':res.npsAnioActual, 'NPS '+anioActual, res.npsAnioActual===null?'pending':(res.npsAnioActual>=50?'ok':(res.npsAnioActual>=0?'warn':'danger')), 'calendar_today')+
-        '</div>'+
-        (res.porAnio.length>1 ? '<div class="report-wrap" style="margin-top:10px;"><table class="report-table"><tr><th>Año</th><th>NPS</th><th>Respuestas</th></tr>'+
-          res.porAnio.map(function(x){ return '<tr><td>'+x.anio+'</td><td style="font-weight:700;">'+x.nps+'</td><td>'+x.respuestas+'</td></tr>'; }).join('')+
-        '</table></div>' : '');
+      var canal = detectarCanalArchivoFabrica_(filas);
+      guardarResumenArchivoFabrica_(canal, file.name, res);
+      pintarResumenArchivoFabrica_();
+      showToast('Cargado como "'+(canal==='pda'?'PDA':'Directa / Tradicional')+'" — NPS '+res.npsGeneral);
     }catch(err){
       showToast('No se pudo leer el archivo: '+err.message);
     }
@@ -11714,6 +11749,7 @@ function buscarColPorNombre_(headers, keywords){
 function renderNpsFabricaPanel_(){
   poblarFiltroSucursalGenerico_('fabFiltroSucursal');
   renderCanalToggleGenerico_('fabCanalToggle');
+  pintarResumenArchivoFabrica_();
   if(!document.getElementById('fabResumen')) return;
   var rows = entregasCalidadFiltro_('fabFiltroSucursal');
   var elegibles = rows.filter(function(r){ return !!r.garantiaFecha; });
@@ -11737,9 +11773,9 @@ function renderNpsFabricaPanel_(){
   // ---- Puntaje de Recomendación GM (por canal) ----
   cargarBenchmarksGM_('Fab');
   var npsTDFab = respondidas.filter(function(r){return !esCanalPDA_(r);});
-  npsTDFab = npsTDFab.length ? calcularNps_(npsTDFab) : null;
+  npsTDFab = npsTDFab.length ? calcularNpsDecimal_(npsTDFab) : null;
   var npsPDAFab = respondidas.filter(function(r){return esCanalPDA_(r);});
-  npsPDAFab = npsPDAFab.length ? calcularNps_(npsPDAFab) : null;
+  npsPDAFab = npsPDAFab.length ? calcularNpsDecimal_(npsPDAFab) : null;
   var umbralFab = Number(document.getElementById('gmUmbralMaximoFab').value)||0;
   var nacionalFab = Number(document.getElementById('gmNacionalFab').value)||0;
   var zonaFab = Number(document.getElementById('gmZonaFab').value)||0;
