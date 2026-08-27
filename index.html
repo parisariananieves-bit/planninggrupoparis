@@ -11118,9 +11118,11 @@ function renderTarjetaPuntajeGM_(titulo, nps, puntosMax, umbral, nacional, zona,
     } else detalleZona = 0;
     puntos = detalleNacional + detalleZona;
   }
-  function filaComp_(label, cumplida){
-    return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--hairline);font-size:11.5px;'+(cumplida?'color:var(--ok);font-weight:700;':'color:var(--text-faint);')+'">'+
-      (cumplida?'✓ ':'— ')+label+'</div>';
+  function fmtPct_(n){ return (Math.round(n*10)/10).toString().replace('.', ','); }
+  function filaComp_(label, valor, ptsFila, cumplida){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--hairline);font-size:11.5px;'+(cumplida?'color:var(--ok);font-weight:700;':'color:var(--text-faint);')+'">'+
+      '<span>'+(cumplida?'✓ ':'— ')+label+' ('+fmtPct_(valor)+'%)</span>'+
+      '<span style="white-space:nowrap;">'+ptsFila+' '+(ptsFila===1?'punto':'puntos')+'</span></div>';
   }
   var cumpleAlgo = puntos>0; // ¿suma algo de puntaje, aunque sea parcial?
   var colorNps = cumpleAlgo ? 'var(--ok)' : 'var(--danger)';
@@ -11128,12 +11130,14 @@ function renderTarjetaPuntajeGM_(titulo, nps, puntosMax, umbral, nacional, zona,
     '<div class="chart-panel-title">'+titulo+' — '+puntos+' / '+puntosMax+' pts</div>'+
     '<div style="font-size:22px;font-weight:800;margin:4px 0 8px;color:'+colorNps+';">'+nps.toFixed(1)+' <span style="font-size:12px;font-weight:500;color:var(--text-faint);">NPS del canal</span></div>'+
     (cumpleMax ? '<div style="font-size:11px;color:var(--ok);font-weight:700;margin-bottom:6px;">✓ NPS ≥ '+umbral+'% — puntaje máximo directo</div>' : '')+
-    (nacional>0 ? ('<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:2px;">vs. Nacional (hasta '+maxNacional+' pts)</div>'+
-      filaComp_('NPS ≥ Nacional ('+nacional+')', nps>=nacional)+
-      filaComp_('NPS ≥ 90% Nacional ('+Math.round(nacional*0.9)+')', nps>=nacional*0.9 && nps<nacional)) : '<div style="font-size:10.5px;color:var(--text-faint);">Cargá el valor de Nacional arriba para ver el detalle.</div>')+
-    (zona>0 ? ('<div style="font-size:10.5px;color:var(--text-faint);margin:8px 0 2px;">vs. Zona (hasta '+maxZona+' pts)</div>'+
-      filaComp_('NPS ≥ Zona ('+zona+')', nps>=zona)+
-      (maxZona>1 ? filaComp_('NPS ≥ 90% Zona ('+Math.round(zona*0.9)+')', nps>=zona*0.9 && nps<zona) : '')) : '<div style="font-size:10.5px;color:var(--text-faint);margin-top:6px;">Cargá el valor de Zona arriba para ver el detalle.</div>')+
+    (nacional>0 ? (
+      filaComp_('Media Nacional', nacional, maxNacional, nps>=nacional)+
+      filaComp_('90% de la Media Nacional', nacional*0.9, maxNacional/2, nps>=nacional*0.9 && nps<nacional)
+    ) : '<div style="font-size:10.5px;color:var(--text-faint);">Cargá el valor de Nacional arriba para ver el detalle.</div>')+
+    (zona>0 ? (
+      filaComp_('Zona', zona, maxZona, nps>=zona)+
+      (maxZona>1 ? filaComp_('90% de la Zona', zona*0.9, maxZona/2, nps>=zona*0.9 && nps<zona) : '')
+    ) : '<div style="font-size:10.5px;color:var(--text-faint);margin-top:6px;">Cargá el valor de Zona arriba para ver el detalle.</div>')+
     (conteo ? renderProyeccionGM_(conteo, umbral, nacional, zona, maxZona) : '')+
   '</div>';
 }
@@ -11982,8 +11986,10 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
     if(!entrada) return '<div class="chart-panel"><div class="chart-panel-title">'+titulo+'</div><div style="color:var(--text-faint);font-size:12px;padding:14px 0;text-align:center;">Todavía no subiste el archivo de este canal.</div></div>';
     var r = conteoAcumuladoFabrica_(canalKey, respondidasPorCanal[canalKey]);
     if(totalesPorCanal) totalesPorCanal.push(r.conteo.total);
-    return '<div class="chart-panel">'+
-      '<div class="chart-panel-title">'+titulo+'</div>'+
+    var canalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
+    var activo = filterCanal===canalUrl;
+    return '<div class="chart-panel" style="cursor:pointer;'+(activo?'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);':'')+'" onclick="setFilterCanal(\''+canalUrl+'\')" title="Tocá para ver el gráfico de abajo filtrado por este canal — volvé a tocar para ver todos juntos">'+
+      '<div class="chart-panel-title">'+titulo+(activo?' <span style="font-size:9px;color:var(--accent);font-weight:800;">● filtrando abajo</span>':'')+'</div>'+
       '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+entrada.fecha+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
@@ -12130,8 +12136,10 @@ function pintarResumenArchivoAT_(respondidasPorCanal){
     if(!entrada) return '<div class="chart-panel"><div class="chart-panel-title">'+titulo+'</div><div style="color:var(--text-faint);font-size:12px;padding:14px 0;text-align:center;">Todavía no subiste el archivo de este canal.</div></div>';
     var r = conteoAcumuladoAT_(canalKey, respondidasPorCanal[canalKey]);
     if(totalesPorCanal) totalesPorCanal.push(r.conteo.total);
-    return '<div class="chart-panel">'+
-      '<div class="chart-panel-title">'+titulo+'</div>'+
+    var canalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
+    var activo = filterCanal===canalUrl;
+    return '<div class="chart-panel" style="cursor:pointer;'+(activo?'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);':'')+'" onclick="setFilterCanal(\''+canalUrl+'\')" title="Tocá para ver el gráfico de abajo filtrado por este canal — volvé a tocar para ver todos juntos">'+
+      '<div class="chart-panel-title">'+titulo+(activo?' <span style="font-size:9px;color:var(--accent);font-weight:800;">● filtrando abajo</span>':'')+'</div>'+
       '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+entrada.fecha+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
@@ -12292,8 +12300,10 @@ function pintarResumenArchivoCp_(respondidasPorCanal){
     if(!entrada) return '<div class="chart-panel"><div class="chart-panel-title">'+titulo+'</div><div style="color:var(--text-faint);font-size:12px;padding:14px 0;text-align:center;">Todavía no subiste el archivo de este canal.</div></div>';
     var r = conteoAcumuladoCp_(canalKey, respondidasPorCanal[canalKey]);
     if(totalesPorCanal) totalesPorCanal.push(r.conteo.total);
-    return '<div class="chart-panel">'+
-      '<div class="chart-panel-title">'+titulo+'</div>'+
+    var canalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
+    var activo = filterCanal===canalUrl;
+    return '<div class="chart-panel" style="cursor:pointer;'+(activo?'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);':'')+'" onclick="setFilterCanal(\''+canalUrl+'\')" title="Tocá para ver el gráfico de abajo filtrado por este canal — volvé a tocar para ver todos juntos">'+
+      '<div class="chart-panel-title">'+titulo+(activo?' <span style="font-size:9px;color:var(--accent);font-weight:800;">● filtrando abajo</span>':'')+'</div>'+
       '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+entrada.fecha+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
@@ -12430,7 +12440,27 @@ function renderEvolucionMensualNps_(canvasId, chartKey, puntosDirecta, puntosPda
         y:{stacked:true, beginAtZero:true, title:{display:true,text:'Respuestas',font:{size:10}}},
         y1:{position:'right', min:-100, max:100, grid:{drawOnChartArea:false}, title:{display:true,text:'NPS',font:{size:10}}}
       }
-    }
+    },
+    plugins: [{
+      // Dibuja el % de NPS siempre visible arriba de cada punto de la
+      // línea, sin depender del plugin externo de datalabels.
+      id: 'etiquetasNpsLinea_'+chartKey,
+      afterDatasetsDraw: function(chart){
+        var meta = chart.getDatasetMeta(3); // dataset 'NPS' (línea) es el índice 3
+        if(!meta || !meta.data) return;
+        var ctx = chart.ctx;
+        ctx.save();
+        ctx.font = '700 10px Inter, sans-serif';
+        ctx.fillStyle = '#E8A33D';
+        ctx.textAlign = 'center';
+        meta.data.forEach(function(point, i){
+          var val = npsPorMes[i];
+          if(val===null || val===undefined) return;
+          ctx.fillText(val.toFixed(1)+'%', point.x, point.y - 10);
+        });
+        ctx.restore();
+      }
+    }]
   });
 }
 function dibujarEvolucionMensualFab_(){
