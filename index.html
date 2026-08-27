@@ -11003,7 +11003,10 @@ function renderTarjetaPuntajeGM_(titulo, nps, puntosMax, umbral, nacional, zona,
     return '<div class="chart-panel"><div class="chart-panel-title">'+titulo+' — '+puntosMax+' pts</div><div style="color:var(--text-faint);font-size:12px;padding:14px 0;text-align:center;">Sin respuestas de este canal en el período.</div></div>';
   }
   var maxNacional = repartoMax[0], maxZona = repartoMax[1];
-  var puntos, detalleNacional, detalleZona, cumpleMax = nacional>0 && zona>0 && umbral>0 && nps>=umbral;
+  // El "≥ 90% del concesionario = puntaje completo" vale por sí solo, no
+  // depende de que Nacional/Zona estén cargados — son dos formas
+  // independientes de llegar a los puntos.
+  var puntos, detalleNacional, detalleZona, cumpleMax = umbral>0 && nps>=umbral;
   if(cumpleMax){
     puntos = puntosMax;
     detalleNacional = maxNacional; detalleZona = maxZona;
@@ -11020,9 +11023,12 @@ function renderTarjetaPuntajeGM_(titulo, nps, puntosMax, umbral, nacional, zona,
     return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--hairline);font-size:11.5px;'+(cumplida?'color:var(--ok);font-weight:700;':'color:var(--text-faint);')+'">'+
       (cumplida?'✓ ':'— ')+label+'</div>';
   }
+  var cumpleAlgo = puntos>0; // ¿suma algo de puntaje, aunque sea parcial?
+  var colorNps = cumpleAlgo ? 'var(--ok)' : 'var(--danger)';
   return '<div class="chart-panel">'+
     '<div class="chart-panel-title">'+titulo+' — '+puntos+' / '+puntosMax+' pts</div>'+
-    '<div style="font-size:22px;font-weight:800;margin:4px 0 8px;">'+nps.toFixed(1)+' <span style="font-size:12px;font-weight:500;color:var(--text-faint);">NPS del canal</span></div>'+
+    '<div style="font-size:22px;font-weight:800;margin:4px 0 8px;color:'+colorNps+';">'+nps.toFixed(1)+' <span style="font-size:12px;font-weight:500;color:var(--text-faint);">NPS del canal</span></div>'+
+    (cumpleMax ? '<div style="font-size:11px;color:var(--ok);font-weight:700;margin-bottom:6px;">✓ NPS ≥ '+umbral+'% — puntaje máximo directo</div>' : '')+
     (nacional>0 ? ('<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:2px;">vs. Nacional (hasta '+maxNacional+' pts)</div>'+
       filaComp_('NPS ≥ Nacional ('+nacional+')', nps>=nacional)+
       filaComp_('NPS ≥ 90% Nacional ('+Math.round(nacional*0.9)+')', nps>=nacional*0.9 && nps<nacional)) : '<div style="font-size:10.5px;color:var(--text-faint);">Cargá el valor de Nacional arriba para ver el detalle.</div>')+
