@@ -10954,7 +10954,7 @@ function renderTarjetaPuntajeGM_(titulo, nps, puntosMax, umbral, nacional, zona,
   }
   return '<div class="chart-panel">'+
     '<div class="chart-panel-title">'+titulo+' — '+puntos+' / '+puntosMax+' pts</div>'+
-    '<div style="font-size:22px;font-weight:800;margin:4px 0 8px;">'+nps+' <span style="font-size:12px;font-weight:500;color:var(--text-faint);">NPS del canal</span></div>'+
+    '<div style="font-size:22px;font-weight:800;margin:4px 0 8px;">'+nps.toFixed(1)+' <span style="font-size:12px;font-weight:500;color:var(--text-faint);">NPS del canal</span></div>'+
     (nacional>0 ? ('<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:2px;">vs. Nacional (hasta '+maxNacional+' pts)</div>'+
       filaComp_('NPS ≥ Nacional ('+nacional+')', nps>=nacional)+
       filaComp_('NPS ≥ 90% Nacional ('+Math.round(nacional*0.9)+')', nps>=nacional*0.9 && nps<nacional)) : '<div style="font-size:10.5px;color:var(--text-faint);">Cargá el valor de Nacional arriba para ver el detalle.</div>')+
@@ -11725,7 +11725,7 @@ function pintarResumenArchivoFabrica_(conteosVivosPorCanal){
     return '<div class="chart-panel">'+
       '<div class="chart-panel-title">'+titulo+'</div>'+
       '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+entrada.fecha+') + '+(vivo?vivo.total:0)+' cargadas después en el sistema</div>'+
-      '<div style="font-size:28px;font-weight:800;color:'+(nps>=50?'var(--ok)':(nps>=0?'var(--warn)':'var(--danger)'))+';">'+nps+'</div>'+
+      '<div style="font-size:28px;font-weight:800;color:'+(nps>=50?'var(--ok)':(nps>=0?'var(--warn)':'var(--danger)'))+';">'+nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+combinado.total+' respuestas en total</div>'+
     '</div>';
   }
