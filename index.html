@@ -1952,13 +1952,13 @@
           <span class="material-symbols-outlined" id="atAnonAccordionIcon" style="font-size:16px;transition:transform .15s;">expand_more</span>
         </div>
         <div id="atAnonBody" style="display:none;padding-top:12px;border-top:1px solid var(--hairline);margin-top:10px;">
-          <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:12px;">Para encuestas de Alerta Temprana que llegan sin VIN — igual suma al acumulado de arriba.</div>
-          <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
-            <div class="field" style="width:140px;"><div class="l">Canal</div><select id="atAnonCanal"><option value="TD">Tradicional</option><option value="PDA">PDA</option></select></div>
-            <div class="field" style="width:110px;"><div class="l">Puntaje (0-10)</div><input type="number" min="0" max="10" id="atAnonPuntaje"></div>
+          <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:10px;">Para encuestas de Alerta Temprana que llegan sin VIN — igual suma al acumulado de arriba.</div>
+          <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+            <div class="field" style="width:125px;"><div class="l">Canal</div><select id="atAnonCanal"><option value="TD">Tradicional</option><option value="PDA">PDA</option></select></div>
+            <div class="field" style="width:78px;"><div class="l">Puntaje</div><input type="number" min="0" max="10" id="atAnonPuntaje"></div>
+            <div class="field" style="width:170px;resize:horizontal;overflow:hidden;min-width:90px;max-width:100%;"><div class="l">Comentario</div><input id="atAnonComentario" style="width:100%;"></div>
+            <button class="save-btn" style="width:auto;margin:0;padding:9px 18px;" onclick="agregarNpsAnonimoATUI_()">+ Agregar</button>
           </div>
-          <div class="field full" style="margin-bottom:12px;"><div class="l">Comentario (opcional)</div><input id="atAnonComentario" style="width:100%;"></div>
-          <button class="save-btn" style="width:auto;margin:0;padding:9px 22px;" onclick="agregarNpsAnonimoATUI_()">+ Agregar respuesta</button>
         </div>
       </div>
 
@@ -2290,13 +2290,13 @@
           <span class="material-symbols-outlined" id="cpAnonAccordionIcon" style="font-size:16px;transition:transform .15s;">expand_more</span>
         </div>
         <div id="cpAnonBody" style="display:none;padding-top:12px;border-top:1px solid var(--hairline);margin-top:10px;">
-          <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:12px;">Para encuestas de Contacto Posterior que llegan sin VIN — igual suma al acumulado de arriba.</div>
-          <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
-            <div class="field" style="width:140px;"><div class="l">Canal</div><select id="cpAnonCanal"><option value="TD">Tradicional</option><option value="PDA">PDA</option></select></div>
-            <div class="field" style="width:110px;"><div class="l">Puntaje (0-10)</div><input type="number" min="0" max="10" id="cpAnonPuntaje"></div>
+          <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:10px;">Para encuestas de Contacto Posterior que llegan sin VIN — igual suma al acumulado de arriba.</div>
+          <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+            <div class="field" style="width:125px;"><div class="l">Canal</div><select id="cpAnonCanal"><option value="TD">Tradicional</option><option value="PDA">PDA</option></select></div>
+            <div class="field" style="width:78px;"><div class="l">Puntaje</div><input type="number" min="0" max="10" id="cpAnonPuntaje"></div>
+            <div class="field" style="width:170px;resize:horizontal;overflow:hidden;min-width:90px;max-width:100%;"><div class="l">Comentario</div><input id="cpAnonComentario" style="width:100%;"></div>
+            <button class="save-btn" style="width:auto;margin:0;padding:9px 18px;" onclick="agregarNpsAnonimoCpUI_()">+ Agregar</button>
           </div>
-          <div class="field full" style="margin-bottom:12px;"><div class="l">Comentario (opcional)</div><input id="cpAnonComentario" style="width:100%;"></div>
-          <button class="save-btn" style="width:auto;margin:0;padding:9px 22px;" onclick="agregarNpsAnonimoCpUI_()">+ Agregar respuesta</button>
         </div>
       </div>
 
@@ -2354,13 +2354,13 @@
           <span class="material-symbols-outlined" id="fabAnonAccordionIcon" style="font-size:16px;transition:transform .15s;">expand_more</span>
         </div>
         <div id="fabAnonBody" style="display:none;padding-top:12px;border-top:1px solid var(--hairline);margin-top:10px;">
-          <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:12px;">Para encuestas de Fábrica que llegan sin VIN — no se puede atar a ninguna entrega puntual, pero igual suma al acumulado de arriba.</div>
-          <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
-            <div class="field" style="width:140px;"><div class="l">Canal</div><select id="fabAnonCanal"><option value="TD">Tradicional</option><option value="PDA">PDA</option></select></div>
-            <div class="field" style="width:110px;"><div class="l">Puntaje (0-10)</div><input type="number" min="0" max="10" id="fabAnonPuntaje"></div>
+          <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:10px;">Para encuestas de Fábrica que llegan sin VIN — no se puede atar a ninguna entrega puntual, pero igual suma al acumulado de arriba.</div>
+          <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+            <div class="field" style="width:125px;"><div class="l">Canal</div><select id="fabAnonCanal"><option value="TD">Tradicional</option><option value="PDA">PDA</option></select></div>
+            <div class="field" style="width:78px;"><div class="l">Puntaje</div><input type="number" min="0" max="10" id="fabAnonPuntaje"></div>
+            <div class="field" style="width:170px;resize:horizontal;overflow:hidden;min-width:90px;max-width:100%;"><div class="l">Comentario</div><input id="fabAnonComentario" style="width:100%;"></div>
+            <button class="save-btn" style="width:auto;margin:0;padding:9px 18px;" onclick="agregarNpsFabricaAnonimoUI_()">+ Agregar</button>
           </div>
-          <div class="field full" style="margin-bottom:12px;"><div class="l">Comentario (opcional)</div><input id="fabAnonComentario" style="width:100%;"></div>
-          <button class="save-btn" style="width:auto;margin:0;padding:9px 22px;" onclick="agregarNpsFabricaAnonimoUI_()">+ Agregar respuesta</button>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:6px;" onclick="toggleBloqueVisible_('fabResumen','fabResumenIcon')">
@@ -2390,6 +2390,7 @@
         </div>
       </div>
       <div class="two-col-grid" style="margin-bottom:20px;" id="gmPuntajeCardsFab"></div>
+      </div>
       <div class="section-title">Elegibles (con garantía cargada)</div>
       <div class="report-wrap"><table class="report-table" id="fabTabla"></table></div>
       <div id="fabVerMas" style="text-align:center;margin-top:8px;"></div>
@@ -10815,7 +10816,7 @@ function renderAlertaTempranaReporte_(){
     pda: respondidas.filter(function(r){return esCanalPDA_(r);})
   };
   pintarResumenArchivoAT_(_ultimoRespondidasPorCanalAT_);
-  cargarAnonimasATSiHaceFalta_().then(function(){
+  Promise.all([cargarAnonimasATSiHaceFalta_(), cargarArchivosNpsSiHaceFalta_()]).then(function(){
     if(maestroTabActual==='alertatemprana'){
       pintarResumenArchivoAT_(_ultimoRespondidasPorCanalAT_);
       dibujarEvolucionMensualAT_();
@@ -11687,7 +11688,7 @@ function renderNpsGeneralPanel_(){
   renderCanalToggleGenerico_('npsGeneralCanalToggle');
   dibujarNpsGeneral_();
   cargarCasosGCSiHaceFalta_().then(dibujarNpsGeneral_);
-  Promise.all([cargarAnonimasATSiHaceFalta_(), cargarAnonimasCpSiHaceFalta_(), cargarAnonimasFabricaSiHaceFalta_()]).then(function(){
+  Promise.all([cargarAnonimasATSiHaceFalta_(), cargarAnonimasCpSiHaceFalta_(), cargarAnonimasFabricaSiHaceFalta_(), cargarArchivosNpsSiHaceFalta_()]).then(function(){
     if(maestroTabActual==='npsgeneral') dibujarNpsGeneral_();
   });
 }
@@ -11696,13 +11697,12 @@ function renderNpsGeneralPanel_(){
 // de arriba (Todos/Solo PDA/Solo Tradicional), igual que en cada página
 // individual. Así el Resumen General usa el mismo número que ves en la
 // página de cada instancia.
-function conteoAcumuladoGeneral_(localStorageKey, anonimasArr, scoresVivos){
-  var guardado = {};
-  try{ guardado = JSON.parse(localStorage.getItem(localStorageKey)||'{}'); }catch(e){}
+function conteoAcumuladoGeneral_(instancia, anonimasArr, scoresVivos){
   var canales = filterCanal==='tradicional' ? ['directa'] : (filterCanal==='pda' ? ['pda'] : ['directa','pda']);
   var conteoBase = {promotores:0, pasivos:0, detractores:0, total:0};
   canales.forEach(function(c){
-    if(guardado[c] && guardado[c].conteo) conteoBase = sumarConteos_(conteoBase, guardado[c].conteo);
+    var entrada = obtenerArchivoNps_(instancia, c);
+    if(entrada) conteoBase = sumarConteos_(conteoBase, entrada.conteo);
   });
   var canalLabels = filterCanal==='tradicional' ? ['TD'] : (filterCanal==='pda' ? ['PDA'] : ['TD','PDA']);
   var anonScores = anonimasArr.filter(function(a){return canalLabels.indexOf(a.canal)>-1;}).map(function(a){return Number(a.puntaje);});
@@ -11715,18 +11715,18 @@ function dibujarNpsGeneral_(){
   var total = rows.length;
 
   var atRespondidas = rows.filter(function(r){ return r.npsScore!==null && r.npsScore!==undefined && r.npsScore!==''; });
-  var conteoAT = conteoAcumuladoGeneral_('atResumenArchivo', ANONIMAS_AT_, atRespondidas.map(function(r){return Number(r.npsScore);}));
+  var conteoAT = conteoAcumuladoGeneral_('alertatemprana', ANONIMAS_AT_, atRespondidas.map(function(r){return Number(r.npsScore);}));
   var atNps = conteoAT.total ? npsDeConteo_(conteoAT) : null;
 
   var cpConDato = rows.map(function(r){ return {r:r, d:contactoPosteriorInfo_(r)}; }).filter(function(x){ return x.d && x.d.recomienda!==undefined && x.d.recomienda!==''; });
   var cpRows = cpConDato.map(function(x){ return {npsScore:Number(x.d.recomienda)}; });
-  var conteoCP = conteoAcumuladoGeneral_('cpResumenArchivo', ANONIMAS_CP_, cpRows.map(function(x){return x.npsScore;}));
+  var conteoCP = conteoAcumuladoGeneral_('contactoposterior', ANONIMAS_CP_, cpRows.map(function(x){return x.npsScore;}));
   var cpNps = conteoCP.total ? npsDeConteo_(conteoCP) : null;
 
   var fabElegibles = rows.filter(function(r){ return !!r.garantiaFecha; });
   var fabRespondidas = fabElegibles.filter(function(r){ return r.npsFabricaScore!==null && r.npsFabricaScore!==undefined && r.npsFabricaScore!==''; });
   var fabRows = fabRespondidas.map(function(r){ return {npsScore:Number(r.npsFabricaScore)}; });
-  var conteoFAB = conteoAcumuladoGeneral_('fabResumenArchivo', ANONIMAS_FABRICA_, fabRows.map(function(x){return x.npsScore;}));
+  var conteoFAB = conteoAcumuladoGeneral_('fabrica', ANONIMAS_FABRICA_, fabRows.map(function(x){return x.npsScore;}));
   var fabNps = conteoFAB.total ? npsDeConteo_(conteoFAB) : null;
 
   var totalEsperadoGeneral = total + total + fabElegibles.length;
@@ -11907,7 +11907,7 @@ function renderNpsContactoPosteriorPanel_(){
     pda: conDato.filter(function(x){return esCanalPDA_(x.r);})
   };
   pintarResumenArchivoCp_(_ultimoRespondidasPorCanalCp_);
-  cargarAnonimasCpSiHaceFalta_().then(function(){
+  Promise.all([cargarAnonimasCpSiHaceFalta_(), cargarArchivosNpsSiHaceFalta_()]).then(function(){
     if(maestroTabActual==='npscontactoposterior'){
       pintarResumenArchivoCp_(_ultimoRespondidasPorCanalCp_);
       dibujarEvolucionMensualCp_();
@@ -12003,10 +12003,7 @@ function detectarCanalArchivoFabrica_(filas){
   return 'directa'; // por defecto, si no dice PDA asumimos Directa/Tradicional
 }
 function guardarResumenArchivoFabrica_(canal, nombreArchivo, puntos){
-  var guardado = {};
-  try{ guardado = JSON.parse(localStorage.getItem('fabResumenArchivo')||'{}'); }catch(e){}
-  guardado[canal] = {nombreArchivo:nombreArchivo, conteo:contarNpsCrudo_(puntos.map(function(p){return p.score;})), puntos:puntos, fecha:fmtFecha(new Date()), fechaCorte:new Date().toISOString().slice(0,10)};
-  localStorage.setItem('fabResumenArchivo', JSON.stringify(guardado));
+  guardarArchivoNpsBackend_('fabrica', canal, nombreArchivo, puntos);
 }
 // Convierte "dd/mm/aaaa" (como guarda el input de fecha de la ficha) a
 // "aaaa-mm-dd" para poder comparar contra la fecha de corte ISO.
@@ -12018,22 +12015,14 @@ function fechaAIso_(str){
   if(!m) return '';
   return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
 }
-// Pinta la base del archivo + lo que se fue cargando a mano en el sistema
-// DESPUÉS de la fecha en que se subió ese archivo (para no duplicar lo que
-// ya venía en el Excel) — sin cruzar por VIN, solo suma cantidades.
-// respondidasPorCanal = {directa:[entregas...], pda:[entregas...]} — TODAS
-// las respondidas de Planning (con garantía y NPS Fábrica cargado), sin
-// filtrar por fecha todavía; acá adentro se filtra según cada corte.
 // Conteo acumulado de un canal (archivo base + entregas con VIN cargadas
 // después + respuestas anónimas), respetando la fecha de corte del
 // archivo. Lo usan tanto la tarjeta de arriba como el Puntaje GM, para
 // que sea SIEMPRE el mismo número en los dos lados.
 function conteoAcumuladoFabrica_(canalKey, respondidasCanal){
-  var guardado = {};
-  try{ guardado = JSON.parse(localStorage.getItem('fabResumenArchivo')||'{}'); }catch(e){}
-  var entrada = guardado[canalKey];
+  var entrada = obtenerArchivoNps_('fabrica', canalKey);
   var base = entrada ? entrada.conteo : null;
-  var corte = entrada ? (entrada.fechaCorte || new Date().toISOString().slice(0,10)) : '0000-00-00';
+  var corte = entrada ? (entrada.fechaCorte || fechaHoyIso_()) : '0000-00-00';
   var todasCanal = respondidasCanal || [];
   var nuevas = todasCanal.filter(function(r){
     var f = fechaAIso_(r.npsFabricaFecha);
@@ -12053,12 +12042,12 @@ function conteoAcumuladoFabrica_(canalKey, respondidasCanal){
 }
 function pintarResumenArchivoFabrica_(respondidasPorCanal){
   var cont = document.getElementById('fabResumenArchivo');
-  var guardado = {};
-  try{ guardado = JSON.parse(localStorage.getItem('fabResumenArchivo')||'{}'); }catch(e){}
-  if(!guardado.directa && !guardado.pda){ cont.style.display='none'; return; }
+  var hayDirecta = obtenerArchivoNps_('fabrica','directa');
+  var hayPda = obtenerArchivoNps_('fabrica','pda');
+  if(!hayDirecta && !hayPda){ cont.style.display='none'; return; }
   respondidasPorCanal = respondidasPorCanal || {};
   function bloqueCanal_(titulo, canalKey, totalesPorCanal){
-    var entrada = guardado[canalKey];
+    var entrada = obtenerArchivoNps_('fabrica', canalKey);
     if(!entrada) return '<div class="chart-panel"><div class="chart-panel-title">'+titulo+'</div><div style="color:var(--text-faint);font-size:12px;padding:14px 0;text-align:center;">Todavía no subiste el archivo de este canal.</div></div>';
     var r = conteoAcumuladoFabrica_(canalKey, respondidasPorCanal[canalKey]);
     if(totalesPorCanal) totalesPorCanal.push(r.conteo.total);
@@ -12081,7 +12070,7 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
     '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;">NPS de Fábrica — acumulado (archivo + lo cargado en el sistema)'+
       (totalCombinado ? '<span style="font-size:10px;font-weight:700;color:var(--text-faint);background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:2px 9px;">'+totalCombinado+' encuestas en total (Directa + PDA)</span>' : '')+
     '</div>'+
-    '<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:8px;">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades.</div>'+
+    '<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:8px;">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades. Guardado en el sistema, lo ven todos los usuarios.</div>'+
     '<div class="two-col-grid">'+ htmlDirecta + htmlPda +'</div>';
 }
 function importarNpsFabricaArchivo_(event){
@@ -12158,6 +12147,70 @@ function imprimirComoPDF_(){
 window.addEventListener('afterprint', function(){
   document.body.classList.remove('imprimiendo-calidad');
 });
+function descargarImagenReporte_(elementId, nombreArchivo){
+  var el = document.getElementById(elementId);
+  if(!el){ showToast('No se encontró la sección para capturar.'); return; }
+  if(typeof html2canvas==='undefined'){ showToast('Todavía está cargando la herramienta de imagen, esperá un segundo y probá de nuevo.'); return; }
+  showToast('Generando imagen…');
+  var fondoOscuro = getComputedStyle(document.body).getPropertyValue('--bg') || '#0e1630';
+  html2canvas(el, {backgroundColor: fondoOscuro.trim() || '#0e1630', scale:2, useCORS:true}).then(function(canvas){
+    canvas.toBlob(function(blob){
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = nombreArchivo+'_'+fmtFecha(new Date()).replace(/\//g,'-')+'.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+  }).catch(function(err){
+    showToast('No se pudo generar la imagen: '+err.message);
+  });
+}
+// Fecha de HOY en formato aaaa-mm-dd usando la hora LOCAL (no UTC) — con
+// toISOString() se corría un día en algunos husos horarios (ej: de noche
+// en Argentina ya es "mañana" en UTC), y por eso una respuesta cargada
+// hoy mismo a veces no se contaba como "desde la fecha de corte".
+// Archivo importado — ahora vive en el backend (una hoja compartida),
+// no en localStorage, para que lo vean TODOS los usuarios, no solo quien
+// lo subió. Se carga una sola vez por sesión.
+var ARCHIVOS_NPS_ = [];
+var _archivosNpsCargados_ = false;
+function cargarArchivosNpsSiHaceFalta_(){
+  if(_archivosNpsCargados_) return Promise.resolve();
+  return gasGet('archivosNpsImportados').then(function(res){
+    ARCHIVOS_NPS_ = (res && res.ok) ? res.archivos : [];
+    _archivosNpsCargados_ = true;
+  }).catch(function(){ ARCHIVOS_NPS_ = []; _archivosNpsCargados_ = true; });
+}
+// Busca el archivo guardado de una instancia+canal y lo devuelve ya
+// "armado" (con los puntos parseados y el conteo calculado), o null si
+// todavía no se subió ninguno para ese canal.
+function obtenerArchivoNps_(instancia, canalKey){
+  var canal = canalKey==='directa' ? 'directa' : 'pda';
+  var fila = ARCHIVOS_NPS_.find(function(a){ return a.instancia===instancia && a.canal===canal; });
+  if(!fila) return null;
+  var puntos = [];
+  try{ puntos = JSON.parse(fila.puntosJson)||[]; }catch(e){}
+  return {
+    nombreArchivo: fila.nombreArchivo, fecha: fila.fechaCarga, fechaCorte: fila.fechaCorte,
+    puntos: puntos, conteo: contarNpsCrudo_(puntos.map(function(p){return p.score;}))
+  };
+}
+// Guarda (o reemplaza) el archivo de una instancia+canal en el backend.
+function guardarArchivoNpsBackend_(instancia, canalKey, nombreArchivo, puntos){
+  var canal = canalKey==='directa' ? 'directa' : 'pda';
+  var fechaCorte = fechaHoyIso_();
+  var puntosJson = JSON.stringify(puntos);
+  // Actualiza el caché local ya mismo, así se ve al toque sin esperar la vuelta del servidor.
+  var idx = ARCHIVOS_NPS_.findIndex(function(a){ return a.instancia===instancia && a.canal===canal; });
+  var filaLocal = {instancia:instancia, canal:canal, nombreArchivo:nombreArchivo, fechaCarga:fmtFecha(new Date()), fechaCorte:fechaCorte, puntosJson:puntosJson, cargadoPor:usuarioActual()};
+  if(idx>-1) ARCHIVOS_NPS_[idx] = filaLocal; else ARCHIVOS_NPS_.push(filaLocal);
+  return gasPost('guardarArchivoNpsImportado', {instancia:instancia, canal:canal, nombreArchivo:nombreArchivo, fechaCorte:fechaCorte, puntosJson:puntosJson, autor:usuarioActual()});
+}
+function fechaHoyIso_(){
+  var d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
 function toggleBloqueVisible_(contId, iconId){
   var el = document.getElementById(contId);
   var icon = document.getElementById(iconId);
@@ -12180,17 +12233,12 @@ function cargarAnonimasATSiHaceFalta_(){
   }).catch(function(){ ANONIMAS_AT_ = []; _anonimasATCargadas_ = true; });
 }
 function guardarResumenArchivoAT_(canal, nombreArchivo, puntos){
-  var guardado = {};
-  try{ guardado = JSON.parse(localStorage.getItem('atResumenArchivo')||'{}'); }catch(e){}
-  guardado[canal] = {nombreArchivo:nombreArchivo, conteo:contarNpsCrudo_(puntos.map(function(p){return p.score;})), puntos:puntos, fecha:fmtFecha(new Date()), fechaCorte:new Date().toISOString().slice(0,10)};
-  localStorage.setItem('atResumenArchivo', JSON.stringify(guardado));
+  guardarArchivoNpsBackend_('alertatemprana', canal, nombreArchivo, puntos);
 }
 function conteoAcumuladoAT_(canalKey, respondidasCanal){
-  var guardado = {};
-  try{ guardado = JSON.parse(localStorage.getItem('atResumenArchivo')||'{}'); }catch(e){}
-  var entrada = guardado[canalKey];
+  var entrada = obtenerArchivoNps_('alertatemprana', canalKey);
   var base = entrada ? entrada.conteo : null;
-  var corte = entrada ? (entrada.fechaCorte || new Date().toISOString().slice(0,10)) : '0000-00-00';
+  var corte = entrada ? (entrada.fechaCorte || fechaHoyIso_()) : '0000-00-00';
   var todasCanal = respondidasCanal || [];
   var nuevas = todasCanal.filter(function(r){
     var f = fechaAIso_(r.alertaTempranaFechaRespuesta);
@@ -12211,12 +12259,12 @@ function conteoAcumuladoAT_(canalKey, respondidasCanal){
 function pintarResumenArchivoAT_(respondidasPorCanal){
   var cont = document.getElementById('atResumenArchivo');
   if(!cont) return;
-  var guardado = {};
-  try{ guardado = JSON.parse(localStorage.getItem('atResumenArchivo')||'{}'); }catch(e){}
-  if(!guardado.directa && !guardado.pda){ cont.style.display='none'; return; }
+  var hayDirecta = obtenerArchivoNps_('alertatemprana','directa');
+  var hayPda = obtenerArchivoNps_('alertatemprana','pda');
+  if(!hayDirecta && !hayPda){ cont.style.display='none'; return; }
   respondidasPorCanal = respondidasPorCanal || {};
   function bloqueCanal_(titulo, canalKey, totalesPorCanal){
-    var entrada = guardado[canalKey];
+    var entrada = obtenerArchivoNps_('alertatemprana', canalKey);
     if(!entrada) return '<div class="chart-panel"><div class="chart-panel-title">'+titulo+'</div><div style="color:var(--text-faint);font-size:12px;padding:14px 0;text-align:center;">Todavía no subiste el archivo de este canal.</div></div>';
     var r = conteoAcumuladoAT_(canalKey, respondidasPorCanal[canalKey]);
     if(totalesPorCanal) totalesPorCanal.push(r.conteo.total);
@@ -12243,10 +12291,10 @@ function pintarResumenArchivoAT_(respondidasPorCanal){
     '<div class="two-col-grid">'+ htmlDirecta + htmlPda +'</div>';
 }
 function dibujarEvolucionMensualAT_(){
-  var guardado = {};
-  try{ guardado = JSON.parse(localStorage.getItem('atResumenArchivo')||'{}'); }catch(e){}
-  var puntosDirecta = (guardado.directa && guardado.directa.puntos) ? guardado.directa.puntos.slice() : [];
-  var puntosPda = (guardado.pda && guardado.pda.puntos) ? guardado.pda.puntos.slice() : [];
+  var archDirecta = obtenerArchivoNps_('alertatemprana','directa');
+  var archPda = obtenerArchivoNps_('alertatemprana','pda');
+  var puntosDirecta = archDirecta ? archDirecta.puntos.slice() : [];
+  var puntosPda = archPda ? archPda.puntos.slice() : [];
   (_ultimoRespondidasPorCanalAT_.directa||[]).forEach(function(r){ puntosDirecta.push({fecha:r.alertaTempranaFechaRespuesta, score:r.npsScore}); });
   (_ultimoRespondidasPorCanalAT_.pda||[]).forEach(function(r){ puntosPda.push({fecha:r.alertaTempranaFechaRespuesta, score:r.npsScore}); });
   ANONIMAS_AT_.forEach(function(a){
@@ -12345,17 +12393,12 @@ function cargarAnonimasCpSiHaceFalta_(){
   }).catch(function(){ ANONIMAS_CP_ = []; _anonimasCpCargadas_ = true; });
 }
 function guardarResumenArchivoCp_(canal, nombreArchivo, puntos){
-  var guardado = {};
-  try{ guardado = JSON.parse(localStorage.getItem('cpResumenArchivo')||'{}'); }catch(e){}
-  guardado[canal] = {nombreArchivo:nombreArchivo, conteo:contarNpsCrudo_(puntos.map(function(p){return p.score;})), puntos:puntos, fecha:fmtFecha(new Date()), fechaCorte:new Date().toISOString().slice(0,10)};
-  localStorage.setItem('cpResumenArchivo', JSON.stringify(guardado));
+  guardarArchivoNpsBackend_('contactoposterior', canal, nombreArchivo, puntos);
 }
 function conteoAcumuladoCp_(canalKey, respondidasCanal){
-  var guardado = {};
-  try{ guardado = JSON.parse(localStorage.getItem('cpResumenArchivo')||'{}'); }catch(e){}
-  var entrada = guardado[canalKey];
+  var entrada = obtenerArchivoNps_('contactoposterior', canalKey);
   var base = entrada ? entrada.conteo : null;
-  var corte = entrada ? (entrada.fechaCorte || new Date().toISOString().slice(0,10)) : '0000-00-00';
+  var corte = entrada ? (entrada.fechaCorte || fechaHoyIso_()) : '0000-00-00';
   var todasCanal = respondidasCanal || []; // array de {r, d} con d.fecha / d.recomienda
   var nuevas = todasCanal.filter(function(x){
     var f = fechaAIso_(x.d.fecha);
@@ -12376,12 +12419,12 @@ function conteoAcumuladoCp_(canalKey, respondidasCanal){
 function pintarResumenArchivoCp_(respondidasPorCanal){
   var cont = document.getElementById('cpResumenArchivo');
   if(!cont) return;
-  var guardado = {};
-  try{ guardado = JSON.parse(localStorage.getItem('cpResumenArchivo')||'{}'); }catch(e){}
-  if(!guardado.directa && !guardado.pda){ cont.style.display='none'; return; }
+  var hayDirecta = obtenerArchivoNps_('contactoposterior','directa');
+  var hayPda = obtenerArchivoNps_('contactoposterior','pda');
+  if(!hayDirecta && !hayPda){ cont.style.display='none'; return; }
   respondidasPorCanal = respondidasPorCanal || {};
   function bloqueCanal_(titulo, canalKey, totalesPorCanal){
-    var entrada = guardado[canalKey];
+    var entrada = obtenerArchivoNps_('contactoposterior', canalKey);
     if(!entrada) return '<div class="chart-panel"><div class="chart-panel-title">'+titulo+'</div><div style="color:var(--text-faint);font-size:12px;padding:14px 0;text-align:center;">Todavía no subiste el archivo de este canal.</div></div>';
     var r = conteoAcumuladoCp_(canalKey, respondidasPorCanal[canalKey]);
     if(totalesPorCanal) totalesPorCanal.push(r.conteo.total);
@@ -12408,10 +12451,10 @@ function pintarResumenArchivoCp_(respondidasPorCanal){
     '<div class="two-col-grid">'+ htmlDirecta + htmlPda +'</div>';
 }
 function dibujarEvolucionMensualCp_(){
-  var guardado = {};
-  try{ guardado = JSON.parse(localStorage.getItem('cpResumenArchivo')||'{}'); }catch(e){}
-  var puntosDirecta = (guardado.directa && guardado.directa.puntos) ? guardado.directa.puntos.slice() : [];
-  var puntosPda = (guardado.pda && guardado.pda.puntos) ? guardado.pda.puntos.slice() : [];
+  var archDirecta = obtenerArchivoNps_('contactoposterior','directa');
+  var archPda = obtenerArchivoNps_('contactoposterior','pda');
+  var puntosDirecta = archDirecta ? archDirecta.puntos.slice() : [];
+  var puntosPda = archPda ? archPda.puntos.slice() : [];
   (_ultimoRespondidasPorCanalCp_.directa||[]).forEach(function(x){ puntosDirecta.push({fecha:x.d.fecha, score:Number(x.d.recomienda)}); });
   (_ultimoRespondidasPorCanalCp_.pda||[]).forEach(function(x){ puntosPda.push({fecha:x.d.fecha, score:Number(x.d.recomienda)}); });
   ANONIMAS_CP_.forEach(function(a){
@@ -12551,10 +12594,10 @@ function renderEvolucionMensualNps_(canvasId, chartKey, puntosDirecta, puntosPda
   });
 }
 function dibujarEvolucionMensualFab_(){
-  var guardado = {};
-  try{ guardado = JSON.parse(localStorage.getItem('fabResumenArchivo')||'{}'); }catch(e){}
-  var puntosDirecta = (guardado.directa && guardado.directa.puntos) ? guardado.directa.puntos.slice() : [];
-  var puntosPda = (guardado.pda && guardado.pda.puntos) ? guardado.pda.puntos.slice() : [];
+  var archDirecta = obtenerArchivoNps_('fabrica','directa');
+  var archPda = obtenerArchivoNps_('fabrica','pda');
+  var puntosDirecta = archDirecta ? archDirecta.puntos.slice() : [];
+  var puntosPda = archPda ? archPda.puntos.slice() : [];
   (_ultimoRespondidasPorCanalFabrica_.directa||[]).forEach(function(r){ puntosDirecta.push({fecha:r.npsFabricaFecha, score:Number(r.npsFabricaScore)}); });
   (_ultimoRespondidasPorCanalFabrica_.pda||[]).forEach(function(r){ puntosPda.push({fecha:r.npsFabricaFecha, score:Number(r.npsFabricaScore)}); });
   ANONIMAS_FABRICA_.forEach(function(a){
@@ -12608,7 +12651,7 @@ function renderNpsFabricaPanel_(){
     directa: respondidas.filter(function(r){return !esCanalPDA_(r);}),
     pda: respondidas.filter(function(r){return esCanalPDA_(r);})
   };
-  cargarAnonimasFabricaSiHaceFalta_().then(function(){
+  Promise.all([cargarAnonimasFabricaSiHaceFalta_(), cargarArchivosNpsSiHaceFalta_()]).then(function(){
     if(maestroTabActual==='npsfabrica'){
       pintarResumenArchivoFabrica_(_ultimoRespondidasPorCanalFabrica_);
       dibujarEvolucionMensualFab_();
