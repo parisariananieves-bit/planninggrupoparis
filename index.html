@@ -8776,7 +8776,7 @@ function filtrarBuscadorAccesorios_(q){
     return it.nombre.toLowerCase().indexOf(q)>-1;
   });
   var opciones = coincidencias.map(function(it){
-    return '<div class="combo-item" onclick="agregarAccesorioAEntrega_(\''+it.nombre.replace(/'/g,"\\'")+'\','+it.precio+')">'+it.nombre+' <span style="color:var(--text-faint);float:right;">$'+it.precio.toLocaleString('es-AR')+'</span></div>';
+    return botonesPrecioAccesorio_(it, 'agregarAccesorioAEntrega_');
   });
   // Si no hay coincidencia exacta, se puede cargar como ítem "libre" sin precio (no todo tiene que estar en el catálogo).
   var coincidenciaExacta = CATALOGO_ACCESORIOS_.some(function(it){return it.nombre.toLowerCase()===q;});
@@ -8786,13 +8786,32 @@ function filtrarBuscadorAccesorios_(q){
   lista.innerHTML = opciones.join('') || '<div class="combo-item" style="color:var(--text-faint);">Sin resultados</div>';
   lista.style.display = 'block';
 }
-function agregarAccesorioAEntrega_(nombre, precio){
+// Arma la fila de un accesorio con un botón por cada forma de pago que
+// tenga precio cargado (Contado final / Tarjeta / 3 cuotas) — si no tiene
+// ninguno de esos 3 (por ejemplo, uno cargado a mano sin el desglose),
+// muestra solo el precio base como un único botón, igual que antes.
+function botonesPrecioAccesorio_(it, fnAgregar){
+  var opts = [];
+  if(it.precioContadoFinal) opts.push(['Contado final', it.precioContadoFinal]);
+  if(it.precioTarjeta) opts.push(['Tarjeta', it.precioTarjeta]);
+  if(it.precioEn3Cuotas) opts.push(['3 cuotas', it.precioEn3Cuotas]);
+  if(opts.length===0) opts.push(['', it.precio]);
+  var botones = opts.map(function(o){
+    var etiqueta = o[0] ? o[0]+' $'+o[1].toLocaleString('es-AR') : '$'+o[1].toLocaleString('es-AR');
+    return '<button type="button" onclick="event.stopPropagation();'+fnAgregar+'(\''+it.nombre.replace(/'/g,"\\'")+'\','+o[1]+',\''+o[0]+'\')" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:6px;color:var(--text);padding:3px 8px;font-size:10.5px;cursor:pointer;">'+etiqueta+'</button>';
+  }).join('');
+  return '<div class="combo-item" style="cursor:default;display:flex;flex-direction:column;gap:5px;padding:8px 10px;">'+
+    '<div>'+it.nombre+(it.manoDeObra?' <span style="color:var(--text-faint);font-size:10px;">(incluye M.O.)</span>':'')+'</div>'+
+    '<div style="display:flex;gap:5px;flex-wrap:wrap;">'+botones+'</div>'+
+  '</div>';
+}
+function agregarAccesorioAEntrega_(nombre, precio, formaPago){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
   r.accesoriosItems = r.accesoriosItems || [];
-  r.accesoriosItems.push({nombre:nombre, precio:Number(precio)||0, estado:'pendiente', motivo:''});
+  r.accesoriosItems.push({nombre:nombre, precio:Number(precio)||0, formaPago:formaPago||'', estado:'pendiente', motivo:''});
   gasPost('updateEntregaFields', {marca:detailMarca, id:detailId, fields:{accesoriosItems: r.accesoriosItems}});
-  logHistorial_(detailMarca, detailId, '+ Accesorio agregado: '+nombre);
+  logHistorial_(detailMarca, detailId, '+ Accesorio agregado: '+nombre+(formaPago?' ('+formaPago+')':''));
   document.getElementById('dAccesoriosBuscador').value = '';
   document.getElementById('dAccesoriosBuscadorLista').style.display = 'none';
   renderAccesoriosItemsUI_(r);
@@ -8848,7 +8867,7 @@ function renderAccesoriosItemsUI_(r){
     cont.innerHTML = '<div style="font-size:11.5px;color:var(--text-faint);padding:6px 0;">Sin accesorios cargados todavía.</div>';
   } else {
     cont.innerHTML = items.map(function(it, idx){
-      var precioTxt = it.precio ? ' — $'+it.precio.toLocaleString('es-AR') : '';
+      var precioTxt = it.precio ? ' — $'+it.precio.toLocaleString('es-AR')+(it.formaPago?' ('+it.formaPago+')':'') : '';
       return '<div style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;padding:9px 11px;margin-bottom:7px;">'+
         '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px;">'+
           '<b style="font-size:12px;">'+it.nombre+'<span style="color:var(--text-faint);font-weight:500;">'+precioTxt+'</span></b>'+
@@ -9660,7 +9679,7 @@ function filtrarBuscadorAccesoriosNueva_(q){
     return it.nombre.toLowerCase().indexOf(q)>-1;
   });
   var opciones = coincidencias.map(function(it){
-    return '<div class="combo-item" onclick="agregarAccesorioNueva_(\''+it.nombre.replace(/'/g,"\\'")+'\','+it.precio+')">'+it.nombre+' <span style="color:var(--text-faint);float:right;">$'+it.precio.toLocaleString('es-AR')+'</span></div>';
+    return botonesPrecioAccesorio_(it, 'agregarAccesorioNueva_');
   });
   var coincidenciaExacta = CATALOGO_ACCESORIOS_.some(function(it){return it.nombre.toLowerCase()===q;});
   if(!coincidenciaExacta){
@@ -9669,8 +9688,8 @@ function filtrarBuscadorAccesoriosNueva_(q){
   lista.innerHTML = opciones.join('') || '<div class="combo-item" style="color:var(--text-faint);">Sin resultados</div>';
   lista.style.display = 'block';
 }
-function agregarAccesorioNueva_(nombre, precio){
-  window._nuevaEntregaAccesorios.push({nombre:nombre, precio:Number(precio)||0, estado:'pendiente', motivo:''});
+function agregarAccesorioNueva_(nombre, precio, formaPago){
+  window._nuevaEntregaAccesorios.push({nombre:nombre, precio:Number(precio)||0, formaPago:formaPago||'', estado:'pendiente', motivo:''});
   document.getElementById('nAccesoriosBuscador').value = '';
   document.getElementById('nAccesoriosBuscadorLista').style.display = 'none';
   renderNAccesoriosLista_();
@@ -9683,7 +9702,7 @@ function renderNAccesoriosLista_(){
   var cont = document.getElementById('nAccesoriosLista');
   var items = window._nuevaEntregaAccesorios || [];
   cont.innerHTML = items.map(function(it, idx){
-    var precioTxt = it.precio ? ' — $'+it.precio.toLocaleString('es-AR') : '';
+    var precioTxt = it.precio ? ' — $'+it.precio.toLocaleString('es-AR')+(it.formaPago?' ('+it.formaPago+')':'') : '';
     return '<div style="display:flex;justify-content:space-between;align-items:center;background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;padding:6px 10px;margin-bottom:5px;font-size:12px;">'+
       '<span>'+it.nombre+'<span style="color:var(--text-faint);">'+precioTxt+'</span></span>'+
       '<button type="button" onclick="eliminarAccesorioNueva_('+idx+')" style="background:none;border:none;color:var(--text-faint);cursor:pointer;"><span class="material-symbols-outlined" style="font-size:15px;">close</span></button>'+
@@ -13113,18 +13132,23 @@ function renderRankingVendedorPanel_(){
     return {nombre:nombre, nps:nps, total:v.total, promotores:v.promotores, pasivos:v.pasivos, detractores:v.detractores, sucursalPrincipal:sucursalPrincipal, ventas: ventasPorVendedor[nombre]||0};
   }
   var listaVendedores = Object.keys(acumVendedor).map(function(n){ return filaTabla_(n, acumVendedor[n]); });
-  listaVendedores.sort(function(a,b){ return (b.nps===null?-999:b.nps) - (a.nps===null?-999:a.nps); });
+  listaVendedores.sort(function(a,b){
+    var npsA = a.nps===null?-999:a.nps, npsB = b.nps===null?-999:b.nps;
+    if(npsB!==npsA) return npsB-npsA;
+    return b.total-a.total; // empate en NPS: gana quien tiene más respuestas
+  });
 
   function filaVendedorHtml_(v, i){
-    var color = v.nps===null?'var(--text-faint)':(v.nps>=50?'var(--ok)':(v.nps>=0?'var(--warn)':'var(--danger)'));
-    return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td>'+v.sucursalPrincipal+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps)+'</td><td>'+v.ventas+'</td><td>'+v.total+'</td>'+
+    var color = v.nps===null?'var(--text-faint)':(v.nps>=90?'var(--ok)':(v.nps>=0?'var(--warn)':'var(--danger)'));
+    var participacion = v.ventas>0 ? Math.round(v.total/v.ventas*100)+'%' : '—';
+    return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td>'+v.sucursalPrincipal+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps)+'</td><td>'+v.ventas+'</td><td>'+v.total+'</td><td>'+participacion+'</td>'+
       '<td style="color:var(--ok);">'+v.promotores+'</td><td style="color:var(--warn);">'+v.pasivos+'</td><td style="color:var(--danger);">'+v.detractores+'</td></tr>';
   }
-  var encabezadoVendedor = '<tr><th>#</th><th>Vendedor</th><th>Sucursal</th><th>NPS</th><th>Ventas</th><th>Respuestas</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>';
+  var encabezadoVendedor = '<tr><th>#</th><th>Vendedor</th><th>Sucursal</th><th>NPS</th><th>Ventas</th><th>Respuestas</th><th>% Participación</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>';
   document.getElementById('rankVendedorTop5Tabla').innerHTML = encabezadoVendedor+
-    (listaVendedores.slice(0,5).map(filaVendedorHtml_).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
+    (listaVendedores.slice(0,5).map(filaVendedorHtml_).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
   document.getElementById('rankVendedorTabla').innerHTML = encabezadoVendedor+
-    (listaVendedores.map(filaVendedorHtml_).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
+    (listaVendedores.map(filaVendedorHtml_).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
 
   // ---- Por sucursal — mismo acumulado, pero agrupado por sucursal ----
   var acumSucursalReal = {};
@@ -13173,17 +13197,22 @@ function renderRankingVendedorPanel_(){
     var v = acumSucursalReal[s];
     return {nombre:s, nps:npsDeConteo_(v), total:v.total, promotores:v.promotores, pasivos:v.pasivos, detractores:v.detractores, ventas: ventasPorSucursal[s]||0};
   });
-  listaSucursales.sort(function(a,b){ return (b.nps===null?-999:b.nps) - (a.nps===null?-999:a.nps); });
+  listaSucursales.sort(function(a,b){
+    var npsA = a.nps===null?-999:a.nps, npsB = b.nps===null?-999:b.nps;
+    if(npsB!==npsA) return npsB-npsA;
+    return b.total-a.total;
+  });
   function filaSucursalHtml_(v, i){
-    var color = v.nps===null?'var(--text-faint)':(v.nps>=50?'var(--ok)':(v.nps>=0?'var(--warn)':'var(--danger)'));
-    return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps)+'</td><td>'+v.ventas+'</td><td>'+v.total+'</td>'+
+    var color = v.nps===null?'var(--text-faint)':(v.nps>=90?'var(--ok)':(v.nps>=0?'var(--warn)':'var(--danger)'));
+    var participacion = v.ventas>0 ? Math.round(v.total/v.ventas*100)+'%' : '—';
+    return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps)+'</td><td>'+v.ventas+'</td><td>'+v.total+'</td><td>'+participacion+'</td>'+
       '<td style="color:var(--ok);">'+v.promotores+'</td><td style="color:var(--warn);">'+v.pasivos+'</td><td style="color:var(--danger);">'+v.detractores+'</td></tr>';
   }
-  var encabezadoSucursal = '<tr><th>#</th><th>Sucursal</th><th>NPS</th><th>Ventas</th><th>Respuestas</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>';
+  var encabezadoSucursal = '<tr><th>#</th><th>Sucursal</th><th>NPS</th><th>Ventas</th><th>Respuestas</th><th>% Participación</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>';
   document.getElementById('rankSucursalTop5Tabla').innerHTML = encabezadoSucursal+
-    (listaSucursales.slice(0,5).map(filaSucursalHtml_).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
+    (listaSucursales.slice(0,5).map(filaSucursalHtml_).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
   document.getElementById('rankSucursalTabla').innerHTML = encabezadoSucursal+
-    (listaSucursales.map(filaSucursalHtml_).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
+    (listaSucursales.map(filaSucursalHtml_).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
 }
 function filtrarCoberturaCalidad_(bucket){
   ['covChipTodas','covChipFalta1','covChipFalta2','covChipNinguna'].forEach(function(id){
