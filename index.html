@@ -1959,6 +1959,10 @@
             <div class="field" style="width:170px;resize:horizontal;overflow:hidden;min-width:90px;max-width:100%;"><div class="l">Comentario</div><input id="atAnonComentario" style="width:100%;"></div>
             <button class="save-btn" style="width:auto;margin:0;padding:9px 18px;" onclick="agregarNpsAnonimoATUI_()">+ Agregar</button>
           </div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--hairline);">
+            <div style="font-size:10.5px;color:var(--text-faint);font-weight:700;margin-bottom:6px;">Respuestas anónimas ya cargadas</div>
+            <div class="report-wrap"><table class="report-table" id="atAnonTabla"></table></div>
+          </div>
         </div>
       </div>
 
@@ -2297,6 +2301,10 @@
             <div class="field" style="width:170px;resize:horizontal;overflow:hidden;min-width:90px;max-width:100%;"><div class="l">Comentario</div><input id="cpAnonComentario" style="width:100%;"></div>
             <button class="save-btn" style="width:auto;margin:0;padding:9px 18px;" onclick="agregarNpsAnonimoCpUI_()">+ Agregar</button>
           </div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--hairline);">
+            <div style="font-size:10.5px;color:var(--text-faint);font-weight:700;margin-bottom:6px;">Respuestas anónimas ya cargadas</div>
+            <div class="report-wrap"><table class="report-table" id="cpAnonTabla"></table></div>
+          </div>
         </div>
       </div>
 
@@ -2360,6 +2368,10 @@
             <div class="field" style="width:78px;"><div class="l">Puntaje</div><input type="number" min="0" max="10" id="fabAnonPuntaje"></div>
             <div class="field" style="width:170px;resize:horizontal;overflow:hidden;min-width:90px;max-width:100%;"><div class="l">Comentario</div><input id="fabAnonComentario" style="width:100%;"></div>
             <button class="save-btn" style="width:auto;margin:0;padding:9px 18px;" onclick="agregarNpsFabricaAnonimoUI_()">+ Agregar</button>
+          </div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--hairline);">
+            <div style="font-size:10.5px;color:var(--text-faint);font-weight:700;margin-bottom:6px;">Respuestas anónimas ya cargadas</div>
+            <div class="report-wrap"><table class="report-table" id="fabAnonTabla"></table></div>
           </div>
         </div>
       </div>
@@ -7522,9 +7534,13 @@ function renderCatalogoAccesoriosTabla_(){
   var filas = CATALOGO_ACCESORIOS_.map(function(it){
     var b = it.marca ? BRANDS.find(function(x){return x.id===it.marca;}) : null;
     return '<tr><td>'+it.nombre+'</td><td>'+(b?'<span style="font-size:10.5px;font-weight:700;color:var('+b.color+');">'+b.label+'</span>':'<span style="color:var(--text-faint);font-size:10.5px;">Todas</span>')+'</td><td>'+(it.modelo||'—')+'</td><td>$'+it.precio.toLocaleString('es-AR')+'</td>'+
+      '<td>'+(it.manoDeObra?'$'+it.manoDeObra.toLocaleString('es-AR'):'—')+'</td>'+
+      '<td>'+(it.precioContadoFinal?'$'+it.precioContadoFinal.toLocaleString('es-AR'):'—')+'</td>'+
+      '<td>'+(it.precioTarjeta?'$'+it.precioTarjeta.toLocaleString('es-AR'):'—')+'</td>'+
+      '<td>'+(it.precioEn3Cuotas?'$'+it.precioEn3Cuotas.toLocaleString('es-AR'):'—')+'</td>'+
       '<td style="text-align:right;"><button onclick="eliminarItemCatalogoAccesoriosUI_(\''+it.nombre.replace(/'/g,"\\'")+'\',\''+(it.marca||'')+'\',\''+(it.modelo||'').replace(/'/g,"\\'")+'\')" style="background:none;border:none;color:var(--text-faint);cursor:pointer;"><span class="material-symbols-outlined" style="font-size:16px;">delete</span></button></td></tr>';
   }).join('');
-  cont.innerHTML = '<table class="report-table" style="width:100%;"><tr><th>Nombre</th><th>Marca</th><th>Modelo</th><th>Precio</th><th></th></tr>'+filas+'</table>';
+  cont.innerHTML = '<table class="report-table" style="width:100%;"><tr><th>Nombre</th><th>Marca</th><th>Modelo</th><th>Precio base</th><th>Mano de obra</th><th>Contado final</th><th>Tarjeta</th><th>3 cuotas</th><th></th></tr>'+filas+'</table>';
 }
 function agregarItemCatalogoAccesoriosUI_(){
   var nombre = document.getElementById('catAccNombre').value.trim();
@@ -7547,11 +7563,21 @@ function eliminarItemCatalogoAccesoriosUI_(nombre, marca, modelo){
     cargarCatalogoAccesorios_().then(renderCatalogoAccesoriosTabla_);
   });
 }
-// Importa el catálogo desde Excel. Soporta 2 formatos:
+// Importa el catálogo desde Excel. Soporta 3 formatos:
 // - El viejo, simple, sin encabezados reconocibles: columna A = nombre, B = precio.
-// - Uno con encabezados tipo "MODELO, ACCESORIO, APLICA, PN, PRECIO..., Marca"
-//   (el que usa el listado del taller) — ahí lo detecta por nombre de columna,
-//   sin importar el orden en que vengan.
+// - Uno con UN encabezado (MODELO, ACCESORIO, APLICA, PN, PRECIO..., Marca).
+// - Uno con VARIOS bloques de encabezado, uno por modelo (como la planilla
+//   de precios del taller: "JOY - JOY PLUS" arriba, después ACCESORIO / APLICA /
+//   PN / PRECIO / M.O / PRECIO CON COLOCACIÓN / TARJETA / 3 CUOTAS, y así
+//   varias veces en la misma hoja) — cada bloque nuevo se detecta solo.
+function limpiarNumeroAccesorio_(v){
+  if(typeof v === 'number') return v;
+  var s = String(v||'').replace(/[^0-9.,-]/g,'');
+  if(s.indexOf(',')>-1 && s.indexOf('.')>-1) s = s.replace(/\./g,'').replace(',', '.');
+  else if(s.indexOf(',')>-1) s = s.replace(',', '.');
+  var n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
 function importarCatalogoAccesoriosArchivo_(event){
   var file = event.target.files[0];
   if(!file) return;
@@ -7560,36 +7586,73 @@ function importarCatalogoAccesoriosArchivo_(event){
     try{
       var wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
       var hoja = wb.Sheets[wb.SheetNames[0]];
-      var objetos = XLSX.utils.sheet_to_json(hoja, {defval:''});
+      var crudo = XLSX.utils.sheet_to_json(hoja, {header:1, defval:''});
       var filas = [];
-      if(objetos.length && Object.keys(objetos[0]).length>1){
-        // Formato con encabezados — buscamos las columnas por nombre, sin importar mayúsculas/orden.
-        var headersOriginales = Object.keys(objetos[0]);
-        function colQueContenga(subs){
-          return headersOriginales.find(function(h){
-            var hu = h.toUpperCase();
-            return subs.some(function(s){ return hu.indexOf(s)>-1; });
-          });
+      var huboEncabezados = false;
+
+      function colQueContenga(fila, subs){
+        for(var i=0;i<fila.length;i++){
+          var hu = String(fila[i]||'').toUpperCase();
+          if(subs.some(function(s){return hu.indexOf(s)>-1;})) return i;
         }
-        var colNombre = colQueContenga(['ACCESORIO','NOMBRE']);
-        var colPrecio = colQueContenga(['PRECIO','COSTO']);
-        var colMarca = colQueContenga(['MARCA']);
-        var colModelo = colQueContenga(['MODELO']);
-        var colPn = headersOriginales.find(function(h){ return h.toUpperCase().trim()==='PN'; });
-        if(colNombre && colPrecio){
-          filas = objetos.map(function(o){
-            var marcaTexto = String(o[colMarca]||'').trim().toLowerCase();
-            var marcaId = BRANDS.find(function(b){ return marcaTexto.indexOf(b.id)>-1 || marcaTexto.indexOf(b.label.toLowerCase())>-1; });
-            return [String(o[colNombre]||'').trim(), o[colPrecio], marcaId?marcaId.id:'', String(o[colModelo]||'').trim(), colPn?String(o[colPn]||'').trim():''];
-          });
+        return -1;
+      }
+
+      var i = 0;
+      while(i < crudo.length){
+        var fila = crudo[i] || [];
+        var textoFila = fila.map(function(x){return String(x||'').toUpperCase();});
+        var esEncabezado = textoFila.some(function(x){return x.indexOf('ACCESORIO')>-1;}) && textoFila.some(function(x){return x.indexOf('PRECIO')>-1;});
+        if(esEncabezado){
+          huboEncabezados = true;
+          var colNombre = colQueContenga(fila, ['ACCESORIO']);
+          var colModelo = colQueContenga(fila, ['APLICA','MODELO']);
+          var colPn = colQueContenga(fila, ['PN']);
+          var colPrecio = colQueContenga(fila, ['PRECIO']);
+          var colManoDeObra = colQueContenga(fila, ['M.O','MANO DE OBRA']);
+          var colContadoFinal = colQueContenga(fila, ['CONTADO FINAL','COLOCACION','COLOCACIÓN']);
+          var colTarjeta = colQueContenga(fila, ['TARJETA']);
+          var col3Cuotas = colQueContenga(fila, ['3 CUOTAS','CUOTAS']);
+          // La marca suele venir en un título unas filas arriba de este bloque.
+          var marcaDetectada = '';
+          for(var b=Math.max(0,i-5); b<i; b++){
+            var bTxt = (crudo[b]||[]).join(' ').toLowerCase();
+            var m = BRANDS.find(function(x){ return bTxt.indexOf(x.id)>-1 || bTxt.indexOf(x.label.toLowerCase())>-1; });
+            if(m) marcaDetectada = m.id;
+          }
+          i++;
+          while(i<crudo.length){
+            var f2 = crudo[i]||[];
+            var f2txt = f2.map(function(x){return String(x||'').toUpperCase();});
+            if(f2txt.some(function(x){return x.indexOf('ACCESORIO')>-1;}) && f2txt.some(function(x){return x.indexOf('PRECIO')>-1;})) break;
+            var nombre = colNombre>-1 ? String(f2[colNombre]||'').trim() : '';
+            if(nombre){
+              filas.push([
+                nombre,
+                colPrecio>-1 ? limpiarNumeroAccesorio_(f2[colPrecio]) : 0,
+                marcaDetectada,
+                colModelo>-1 ? String(f2[colModelo]||'').trim() : '',
+                colPn>-1 ? String(f2[colPn]||'').trim() : '',
+                colManoDeObra>-1 ? limpiarNumeroAccesorio_(f2[colManoDeObra]) : 0,
+                colContadoFinal>-1 ? limpiarNumeroAccesorio_(f2[colContadoFinal]) : 0,
+                colTarjeta>-1 ? limpiarNumeroAccesorio_(f2[colTarjeta]) : 0,
+                col3Cuotas>-1 ? limpiarNumeroAccesorio_(f2[col3Cuotas]) : 0
+              ]);
+            }
+            i++;
+          }
+        } else {
+          i++;
         }
       }
-      if(filas.length===0){
+
+      if(!huboEncabezados){
         // Fallback: formato viejo de 2 columnas sin encabezados reconocidos.
-        var crudo = XLSX.utils.sheet_to_json(hoja, {header:1});
-        if(crudo.length && isNaN(Number(crudo[0][1]))) crudo = crudo.slice(1);
-        filas = crudo.filter(function(f){ return f && f[0]; }).map(function(f){ return [f[0], f[1], '', '', '']; });
+        var crudo2 = crudo.slice();
+        if(crudo2.length && isNaN(Number(crudo2[0][1]))) crudo2 = crudo2.slice(1);
+        filas = crudo2.filter(function(f){ return f && f[0]; }).map(function(f){ return [f[0], limpiarNumeroAccesorio_(f[1]), '', '', '', 0, 0, 0, 0]; });
       }
+
       filas = filas.filter(function(f){ return f && f[0]; });
       if(filas.length===0){ showToast('El archivo no tiene filas para importar'); return; }
       gasPost('importarCatalogoAccesorios', {filas: filas}).then(function(res){
@@ -12055,7 +12118,7 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
     var activo = filterCanal===canalUrl;
     return '<div class="chart-panel" style="cursor:pointer;'+(activo?'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);':'')+'" onclick="setFilterCanal(\''+canalUrl+'\')" title="Tocá para ver el gráfico de abajo filtrado por este canal — volvé a tocar para ver todos juntos">'+
       '<div class="chart-panel-title">'+titulo+(activo?' <span style="font-size:9px;color:var(--accent);font-weight:800;">● filtrando abajo</span>':'')+'</div>'+
-      '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+entrada.fecha+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
+      '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+soloFechaISO_(entrada.fecha)+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
       '<div style="font-size:10px;margin-top:3px;"><span style="color:var(--ok);font-weight:700;">'+r.conteo.promotores+' promotoras</span> · <span style="color:var(--warn);font-weight:700;">'+r.conteo.pasivos+' neutrales</span> · <span style="color:var(--danger);font-weight:700;">'+r.conteo.detractores+' detractoras</span></div>'+
@@ -12272,7 +12335,7 @@ function pintarResumenArchivoAT_(respondidasPorCanal){
     var activo = filterCanal===canalUrl;
     return '<div class="chart-panel" style="cursor:pointer;'+(activo?'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);':'')+'" onclick="setFilterCanal(\''+canalUrl+'\')" title="Tocá para ver el gráfico de abajo filtrado por este canal — volvé a tocar para ver todos juntos">'+
       '<div class="chart-panel-title">'+titulo+(activo?' <span style="font-size:9px;color:var(--accent);font-weight:800;">● filtrando abajo</span>':'')+'</div>'+
-      '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+entrada.fecha+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
+      '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+soloFechaISO_(entrada.fecha)+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
       '<div style="font-size:10px;margin-top:3px;"><span style="color:var(--ok);font-weight:700;">'+r.conteo.promotores+' promotoras</span> · <span style="color:var(--warn);font-weight:700;">'+r.conteo.pasivos+' neutrales</span> · <span style="color:var(--danger);font-weight:700;">'+r.conteo.detractores+' detractoras</span></div>'+
@@ -12303,12 +12366,27 @@ function dibujarEvolucionMensualAT_(){
   });
   renderEvolucionMensualNps_('atChartEvolucionMensual', 'atEvolucionMensual', puntosDirecta, puntosPda);
 }
+// Tabla chica con las respuestas anónimas ya cargadas — mismo formato en
+// las tres páginas.
+function pintarTablaAnonimas_(tablaId, arr){
+  var tabla = document.getElementById(tablaId);
+  if(!tabla) return;
+  if(!arr || arr.length===0){
+    tabla.innerHTML = '<tr><td style="text-align:center;color:var(--text-faint);padding:10px;">Todavía no cargaste ninguna.</td></tr>';
+    return;
+  }
+  tabla.innerHTML = '<tr><th>Fecha</th><th>Canal</th><th>Puntaje</th><th>Comentario</th><th>Cargado por</th></tr>'+
+    arr.slice().reverse().map(function(a){
+      return '<tr><td>'+a.fecha+'</td><td>'+(a.canal==='PDA'?'PDA':'Tradicional')+'</td><td style="font-weight:700;">'+a.puntaje+'</td><td>'+(a.comentario||'—')+'</td><td>'+(a.cargadoPor||'—')+'</td></tr>';
+    }).join('');
+}
 function toggleSeccionAnonimaAT_(){
   var cuerpo = document.getElementById('atAnonBody');
   var icono = document.getElementById('atAnonAccordionIcon');
   var abierto = cuerpo.style.display !== 'none';
   cuerpo.style.display = abierto ? 'none' : 'block';
   icono.style.transform = abierto ? 'rotate(-90deg)' : 'rotate(0deg)';
+  if(!abierto) pintarTablaAnonimas_('atAnonTabla', ANONIMAS_AT_);
 }
 function agregarNpsAnonimoATUI_(){
   var canal = document.getElementById('atAnonCanal').value;
@@ -12322,6 +12400,7 @@ function agregarNpsAnonimoATUI_(){
     _anonimasATCargadas_ = false;
     cargarAnonimasATSiHaceFalta_().then(function(){
       pintarResumenArchivoAT_(_ultimoRespondidasPorCanalAT_);
+      pintarTablaAnonimas_('atAnonTabla', ANONIMAS_AT_);
     });
   });
 }
@@ -12432,7 +12511,7 @@ function pintarResumenArchivoCp_(respondidasPorCanal){
     var activo = filterCanal===canalUrl;
     return '<div class="chart-panel" style="cursor:pointer;'+(activo?'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);':'')+'" onclick="setFilterCanal(\''+canalUrl+'\')" title="Tocá para ver el gráfico de abajo filtrado por este canal — volvé a tocar para ver todos juntos">'+
       '<div class="chart-panel-title">'+titulo+(activo?' <span style="font-size:9px;color:var(--accent);font-weight:800;">● filtrando abajo</span>':'')+'</div>'+
-      '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+entrada.fecha+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
+      '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+soloFechaISO_(entrada.fecha)+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
       '<div style="font-size:10px;margin-top:3px;"><span style="color:var(--ok);font-weight:700;">'+r.conteo.promotores+' promotoras</span> · <span style="color:var(--warn);font-weight:700;">'+r.conteo.pasivos+' neutrales</span> · <span style="color:var(--danger);font-weight:700;">'+r.conteo.detractores+' detractoras</span></div>'+
@@ -12469,6 +12548,7 @@ function toggleSeccionAnonimaCp_(){
   var abierto = cuerpo.style.display !== 'none';
   cuerpo.style.display = abierto ? 'none' : 'block';
   icono.style.transform = abierto ? 'rotate(-90deg)' : 'rotate(0deg)';
+  if(!abierto) pintarTablaAnonimas_('cpAnonTabla', ANONIMAS_CP_);
 }
 function agregarNpsAnonimoCpUI_(){
   var canal = document.getElementById('cpAnonCanal').value;
@@ -12482,6 +12562,7 @@ function agregarNpsAnonimoCpUI_(){
     _anonimasCpCargadas_ = false;
     cargarAnonimasCpSiHaceFalta_().then(function(){
       pintarResumenArchivoCp_(_ultimoRespondidasPorCanalCp_);
+      pintarTablaAnonimas_('cpAnonTabla', ANONIMAS_CP_);
     });
   });
 }
@@ -12612,6 +12693,7 @@ function toggleSeccionAnonimaFabrica_(){
   var abierto = cuerpo.style.display !== 'none';
   cuerpo.style.display = abierto ? 'none' : 'block';
   icono.style.transform = abierto ? 'rotate(-90deg)' : 'rotate(0deg)';
+  if(!abierto) pintarTablaAnonimas_('fabAnonTabla', ANONIMAS_FABRICA_);
 }
 function agregarNpsFabricaAnonimoUI_(){
   var canal = document.getElementById('fabAnonCanal').value;
@@ -12625,6 +12707,7 @@ function agregarNpsFabricaAnonimoUI_(){
     _anonimasFabricaCargadas_ = false;
     cargarAnonimasFabricaSiHaceFalta_().then(function(){
       pintarResumenArchivoFabrica_(_ultimoRespondidasPorCanalFabrica_);
+      pintarTablaAnonimas_('fabAnonTabla', ANONIMAS_FABRICA_);
     });
   });
 }
@@ -12663,7 +12746,7 @@ function renderNpsFabricaPanel_(){
     (elegibles.slice(0,10).map(function(r){
       var b=BRANDS.find(function(y){return y.id===r.marca;});
       var respondio = r.npsFabricaScore!==null && r.npsFabricaScore!==undefined && r.npsFabricaScore!=='';
-      return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td>'+r.garantiaFecha+'</td><td>'+(r.npsFabricaFecha||'—')+'</td><td style="font-weight:700;">'+(respondio?r.npsFabricaScore:'—')+'</td><td>'+(r.npsFabricaComentario||'—')+'</td></tr>';
+      return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td>'+soloFechaISO_(r.garantiaFecha)+'</td><td>'+(r.npsFabricaFecha?soloFechaISO_(r.npsFabricaFecha):'—')+'</td><td style="font-weight:700;">'+(respondio?r.npsFabricaScore:'—')+'</td><td>'+(r.npsFabricaComentario||'—')+'</td></tr>';
     }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-faint);">Sin entregas con garantía cargada en este período.</td></tr>');
   document.getElementById('fabVerMas').innerHTML = elegibles.length>10 ? '<button class="print-btn" style="margin:0;" onclick="mostrarTablaFabCompleta_()">Ver las '+elegibles.length+' entregas elegibles</button>' : '';
 
@@ -12690,7 +12773,7 @@ function mostrarTablaFabCompleta_(){
     elegibles.map(function(r){
       var b=BRANDS.find(function(y){return y.id===r.marca;});
       var respondio = r.npsFabricaScore!==null && r.npsFabricaScore!==undefined && r.npsFabricaScore!=='';
-      return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td>'+r.garantiaFecha+'</td><td>'+(r.npsFabricaFecha||'—')+'</td><td style="font-weight:700;">'+(respondio?r.npsFabricaScore:'—')+'</td><td>'+(r.npsFabricaComentario||'—')+'</td></tr>';
+      return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td>'+soloFechaISO_(r.garantiaFecha)+'</td><td>'+(r.npsFabricaFecha?soloFechaISO_(r.npsFabricaFecha):'—')+'</td><td style="font-weight:700;">'+(respondio?r.npsFabricaScore:'—')+'</td><td>'+(r.npsFabricaComentario||'—')+'</td></tr>';
     }).join('');
   document.getElementById('fabVerMas').innerHTML = '';
 }
