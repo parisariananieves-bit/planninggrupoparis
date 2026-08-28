@@ -2203,11 +2203,13 @@
         <select id="catAccMarca" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;"><option value="">Todas las marcas</option></select>
         <input id="catAccModelo" placeholder="Modelo (opcional)" style="width:140px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;">
         <button class="save-btn" style="width:auto;margin:0;" onclick="agregarItemCatalogoAccesoriosUI_()">+ Agregar</button>
+        <select id="catImportMarca" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;"></select>
         <label style="display:inline-block;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:12px;color:var(--text-dim);">
-          📎 Importar Excel
+          📎 Importar Excel (hoja "PRECIOS")
           <input type="file" accept=".xlsx,.xls" id="catalogoAccesoriosFileInput" onchange="importarCatalogoAccesoriosArchivo_(event)" style="display:none;">
         </label>
       </div>
+      <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:10px;">El Excel se lee de la hoja llamada "PRECIOS" (la que trae cada modelo con Accesorio/Aplica/PN/Precio/M.O/Contado final/Tarjeta/3 cuotas) — las demás hojas del archivo (por modelo, o el registro de ventas) no se importan. Todo lo que traiga el archivo se guarda con la marca que elijas acá al lado.</div>
       <div id="catalogoAccesoriosTabla"></div>
     </div>
     <div class="maestro-block">
@@ -2415,14 +2417,22 @@
           <option value="contactoposterior">Solo Contacto Posterior</option>
           <option value="fabrica">Solo Fábrica</option>
         </select>
+        <div id="rankCanalToggle" class="filter-pills" style="margin:0;"></div>
         <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
-        <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Combina lo cargado en el sistema (entregas con NPS) + lo que venga de los archivos importados (que ya traen vendedor y sucursal) — sin duplicar lo que ya está en el archivo. La marca y el canal se filtran con los botones de arriba de la página.</span></span>
+        <button class="pdf-btn filter-pill" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span> Descargar PDF</button>
+        <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Combina lo cargado en el sistema (entregas con NPS) + lo que venga de los archivos importados (que ya traen vendedor y sucursal) — sin duplicar lo que ya está en el archivo. La marca se filtra con los botones de arriba de la página. "Ventas" cuenta entregas totales de ese vendedor/sucursal en el período, tengan o no NPS respondido.</span></span>
       </div>
 
-      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">emoji_events</span>Ranking por Vendedor</div>
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--warn);">military_tech</span>Top 5 Vendedores</div>
+      <div class="report-wrap"><table class="report-table" id="rankVendedorTop5Tabla"></table></div>
+
+      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">emoji_events</span>Ranking completo por Vendedor</div>
       <div class="report-wrap"><table class="report-table" id="rankVendedorTabla"></table></div>
 
-      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">store</span>Medición por Sucursal</div>
+      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--warn);">military_tech</span>Top 5 Sucursales</div>
+      <div class="report-wrap"><table class="report-table" id="rankSucursalTop5Tabla"></table></div>
+
+      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">store</span>Medición completa por Sucursal</div>
       <div class="report-wrap"><table class="report-table" id="rankSucursalTabla"></table></div>
     </div>
 
@@ -7545,6 +7555,10 @@ function renderCatalogoAccesoriosTabla_(){
   if(selMarca && selMarca.options.length<=1){
     selMarca.innerHTML = '<option value="">Todas las marcas</option>' + BRANDS.map(function(b){return '<option value="'+b.id+'">'+b.label+'</option>';}).join('');
   }
+  var selImportMarca = document.getElementById('catImportMarca');
+  if(selImportMarca && selImportMarca.options.length===0){
+    selImportMarca.innerHTML = BRANDS.map(function(b){return '<option value="'+b.id+'" '+(b.id==='chevrolet'?'selected':'')+'>'+b.label+'</option>';}).join('');
+  }
   if(CATALOGO_ACCESORIOS_.length===0){
     cont.innerHTML = '<div style="font-size:11.5px;color:var(--text-faint);padding:10px 0;">Sin accesorios cargados todavía.</div>';
     return;
@@ -7599,11 +7613,15 @@ function limpiarNumeroAccesorio_(v){
 function importarCatalogoAccesoriosArchivo_(event){
   var file = event.target.files[0];
   if(!file) return;
+  var marcaElegida = document.getElementById('catImportMarca').value || 'chevrolet';
   var reader = new FileReader();
   reader.onload = function(e){
     try{
       var wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
-      var hoja = wb.Sheets[wb.SheetNames[0]];
+      // La hoja que trae precio completo se llama "PRECIOS" — si no está,
+      // usamos la primera hoja como respaldo.
+      var nombreHoja = wb.SheetNames.find(function(n){ return n.toUpperCase().trim()==='PRECIOS'; }) || wb.SheetNames[0];
+      var hoja = wb.Sheets[nombreHoja];
       var crudo = XLSX.utils.sheet_to_json(hoja, {header:1, defval:''});
       var filas = [];
       var huboEncabezados = false;
@@ -7615,41 +7633,50 @@ function importarCatalogoAccesoriosArchivo_(event){
         }
         return -1;
       }
+      function filaTieneTexto_(fila, texto){
+        return (fila||[]).some(function(x){return String(x||'').toUpperCase().indexOf(texto)>-1;});
+      }
 
       var i = 0;
       while(i < crudo.length){
         var fila = crudo[i] || [];
-        var textoFila = fila.map(function(x){return String(x||'').toUpperCase();});
-        var esEncabezado = textoFila.some(function(x){return x.indexOf('ACCESORIO')>-1;}) && textoFila.some(function(x){return x.indexOf('PRECIO')>-1;});
-        if(esEncabezado){
+        if(filaTieneTexto_(fila, 'ACCESORIO')){
           huboEncabezados = true;
+          // En esta planilla el encabezado de precios (PRECIO/M.O/CONTADO
+          // FINAL/TARJETA/3 CUOTAS) viene en la fila SIGUIENTE a la de
+          // ACCESORIO/APLICA/PN, no en la misma — los combinamos.
+          var mismaFila = filaTieneTexto_(fila, 'PRECIO');
+          var filaPrecios = mismaFila ? fila : (crudo[i+1]||[]);
+          var avanceExtra = mismaFila ? 0 : 1;
+
           var colNombre = colQueContenga(fila, ['ACCESORIO']);
           var colModelo = colQueContenga(fila, ['APLICA','MODELO']);
           var colPn = colQueContenga(fila, ['PN']);
-          var colPrecio = colQueContenga(fila, ['PRECIO']);
-          var colManoDeObra = colQueContenga(fila, ['M.O','MANO DE OBRA']);
-          var colContadoFinal = colQueContenga(fila, ['CONTADO FINAL','COLOCACION','COLOCACIÓN']);
-          var colTarjeta = colQueContenga(fila, ['TARJETA']);
-          var col3Cuotas = colQueContenga(fila, ['3 CUOTAS','CUOTAS']);
-          // La marca suele venir en un título unas filas arriba de este bloque.
-          var marcaDetectada = '';
+          var colPrecio = colQueContenga(filaPrecios, ['PRECIO']);
+          var colManoDeObra = colQueContenga(filaPrecios, ['M.O','MANO DE OBRA']);
+          var colContadoFinal = colQueContenga(filaPrecios, ['CONTADO FINAL','COLOCACION','COLOCACIÓN']);
+          var colTarjeta = colQueContenga(filaPrecios, ['TARJETA']);
+          var col3Cuotas = colQueContenga(filaPrecios, ['3 CUOTAS','CUOTAS']);
+          // Por si el Excel no repite el modelo en cada fila (APLICA vacío),
+          // usamos como respaldo el título que suele venir unas filas arriba.
+          var tituloModelo = '';
           for(var b=Math.max(0,i-5); b<i; b++){
-            var bTxt = (crudo[b]||[]).join(' ').toLowerCase();
-            var m = BRANDS.find(function(x){ return bTxt.indexOf(x.id)>-1 || bTxt.indexOf(x.label.toLowerCase())>-1; });
-            if(m) marcaDetectada = m.id;
+            var bf = crudo[b]||[];
+            if(filaTieneTexto_(bf,'ACCESORIO')) continue;
+            var textoTitulo = bf.filter(function(x){return x!=='';}).join(' ').trim();
+            if(textoTitulo) tituloModelo = textoTitulo;
           }
-          i++;
+          i += 1 + avanceExtra;
           while(i<crudo.length){
             var f2 = crudo[i]||[];
-            var f2txt = f2.map(function(x){return String(x||'').toUpperCase();});
-            if(f2txt.some(function(x){return x.indexOf('ACCESORIO')>-1;}) && f2txt.some(function(x){return x.indexOf('PRECIO')>-1;})) break;
+            if(filaTieneTexto_(f2, 'ACCESORIO')) break;
             var nombre = colNombre>-1 ? String(f2[colNombre]||'').trim() : '';
             if(nombre){
               filas.push([
                 nombre,
                 colPrecio>-1 ? limpiarNumeroAccesorio_(f2[colPrecio]) : 0,
-                marcaDetectada,
-                colModelo>-1 ? String(f2[colModelo]||'').trim() : '',
+                marcaElegida,
+                (colModelo>-1 ? String(f2[colModelo]||'').trim() : '') || tituloModelo,
                 colPn>-1 ? String(f2[colPn]||'').trim() : '',
                 colManoDeObra>-1 ? limpiarNumeroAccesorio_(f2[colManoDeObra]) : 0,
                 colContadoFinal>-1 ? limpiarNumeroAccesorio_(f2[colContadoFinal]) : 0,
@@ -7668,7 +7695,7 @@ function importarCatalogoAccesoriosArchivo_(event){
         // Fallback: formato viejo de 2 columnas sin encabezados reconocidos.
         var crudo2 = crudo.slice();
         if(crudo2.length && isNaN(Number(crudo2[0][1]))) crudo2 = crudo2.slice(1);
-        filas = crudo2.filter(function(f){ return f && f[0]; }).map(function(f){ return [f[0], limpiarNumeroAccesorio_(f[1]), '', '', '', 0, 0, 0, 0]; });
+        filas = crudo2.filter(function(f){ return f && f[0]; }).map(function(f){ return [f[0], limpiarNumeroAccesorio_(f[1]), marcaElegida, '', '', 0, 0, 0, 0]; });
       }
 
       filas = filas.filter(function(f){ return f && f[0]; });
@@ -8661,7 +8688,15 @@ function closeDetail(){
   });
   document.getElementById('overlay').classList.remove('show'); document.getElementById('drawer').classList.remove('show'); detailId=null; detailMarca=null;
 }
-function closeAll(){ closeDetail(); closeNewDelivery(); closeReport(); closeEmailPreview(); closePlantillas(); closeConfig(); closeMaestro(); }
+function closeAll(){
+  // Cerramos solo lo que realmente está abierto — antes esto siempre
+  // mandaba al Calendario (por closeNewDelivery), aunque no estuvieras
+  // ahí, así que ESC te sacaba de todo en vez de solo cerrar lo de
+  // arriba (por ejemplo, el detalle de una entrega).
+  closeDetail();
+  if(currentAppView==='nuevaentrega') closeNewDelivery();
+  closeReport(); closeEmailPreview(); closePlantillas(); closeConfig(); closeMaestro();
+}
 
 function renderAlertaOnstar_(r){
   var alertaOnstar = document.getElementById('dOnstarAlerta');
@@ -12462,17 +12497,28 @@ function dibujarEvolucionMensualAT_(){
 }
 // Tabla chica con las respuestas anónimas ya cargadas — mismo formato en
 // las tres páginas.
-function pintarTablaAnonimas_(tablaId, arr){
+function pintarTablaAnonimas_(tablaId, arr, tipo){
   var tabla = document.getElementById(tablaId);
   if(!tabla) return;
   if(!arr || arr.length===0){
     tabla.innerHTML = '<tr><td style="text-align:center;color:var(--text-faint);padding:10px;">Todavía no cargaste ninguna.</td></tr>';
     return;
   }
-  tabla.innerHTML = '<tr><th>Fecha</th><th>Canal</th><th>Puntaje</th><th>Comentario</th><th>Cargado por</th></tr>'+
+  tabla.innerHTML = '<tr><th>Fecha</th><th>Canal</th><th>Puntaje</th><th>Comentario</th><th>Cargado por</th><th></th></tr>'+
     arr.slice().reverse().map(function(a){
-      return '<tr><td>'+a.fecha+'</td><td>'+(a.canal==='PDA'?'PDA':'Tradicional')+'</td><td style="font-weight:700;">'+a.puntaje+'</td><td>'+(a.comentario||'—')+'</td><td>'+(a.cargadoPor||'—')+'</td></tr>';
+      return '<tr><td>'+soloFechaISO_(a.fecha)+'</td><td>'+(a.canal==='PDA'?'PDA':'Tradicional')+'</td><td style="font-weight:700;">'+a.puntaje+'</td><td>'+(a.comentario||'—')+'</td><td>'+(a.cargadoPor||'—')+'</td>'+
+        '<td style="text-align:right;"><button onclick="eliminarNpsAnonimoUI_(\''+tipo+'\','+a.fila+',\''+tablaId+'\')" style="background:none;border:none;color:var(--text-faint);cursor:pointer;"><span class="material-symbols-outlined" style="font-size:15px;">delete</span></button></td></tr>';
     }).join('');
+}
+function eliminarNpsAnonimoUI_(tipo, fila, tablaId){
+  if(!confirm('¿Eliminar esta respuesta anónima? No se puede deshacer.')) return;
+  gasPost('eliminarNpsAnonimo', {tipo:tipo, fila:fila}).then(function(res){
+    if(!res.ok){ showToast(res.error||'No se pudo eliminar'); return; }
+    showToast('Respuesta anónima eliminada');
+    if(tipo==='fabrica'){ _anonimasFabricaCargadas_=false; cargarAnonimasFabricaSiHaceFalta_().then(function(){ pintarResumenArchivoFabrica_(_ultimoRespondidasPorCanalFabrica_); pintarTablaAnonimas_(tablaId, ANONIMAS_FABRICA_, tipo); }); }
+    if(tipo==='alertatemprana'){ _anonimasATCargadas_=false; cargarAnonimasATSiHaceFalta_().then(function(){ pintarResumenArchivoAT_(_ultimoRespondidasPorCanalAT_); pintarTablaAnonimas_(tablaId, ANONIMAS_AT_, tipo); }); }
+    if(tipo==='contactoposterior'){ _anonimasCpCargadas_=false; cargarAnonimasCpSiHaceFalta_().then(function(){ pintarResumenArchivoCp_(_ultimoRespondidasPorCanalCp_); pintarTablaAnonimas_(tablaId, ANONIMAS_CP_, tipo); }); }
+  });
 }
 // Tarjeta de "progreso hacia el objetivo" para el canal ACTIVO — se usa
 // en el lugar del canal que quedó afuera del filtro (en vez de dejarlo
@@ -12511,7 +12557,7 @@ function toggleSeccionAnonimaAT_(){
   var abierto = cuerpo.style.display !== 'none';
   cuerpo.style.display = abierto ? 'none' : 'block';
   icono.style.transform = abierto ? 'rotate(-90deg)' : 'rotate(0deg)';
-  if(!abierto) pintarTablaAnonimas_('atAnonTabla', ANONIMAS_AT_);
+  if(!abierto) pintarTablaAnonimas_('atAnonTabla', ANONIMAS_AT_, 'alertatemprana');
 }
 function agregarNpsAnonimoATUI_(){
   var canal = document.getElementById('atAnonCanal').value;
@@ -12525,7 +12571,7 @@ function agregarNpsAnonimoATUI_(){
     _anonimasATCargadas_ = false;
     cargarAnonimasATSiHaceFalta_().then(function(){
       pintarResumenArchivoAT_(_ultimoRespondidasPorCanalAT_);
-      pintarTablaAnonimas_('atAnonTabla', ANONIMAS_AT_);
+      pintarTablaAnonimas_('atAnonTabla', ANONIMAS_AT_, 'alertatemprana');
     });
   });
 }
@@ -12699,7 +12745,7 @@ function toggleSeccionAnonimaCp_(){
   var abierto = cuerpo.style.display !== 'none';
   cuerpo.style.display = abierto ? 'none' : 'block';
   icono.style.transform = abierto ? 'rotate(-90deg)' : 'rotate(0deg)';
-  if(!abierto) pintarTablaAnonimas_('cpAnonTabla', ANONIMAS_CP_);
+  if(!abierto) pintarTablaAnonimas_('cpAnonTabla', ANONIMAS_CP_, 'contactoposterior');
 }
 function agregarNpsAnonimoCpUI_(){
   var canal = document.getElementById('cpAnonCanal').value;
@@ -12713,7 +12759,7 @@ function agregarNpsAnonimoCpUI_(){
     _anonimasCpCargadas_ = false;
     cargarAnonimasCpSiHaceFalta_().then(function(){
       pintarResumenArchivoCp_(_ultimoRespondidasPorCanalCp_);
-      pintarTablaAnonimas_('cpAnonTabla', ANONIMAS_CP_);
+      pintarTablaAnonimas_('cpAnonTabla', ANONIMAS_CP_, 'contactoposterior');
     });
   });
 }
@@ -12850,7 +12896,7 @@ function toggleSeccionAnonimaFabrica_(){
   var abierto = cuerpo.style.display !== 'none';
   cuerpo.style.display = abierto ? 'none' : 'block';
   icono.style.transform = abierto ? 'rotate(-90deg)' : 'rotate(0deg)';
-  if(!abierto) pintarTablaAnonimas_('fabAnonTabla', ANONIMAS_FABRICA_);
+  if(!abierto) pintarTablaAnonimas_('fabAnonTabla', ANONIMAS_FABRICA_, 'fabrica');
 }
 function agregarNpsFabricaAnonimoUI_(){
   var canal = document.getElementById('fabAnonCanal').value;
@@ -12864,7 +12910,7 @@ function agregarNpsFabricaAnonimoUI_(){
     _anonimasFabricaCargadas_ = false;
     cargarAnonimasFabricaSiHaceFalta_().then(function(){
       pintarResumenArchivoFabrica_(_ultimoRespondidasPorCanalFabrica_);
-      pintarTablaAnonimas_('fabAnonTabla', ANONIMAS_FABRICA_);
+      pintarTablaAnonimas_('fabAnonTabla', ANONIMAS_FABRICA_, 'fabrica');
     });
   });
 }
@@ -13026,8 +13072,19 @@ function agregarInstanciaAlRanking_(acum, instancia, entregasVivas, extractor){
 }
 function renderRankingVendedorPanel_(){
   if(!document.getElementById('rankVendedorTabla')) return;
+  renderCanalToggleGenerico_('rankCanalToggle');
   var instanciaSel = document.getElementById('rankFiltroInstancia').value;
   var rows = entregasParaDashboard();
+
+  // Cantidad de ventas (entregas totales, tengan o no NPS respondido) por
+  // vendedor y por sucursal — independiente del NPS.
+  var ventasPorVendedor = {}, ventasPorSucursal = {};
+  rows.forEach(function(r){
+    var vend = (r.vendedor||'').trim() || '(sin asignar)';
+    var suc = (r.sucursal||'').trim() || '(sin asignar)';
+    ventasPorVendedor[vend] = (ventasPorVendedor[vend]||0)+1;
+    ventasPorSucursal[suc] = (ventasPorSucursal[suc]||0)+1;
+  });
 
   var acumVendedor = {};
   if(instanciaSel==='todas' || instanciaSel==='alertatemprana'){
@@ -13053,17 +13110,21 @@ function renderRankingVendedorPanel_(){
   function filaTabla_(nombre, v, colLabel){
     var nps = npsDeConteo_(v);
     var sucursalPrincipal = Object.keys(v.sucursales).sort(function(a,b){return v.sucursales[b]-v.sucursales[a];})[0] || '—';
-    return {nombre:nombre, nps:nps, total:v.total, promotores:v.promotores, pasivos:v.pasivos, detractores:v.detractores, sucursalPrincipal:sucursalPrincipal};
+    return {nombre:nombre, nps:nps, total:v.total, promotores:v.promotores, pasivos:v.pasivos, detractores:v.detractores, sucursalPrincipal:sucursalPrincipal, ventas: ventasPorVendedor[nombre]||0};
   }
   var listaVendedores = Object.keys(acumVendedor).map(function(n){ return filaTabla_(n, acumVendedor[n]); });
   listaVendedores.sort(function(a,b){ return (b.nps===null?-999:b.nps) - (a.nps===null?-999:a.nps); });
 
-  document.getElementById('rankVendedorTabla').innerHTML = '<tr><th>#</th><th>Vendedor</th><th>Sucursal</th><th>NPS</th><th>Respuestas</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>'+
-    (listaVendedores.map(function(v,i){
-      var color = v.nps===null?'var(--text-faint)':(v.nps>=50?'var(--ok)':(v.nps>=0?'var(--warn)':'var(--danger)'));
-      return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td>'+v.sucursalPrincipal+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps)+'</td><td>'+v.total+'</td>'+
-        '<td style="color:var(--ok);">'+v.promotores+'</td><td style="color:var(--warn);">'+v.pasivos+'</td><td style="color:var(--danger);">'+v.detractores+'</td></tr>';
-    }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
+  function filaVendedorHtml_(v, i){
+    var color = v.nps===null?'var(--text-faint)':(v.nps>=50?'var(--ok)':(v.nps>=0?'var(--warn)':'var(--danger)'));
+    return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td>'+v.sucursalPrincipal+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps)+'</td><td>'+v.ventas+'</td><td>'+v.total+'</td>'+
+      '<td style="color:var(--ok);">'+v.promotores+'</td><td style="color:var(--warn);">'+v.pasivos+'</td><td style="color:var(--danger);">'+v.detractores+'</td></tr>';
+  }
+  var encabezadoVendedor = '<tr><th>#</th><th>Vendedor</th><th>Sucursal</th><th>NPS</th><th>Ventas</th><th>Respuestas</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>';
+  document.getElementById('rankVendedorTop5Tabla').innerHTML = encabezadoVendedor+
+    (listaVendedores.slice(0,5).map(filaVendedorHtml_).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
+  document.getElementById('rankVendedorTabla').innerHTML = encabezadoVendedor+
+    (listaVendedores.map(filaVendedorHtml_).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
 
   // ---- Por sucursal — mismo acumulado, pero agrupado por sucursal ----
   var acumSucursalReal = {};
@@ -13110,15 +13171,19 @@ function renderRankingVendedorPanel_(){
   }
   var listaSucursales = Object.keys(acumSucursalReal).map(function(s){
     var v = acumSucursalReal[s];
-    return {nombre:s, nps:npsDeConteo_(v), total:v.total, promotores:v.promotores, pasivos:v.pasivos, detractores:v.detractores};
+    return {nombre:s, nps:npsDeConteo_(v), total:v.total, promotores:v.promotores, pasivos:v.pasivos, detractores:v.detractores, ventas: ventasPorSucursal[s]||0};
   });
   listaSucursales.sort(function(a,b){ return (b.nps===null?-999:b.nps) - (a.nps===null?-999:a.nps); });
-  document.getElementById('rankSucursalTabla').innerHTML = '<tr><th>#</th><th>Sucursal</th><th>NPS</th><th>Respuestas</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>'+
-    (listaSucursales.map(function(v,i){
-      var color = v.nps===null?'var(--text-faint)':(v.nps>=50?'var(--ok)':(v.nps>=0?'var(--warn)':'var(--danger)'));
-      return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps)+'</td><td>'+v.total+'</td>'+
-        '<td style="color:var(--ok);">'+v.promotores+'</td><td style="color:var(--warn);">'+v.pasivos+'</td><td style="color:var(--danger);">'+v.detractores+'</td></tr>';
-    }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
+  function filaSucursalHtml_(v, i){
+    var color = v.nps===null?'var(--text-faint)':(v.nps>=50?'var(--ok)':(v.nps>=0?'var(--warn)':'var(--danger)'));
+    return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps)+'</td><td>'+v.ventas+'</td><td>'+v.total+'</td>'+
+      '<td style="color:var(--ok);">'+v.promotores+'</td><td style="color:var(--warn);">'+v.pasivos+'</td><td style="color:var(--danger);">'+v.detractores+'</td></tr>';
+  }
+  var encabezadoSucursal = '<tr><th>#</th><th>Sucursal</th><th>NPS</th><th>Ventas</th><th>Respuestas</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>';
+  document.getElementById('rankSucursalTop5Tabla').innerHTML = encabezadoSucursal+
+    (listaSucursales.slice(0,5).map(filaSucursalHtml_).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
+  document.getElementById('rankSucursalTabla').innerHTML = encabezadoSucursal+
+    (listaSucursales.map(filaSucursalHtml_).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
 }
 function filtrarCoberturaCalidad_(bucket){
   ['covChipTodas','covChipFalta1','covChipFalta2','covChipNinguna'].forEach(function(id){
