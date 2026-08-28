@@ -338,6 +338,10 @@
   .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 12px;}
   @media(max-width:640px){ .field-grid{grid-template-columns:1fr;} }
   .field{background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;padding:8px 10px;}
+  .ayuda-tip{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:var(--panel-2);border:1px solid var(--hairline);color:var(--text-faint);font-size:9.5px;font-weight:800;cursor:pointer;vertical-align:middle;position:relative;flex-shrink:0;}
+  .ayuda-tip:hover{color:var(--accent);border-color:var(--accent);}
+  .ayuda-tip .ayuda-tip-texto{display:none;position:absolute;top:130%;left:0;width:230px;background:var(--panel);border:1px solid var(--hairline);border-radius:8px;padding:9px 11px;font-size:10.5px;font-weight:400;line-height:1.4;color:var(--text-dim);z-index:120;box-shadow:0 6px 18px rgba(0,0,0,.35);text-align:left;}
+  .ayuda-tip.abierto .ayuda-tip-texto{display:block;}
   .field.full{grid-column:1/-1;}
   .field .l{font-size:9.5px;color:var(--text-faint);text-transform:uppercase;margin-bottom:4px;}
   .field input, .field select{background:var(--panel);border:1px solid var(--hairline);border-radius:6px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12px;width:100%;padding:5px 7px;}
@@ -1118,6 +1122,7 @@
               <button class="nav-subitem" id="subReportesAlertaTemprana" onclick="setMaestroTab('alertatemprana')">Alerta Temprana</button>
               <button class="nav-subitem" id="subCalidadNpsContactoPosterior" onclick="setMaestroTab('npscontactoposterior')">Contacto Posterior</button>
               <button class="nav-subitem" id="subCalidadNpsFabrica" onclick="setMaestroTab('npsfabrica')">Fábrica</button>
+              <button class="nav-subitem" id="subCalidadRanking" onclick="setMaestroTab('rankingvendedor')">Ranking Vendedor / Sucursal</button>
             </div>
             <button class="nav-subitem" id="subCalidadAccesorios" onclick="setMaestroTab('accesoriosreporte')">Accesorios</button>
             <button class="nav-subitem" id="subReportesRegalos" onclick="setMaestroTab('regalos')">Regalos Corporativos</button>
@@ -1933,7 +1938,8 @@
         <button class="pdf-btn print-btn" style="margin:0;" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px;">picture_as_pdf</span> Descargar PDF</button>
       </div>
 
-      <div class="costos-grid" id="atRepIndicadores" style="margin-bottom:20px;"></div>
+      <div class="costos-grid" id="atRepIndicadores" style="margin-bottom:6px;"></div>
+      <div id="atRepNotaArchivo" style="font-size:10px;color:var(--text-faint);margin-bottom:20px;"></div>
 
       <div style="margin-bottom:14px;">
         <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text-dim);">
@@ -1948,11 +1954,10 @@
       </div>
       <div style="background:var(--panel-2);border:1px dashed var(--hairline);border-radius:10px;padding:12px 14px;margin-bottom:16px;">
         <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toggleSeccionAnonimaAT_()">
-          <div style="font-size:12px;font-weight:700;">+ Agregar respuesta anónima</div>
+          <div style="font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;">+ Agregar respuesta anónima<span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Para encuestas que llegan sin VIN — no se puede atar a ninguna entrega puntual, pero igual suma al acumulado de arriba.</span></span></div>
           <span class="material-symbols-outlined" id="atAnonAccordionIcon" style="font-size:16px;transition:transform .15s;">expand_more</span>
         </div>
         <div id="atAnonBody" style="display:none;padding-top:12px;border-top:1px solid var(--hairline);margin-top:10px;">
-          <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:10px;">Para encuestas de Alerta Temprana que llegan sin VIN — igual suma al acumulado de arriba.</div>
           <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
             <div class="field" style="width:125px;"><div class="l">Canal</div><select id="atAnonCanal"><option value="TD">Tradicional</option><option value="PDA">PDA</option></select></div>
             <div class="field" style="width:78px;"><div class="l">Puntaje</div><input type="number" min="0" max="10" id="atAnonPuntaje"></div>
@@ -1966,8 +1971,7 @@
         </div>
       </div>
 
-      <div class="section-title" style="display:flex;align-items:center;gap:7px;">Puntaje de Recomendación GM (regla oficial)</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Nacional y Zona los actualiza GM cada tanto, por eso son editables — se guardan en este navegador. Son distintos para TD y para PDA.</div>
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;">Puntaje de Recomendación GM (regla oficial) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Nacional y Zona los actualiza GM cada tanto, por eso son editables — se guardan en este navegador. Son distintos para TD y para PDA.</span></span></div>
       <div class="two-col-grid" style="margin-bottom:14px;">
         <div>
           <div style="font-size:10px;font-weight:700;color:var(--text-faint);margin-bottom:4px;">Ventas TD (Tradicional)</div>
@@ -2231,8 +2235,7 @@
 
       <div class="stats-grid" id="calidadKpis" style="margin-top:14px;"></div>
 
-      <div class="section-title" style="margin-top:20px;">NPS por instancia</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Cada tarjeta cuenta cuántos clientes ya respondieron esa encuesta, sobre cuántos debían responderla. En Fábrica solo cuentan los que ya tienen la garantía cargada. El detalle completo de cada una está en su propia página, en el menú. Si importaste algún Excel de encuestas, esas respuestas también suman acá — por eso a veces hay más respuestas que entregas del período (vienen de un histórico más largo). Los botones "Todos los canales / Solo PDA / Solo Tradicional" de arriba filtran también estos números.</div>
+      <div class="section-title" style="margin-top:20px;display:flex;align-items:center;gap:7px;">NPS por instancia <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Cada tarjeta cuenta cuántos clientes ya respondieron esa encuesta, sobre cuántos debían responderla. En Fábrica solo cuentan los que ya tienen la garantía cargada. El detalle completo de cada una está en su propia página, en el menú. Si importaste algún Excel de encuestas, esas respuestas también suman acá — por eso a veces hay más respuestas que entregas del período. Los botones "Todos los canales / Solo PDA / Solo Tradicional" de arriba filtran también estos números.</span></span></div>
       <div class="costos-grid" id="calidadNpsInstancias"></div>
 
       <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">insights</span>Evolución del NPS</div>
@@ -2290,11 +2293,10 @@
       </div>
       <div style="background:var(--panel-2);border:1px dashed var(--hairline);border-radius:10px;padding:12px 14px;margin-bottom:16px;">
         <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toggleSeccionAnonimaCp_()">
-          <div style="font-size:12px;font-weight:700;">+ Agregar respuesta anónima</div>
+          <div style="font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;">+ Agregar respuesta anónima<span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Para encuestas que llegan sin VIN — no se puede atar a ninguna entrega puntual, pero igual suma al acumulado de arriba.</span></span></div>
           <span class="material-symbols-outlined" id="cpAnonAccordionIcon" style="font-size:16px;transition:transform .15s;">expand_more</span>
         </div>
         <div id="cpAnonBody" style="display:none;padding-top:12px;border-top:1px solid var(--hairline);margin-top:10px;">
-          <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:10px;">Para encuestas de Contacto Posterior que llegan sin VIN — igual suma al acumulado de arriba.</div>
           <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
             <div class="field" style="width:125px;"><div class="l">Canal</div><select id="cpAnonCanal"><option value="TD">Tradicional</option><option value="PDA">PDA</option></select></div>
             <div class="field" style="width:78px;"><div class="l">Puntaje</div><input type="number" min="0" max="10" id="cpAnonPuntaje"></div>
@@ -2308,8 +2310,7 @@
         </div>
       </div>
 
-      <div class="section-title" style="display:flex;align-items:center;gap:7px;">Puntaje de Recomendación GM (regla oficial)</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Mismos valores que en Alerta Temprana y Fábrica — se comparten entre las tres páginas. Son distintos para TD y para PDA.</div>
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;">Puntaje de Recomendación GM (regla oficial) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Mismos valores que en Alerta Temprana y Fábrica — se comparten entre las tres páginas. Son distintos para TD y para PDA.</span></span></div>
       <div class="two-col-grid" style="margin-bottom:14px;">
         <div>
           <div style="font-size:10px;font-weight:700;color:var(--text-faint);margin-bottom:4px;">Ventas TD (Tradicional)</div>
@@ -2345,10 +2346,10 @@
           📎 Cargar planilla de Fábrica
           <input type="file" accept=".xlsx,.xls" id="npsFabricaFileInput" onchange="importarNpsFabricaArchivo_(event)" style="display:none;">
         </label>
+        <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Solo entran acá las entregas que ya tienen garantía cargada — son las únicas elegibles para esta encuesta. Si querés el NPS tal cual sale de la planilla que manda Fábrica (sin cruzar con las entregas), subila con el botón de arriba.</span></span>
         <button class="pdf-btn filter-pill" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span> Descargar PDF</button>
       </div>
-      <div style="font-size:11px;color:var(--text-faint);margin:10px 0;">Solo entran acá las entregas que ya tienen garantía cargada — son las únicas elegibles para esta encuesta. Si querés el NPS tal cual sale de la planilla que manda Fábrica (sin cruzar con las entregas), subila con el botón de arriba.</div>
-      <button class="pdf-btn print-btn" style="margin-bottom:12px;" onclick="descargarImagenReporte_('fabReporteImagen','NPS_Fabrica')"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px;">image</span> Descargar imagen (Acumulado + Puntaje GM)</button>
+      <button class="pdf-btn print-btn" style="margin-bottom:12px;margin-top:10px;" onclick="descargarImagenReporte_('fabReporteImagen','NPS_Fabrica')"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px;">image</span> Descargar imagen (Acumulado + Puntaje GM)</button>
       <div id="fabReporteImagen">
       <div id="fabResumenArchivo" style="display:none;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
       <div class="chart-panel" style="margin-bottom:16px;">
@@ -2358,11 +2359,10 @@
 
       <div style="background:var(--panel-2);border:1px dashed var(--hairline);border-radius:10px;padding:12px 14px;margin-bottom:16px;">
         <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toggleSeccionAnonimaFabrica_()">
-          <div style="font-size:12px;font-weight:700;">+ Agregar respuesta anónima</div>
+          <div style="font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;">+ Agregar respuesta anónima<span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Para encuestas que llegan sin VIN — no se puede atar a ninguna entrega puntual, pero igual suma al acumulado de arriba.</span></span></div>
           <span class="material-symbols-outlined" id="fabAnonAccordionIcon" style="font-size:16px;transition:transform .15s;">expand_more</span>
         </div>
         <div id="fabAnonBody" style="display:none;padding-top:12px;border-top:1px solid var(--hairline);margin-top:10px;">
-          <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:10px;">Para encuestas de Fábrica que llegan sin VIN — no se puede atar a ninguna entrega puntual, pero igual suma al acumulado de arriba.</div>
           <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
             <div class="field" style="width:125px;"><div class="l">Canal</div><select id="fabAnonCanal"><option value="TD">Tradicional</option><option value="PDA">PDA</option></select></div>
             <div class="field" style="width:78px;"><div class="l">Puntaje</div><input type="number" min="0" max="10" id="fabAnonPuntaje"></div>
@@ -2381,8 +2381,7 @@
       </div>
       <div class="costos-grid" id="fabResumen" style="margin-bottom:14px;"></div>
 
-      <div class="section-title" style="display:flex;align-items:center;gap:7px;">Puntaje de Recomendación GM (regla oficial)</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;">Mismos valores que en Alerta Temprana y Contacto Posterior — se comparten entre las tres páginas. Son distintos para TD y para PDA.</div>
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;">Puntaje de Recomendación GM (regla oficial) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Mismos valores que en Alerta Temprana y Contacto Posterior — se comparten entre las tres páginas. Son distintos para TD y para PDA.</span></span></div>
       <div class="two-col-grid" style="margin-bottom:14px;">
         <div>
           <div style="font-size:10px;font-weight:700;color:var(--text-faint);margin-bottom:4px;">Ventas TD (Tradicional)</div>
@@ -2406,6 +2405,25 @@
       <div class="section-title">Elegibles (con garantía cargada)</div>
       <div class="report-wrap"><table class="report-table" id="fabTabla"></table></div>
       <div id="fabVerMas" style="text-align:center;margin-top:8px;"></div>
+    </div>
+
+    <div id="paneMaestroRankingvendedor" style="display:none;padding:10px 0;">
+      <div class="filter-bar" style="flex-wrap:wrap;">
+        <select id="rankFiltroInstancia" onchange="renderRankingVendedorPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;">
+          <option value="todas">Las 3 encuestas juntas</option>
+          <option value="alertatemprana">Solo Alerta Temprana</option>
+          <option value="contactoposterior">Solo Contacto Posterior</option>
+          <option value="fabrica">Solo Fábrica</option>
+        </select>
+        <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
+        <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Combina lo cargado en el sistema (entregas con NPS) + lo que venga de los archivos importados (que ya traen vendedor y sucursal) — sin duplicar lo que ya está en el archivo. La marca y el canal se filtran con los botones de arriba de la página.</span></span>
+      </div>
+
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">emoji_events</span>Ranking por Vendedor</div>
+      <div class="report-wrap"><table class="report-table" id="rankVendedorTabla"></table></div>
+
+      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">store</span>Medición por Sucursal</div>
+      <div class="report-wrap"><table class="report-table" id="rankSucursalTabla"></table></div>
     </div>
 
     <div id="paneMaestroGarantiascalidad" style="display:none;padding:10px 0;">
@@ -10491,7 +10509,7 @@ function limpiarDashboardFecha(){
 var detalleFiltradoFilas = [];
 var detalleFiltradoTitulo = '';
 
-var GRUPO_TABS_REPORTES = ['dashboard','regalos','kit','reportes','alertatemprana','npsgeneral','npscontactoposterior','npsfabrica','accesoriosreporte','garantiascalidad','casosgestion'];
+var GRUPO_TABS_REPORTES = ['dashboard','regalos','kit','reportes','alertatemprana','npsgeneral','npscontactoposterior','npsfabrica','accesoriosreporte','garantiascalidad','casosgestion','rankingvendedor'];
 var GRUPO_TABS_MAESTRO = ['config','automatizaciones','plantillas','permisos','cargas'];
 
 function toggleSubgrupoNav_(id){
@@ -10631,20 +10649,20 @@ function reemplazarVariables_(texto, r){
 }
 function setMaestroTab(tab){
   maestroTabActual = tab;
-  ['dashboard','regalos','kit','reportes','plantillas','config','automatizaciones','alertatemprana','permisos','cargas','npsgeneral','npscontactoposterior','npsfabrica','accesoriosreporte','garantiascalidad','casosgestion'].forEach(function(t){
+  ['dashboard','regalos','kit','reportes','plantillas','config','automatizaciones','alertatemprana','permisos','cargas','npsgeneral','npscontactoposterior','npsfabrica','accesoriosreporte','garantiascalidad','casosgestion','rankingvendedor'].forEach(function(t){
     var tabBtn = document.getElementById('tabMaestro'+t.charAt(0).toUpperCase()+t.slice(1));
     var pane = document.getElementById('paneMaestro'+t.charAt(0).toUpperCase()+t.slice(1));
     if(tabBtn) tabBtn.classList.toggle('active', t===tab);
     if(pane) pane.style.display = (t===tab)?'block':'none';
   });
-  var SUBITEM_POR_TAB = {dashboard:'subReportesDashboard', kit:'subReportesKit', reportes:'subReportesBuscador', alertatemprana:'subReportesAlertaTemprana', config:'subMaestroConfig', automatizaciones:'subMaestroAutomatizaciones', plantillas:'subMaestroPlantillas', permisos:'subMaestroPermisos', cargas:'subMaestroCargas', npsgeneral:'subCalidadNpsGeneral', npscontactoposterior:'subCalidadNpsContactoPosterior', npsfabrica:'subCalidadNpsFabrica', accesoriosreporte:'subCalidadAccesorios', regalos:'subReportesRegalos', garantiascalidad:'subCalidadGarantias', casosgestion:'subCalidadCasos'};
+  var SUBITEM_POR_TAB = {dashboard:'subReportesDashboard', kit:'subReportesKit', reportes:'subReportesBuscador', alertatemprana:'subReportesAlertaTemprana', config:'subMaestroConfig', automatizaciones:'subMaestroAutomatizaciones', plantillas:'subMaestroPlantillas', permisos:'subMaestroPermisos', cargas:'subMaestroCargas', npsgeneral:'subCalidadNpsGeneral', npscontactoposterior:'subCalidadNpsContactoPosterior', npsfabrica:'subCalidadNpsFabrica', accesoriosreporte:'subCalidadAccesorios', regalos:'subReportesRegalos', garantiascalidad:'subCalidadGarantias', casosgestion:'subCalidadCasos', rankingvendedor:'subCalidadRanking'};
   Object.keys(SUBITEM_POR_TAB).forEach(function(t){
     var el = document.getElementById(SUBITEM_POR_TAB[t]);
     if(el) el.classList.toggle('active', t===tab);
   });
-  document.getElementById('maestroMarcaFiltroWrap').style.display = (['dashboard','regalos','kit','npsgeneral','npscontactoposterior','npsfabrica','accesoriosreporte','garantiascalidad','casosgestion'].indexOf(tab)>-1) ? 'flex' : 'none';
-  var GRUPO_CALIDAD_TABS_ = ['npsgeneral','alertatemprana','npscontactoposterior','npsfabrica','accesoriosreporte','regalos','garantiascalidad','casosgestion'];
-  var GRUPO_NPS_TABS_ = ['npsgeneral','alertatemprana','npscontactoposterior','npsfabrica'];
+  document.getElementById('maestroMarcaFiltroWrap').style.display = (['dashboard','regalos','kit','npsgeneral','npscontactoposterior','npsfabrica','accesoriosreporte','garantiascalidad','casosgestion','rankingvendedor'].indexOf(tab)>-1) ? 'flex' : 'none';
+  var GRUPO_CALIDAD_TABS_ = ['npsgeneral','alertatemprana','npscontactoposterior','npsfabrica','accesoriosreporte','regalos','garantiascalidad','casosgestion','rankingvendedor'];
+  var GRUPO_NPS_TABS_ = ['npsgeneral','alertatemprana','npscontactoposterior','npsfabrica','rankingvendedor'];
   if(GRUPO_CALIDAD_TABS_.indexOf(tab)>-1){
     document.getElementById('grupoCalidad').style.display = 'block';
     document.getElementById('grupoCalidadChevron').style.transform = 'rotate(180deg)';
@@ -10669,7 +10687,8 @@ function setMaestroTab(tab){
     npsfabrica:['NPS — Fábrica', 'Carga manual, solo aplica a entregas con garantía cargada.'],
     accesoriosreporte:['Accesorios', 'Accesorios más vendidos e instalados, todas las marcas.'],
     garantiascalidad:['Garantías', 'Carga de garantía por entrega — cargadas, faltantes y filtradas.'],
-    casosgestion:['Casos en Gestión', 'Casos abiertos, prioridad y vencimiento — fuente: Gestión de Casos.']
+    casosgestion:['Casos en Gestión', 'Casos abiertos, prioridad y vencimiento — fuente: Gestión de Casos.'],
+    rankingvendedor:['Ranking Vendedor / Sucursal', 'NPS combinado (sistema + archivos importados) por vendedor y por sucursal.']
   };
   var t = TITULOS_MAESTRO[tab];
   if(t){
@@ -10689,6 +10708,7 @@ function setMaestroTab(tab){
   if(tab==='accesoriosreporte') renderReporteAccesorios_();
   if(tab==='garantiascalidad') renderGarantiasPanel_();
   if(tab==='casosgestion') renderCasosGestionPanel_();
+  if(tab==='rankingvendedor') renderRankingVendedorPanel_();
   if(tab==='permisos'){
     renderUsuariosTabla_();
     if(window._intervalUsuariosTabla) clearInterval(window._intervalUsuariosTabla);
@@ -10847,23 +10867,56 @@ function renderAlertaTempranaReporte_(){
   var respondidas = base.filter(function(r){ return r.alertaTempranaEstado==='Respondida'; });
   var rechazadas = base.filter(function(r){ return r.alertaTempranaEstado==='Cliente no desea responder'; });
   var total = base.length;
-  var pctRespuesta = total>0 ? Math.round((respondidas.length/total)*100) : 0;
 
   function promedio(arr, campo){
     var vals = arr.map(function(r){return r[campo];}).filter(function(v){return typeof v==='number';});
     if(vals.length===0) return null;
     return Math.round((vals.reduce(function(a,b){return a+b;},0)/vals.length)*10)/10;
   }
-  var promNps = promedio(respondidas, 'npsScore');
   var promCompra = promedio(respondidas, 'alertaTempranaSatisfaccionCompra');
   var promAtencion = promedio(respondidas, 'alertaTempranaSatisfaccionAtencion');
-  var promotores = respondidas.filter(function(r){return r.npsScore>=9;}).length;
-  var pasivos = respondidas.filter(function(r){return r.npsScore===7||r.npsScore===8;}).length;
-  var detractores = respondidas.filter(function(r){return r.npsScore<=6;}).length;
+
+  // El archivo importado también trae Vendedor y Sucursal por respuesta
+  // (columna U/D del Excel), así que ya se puede filtrar por esos dos. Lo
+  // único que no tiene es "Estado" (ahí solo hay respuestas ya
+  // contestadas) — si el filtro de Estado es otra cosa que "Respondida",
+  // no correspondería sumarlo.
+  var puedeSumarArchivo = !estadoF || estadoF==='Respondida';
+  var scoresVivos = respondidas.map(function(r){return r.npsScore;});
+  var scoresArchivo = [];
+  var notaArchivo = '';
+  if(puedeSumarArchivo){
+    var archDirecta = obtenerArchivoNps_('alertatemprana','directa');
+    var archPda = obtenerArchivoNps_('alertatemprana','pda');
+    var puntosArchivo = (archDirecta?archDirecta.puntos:[]).concat(archPda?archPda.puntos:[]);
+    if(desde || hasta){
+      puntosArchivo = puntosArchivo.filter(function(p){
+        var f = parsearFecha_(fechaAIso_(p.fecha));
+        if(!f) return true;
+        if(desde && f < new Date(desde)) return false;
+        if(hasta && f > new Date(hasta+'T23:59:59')) return false;
+        return true;
+      });
+    }
+    if(sucF) puntosArchivo = puntosArchivo.filter(function(p){ return (p.sucursal||'')===sucF; });
+    if(vendF) puntosArchivo = puntosArchivo.filter(function(p){ return (p.vendedor||'')===vendF; });
+    scoresArchivo = puntosArchivo.map(function(p){return Number(p.score);});
+    if(scoresArchivo.length) notaArchivo = 'Incluye '+scoresArchivo.length+' respuestas del archivo importado.';
+  } else {
+    notaArchivo = 'Con el filtro de Estado en algo distinto de "Respondida", no se puede mezclar con el archivo (ahí solo hay respuestas ya contestadas) — mostrando solo lo cargado en el sistema.';
+  }
+  var todosLosScores = scoresVivos.concat(scoresArchivo);
+  var promNps = promedio(todosLosScores.map(function(n){return {npsScore:n};}), 'npsScore');
+  var promotores = todosLosScores.filter(function(n){return n>=9;}).length;
+  var pasivos = todosLosScores.filter(function(n){return n===7||n===8;}).length;
+  var detractores = todosLosScores.filter(function(n){return n<=6;}).length;
+  var totalConArchivo = total + scoresArchivo.length;
+  var respondidasConArchivo = respondidas.length + scoresArchivo.length;
+  var pctRespuesta = totalConArchivo>0 ? Math.round((respondidasConArchivo/totalConArchivo)*100) : 0;
 
   document.getElementById('atRepIndicadores').innerHTML =
     '<div class="costo-card"><div class="icon-badge"><span class="material-symbols-outlined">directions_car</span></div><div class="valor">'+total+'</div><div class="label">Entregas Chevrolet</div></div>'+
-    '<div class="costo-card ok"><div class="icon-badge"><span class="material-symbols-outlined">task_alt</span></div><div class="valor">'+respondidas.length+'</div><div class="label">Respondidas</div></div>'+
+    '<div class="costo-card ok"><div class="icon-badge"><span class="material-symbols-outlined">task_alt</span></div><div class="valor">'+respondidasConArchivo+'</div><div class="label">Respondidas'+(scoresArchivo.length?' (+archivo)':'')+'</div></div>'+
     '<div class="costo-card"><div class="icon-badge" style="background:var(--danger-soft);color:var(--danger);"><span class="material-symbols-outlined">block</span></div><div class="valor" style="color:var(--danger);">'+rechazadas.length+'</div><div class="label">No quisieron responder</div></div>'+
     '<div class="costo-card ambar"><div class="icon-badge"><span class="material-symbols-outlined">percent</span></div><div class="valor">'+pctRespuesta+'%</div><div class="label">Tasa de respuesta</div></div>'+
     '<div class="costo-card morado"><div class="icon-badge"><span class="material-symbols-outlined">insights</span></div><div class="valor">'+(promNps===null?'—':promNps)+'</div><div class="label">NPS promedio</div></div>'+
@@ -10872,6 +10925,8 @@ function renderAlertaTempranaReporte_(){
     '<div class="costo-card ok"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_very_satisfied</span></div><div class="valor">'+promotores+'</div><div class="label">Promotores</div></div>'+
     '<div class="costo-card ambar"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_neutral</span></div><div class="valor">'+pasivos+'</div><div class="label">Neutrales</div></div>'+
     '<div class="costo-card"><div class="icon-badge" style="background:var(--danger-soft);color:var(--danger);"><span class="material-symbols-outlined">sentiment_dissatisfied</span></div><div class="valor" style="color:var(--danger);">'+detractores+'</div><div class="label">Detractores</div></div>';
+  var elNota = document.getElementById('atRepNotaArchivo');
+  if(elNota) elNota.textContent = notaArchivo;
 
   // ---- Archivo acumulado (igual que Fábrica) ----
   _ultimoRespondidasPorCanalAT_ = {
@@ -11681,12 +11736,16 @@ function closeDetalleFiltrado(){ document.getElementById('detalleFiltradoInline'
 // ============================================================
 var CASOS_GC_ = [];
 var _casosGCcargados_ = false;
+(function primeCacheCasosGC_(){
+  try{ var c = JSON.parse(localStorage.getItem('cacheCasosGC')||'null'); if(c) CASOS_GC_ = c; }catch(e){}
+})();
 function cargarCasosGCSiHaceFalta_(){
   if(_casosGCcargados_) return Promise.resolve();
   return gasGet('todosLosCasosGC').then(function(res){
-    CASOS_GC_ = (res && res.ok) ? res.casos : [];
+    CASOS_GC_ = (res && res.ok) ? res.casos : CASOS_GC_;
     _casosGCcargados_ = true;
-  }).catch(function(){ CASOS_GC_ = []; _casosGCcargados_ = true; });
+    try{ localStorage.setItem('cacheCasosGC', JSON.stringify(CASOS_GC_)); }catch(e){}
+  }).catch(function(){ _casosGCcargados_ = true; });
 }
 function contactoPosteriorInfo_(r){
   if(!r.contactoPosteriorData) return null;
@@ -11728,7 +11787,7 @@ function refrescarPanelCalidadActivo_(){
   var mapa = {
     npsgeneral: renderNpsGeneralPanel_, npscontactoposterior: renderNpsContactoPosteriorPanel_,
     npsfabrica: renderNpsFabricaPanel_, garantiascalidad: renderGarantiasPanel_, casosgestion: renderCasosGestionPanel_,
-    alertatemprana: renderAlertaTempranaReporte_
+    alertatemprana: renderAlertaTempranaReporte_, rankingvendedor: renderRankingVendedorPanel_
   };
   var fn = mapa[maestroTabActual];
   if(fn) fn();
@@ -12043,6 +12102,8 @@ function sumarConteos_(a, b){
 function calcularNpsDesdeFilas_(filas, idxHeaderRow, headers){
   var colScore = buscarColPorNombre_(headers, ['NPS','FABRICA']);
   var colFecha = buscarColPorNombre_(headers, ['FECHA','RESPUESTA','NPS']);
+  var colVendedor = buscarColPorNombre_(headers, ['VENDEDOR']);
+  var colSucursal = buscarColPorNombre_(headers, ['SUCURSAL']);
   if(colScore===-1) return null;
   var puntos = [];
   for(var r=idxHeaderRow+1; r<filas.length; r++){
@@ -12052,10 +12113,14 @@ function calcularNpsDesdeFilas_(filas, idxHeaderRow, headers){
     if(score===''||score===undefined||score===null) continue;
     var n = Number(score);
     if(isNaN(n)) continue;
-    puntos.push({fecha: colFecha>-1 ? String(fila[colFecha]||'').trim() : '', score:n});
+    puntos.push({
+      fecha: colFecha>-1 ? String(fila[colFecha]||'').trim() : '', score:n,
+      vendedor: colVendedor>-1 ? String(fila[colVendedor]||'').trim() : '',
+      sucursal: colSucursal>-1 ? String(fila[colSucursal]||'').trim() : ''
+    });
   }
   if(puntos.length===0) return null;
-  return puntos; // [{fecha, score}, ...]
+  return puntos; // [{fecha, score, vendedor, sucursal}, ...]
 }
 // Detecta si el archivo es de PDA o Directa/Tradicional mirando el título
 // de la hoja (fila 1) — así se guardan los dos por separado y uno no pisa
@@ -12112,6 +12177,14 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
   function bloqueCanal_(titulo, canalKey, totalesPorCanal){
     var entrada = obtenerArchivoNps_('fabrica', canalKey);
     if(!entrada) return '<div class="chart-panel"><div class="chart-panel-title">'+titulo+'</div><div style="color:var(--text-faint);font-size:12px;padding:14px 0;text-align:center;">Todavía no subiste el archivo de este canal.</div></div>';
+    if(filterCanal){
+      var esteCanalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
+      if(filterCanal!==esteCanalUrl){
+        var canalActivoKey = filterCanal==='pda' ? 'pda' : 'directa';
+        var rActivo = conteoAcumuladoFabrica_(canalActivoKey, respondidasPorCanal[canalActivoKey]);
+        return tarjetaProgresoObjetivo_(rActivo.conteo, canalActivoKey==='directa', 'Fab');
+      }
+    }
     var r = conteoAcumuladoFabrica_(canalKey, respondidasPorCanal[canalKey]);
     if(totalesPorCanal) totalesPorCanal.push(r.conteo.total);
     var canalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
@@ -12130,10 +12203,9 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
   var totalCombinado = totalesPorCanal.reduce(function(a,x){return a+x;}, 0);
   cont.style.display = 'block';
   cont.innerHTML =
-    '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;">NPS de Fábrica — acumulado (archivo + lo cargado en el sistema)'+
+    '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;">NPS de Fábrica — acumulado (archivo + lo cargado en el sistema) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades. Guardado en el sistema, lo ven todos los usuarios.</span></span>'+
       (totalCombinado ? '<span style="font-size:10px;font-weight:700;color:var(--text-faint);background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:2px 9px;">'+totalCombinado+' encuestas en total (Directa + PDA)</span>' : '')+
     '</div>'+
-    '<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:8px;">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades. Guardado en el sistema, lo ven todos los usuarios.</div>'+
     '<div class="two-col-grid">'+ htmlDirecta + htmlPda +'</div>';
 }
 function importarNpsFabricaArchivo_(event){
@@ -12198,10 +12270,12 @@ var _anonimasFabricaCargadas_ = false;
 var _ultimoRespondidasPorCanalFabrica_ = {directa:[], pda:[]};
 function cargarAnonimasFabricaSiHaceFalta_(){
   if(_anonimasFabricaCargadas_) return Promise.resolve();
+  try{ var c = JSON.parse(localStorage.getItem('cacheAnonimasFabrica')||'null'); if(c) ANONIMAS_FABRICA_ = c; }catch(e){}
   return gasGet('npsFabricaAnonimas').then(function(res){
-    ANONIMAS_FABRICA_ = (res && res.ok) ? res.respuestas : [];
+    ANONIMAS_FABRICA_ = (res && res.ok) ? res.respuestas : ANONIMAS_FABRICA_;
     _anonimasFabricaCargadas_ = true;
-  }).catch(function(){ ANONIMAS_FABRICA_ = []; _anonimasFabricaCargadas_ = true; });
+    try{ localStorage.setItem('cacheAnonimasFabrica', JSON.stringify(ANONIMAS_FABRICA_)); }catch(e){}
+  }).catch(function(){ _anonimasFabricaCargadas_ = true; });
 }
 function imprimirComoPDF_(){
   document.body.classList.add('imprimiendo-calidad');
@@ -12240,10 +12314,12 @@ var ARCHIVOS_NPS_ = [];
 var _archivosNpsCargados_ = false;
 function cargarArchivosNpsSiHaceFalta_(){
   if(_archivosNpsCargados_) return Promise.resolve();
+  try{ var c = JSON.parse(localStorage.getItem('cacheArchivosNps')||'null'); if(c) ARCHIVOS_NPS_ = c; }catch(e){}
   return gasGet('archivosNpsImportados').then(function(res){
-    ARCHIVOS_NPS_ = (res && res.ok) ? res.archivos : [];
+    ARCHIVOS_NPS_ = (res && res.ok) ? res.archivos : ARCHIVOS_NPS_;
     _archivosNpsCargados_ = true;
-  }).catch(function(){ ARCHIVOS_NPS_ = []; _archivosNpsCargados_ = true; });
+    try{ localStorage.setItem('cacheArchivosNps', JSON.stringify(ARCHIVOS_NPS_)); }catch(e){}
+  }).catch(function(){ _archivosNpsCargados_ = true; });
 }
 // Busca el archivo guardado de una instancia+canal y lo devuelve ya
 // "armado" (con los puntos parseados y el conteo calculado), o null si
@@ -12274,6 +12350,15 @@ function fechaHoyIso_(){
   var d = new Date();
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
+function toggleAyuda_(el){
+  document.querySelectorAll('.ayuda-tip.abierto').forEach(function(x){ if(x!==el) x.classList.remove('abierto'); });
+  el.classList.toggle('abierto');
+}
+document.addEventListener('click', function(e){
+  if(!e.target.closest || !e.target.closest('.ayuda-tip')){
+    document.querySelectorAll('.ayuda-tip.abierto').forEach(function(x){ x.classList.remove('abierto'); });
+  }
+});
 function toggleBloqueVisible_(contId, iconId){
   var el = document.getElementById(contId);
   var icon = document.getElementById(iconId);
@@ -12290,10 +12375,12 @@ var _anonimasATCargadas_ = false;
 var _ultimoRespondidasPorCanalAT_ = {directa:[], pda:[]};
 function cargarAnonimasATSiHaceFalta_(){
   if(_anonimasATCargadas_) return Promise.resolve();
+  try{ var c = JSON.parse(localStorage.getItem('cacheAnonimasAT')||'null'); if(c) ANONIMAS_AT_ = c; }catch(e){}
   return gasGet('npsAnonimas', {tipo:'alertatemprana'}).then(function(res){
-    ANONIMAS_AT_ = (res && res.ok) ? res.respuestas : [];
+    ANONIMAS_AT_ = (res && res.ok) ? res.respuestas : ANONIMAS_AT_;
     _anonimasATCargadas_ = true;
-  }).catch(function(){ ANONIMAS_AT_ = []; _anonimasATCargadas_ = true; });
+    try{ localStorage.setItem('cacheAnonimasAT', JSON.stringify(ANONIMAS_AT_)); }catch(e){}
+  }).catch(function(){ _anonimasATCargadas_ = true; });
 }
 function guardarResumenArchivoAT_(canal, nombreArchivo, puntos){
   guardarArchivoNpsBackend_('alertatemprana', canal, nombreArchivo, puntos);
@@ -12329,6 +12416,14 @@ function pintarResumenArchivoAT_(respondidasPorCanal){
   function bloqueCanal_(titulo, canalKey, totalesPorCanal){
     var entrada = obtenerArchivoNps_('alertatemprana', canalKey);
     if(!entrada) return '<div class="chart-panel"><div class="chart-panel-title">'+titulo+'</div><div style="color:var(--text-faint);font-size:12px;padding:14px 0;text-align:center;">Todavía no subiste el archivo de este canal.</div></div>';
+    if(filterCanal){
+      var esteCanalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
+      if(filterCanal!==esteCanalUrl){
+        var canalActivoKey = filterCanal==='pda' ? 'pda' : 'directa';
+        var rActivo = conteoAcumuladoAT_(canalActivoKey, respondidasPorCanal[canalActivoKey]);
+        return tarjetaProgresoObjetivo_(rActivo.conteo, canalActivoKey==='directa', '');
+      }
+    }
     var r = conteoAcumuladoAT_(canalKey, respondidasPorCanal[canalKey]);
     if(totalesPorCanal) totalesPorCanal.push(r.conteo.total);
     var canalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
@@ -12347,10 +12442,9 @@ function pintarResumenArchivoAT_(respondidasPorCanal){
   var totalCombinado = totalesPorCanal.reduce(function(a,x){return a+x;}, 0);
   cont.style.display = 'block';
   cont.innerHTML =
-    '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;">NPS Alerta Temprana — acumulado (archivo + lo cargado en el sistema)'+
+    '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;">NPS Alerta Temprana — acumulado (archivo + lo cargado en el sistema) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades.</span></span>'+
       (totalCombinado ? '<span style="font-size:10px;font-weight:700;color:var(--text-faint);background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:2px 9px;">'+totalCombinado+' encuestas en total (Directa + PDA)</span>' : '')+
     '</div>'+
-    '<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:8px;">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades.</div>'+
     '<div class="two-col-grid">'+ htmlDirecta + htmlPda +'</div>';
 }
 function dibujarEvolucionMensualAT_(){
@@ -12379,6 +12473,37 @@ function pintarTablaAnonimas_(tablaId, arr){
     arr.slice().reverse().map(function(a){
       return '<tr><td>'+a.fecha+'</td><td>'+(a.canal==='PDA'?'PDA':'Tradicional')+'</td><td style="font-weight:700;">'+a.puntaje+'</td><td>'+(a.comentario||'—')+'</td><td>'+(a.cargadoPor||'—')+'</td></tr>';
     }).join('');
+}
+// Tarjeta de "progreso hacia el objetivo" para el canal ACTIVO — se usa
+// en el lugar del canal que quedó afuera del filtro (en vez de dejarlo
+// vacío), así no hay que scrollear hasta Puntaje GM para ver lo mismo.
+function tarjetaProgresoObjetivo_(conteoActivo, esTD, sufijoBenchmark){
+  var puntosMax = esTD ? 6 : 3;
+  var maxZona = esTD ? 2 : 1;
+  var prefijo = esTD ? 'TD' : 'PDA';
+  var umbral = Number((document.getElementById('gmUmbralMaximo'+prefijo+sufijoBenchmark)||{}).value)||0;
+  var nacional = Number((document.getElementById('gmNacional'+prefijo+sufijoBenchmark)||{}).value)||0;
+  var zona = Number((document.getElementById('gmZona'+prefijo+sufijoBenchmark)||{}).value)||0;
+  var objetivos = [
+    {label:'Umbral máximo ('+umbral+'%)', target:umbral},
+    {label:'Igualar Nacional', target:nacional},
+    {label:'90% de Nacional', target:nacional*0.9},
+    {label:'Igualar Zona', target:zona}
+  ];
+  if(maxZona>1) objetivos.push({label:'90% de Zona', target:zona*0.9});
+  objetivos = objetivos.filter(function(o){ return o.target>0; });
+  var filas = objetivos.map(function(o){
+    var falta = encuestasQueFaltan_(conteoActivo, o.target);
+    if(falta===null) return '';
+    var cumplido = falta===0;
+    return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--hairline);font-size:11px;'+(cumplido?'color:var(--ok);font-weight:700;':'color:var(--text-faint);')+'">'+
+      '<span>'+o.label+'</span><span>'+(cumplido?'✓ Cumplido':'+'+falta)+'</span></div>';
+  }).join('');
+  return '<div class="chart-panel">'+
+    '<div class="chart-panel-title" style="color:var(--text-faint);">Progreso hacia el objetivo — '+puntosMax+' pts</div>'+
+    '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Cuántas encuestas promotoras faltan para el canal que estás mirando abajo.</div>'+
+    (filas || '<div style="font-size:10.5px;color:var(--text-faint);">Cargá Umbral/Nacional/Zona más abajo para ver esto.</div>')+
+  '</div>';
 }
 function toggleSeccionAnonimaAT_(){
   var cuerpo = document.getElementById('atAnonBody');
@@ -12432,6 +12557,8 @@ function importarNpsAlertaTempranaArchivo_(event){
       }
       if(colAT===-1){ showToast('No se encontró la columna de NPS de Alerta Temprana en el archivo.'); event.target.value=''; return; }
       var colFechaAT = buscarColPorNombre_(headers, ['FECH','REALIZO']);
+      var colVendedorAT = buscarColPorNombre_(headers, ['VENDEDOR']);
+      var colSucursalAT = buscarColPorNombre_(headers, ['SUCURSAL']);
       var puntos = [];
       for(var r=idxHeaderRow+1; r<filas.length; r++){
         var fila = filas[r];
@@ -12440,7 +12567,11 @@ function importarNpsAlertaTempranaArchivo_(event){
         if(score===''||score===undefined||score===null) continue;
         var n = Number(score);
         if(isNaN(n)) continue;
-        puntos.push({fecha: colFechaAT>-1 ? String(fila[colFechaAT]||'').trim() : '', score:n});
+        puntos.push({
+          fecha: colFechaAT>-1 ? String(fila[colFechaAT]||'').trim() : '', score:n,
+          vendedor: colVendedorAT>-1 ? String(fila[colVendedorAT]||'').trim() : '',
+          sucursal: colSucursalAT>-1 ? String(fila[colSucursalAT]||'').trim() : ''
+        });
       }
       if(puntos.length===0){ showToast('No se encontraron respuestas de NPS Alerta Temprana en el archivo.'); event.target.value=''; return; }
       var canal = detectarCanalArchivoFabrica_(filas);
@@ -12464,12 +12595,25 @@ function importarNpsAlertaTempranaArchivo_(event){
 var ANONIMAS_CP_ = [];
 var _anonimasCpCargadas_ = false;
 var _ultimoRespondidasPorCanalCp_ = {directa:[], pda:[]};
+// Apenas arranca la página, leemos lo último que se había guardado en
+// este navegador — así el PRIMER pintado de cada sección de Calidad ya
+// sale con datos (aunque sean de la vuelta anterior), en vez de vacío,
+// y no se ve el "aparece y desaparece" cuando llega la versión fresca
+// del servidor unos instantes después.
+(function primeCachesNps_(){
+  try{ var c1 = JSON.parse(localStorage.getItem('cacheArchivosNps')||'null'); if(c1) ARCHIVOS_NPS_ = c1; }catch(e){}
+  try{ var c2 = JSON.parse(localStorage.getItem('cacheAnonimasFabrica')||'null'); if(c2) ANONIMAS_FABRICA_ = c2; }catch(e){}
+  try{ var c3 = JSON.parse(localStorage.getItem('cacheAnonimasAT')||'null'); if(c3) ANONIMAS_AT_ = c3; }catch(e){}
+  try{ var c4 = JSON.parse(localStorage.getItem('cacheAnonimasCp')||'null'); if(c4) ANONIMAS_CP_ = c4; }catch(e){}
+})();
 function cargarAnonimasCpSiHaceFalta_(){
   if(_anonimasCpCargadas_) return Promise.resolve();
+  try{ var c = JSON.parse(localStorage.getItem('cacheAnonimasCp')||'null'); if(c) ANONIMAS_CP_ = c; }catch(e){}
   return gasGet('npsAnonimas', {tipo:'contactoposterior'}).then(function(res){
-    ANONIMAS_CP_ = (res && res.ok) ? res.respuestas : [];
+    ANONIMAS_CP_ = (res && res.ok) ? res.respuestas : ANONIMAS_CP_;
     _anonimasCpCargadas_ = true;
-  }).catch(function(){ ANONIMAS_CP_ = []; _anonimasCpCargadas_ = true; });
+    try{ localStorage.setItem('cacheAnonimasCp', JSON.stringify(ANONIMAS_CP_)); }catch(e){}
+  }).catch(function(){ _anonimasCpCargadas_ = true; });
 }
 function guardarResumenArchivoCp_(canal, nombreArchivo, puntos){
   guardarArchivoNpsBackend_('contactoposterior', canal, nombreArchivo, puntos);
@@ -12505,6 +12649,14 @@ function pintarResumenArchivoCp_(respondidasPorCanal){
   function bloqueCanal_(titulo, canalKey, totalesPorCanal){
     var entrada = obtenerArchivoNps_('contactoposterior', canalKey);
     if(!entrada) return '<div class="chart-panel"><div class="chart-panel-title">'+titulo+'</div><div style="color:var(--text-faint);font-size:12px;padding:14px 0;text-align:center;">Todavía no subiste el archivo de este canal.</div></div>';
+    if(filterCanal){
+      var esteCanalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
+      if(filterCanal!==esteCanalUrl){
+        var canalActivoKey = filterCanal==='pda' ? 'pda' : 'directa';
+        var rActivo = conteoAcumuladoCp_(canalActivoKey, respondidasPorCanal[canalActivoKey]);
+        return tarjetaProgresoObjetivo_(rActivo.conteo, canalActivoKey==='directa', 'Cp');
+      }
+    }
     var r = conteoAcumuladoCp_(canalKey, respondidasPorCanal[canalKey]);
     if(totalesPorCanal) totalesPorCanal.push(r.conteo.total);
     var canalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
@@ -12523,10 +12675,9 @@ function pintarResumenArchivoCp_(respondidasPorCanal){
   var totalCombinado = totalesPorCanal.reduce(function(a,x){return a+x;}, 0);
   cont.style.display = 'block';
   cont.innerHTML =
-    '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;">NPS Contacto Posterior — acumulado (archivo + lo cargado en el sistema)'+
+    '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;">NPS Contacto Posterior — acumulado (archivo + lo cargado en el sistema) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Suma los totales del archivo con las respuestas que vayan llegando de la encuesta pública — no cruza por VIN, solo suma cantidades.</span></span>'+
       (totalCombinado ? '<span style="font-size:10px;font-weight:700;color:var(--text-faint);background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:2px 9px;">'+totalCombinado+' encuestas en total (Directa + PDA)</span>' : '')+
     '</div>'+
-    '<div style="font-size:10.5px;color:var(--text-faint);margin-bottom:8px;">Suma los totales del archivo con las respuestas que vayan llegando de la encuesta pública — no cruza por VIN, solo suma cantidades.</div>'+
     '<div class="two-col-grid">'+ htmlDirecta + htmlPda +'</div>';
 }
 function dibujarEvolucionMensualCp_(){
@@ -12588,6 +12739,8 @@ function importarNpsContactoPosteriorArchivo_(event){
       // de ingreso de la respuesta.
       var colCp = 33; // AH
       var colFechaCp = 39; // AN
+      var colVendedorCp = buscarColPorNombre_(headers, ['VENDEDOR']);
+      var colSucursalCp = buscarColPorNombre_(headers, ['SUCURSAL']);
       var puntos = [];
       for(var r=idxHeaderRow+1; r<filas.length; r++){
         var fila = filas[r];
@@ -12596,7 +12749,11 @@ function importarNpsContactoPosteriorArchivo_(event){
         if(score===''||score===undefined||score===null) continue;
         var n = Number(score);
         if(isNaN(n)) continue;
-        puntos.push({fecha: String(fila[colFechaCp]||'').trim(), score:n});
+        puntos.push({
+          fecha: String(fila[colFechaCp]||'').trim(), score:n,
+          vendedor: colVendedorCp>-1 ? String(fila[colVendedorCp]||'').trim() : '',
+          sucursal: colSucursalCp>-1 ? String(fila[colSucursalCp]||'').trim() : ''
+        });
       }
       if(puntos.length===0){ showToast('No se encontraron respuestas de NPS Contacto Posterior en el archivo.'); event.target.value=''; return; }
       var canal = detectarCanalArchivoFabrica_(filas);
@@ -12833,6 +12990,135 @@ function dibujarCasosGestion_(){
     (casosAbiertos.slice(0,10).map(function(c){ return '<tr><td>'+c.cliente+'</td><td>'+c.marca+'</td><td>'+c.motivo+'</td><td>'+c.prioridad+'</td><td>'+(c.responsable||'Sin asignar')+'</td><td>'+c.estado+'</td></tr>'; }).join('') ||
     '<tr><td colspan="6" style="text-align:center;color:var(--text-faint);">Sin casos abiertos 🎉</td></tr>');
   document.getElementById('calidadCasosVerMas').innerHTML = casosAbiertos.length>10 ? '<button class="print-btn" style="margin:0;" onclick="mostrarTablaCasosCalidadCompleta_()">Ver los '+casosAbiertos.length+' casos abiertos</button>' : '';
+}
+// ============================================================
+// Ranking por Vendedor / Medición por Sucursal — combina lo cargado en
+// el sistema (entregas con NPS) + los archivos importados (que ya traen
+// vendedor y sucursal por respuesta), sin duplicar: de cada canal, solo
+// se suman las entregas del sistema con fecha DESDE el corte del archivo
+// de ese canal (lo de antes ya está adentro del archivo).
+function sumarAVendedor_(acum, nombre, sucursal, score){
+  nombre = (nombre||'').trim() || '(sin asignar)';
+  if(!acum[nombre]) acum[nombre] = {promotores:0, pasivos:0, detractores:0, total:0, sucursales:{}};
+  var v = acum[nombre];
+  if(score>=9) v.promotores++; else if(score>=7) v.pasivos++; else v.detractores++;
+  v.total++;
+  if(sucursal){ v.sucursales[sucursal] = (v.sucursales[sucursal]||0)+1; }
+}
+function agregarInstanciaAlRanking_(acum, instancia, entregasVivas, extractor){
+  ['directa','pda'].forEach(function(canalKey){
+    var arch = obtenerArchivoNps_(instancia, canalKey);
+    var corte = arch ? (arch.fechaCorte || '0000-00-00') : '0000-00-00';
+    if(arch){
+      arch.puntos.forEach(function(p){
+        sumarAVendedor_(acum, p.vendedor, p.sucursal, Number(p.score));
+      });
+    }
+    entregasVivas.forEach(function(r){
+      if(esCanalPDA_(r) !== (canalKey==='pda')) return;
+      var datos = extractor(r);
+      if(!datos) return;
+      var fIso = fechaAIso_(datos.fecha);
+      if(fIso && corte!=='0000-00-00' && fIso < corte) return; // ya está adentro del archivo
+      sumarAVendedor_(acum, r.vendedor, r.sucursal, datos.score);
+    });
+  });
+}
+function renderRankingVendedorPanel_(){
+  if(!document.getElementById('rankVendedorTabla')) return;
+  var instanciaSel = document.getElementById('rankFiltroInstancia').value;
+  var rows = entregasParaDashboard();
+
+  var acumVendedor = {};
+  if(instanciaSel==='todas' || instanciaSel==='alertatemprana'){
+    agregarInstanciaAlRanking_(acumVendedor, 'alertatemprana', rows, function(r){
+      if(r.npsScore===null || r.npsScore===undefined || r.npsScore==='') return null;
+      return {score:Number(r.npsScore), fecha:r.alertaTempranaFechaRespuesta};
+    });
+  }
+  if(instanciaSel==='todas' || instanciaSel==='contactoposterior'){
+    agregarInstanciaAlRanking_(acumVendedor, 'contactoposterior', rows, function(r){
+      var d = contactoPosteriorInfo_(r);
+      if(!d || d.recomienda===undefined || d.recomienda==='') return null;
+      return {score:Number(d.recomienda), fecha:d.fecha};
+    });
+  }
+  if(instanciaSel==='todas' || instanciaSel==='fabrica'){
+    agregarInstanciaAlRanking_(acumVendedor, 'fabrica', rows.filter(function(r){return !!r.garantiaFecha;}), function(r){
+      if(r.npsFabricaScore===null || r.npsFabricaScore===undefined || r.npsFabricaScore==='') return null;
+      return {score:Number(r.npsFabricaScore), fecha:r.npsFabricaFecha};
+    });
+  }
+
+  function filaTabla_(nombre, v, colLabel){
+    var nps = npsDeConteo_(v);
+    var sucursalPrincipal = Object.keys(v.sucursales).sort(function(a,b){return v.sucursales[b]-v.sucursales[a];})[0] || '—';
+    return {nombre:nombre, nps:nps, total:v.total, promotores:v.promotores, pasivos:v.pasivos, detractores:v.detractores, sucursalPrincipal:sucursalPrincipal};
+  }
+  var listaVendedores = Object.keys(acumVendedor).map(function(n){ return filaTabla_(n, acumVendedor[n]); });
+  listaVendedores.sort(function(a,b){ return (b.nps===null?-999:b.nps) - (a.nps===null?-999:a.nps); });
+
+  document.getElementById('rankVendedorTabla').innerHTML = '<tr><th>#</th><th>Vendedor</th><th>Sucursal</th><th>NPS</th><th>Respuestas</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>'+
+    (listaVendedores.map(function(v,i){
+      var color = v.nps===null?'var(--text-faint)':(v.nps>=50?'var(--ok)':(v.nps>=0?'var(--warn)':'var(--danger)'));
+      return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td>'+v.sucursalPrincipal+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps)+'</td><td>'+v.total+'</td>'+
+        '<td style="color:var(--ok);">'+v.promotores+'</td><td style="color:var(--warn);">'+v.pasivos+'</td><td style="color:var(--danger);">'+v.detractores+'</td></tr>';
+    }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
+
+  // ---- Por sucursal — mismo acumulado, pero agrupado por sucursal ----
+  var acumSucursalReal = {};
+  function sumarASucursal_(sucursal, score){
+    sucursal = (sucursal||'').trim() || '(sin asignar)';
+    if(!acumSucursalReal[sucursal]) acumSucursalReal[sucursal] = {promotores:0, pasivos:0, detractores:0, total:0};
+    var v = acumSucursalReal[sucursal];
+    if(score>=9) v.promotores++; else if(score>=7) v.pasivos++; else v.detractores++;
+    v.total++;
+  }
+  function agregarInstanciaASucursal_(instancia, entregasVivas, extractor){
+    ['directa','pda'].forEach(function(canalKey){
+      var arch = obtenerArchivoNps_(instancia, canalKey);
+      var corte = arch ? (arch.fechaCorte || '0000-00-00') : '0000-00-00';
+      if(arch){ arch.puntos.forEach(function(p){ sumarASucursal_(p.sucursal, Number(p.score)); }); }
+      entregasVivas.forEach(function(r){
+        if(esCanalPDA_(r) !== (canalKey==='pda')) return;
+        var datos = extractor(r);
+        if(!datos) return;
+        var fIso = fechaAIso_(datos.fecha);
+        if(fIso && corte!=='0000-00-00' && fIso < corte) return;
+        sumarASucursal_(r.sucursal, datos.score);
+      });
+    });
+  }
+  if(instanciaSel==='todas' || instanciaSel==='alertatemprana'){
+    agregarInstanciaASucursal_('alertatemprana', rows, function(r){
+      if(r.npsScore===null || r.npsScore===undefined || r.npsScore==='') return null;
+      return {score:Number(r.npsScore), fecha:r.alertaTempranaFechaRespuesta};
+    });
+  }
+  if(instanciaSel==='todas' || instanciaSel==='contactoposterior'){
+    agregarInstanciaASucursal_('contactoposterior', rows, function(r){
+      var d = contactoPosteriorInfo_(r);
+      if(!d || d.recomienda===undefined || d.recomienda==='') return null;
+      return {score:Number(d.recomienda), fecha:d.fecha};
+    });
+  }
+  if(instanciaSel==='todas' || instanciaSel==='fabrica'){
+    agregarInstanciaASucursal_('fabrica', rows.filter(function(r){return !!r.garantiaFecha;}), function(r){
+      if(r.npsFabricaScore===null || r.npsFabricaScore===undefined || r.npsFabricaScore==='') return null;
+      return {score:Number(r.npsFabricaScore), fecha:r.npsFabricaFecha};
+    });
+  }
+  var listaSucursales = Object.keys(acumSucursalReal).map(function(s){
+    var v = acumSucursalReal[s];
+    return {nombre:s, nps:npsDeConteo_(v), total:v.total, promotores:v.promotores, pasivos:v.pasivos, detractores:v.detractores};
+  });
+  listaSucursales.sort(function(a,b){ return (b.nps===null?-999:b.nps) - (a.nps===null?-999:a.nps); });
+  document.getElementById('rankSucursalTabla').innerHTML = '<tr><th>#</th><th>Sucursal</th><th>NPS</th><th>Respuestas</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>'+
+    (listaSucursales.map(function(v,i){
+      var color = v.nps===null?'var(--text-faint)':(v.nps>=50?'var(--ok)':(v.nps>=0?'var(--warn)':'var(--danger)'));
+      return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps)+'</td><td>'+v.total+'</td>'+
+        '<td style="color:var(--ok);">'+v.promotores+'</td><td style="color:var(--warn);">'+v.pasivos+'</td><td style="color:var(--danger);">'+v.detractores+'</td></tr>';
+    }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
 }
 function filtrarCoberturaCalidad_(bucket){
   ['covChipTodas','covChipFalta1','covChipFalta2','covChipNinguna'].forEach(function(id){
