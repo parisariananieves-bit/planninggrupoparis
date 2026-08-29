@@ -451,6 +451,9 @@
 
   /* ---- Usuarios y Permisos: estilo tipo dashboard (avatares + píldoras) ---- */
   .users-table td{padding:12px 11px;}
+  .users-table-compact td, .users-table-compact th{padding:8px 8px;font-size:11.5px;}
+  .users-table-compact .user-name{font-size:12px;}
+  .users-table-compact .user-username{font-size:10px;}
   .user-cell{display:flex;align-items:center;gap:10px;}
   .user-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#1a1206;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0;}
   .user-avatar.inactivo{background:var(--panel-2);color:var(--text-faint);border:1px solid var(--hairline);}
@@ -1701,8 +1704,7 @@
         <div class="filter-field"><label>Hasta</label><input type="date" id="regFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
         <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
       </div>
-      <div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido);">trending_up</span>Proyección de regalos corporativos (próximo mes)</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Calculada según el promedio histórico de entregas con regalo, mes a mes, con los datos ya cargados.</div>
+      <div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido);">trending_up</span>Proyección de regalos corporativos (próximo mes) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Calculada según el promedio histórico de entregas con regalo, mes a mes, con los datos ya cargados.</span></span></div>
       <div class="costos-grid" id="proyeccionRegalosCards" style="margin-bottom:14px;"></div>
       <div class="report-wrap" style="max-height:260px;">
         <table class="report-table" id="dashProyeccion"></table>
@@ -1712,11 +1714,10 @@
         <input type="file" accept=".xlsx,.xls" id="historicoRegalosFileInput" onchange="importarHistoricoRegalos(event)" style="display:none;">
         <button class="xlsx-btn" style="margin-top:0;" onclick="document.getElementById('historicoRegalosFileInput').click()"><span class="material-symbols-outlined">upload_file</span> Importar histórico (solo proyección)</button>
         <span id="historicoRegalosInfo" style="font-size:11.5px;color:var(--text-dim);"></span>
+        <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Este archivo NO se agrega al planning ni a la planilla — solo queda guardado como base histórica para la proyección. Para los meses que ya tengan entregas reales cargadas en el sistema, se usa siempre el dato real (no se duplica con el histórico).</span></span>
       </div>
-      <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">Este archivo NO se agrega al planning ni a la planilla — solo queda guardado como base histórica para la proyección. Para los meses que ya tengan entregas reales cargadas en el sistema, se usa siempre el dato real (no se duplica con el histórico).</div>
 
-      <div class="section-title" style="margin-top:26px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido2);">inventory_2</span>Stock real de regalos corporativos</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Cargá acá cada ingreso de mercadería (compra) — el sistema descuenta solo lo que ya se entregó, para saber cuánto queda disponible. El stock es general de la empresa (un solo depósito); debajo se ve el consumo desglosado por marca.</div>
+      <div class="section-title" style="margin-top:26px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido2);">inventory_2</span>Stock real de regalos corporativos <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Cargá acá cada ingreso de mercadería (compra) — el sistema descuenta solo lo que ya se entregó, para saber cuánto queda disponible. El stock es general de la empresa (un solo depósito); debajo se ve el consumo desglosado por marca.</span></span></div>
       <div class="costos-grid" id="costosRegalosCards" style="margin-bottom:16px;"></div>
       <div class="report-wrap" style="max-height:220px;margin-bottom:10px;">
         <table class="report-table" id="dashStock"></table>
@@ -1736,8 +1737,7 @@
         </div>
       </div>
 
-      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--warn);">local_shipping</span>Distribución a sucursales — ¿quién se está quedando sin stock?</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Registrá cuánto le mandaste del stock central a cada sucursal. El sistema resta lo que esa sucursal ya consumió, y te avisa cuál se está quedando sin nada para enviarle más.</div>
+      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--warn);">local_shipping</span>Distribución a sucursales — ¿quién se está quedando sin stock? <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Registrá cuánto le mandaste del stock central a cada sucursal. El sistema resta lo que esa sucursal ya consumió, y te avisa cuál se está quedando sin nada para enviarle más.</span></span></div>
       <div class="report-wrap" style="max-height:220px;margin-bottom:10px;">
         <table class="report-table" id="dashDistribucion"></table>
       </div>
@@ -1776,8 +1776,7 @@
         <div class="filter-field"><label>Hasta</label><input type="date" id="kitFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
         <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
       </div>
-      <div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido);">trending_up</span>Proyección de Kit de Seguridad (próximo mes)</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Calculada según el promedio histórico de entregas con kit de seguridad, mes a mes.</div>
+      <div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido);">trending_up</span>Proyección de Kit de Seguridad (próximo mes) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Calculada según el promedio histórico de entregas con kit de seguridad, mes a mes.</span></span></div>
       <div class="costos-grid" id="proyeccionKitCards" style="margin-bottom:14px;"></div>
       <div class="report-wrap" style="max-height:180px;">
         <table class="report-table" id="dashProyeccionKit"></table>
@@ -1786,8 +1785,8 @@
         <input type="file" accept=".xlsx,.xls" id="historicoKitFileInput" onchange="importarHistoricoKit(event)" style="display:none;">
         <button class="xlsx-btn" style="margin-top:0;" onclick="document.getElementById('historicoKitFileInput').click()"><span class="material-symbols-outlined">upload_file</span> Importar histórico (solo proyección)</button>
         <span id="historicoKitInfo" style="font-size:11.5px;color:var(--text-dim);"></span>
+        <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Este archivo NO se agrega al planning ni a la planilla — solo queda guardado como base histórica para la proyección. Para los meses que ya tengan entregas reales cargadas en el sistema, se usa siempre el dato real (no se duplica con el histórico).</span></span>
       </div>
-      <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">Este archivo NO se agrega al planning ni a la planilla — solo queda guardado como base histórica para la proyección. Para los meses que ya tengan entregas reales cargadas en el sistema, se usa siempre el dato real (no se duplica con el histórico).</div>
 
       <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido2);">health_and_safety</span>Stock real de Kit de Seguridad</div>
       <div class="costos-grid" id="costosKitCards" style="margin-bottom:16px;"></div>
@@ -1899,7 +1898,7 @@
         </div>
       </div>
 
-      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">mail</span>Email — Encuesta post-entrega (automático + botón manual)</div>
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">mail</span>Email — Encuesta post-entrega (automático + botón manual) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">El HTML del correo ya aprobado (logos, colores, botón hacia el formulario) no se toca desde acá — sigue igual, solo cambian los datos del cliente que se completan solos.</span></span></div>
       <div class="section" style="margin-bottom:18px;">
         <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin-bottom:12px;">
           <input type="checkbox" id="autoEmailActivo" onchange="guardarAutomatizaciones_()" style="width:16px;height:16px;"> Activar envío automático de Email
@@ -1919,7 +1918,6 @@
           <label style="font-size:11px;text-transform:uppercase;color:var(--text-faint);font-weight:700;">Link de la encuesta por marca (Google Form, Typeform, etc. — cada marca su propio formulario)</label>
           <div class="form-grid" id="autoEmailFormUrlContainer" style="margin-top:6px;"></div>
         </div>
-        <div style="font-size:11.5px;color:var(--text-dim);margin-top:10px;">El HTML del correo ya aprobado (logos, colores, botón hacia el formulario) no se toca desde acá — sigue igual, solo cambian los datos del cliente que se completan solos.</div>
       </div>
     </div>
 
@@ -2021,9 +2019,8 @@
       </div>
     </div>
     <div class="maestro-block">
-      <div class="section-title">Administrativos (con N° de flota, email y teléfono)</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:8px;">El email se usa para mandarle copia de las confirmaciones y recordatorios de sus propias entregas.</div>
-      <div class="mini-search-wrap"><span class="material-symbols-outlined">search</span><input type="text" class="mini-search-input" placeholder="Buscar administrativo..." oninput="filtrarMaestroLista(this,'tagsAdministrativos')"></div>
+      <div class="section-title">Administrativos (con N° de flota, email y teléfono) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">El email se usa para mandarle copia de las confirmaciones y recordatorios de sus propias entregas.</span></span></div>
+            <div class="mini-search-wrap"><span class="material-symbols-outlined">search</span><input type="text" class="mini-search-input" placeholder="Buscar administrativo..." oninput="filtrarMaestroLista(this,'tagsAdministrativos')"></div>
       <div class="maestro-tags" id="tagsAdministrativos"></div>
       <div class="maestro-add">
         <input id="inAdministrativo" placeholder="Nombre..." onkeydown="if(event.key==='Enter'){addAdministrativo();}">
@@ -2046,8 +2043,7 @@
       </div>
     </div>
     <div class="maestro-block" style="display:none;" id="bloqueUsuariosAutorizados">
-      <div class="section-title">Usuarios autorizados a enviar Confirmaciones y Recordatorios</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:8px;">El nombre tiene que coincidir con el que cada persona escribe cuando el sistema le pregunta "¿Quién sos?".</div>
+      <div class="section-title">Usuarios autorizados a enviar Confirmaciones y Recordatorios <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">El nombre tiene que coincidir con el que cada persona escribe cuando el sistema le pregunta "¿Quién sos?".</span></span></div>
       <div class="maestro-tags" id="tagsUsuariosAutorizados"></div>
       <div class="maestro-add"><input id="inUsuarioAutorizado" placeholder="Nombre exacto..." onkeydown="if(event.key==='Enter'){addUsuarioAutorizado();}"><button onclick="addUsuarioAutorizado()">Agregar</button></div>
     </div>
@@ -2071,9 +2067,8 @@
       </div>
     </div>
     <div class="maestro-block">
-      <div class="section-title">Direcciones por marca y sucursal</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Cada marca puede tener una dirección distinta en la misma ciudad (ej: el local de Chevrolet no es el mismo que el de Peugeot).</div>
-      <div id="direccionesContainer"></div>
+      <div class="section-title">Direcciones por marca y sucursal <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Cada marca puede tener una dirección distinta en la misma ciudad (ej: el local de Chevrolet no es el mismo que el de Peugeot).</span></span></div>
+            <div id="direccionesContainer"></div>
       <div class="form-grid" style="margin-top:14px;">
         <div class="form-field full"><label>Teléfono de contacto (para los mails)</label><input id="cfgTelefono"></div>
         <div class="form-field full"><label>Copia siempre a (todas las confirmaciones y recordatorios)</label><input type="email" id="cfgCopiaA"></div>
@@ -2091,8 +2086,7 @@
     </div>
 
     <div class="maestro-block">
-      <div class="section-title">Activar / desactivar módulos (para todos los usuarios)</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Si apagás un módulo acá, desaparece del menú para todo el mundo, sin importar el rol o los permisos que tenga cada usuario.</div>
+      <div class="section-title">Activar / desactivar módulos (para todos los usuarios) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Si apagás un módulo acá, desaparece del menú para todo el mundo, sin importar el rol o los permisos que tenga cada usuario.</span></span></div>
       <div class="modulos-check-row" id="cfgModulosRow">
         <label class="switch-field"><span class="switch-label">Dashboard</span><label class="switch"><input type="checkbox" value="dashboard" checked><span class="switch-slider"></span></label></label>
         <label class="switch-field"><span class="switch-label">Nueva Entrega</span><label class="switch"><input type="checkbox" value="nuevaentrega" checked><span class="switch-slider"></span></label></label>
@@ -2106,22 +2100,19 @@
     </div>
 
     <div class="maestro-block">
-      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><svg width="14" height="14" viewBox="0 0 24 24" style="flex-shrink:0;"><path fill="#25D366" d="M12 0C5.373 0 0 5.373 0 12c0 2.121.554 4.113 1.523 5.842L0 24l6.335-1.492A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>WhatsApp de Postventa por marca</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Se usa en el mensaje de bienvenida que se manda cuando se entrega el vehículo.</div>
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><svg width="14" height="14" viewBox="0 0 24 24" style="flex-shrink:0;"><path fill="#25D366" d="M12 0C5.373 0 0 5.373 0 12c0 2.121.554 4.113 1.523 5.842L0 24l6.335-1.492A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>WhatsApp de Postventa por marca <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Se usa en el mensaje de bienvenida que se manda cuando se entrega el vehículo.</span></span></div>
       <div class="form-grid" id="postventaWhatsappContainer"></div>
       <button class="save-btn" style="margin-top:10px;" onclick="guardarPostventaWhatsapp()">Guardar números de Postventa</button>
     </div>
 
     <div class="maestro-block">
-      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">build</span>Repuestos y Servicio por marca</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Se usa en el mensaje de bienvenida que se manda cuando se entrega el vehículo.</div>
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">build</span>Repuestos y Servicio por marca <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Se usa en el mensaje de bienvenida que se manda cuando se entrega el vehículo.</span></span></div>
       <div class="form-grid" id="repuestosServicioContainer"></div>
       <button class="save-btn" style="margin-top:10px;" onclick="guardarRepuestosServicio()">Guardar números de Repuestos y Servicio</button>
     </div>
 
     <div class="maestro-block">
-      <div class="section-title">Emails de alerta de accesorios pendientes (24hs antes)</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">A quién avisar por marca cuando hay una entrega de mañana con el accesorio todavía pendiente de colocar. Podés poner uno o varios emails separados por coma.</div>
+      <div class="section-title">Emails de alerta de accesorios pendientes (24hs antes) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">A quién avisar por marca cuando hay una entrega de mañana con el accesorio todavía pendiente de colocar. Podés poner uno o varios emails separados por coma.</span></span></div>
       <div class="form-grid" id="alertaAccesoriosContainer"></div>
       <button class="save-btn" style="margin-top:10px;" onclick="guardarAlertaAccesorios()">Guardar emails de alerta</button>
     </div>
@@ -2133,8 +2124,9 @@
         <span class="material-symbols-outlined" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--text-faint);">search</span>
         <input id="buscarUsuarioInput" placeholder="Buscar por nombre, usuario o email..." oninput="filtrarUsuariosTabla_()" style="width:100%;box-sizing:border-box;padding:8px 10px 8px 34px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);font-size:12px;">
       </div>
-      <div class="report-wrap" style="max-height:280px;min-height:120px;margin-bottom:14px;resize:vertical;overflow:auto;">
-        <table class="report-table" id="tablaUsuarios"></table>
+      <div id="uContadorOnline" style="font-size:11px;color:var(--text-faint);margin-bottom:8px;"></div>
+      <div class="report-wrap" style="max-height:65vh;min-height:200px;margin-bottom:14px;resize:vertical;overflow:auto;">
+        <table class="report-table users-table-compact" id="tablaUsuarios"></table>
       </div>
       <div id="uFormTitulo" style="font-weight:700;font-size:12.5px;margin-bottom:8px;">Crear usuario nuevo</div>
       <div class="form-grid" style="margin-bottom:8px;">
@@ -2143,7 +2135,7 @@
         <div class="form-field"><label>Email</label><input id="uEmail" type="email" placeholder="Ej: mgomez@grupoparis.com" autocomplete="off"></div>
         <div class="form-field"><label>Usuario</label><input id="uUsuario" placeholder="Ej: mgomez" autocomplete="off"></div>
         <div class="form-field" id="uPasswordWrap"><label>Contraseña inicial</label><input id="uPassword" type="text" placeholder="Mínimo 4 caracteres" autocomplete="off"></div>
-        <div class="form-field"><label>Rol</label>
+        <div class="form-field"><label style="display:flex;align-items:center;gap:5px;">Rol <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">El rol es solo una etiqueta descriptiva — lo que ve y puede hacer cada usuario lo definís abajo, en "Módulos".</span></span></label>
           <select id="uRol">
             <option value="vendedor">Vendedor</option>
             <option value="administrativo">Administrativo</option>
@@ -2155,10 +2147,9 @@
             <option value="maestro">Maestro</option>
             <option value="tv">TV Recepción</option>
           </select>
-          <div style="font-size:10.5px;color:var(--text-faint);margin-top:4px;">El rol es solo una etiqueta descriptiva — lo que ve y puede hacer cada usuario lo definís abajo, en "Módulos".</div>
         </div>
       </div>
-      <div style="font-size:11px;color:var(--text-faint);margin:2px 0 6px;">Opcional — módulos que puede ver este usuario en el menú. Si no tildás ninguno, se usan los del rol por defecto.</div>
+      <div style="display:flex;align-items:center;gap:6px;margin:2px 0 6px;font-size:11.5px;font-weight:700;">Módulos <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Opcional — módulos que puede ver este usuario en el menú. Si no tildás ninguno, se usan los del rol por defecto.</span></span></div>
       <div class="modulos-check-row" id="uModulosRow">
         <label class="switch-field"><span class="switch-label">Dashboard</span><label class="switch"><input type="checkbox" value="dashboard"><span class="switch-slider"></span></label></label>
         <label class="switch-field"><span class="switch-label">Nueva Entrega</span><label class="switch"><input type="checkbox" value="nuevaentrega"><span class="switch-slider"></span></label></label>
@@ -2175,15 +2166,13 @@
 
     <div id="paneMaestroCargas" style="display:none;padding:10px 0;">
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:14px;">Importar bases externas para actualizar entregas ya cargadas (OnStar y Accesorios del taller) — no crea entregas nuevas, solo cruza y actualiza las que ya existen.</div>
-    <div class="maestro-block">
-      <div class="section-title">Cargar base OnStar (pegar desde el dashboard)</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:8px;">Copiá las filas del dashboard de OnStar y pegalas acá — cruza por VIN contra las entregas de Chevrolet.</div>
-      <textarea id="onstarPasteArea" placeholder="Pegá acá el texto copiado del dashboard, una fila por línea..." style="width:100%;min-height:130px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:10px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;resize:vertical;"></textarea>
+          <div class="maestro-block">
+      <div class="section-title">Cargar base OnStar (pegar desde el dashboard) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Copiá las filas del dashboard de OnStar y pegalas acá — cruza por VIN contra las entregas de Chevrolet.</span></span></div>
+            <textarea id="onstarPasteArea" placeholder="Pegá acá el texto copiado del dashboard, una fila por línea..." style="width:100%;min-height:130px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:10px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;resize:vertical;"></textarea>
       <button class="save-btn" style="margin-top:8px;" onclick="procesarBaseOnstar()">Procesar base pegada</button>
     </div>
     <div class="maestro-block">
-      <div class="section-title">Cargar base de Accesorios (listado del taller)</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:8px;">Copiá el listado del taller (con columnas Matrícula, Bastidor, Est y F. cierr) y pegalo acá — cruza primero por VIN (Bastidor) y si no encuentra, por Dominio (Matrícula). Si la orden figura Cerrada o tiene fecha de cierre, marca como colocados los accesorios pendientes de esa entrega.</div>
+      <div class="section-title">Cargar base de Accesorios (listado del taller) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Copiá el listado del taller (con columnas Matrícula, Bastidor, Est y F. cierr) y pegalo acá — cruza primero por VIN (Bastidor) y si no encuentra, por Dominio (Matrícula). Si la orden figura Cerrada o tiene fecha de cierre, marca como colocados los accesorios pendientes de esa entrega.</span></span></div>
       <div style="margin-bottom:10px;">
         <label style="display:inline-block;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:10px 14px;cursor:pointer;font-size:12px;color:var(--text-dim);">
           📎 O subí el archivo directamente (.xlsx)
@@ -2194,8 +2183,7 @@
       <button class="save-btn" style="margin-top:8px;" onclick="procesarBaseAccesorios()">Procesar base pegada</button>
     </div>
     <div class="maestro-block">
-      <div class="section-title">Catálogo de accesorios y precios</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Estos son los accesorios que aparecen al buscar en una entrega — con su precio, para que se calcule solo. Se puede cargar uno por uno o importar una lista completa desde Excel. Si un accesorio tiene una columna "Marca" (o "Modelo"/"PN"), se guarda asociado a esa marca — al buscar en una entrega, solo aparecen los de su propia marca (más los que no tengan marca cargada, que se ofrecen para todas).</div>
+      <div class="section-title">Catálogo de accesorios y precios <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Estos son los accesorios que aparecen al buscar en una entrega — con su precio, para que se calcule solo. Se puede cargar uno por uno o importar una lista completa desde Excel. Si un accesorio tiene una columna "Marca" (o "Modelo"/"PN"), se guarda asociado a esa marca — al buscar en una entrega, solo aparecen los de su propia marca (más los que no tengan marca cargada, que se ofrecen para todas).</span></span></div>
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
         <input id="catAccNombre" placeholder="Nombre del accesorio" style="flex:1;min-width:160px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;">
         <input id="catAccPrecio" type="number" placeholder="Precio" style="width:110px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;">
@@ -2212,8 +2200,7 @@
       <div id="catalogoAccesoriosTabla"></div>
     </div>
     <div class="maestro-block">
-      <div class="section-title">Checklist del Centro de Preparación</div>
-      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:10px;">Estos son los ítems que se revisan antes de que una unidad quede "Lista para entregar" — es la revisión pre-entrega para verificar que el auto esté en condiciones. Sacar o agregar un ítem acá no afecta a las unidades que ya tenían su checklist cargado, solo a las nuevas de acá en adelante.</div>
+      <div class="section-title">Checklist del Centro de Preparación <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Estos son los ítems que se revisan antes de que una unidad quede "Lista para entregar" — es la revisión pre-entrega para verificar que el auto esté en condiciones. Sacar o agregar un ítem acá no afecta a las unidades que ya tenían su checklist cargado, solo a las nuevas de acá en adelante.</span></span></div>
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
         <input id="checklistPrepNombre" placeholder="Nombre del ítem (ej: Fusible)" style="flex:1;min-width:160px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;">
         <button class="save-btn" style="width:auto;margin:0;" onclick="agregarItemChecklistPrepUI_()">+ Agregar</button>
@@ -2547,10 +2534,9 @@
   <button class="save-btn" style="margin:0 0 10px;" onclick="cerrarElegirTipoEntrega_();openNewDelivery();">
     <span class="material-symbols-outlined">event_available</span> Nueva Entrega
   </button>
-  <button class="comms-btn" style="margin:0;text-align:center;" onclick="cerrarElegirTipoEntrega_();abrirModalNuevaPreparacion_();">
+  <button class="comms-btn" style="margin:0;text-align:center;" title="La venta futura queda en el Centro de Preparación — cuando Logística la deje lista, la programás desde ahí con un clic." onclick="cerrarElegirTipoEntrega_();abrirModalNuevaPreparacion_();">
     <span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">build</span> Entrega Futura
   </button>
-  <div style="font-size:10.5px;color:var(--text-faint);margin-top:12px;">La venta futura queda en el Centro de Preparación — cuando Logística la deje lista, la programás desde ahí con un clic.</div>
 </div>
 
 <div class="overlay" id="atOverlay"></div>
@@ -2660,10 +2646,9 @@
     <div class="section">
       <div class="section-title">Fecha y hora de la entrega</div>
       <div class="field-grid">
-        <div class="field"><div class="l">Fecha</div><div style="font-family:'IBM Plex Mono',monospace;font-size:13px;padding:2px 0;" id="dFechaTexto">—</div></div>
+        <div class="field"><div class="l" style="display:flex;align-items:center;gap:4px;">Fecha <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Para cambiar fecha u hora, usá "Reprogramar" más abajo (así queda el motivo en el historial).</span></span></div><div style="font-family:'IBM Plex Mono',monospace;font-size:13px;padding:2px 0;" id="dFechaTexto">—</div></div>
         <div class="field"><div class="l">Hora</div><div style="font-family:'IBM Plex Mono',monospace;font-size:13px;padding:2px 0;" id="dHoraTexto">—</div></div>
       </div>
-      <div style="font-size:10.5px;color:var(--text-faint);margin-top:6px;">Para cambiar fecha u hora, usá "Reprogramar" más abajo (así queda el motivo en el historial).</div>
     </div>
 
     <div class="block-title">Responsable de Entrega / Logística</div>
@@ -2817,8 +2802,7 @@
     </div>
 
     <div class="section">
-      <div class="section-title">Historial de esta entrega</div>
-      <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:7px;">Todo lo que se hizo con esta entrega, en orden — confirmaciones, recordatorios, cambios de estado, accesorios, regalo, kit, OnStar, reprogramaciones, etc.</div>
+      <div class="section-title" style="display:flex;align-items:center;gap:6px;">Historial de esta entrega <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Todo lo que se hizo con esta entrega, en orden — confirmaciones, recordatorios, cambios de estado, accesorios, regalo, kit, OnStar, reprogramaciones, etc.</span></span></div>
       <div id="dHistorial"></div>
     </div>
 
@@ -2831,8 +2815,7 @@
       <button class="comms-btn" onclick="abrirModalBienvenida()" style="margin-bottom:14px;"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">forum</span> Ver / enviar mensaje de bienvenida</button>
       <div id="dComunicaciones"></div>
 
-      <div class="section-title" style="margin-top:18px;">NPS Contacto Posterior</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-bottom:7px;">Cruza VIN o patente con la encuesta pública de satisfacción 0km (post-venta). Se busca una sola vez y queda guardado.</div>
+      <div class="section-title" style="margin-top:18px;display:flex;align-items:center;gap:5px;">NPS Contacto Posterior <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Cruza VIN o patente con la encuesta pública de satisfacción 0km (post-venta). Se busca una sola vez y queda guardado.</span></span></div>
       <div id="dContactoPosteriorResumen" style="display:none;margin-bottom:8px;"></div>
       <button id="dBtnContactoPosterior" onclick="verContactoPosterior_(detailMarca, detailId)" style="width:100%;background:var(--panel-2);color:var(--text);border:1px solid var(--hairline);border-radius:7px;padding:8px 13px;font-weight:600;font-size:11.5px;cursor:pointer;"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">forum</span> Ver contacto posterior</button>
 
@@ -3617,7 +3600,7 @@ document.addEventListener('click', function(ev){
 function renderUsuariosTabla_(){
   var tabla = document.getElementById('tablaUsuarios');
   if(!tabla) return;
-  tabla.classList.add('users-table');
+  tabla.classList.add('users-table', 'users-table-compact');
   // Solo mostramos "Cargando..." la primera vez (tabla vacía) — en los
   // refrescos automáticos de cada 20s, dejamos lo que ya había mientras
   // llega lo nuevo, así no parpadea toda la tabla todo el tiempo.
@@ -3633,6 +3616,10 @@ function renderUsuariosTabla_(){
     tabla.dataset.cargadaAlgunaVez = 'true';
     window._ultimaPasswordActor = pass; // se reusa para las acciones de esta sesión de la pestaña
     window._usuariosCache = res.usuarios||[];
+    var totalOnline = (res.usuarios||[]).filter(function(u){return u.online;}).length;
+    var totalInactivos = (res.usuarios||[]).filter(function(u){return !u.activo;}).length;
+    var contadorEl = document.getElementById('uContadorOnline');
+    if(contadorEl) contadorEl.innerHTML = '<span style="color:var(--ok);font-weight:700;">● '+totalOnline+' online</span> · '+(res.usuarios||[]).length+' usuarios en total · <span style="color:var(--danger);">'+totalInactivos+' inactivos</span>';
     var html = '<tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th><th>Módulos</th><th>Acciones</th></tr>';
     (res.usuarios||[]).forEach(function(u){
       var nombreEsc = u.nombre.replace(/'/g,"\\'");
@@ -3644,11 +3631,11 @@ function renderUsuariosTabla_(){
         '<td>'+(u.activo?'<span class="tag ok">Activo</span>':'<span class="tag danger">Inactivo</span>')+'</td>'+
         '<td><button class="pill-btn" onclick="abrirModalPermisos_(\''+u.usuario+'\')" style="white-space:nowrap;"><span class="material-symbols-outlined">tune</span>'+modulosUsuario.length+' módulo'+(modulosUsuario.length===1?'':'s')+'</button></td>'+
         '<td><div class="user-actions" style="flex-wrap:nowrap;justify-content:flex-end;">'+
-          '<button class="pill-btn edit" onclick="editarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\',\''+(u.email||'')+'\',\''+u.rol+'\','+JSON.stringify(u.modulos||[]).replace(/"/g,'&quot;')+',\''+(u.sector||'').replace(/'/g,"\\'")+'\')"><span class="material-symbols-outlined">edit</span>Editar</button>'+
+          '<button class="pill-btn edit" title="Editar" onclick="editarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\',\''+(u.email||'')+'\',\''+u.rol+'\','+JSON.stringify(u.modulos||[]).replace(/"/g,'&quot;')+',\''+(u.sector||'').replace(/'/g,"\\'")+'\')"><span class="material-symbols-outlined">edit</span></button>'+
           '<div class="user-menu-wrap">'+
             '<button class="user-menu-btn" onclick="toggleUserMenu(\'um_'+u.usuario+'\',event)"><span class="material-symbols-outlined">more_vert</span></button>'+
             '<div class="user-menu-dropdown" id="um_'+u.usuario+'">'+
-              '<button onclick="mostrarUltimoIngreso_(\''+nombreEsc+'\',\''+(u.ultimoIngreso||'')+'\')"><span class="material-symbols-outlined">history</span>Último ingreso</button>'+
+              '<button onclick="mostrarUltimoIngreso_(\''+nombreEsc+'\',\''+(u.ultimoIngreso||'')+'\')"><span class="material-symbols-outlined">history</span>Última actividad</button>'+
               (u.email ? '<button onclick="reenviarCredencialesUI(\''+u.usuario+'\')"><span class="material-symbols-outlined">mail</span>Reenviar mail</button>' : '')+
               '<button onclick="resetPasswordUsuarioUI(\''+u.usuario+'\')"><span class="material-symbols-outlined">key</span>Resetear contraseña</button>'+
               '<button onclick="toggleActivoUsuarioUI(\''+u.usuario+'\','+(!u.activo)+')"><span class="material-symbols-outlined">'+(u.activo?'block':'check_circle')+'</span>'+(u.activo?'Desactivar':'Reactivar')+'</button>'+
@@ -3676,7 +3663,7 @@ function filtrarUsuariosTabla_(){
 function mostrarUltimoIngreso_(nombre, ultimoIngreso){
   if(!ultimoIngreso){ showToast(nombre+' todavía no inició sesión.'); return; }
   var fecha = new Date(ultimoIngreso);
-  showToast(nombre+' — último ingreso: '+fecha.toLocaleString('es-AR'));
+  showToast(nombre+' — última actividad: '+fecha.toLocaleString('es-AR'));
 }
 // Ciclo de 3 estados por click: sin acceso → solo ver → puede editar → sin acceso.
 // Nombres legibles + agrupación por tema, para la pantalla de Permisos
