@@ -2338,17 +2338,17 @@
       <div class="filter-bar" style="flex-wrap:wrap;gap:8px;">
         <select id="fabFiltroSucursal" onchange="renderNpsFabricaPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 8px;font-size:11.5px;flex-shrink:0;"><option value="">Todas las sucursales</option></select>
         <div id="fabCanalToggle" class="filter-pills" style="margin:0;flex-shrink:0;"></div>
-        <div class="filter-field" style="flex-shrink:0;"><label>Desde</label><input type="date" id="fabFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
-        <div class="filter-field" style="flex-shrink:0;"><label>Hasta</label><input type="date" id="fabFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
+        <div class="filter-field" style="flex-shrink:0;"><label style="font-size:8.5px;">Desde</label><input type="date" id="fabFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
+        <div class="filter-field" style="flex-shrink:0;"><label style="font-size:8.5px;">Hasta</label><input type="date" id="fabFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
         <button class="filter-pill" style="flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="limpiarDashboardFecha()" title="Todo el período"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span></button>
         <label style="display:inline-flex;align-items:center;gap:4px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:11.5px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;" title="Cargar planilla de Fábrica">
           📎 Cargar
           <input type="file" accept=".xlsx,.xls" id="npsFabricaFileInput" onchange="importarNpsFabricaArchivo_(event)" style="display:none;">
         </label>
         <button class="pdf-btn filter-pill" style="flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="imprimirComoPDF_()" title="Descargar PDF"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span></button>
+        <button class="pdf-btn filter-pill" style="flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="descargarImagenReporte_('fabReporteImagen','NPS_Fabrica')" title="Descargar imagen (Acumulado + Puntaje GM)"><span class="material-symbols-outlined" style="font-size:14px;">image</span></button>
         <span class="ayuda-tip" style="flex-shrink:0;" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Solo entran acá las entregas que ya tienen garantía cargada — son las únicas elegibles para esta encuesta. Si querés el NPS tal cual sale de la planilla que manda Fábrica (sin cruzar con las entregas), subila con el botón de arriba.</span></span>
       </div>
-      <button class="pdf-btn print-btn" style="margin-bottom:12px;margin-top:10px;" onclick="descargarImagenReporte_('fabReporteImagen','NPS_Fabrica')"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px;">image</span> Descargar imagen (Acumulado + Puntaje GM)</button>
       <div id="fabReporteImagen">
       <div id="fabResumenArchivo" style="display:none;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
       <div class="chart-panel" style="margin-bottom:16px;">
