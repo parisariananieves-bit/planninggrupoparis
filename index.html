@@ -12269,9 +12269,9 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
         '<div style="font-size:10px;color:var(--text-faint);margin-bottom:4px;">Base: "'+entrada.nombreArchivo+'" ('+soloFechaISO_(entrada.fecha)+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
         '<div style="font-size:9.5px;color:var(--text-faint);margin-bottom:8px;">Corte: '+soloFechaISO_(entrada.fechaCorte)+' <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="event.stopPropagation();editarFechaCorte_(\'fabrica\',\''+canalKey+'\')">editar</span></div>'+
       '</div>'+
-      '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
+      (function(){ var umbralCard_=Number((document.getElementById('gmUmbralMaximo'+(canalKey==='directa'?'TD':'PDA')+'Fab')||{}).value)||0; var cumpleUmbral_=umbralCard_>0 && r.nps>=umbralCard_; return '<div style="font-size:36px;font-weight:800;color:'+(cumpleUmbral_?'var(--ok)':(umbralCard_>0?'var(--danger)':(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))))+';">'+r.nps.toFixed(1)+'</div>'; })()+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
-      '<div style="font-size:10px;margin-top:3px;"><span style="color:var(--ok);font-weight:700;">'+r.conteo.promotores+' promotoras</span> · <span style="color:var(--warn);font-weight:700;">'+r.conteo.pasivos+' neutrales</span> · <span style="color:var(--danger);font-weight:700;">'+r.conteo.detractores+' detractoras</span></div>'+
+      '<div style="font-size:11.5px;margin-top:5px;"><span style="color:var(--ok);font-weight:700;">'+r.conteo.promotores+' promotoras</span> · <span style="color:var(--warn);font-weight:700;">'+r.conteo.pasivos+' neutrales</span> · <span style="color:var(--danger);font-weight:700;">'+r.conteo.detractores+' detractoras</span></div>'+
     '</div>';
   }
   var totalesPorCanal = [];
@@ -12309,6 +12309,7 @@ function importarNpsFabricaArchivo_(event){
       if(!puntos){ showToast('No se encontraron respuestas de NPS de Fábrica en el archivo.'); event.target.value=''; return; }
 
       var canal = detectarCanalArchivoFabrica_(filas);
+      puntos = normalizarPuntosPDA_(puntos, canal);
       guardarResumenArchivoFabrica_(canal, file.name, puntos);
       renderNpsFabricaPanel_();
       showToast('Cargado como "'+(canal==='pda'?'PDA':'Directa / Tradicional')+'" — NPS base '+npsDeConteo_(contarNpsCrudo_(puntos.map(function(p){return p.score;}))).toFixed(1));
@@ -12537,9 +12538,9 @@ function pintarResumenArchivoAT_(respondidasPorCanal){
         '<div style="font-size:10px;color:var(--text-faint);margin-bottom:4px;">Base: "'+entrada.nombreArchivo+'" ('+soloFechaISO_(entrada.fecha)+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
         '<div style="font-size:9.5px;color:var(--text-faint);margin-bottom:8px;">Corte: '+soloFechaISO_(entrada.fechaCorte)+' <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="event.stopPropagation();editarFechaCorte_(\'alertatemprana\',\''+canalKey+'\')">editar</span></div>'+
       '</div>'+
-      '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
+      (function(){ var umbralCard_=Number((document.getElementById('gmUmbralMaximo'+(canalKey==='directa'?'TD':'PDA')+'')||{}).value)||0; var cumpleUmbral_=umbralCard_>0 && r.nps>=umbralCard_; return '<div style="font-size:36px;font-weight:800;color:'+(cumpleUmbral_?'var(--ok)':(umbralCard_>0?'var(--danger)':(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))))+';">'+r.nps.toFixed(1)+'</div>'; })()+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
-      '<div style="font-size:10px;margin-top:3px;"><span style="color:var(--ok);font-weight:700;">'+r.conteo.promotores+' promotoras</span> · <span style="color:var(--warn);font-weight:700;">'+r.conteo.pasivos+' neutrales</span> · <span style="color:var(--danger);font-weight:700;">'+r.conteo.detractores+' detractoras</span></div>'+
+      '<div style="font-size:11.5px;margin-top:5px;"><span style="color:var(--ok);font-weight:700;">'+r.conteo.promotores+' promotoras</span> · <span style="color:var(--warn);font-weight:700;">'+r.conteo.pasivos+' neutrales</span> · <span style="color:var(--danger);font-weight:700;">'+r.conteo.detractores+' detractoras</span></div>'+
     '</div>';
   }
   var totalesPorCanal = [];
@@ -12664,6 +12665,25 @@ function agregarNpsAnonimoATUI_(){
 // Lee el Excel UNA sola vez (es el mismo archivo para las 3 encuestas) y
 // carga Fábrica + Alerta Temprana + Contacto Posterior de un tirón — así
 // no hay que subir el mismo archivo 3 veces.
+// En PDA el "Vendedor" no es una persona — viene como "SL - AUTOPLAN" o
+// "SJ - AUTOPLAN" (sigla de la sucursal), así que lo normalizamos para
+// que se agrupe con la sucursal real (San Luis / San Juan) en vez de
+// aparecer como si fuera un vendedor más. Se usa en todos los
+// importadores (el unificado y los de cada página).
+function normalizarPuntosPDA_(puntos, canal){
+  if(canal!=='pda') return puntos;
+  return puntos.map(function(p){
+    var v = (p.vendedor||'').trim().toUpperCase();
+    var sucursalNueva = p.sucursal;
+    var vendedorNuevo = p.vendedor;
+    if(/^SL\b/.test(v) || v.indexOf('SAN LUIS')>-1){ sucursalNueva = 'San Luis'; vendedorNuevo = 'PDA - San Luis'; }
+    else if(/^SJ\b/.test(v) || v.indexOf('SAN JUAN')>-1){ sucursalNueva = 'San Juan'; vendedorNuevo = 'PDA - San Juan'; }
+    if(vendedorNuevo===p.vendedor && sucursalNueva===p.sucursal) return p;
+    var pNuevo = {}; for(var k in p){ pNuevo[k]=p[k]; }
+    pNuevo.vendedor = vendedorNuevo; pNuevo.sucursal = sucursalNueva;
+    return pNuevo;
+  });
+}
 function importarNpsTodasLasInstancias_(event){
   var file = event.target.files[0];
   if(!file) return;
@@ -12707,11 +12727,12 @@ function importarNpsTodasLasInstancias_(event){
           });
         }
       }
+      puntosVentas = normalizarPuntosPDA_(puntosVentas, canal);
       if(puntosVentas.length){ guardarArchivoNpsBackend_('ventas', canal, file.name, puntosVentas); resumen.push('Ventas: '+puntosVentas.length); }
 
       // ---- Fábrica ----
       var puntosFab = calcularNpsDesdeFilas_(filas, idxHeaderRow, headers);
-      if(puntosFab){ guardarResumenArchivoFabrica_(canal, file.name, puntosFab); resumen.push('Fábrica: '+puntosFab.length); }
+      if(puntosFab){ puntosFab = normalizarPuntosPDA_(puntosFab, canal); guardarResumenArchivoFabrica_(canal, file.name, puntosFab); resumen.push('Fábrica: '+puntosFab.length); }
 
       // ---- Alerta Temprana ----
       var colFabrica = buscarColPorNombre_(headers, ['NPS','FABRICA']);
@@ -12740,7 +12761,7 @@ function importarNpsTodasLasInstancias_(event){
             vin: colVinAT>-1 ? String(fila[colVinAT]||'').trim() : ''
           });
         }
-        if(puntosAT.length){ guardarResumenArchivoAT_(canal, file.name, puntosAT); resumen.push('Alerta Temprana: '+puntosAT.length); }
+        if(puntosAT.length){ puntosAT = normalizarPuntosPDA_(puntosAT, canal); guardarResumenArchivoAT_(canal, file.name, puntosAT); resumen.push('Alerta Temprana: '+puntosAT.length); }
       }
 
       // ---- Contacto Posterior (columnas fijas AH=33, AN=39) ----
@@ -12763,7 +12784,7 @@ function importarNpsTodasLasInstancias_(event){
           vin: colVinCp>-1 ? String(fila2[colVinCp]||'').trim() : ''
         });
       }
-      if(puntosCp.length){ guardarResumenArchivoCp_(canal, file.name, puntosCp); resumen.push('Contacto Posterior: '+puntosCp.length); }
+      if(puntosCp.length){ puntosCp = normalizarPuntosPDA_(puntosCp, canal); guardarResumenArchivoCp_(canal, file.name, puntosCp); resumen.push('Contacto Posterior: '+puntosCp.length); }
 
       showToast('Cargado como "'+(canal==='pda'?'PDA':'Directa / Tradicional')+'" — '+resumen.join(' · '));
       setTimeout(function(){
@@ -12827,6 +12848,7 @@ function importarNpsAlertaTempranaArchivo_(event){
       }
       if(puntos.length===0){ showToast('No se encontraron respuestas de NPS Alerta Temprana en el archivo.'); event.target.value=''; return; }
       var canal = detectarCanalArchivoFabrica_(filas);
+      puntos = normalizarPuntosPDA_(puntos, canal);
       guardarResumenArchivoAT_(canal, file.name, puntos);
       renderAlertaTempranaReporte_();
       showToast('Cargado como "'+(canal==='pda'?'PDA':'Directa / Tradicional')+'" — NPS base '+npsDeConteo_(contarNpsCrudo_(puntos.map(function(p){return p.score;}))).toFixed(1));
@@ -12920,9 +12942,9 @@ function pintarResumenArchivoCp_(respondidasPorCanal){
         '<div style="font-size:10px;color:var(--text-faint);margin-bottom:4px;">Base: "'+entrada.nombreArchivo+'" ('+soloFechaISO_(entrada.fecha)+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
         '<div style="font-size:9.5px;color:var(--text-faint);margin-bottom:8px;">Corte: '+soloFechaISO_(entrada.fechaCorte)+' <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="event.stopPropagation();editarFechaCorte_(\'contactoposterior\',\''+canalKey+'\')">editar</span></div>'+
       '</div>'+
-      '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
+      (function(){ var umbralCard_=Number((document.getElementById('gmUmbralMaximo'+(canalKey==='directa'?'TD':'PDA')+'Cp')||{}).value)||0; var cumpleUmbral_=umbralCard_>0 && r.nps>=umbralCard_; return '<div style="font-size:36px;font-weight:800;color:'+(cumpleUmbral_?'var(--ok)':(umbralCard_>0?'var(--danger)':(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))))+';">'+r.nps.toFixed(1)+'</div>'; })()+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
-      '<div style="font-size:10px;margin-top:3px;"><span style="color:var(--ok);font-weight:700;">'+r.conteo.promotores+' promotoras</span> · <span style="color:var(--warn);font-weight:700;">'+r.conteo.pasivos+' neutrales</span> · <span style="color:var(--danger);font-weight:700;">'+r.conteo.detractores+' detractoras</span></div>'+
+      '<div style="font-size:11.5px;margin-top:5px;"><span style="color:var(--ok);font-weight:700;">'+r.conteo.promotores+' promotoras</span> · <span style="color:var(--warn);font-weight:700;">'+r.conteo.pasivos+' neutrales</span> · <span style="color:var(--danger);font-weight:700;">'+r.conteo.detractores+' detractoras</span></div>'+
     '</div>';
   }
   var totalesPorCanal = [];
@@ -13015,6 +13037,7 @@ function importarNpsContactoPosteriorArchivo_(event){
       }
       if(puntos.length===0){ showToast('No se encontraron respuestas de NPS Contacto Posterior en el archivo.'); event.target.value=''; return; }
       var canal = detectarCanalArchivoFabrica_(filas);
+      puntos = normalizarPuntosPDA_(puntos, canal);
       guardarResumenArchivoCp_(canal, file.name, puntos);
       renderNpsContactoPosteriorPanel_();
       showToast('Cargado como "'+(canal==='pda'?'PDA':'Directa / Tradicional')+'" — NPS base '+npsDeConteo_(contarNpsCrudo_(puntos.map(function(p){return p.score;}))).toFixed(1));
