@@ -7239,11 +7239,12 @@ function renderHorariosDia_(){
   var hastaMin = horaAMinutos_('18:00');
   var PASO = 15;
   var html = '';
-  for(var min=desdeMin; min<hastaMin; min+=PASO){
+  for(var min=desdeMin; min<hastaMin; ){
     var horaSlot = minutosAHora_(min);
     if(minutoBloqueadoPorRegla_(min, regla)){
       html += '<div class="horario-slot bloqueado" style="opacity:.5;cursor:not-allowed;">'+
         '<span class="hora">'+horaSlot+'</span><span class="info">🚫 Bloqueado ('+regla.desde+' a '+(regla.hasta||'18:00')+')</span></div>';
+      min += PASO;
       continue;
     }
     var ocupante = rows.find(function(r){
@@ -7252,12 +7253,22 @@ function renderHorariosDia_(){
       return min>=inicio && min<fin;
     });
     if(ocupante){
+      // Un mismo turno puede ocupar varios bloques de 15' seguidos — los
+      // juntamos en UN solo renglón (ej: "10:15 a 10:30"), en vez de
+      // repetir el nombre del cliente en cada bloque.
+      var inicioOcupante = horaAMinutos_(ocupante.hora);
+      var finOcupante = inicioOcupante + (ocupante.duracionMinutos || 60);
+      var horaInicioTxt = minutosAHora_(Math.max(min, inicioOcupante));
+      var horaFinTxt = minutosAHora_(Math.min(finOcupante, hastaMin));
       var etiquetaMarcaCal = (currentBrands.indexOf(ocupante.marca)===-1) ? ' ('+(BRANDS.find(function(x){return x.id===ocupante.marca;})||{}).label+')' : '';
       html += '<div class="horario-slot ocupado" onclick="openDetail(\''+ocupante.marca+'\',\''+ocupante.id+'\')">'+
-        '<span class="hora">'+horaSlot+'</span><span class="info">🔴 '+ocupante.cliente+' · '+ocupante.modelo+etiquetaMarcaCal+'</span></div>';
+        '<span class="hora">'+horaInicioTxt+' a '+horaFinTxt+'</span><span class="info">🔴 '+ocupante.cliente+' · '+ocupante.modelo+etiquetaMarcaCal+'</span></div>';
+      min = finOcupante>min ? finOcupante : (min+PASO);
+      continue;
     } else {
       html += '<div class="horario-slot libre" onclick="reservarHorario_(\''+fechaStr+'\',\''+horaSlot+'\')">'+
         '<span class="hora">'+horaSlot+'</span><span class="info">🟢 Libre — tocá para agendar</span></div>';
+      min += PASO;
     }
   }
   document.getElementById('horariosDiaGrilla').innerHTML = html || '<div style="color:var(--text-faint);font-size:12.5px;padding:14px;text-align:center;">Sin horarios configurados para este día.</div>';
@@ -9645,10 +9656,11 @@ function renderDisponibilidadNuevaEntrega(){
   var desdeMin = horaAMinutos_('09:00');
   var hastaMin = horaAMinutos_('18:00');
   var html='';
-  for(var min=desdeMin; min<hastaMin; min+=15){
+  for(var min=desdeMin; min<hastaMin; ){
     var horaSlot = minutosAHora_(min);
     if(minutoBloqueadoPorRegla_(min, regla)){
       html += '<div class="horario-slot bloqueado" style="opacity:.5;cursor:not-allowed;"><span class="hora">'+horaSlot+'</span><span class="info">🚫 Bloqueado</span></div>';
+      min += 15;
       continue;
     }
     var ocupante = rows.find(function(r){
@@ -9656,11 +9668,20 @@ function renderDisponibilidadNuevaEntrega(){
       return min>=inicio && min<fin;
     });
     if(ocupante){
+      // Mismo turno en varios bloques de 15' seguidos: un solo renglón
+      // con "hora a hora", en vez de repetir el nombre en cada bloque.
+      var inicioOcupante = horaAMinutos_(ocupante.hora);
+      var finOcupante = inicioOcupante + (ocupante.duracionMinutos || 60);
+      var horaInicioTxt = minutosAHora_(Math.max(min, inicioOcupante));
+      var horaFinTxt = minutosAHora_(Math.min(finOcupante, hastaMin));
       var etiquetaMarca = (ocupante.marca!==marcaSel) ? ' ('+(BRANDS.find(function(x){return x.id===ocupante.marca;})||{}).label+')' : '';
-      html += '<div class="horario-slot ocupado" style="cursor:pointer;" title="Ver detalle de '+ocupante.cliente+'" onclick="openDetail(\''+ocupante.marca+'\',\''+ocupante.id+'\')"><span class="hora">'+horaSlot+'</span><span class="info">🔴 '+ocupante.cliente+etiquetaMarca+'</span></div>';
+      html += '<div class="horario-slot ocupado" style="cursor:pointer;" title="Ver detalle de '+ocupante.cliente+'" onclick="openDetail(\''+ocupante.marca+'\',\''+ocupante.id+'\')"><span class="hora">'+horaInicioTxt+' a '+horaFinTxt+'</span><span class="info">🔴 '+ocupante.cliente+etiquetaMarca+'</span></div>';
+      min = finOcupante>min ? finOcupante : (min+15);
+      continue;
     } else {
       var esElegido = (horaSlot === document.getElementById('nHora').value);
       html += '<div class="horario-slot libre'+(esElegido?' seleccionado':'')+'" onclick="document.getElementById(\'nHora\').value=\''+horaSlot+'\';checkNewDeliveryDate();renderDisponibilidadNuevaEntrega();"><span class="hora">'+horaSlot+'</span><span class="info">'+(esElegido?'✔ Seleccionado':'🟢 Libre — tocá para elegir')+'</span></div>';
+      min += 15;
     }
   }
   grilla.innerHTML = html || '<div style="color:var(--text-faint);font-size:12px;padding:10px;">Sin horarios configurados para este día.</div>';
