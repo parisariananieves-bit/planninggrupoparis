@@ -10519,9 +10519,32 @@ function showToast(msg){
 
 document.addEventListener('keydown', function(e){
   if(e.key==='Escape'){
-    closeAll();
-    var mcp = document.getElementById('modalContactoPosterior');
-    if(mcp && mcp.classList.contains('show')) cerrarModalContactoPosterior_();
+    // Cerramos de a un nivel por vez: primero cualquier modal que esté
+    // ARRIBA de todo (ej: el detalle de NPS, Contacto Posterior, un caso,
+    // etc.) — si hay uno abierto, se cierra ese solo y quedás viendo lo
+    // de atrás (por ejemplo, el detalle de la entrega). Recién si no hay
+    // ningún modal de estos abierto, pasamos a cerrar lo de atrás
+    // (closeAll — el detalle, formularios, etc.).
+    var modalesArriba = [
+      ['modalNpsDetalle', cerrarModalNpsDetalle_],
+      ['modalContactoPosterior', cerrarModalContactoPosterior_],
+      ['modalCaso', cerrarModalCaso],
+      ['modalSeguimientoGC', cerrarModalSeguimientoGC_],
+      ['modalFichaPreparacion', function(){ cerrarFichaPreparacion_(); }],
+      ['modalNuevaPreparacion', cerrarModalNuevaPreparacion_],
+      ['modalPermisos', function(){ cerrarModalPermisos_(); }],
+      ['modalChecklistTraslado', cerrarChecklistTraslado_]
+    ];
+    var seCerroAlgunModal = false;
+    for(var i=0;i<modalesArriba.length;i++){
+      var el = document.getElementById(modalesArriba[i][0]);
+      if(el && el.classList.contains('show')){
+        modalesArriba[i][1]();
+        seCerroAlgunModal = true;
+        break; // solo el de más arriba — si hay varios, el próximo ESC cierra el siguiente
+      }
+    }
+    if(!seCerroAlgunModal) closeAll();
   }
   if(e.key==='Enter' && currentAppView==='nuevaentrega'){
     var activo = document.activeElement;
@@ -13442,7 +13465,7 @@ function renderRankingVendedorPanel_(){
     var sucursalPrincipal = Object.keys(v.sucursales).sort(function(a,b){return v.sucursales[b]-v.sucursales[a];})[0] || '—';
     return {nombre:nombre, nps:nps, total:v.total, promotores:v.promotores, pasivos:v.pasivos, detractores:v.detractores, sucursalPrincipal:sucursalPrincipal, ventas: ventasPorVendedor[nombre]||0};
   }
-  var listaVendedores = Object.keys(acumVendedor).map(function(n){ return filaTabla_(n, acumVendedor[n]); });
+  var listaVendedores = Object.keys(acumVendedor).filter(function(n){ return n.toLowerCase()!=='anonimo' && n.toLowerCase()!=='anónimo'; }).map(function(n){ return filaTabla_(n, acumVendedor[n]); });
   listaVendedores.sort(function(a,b){
     var npsA = a.nps===null?-999:a.nps, npsB = b.nps===null?-999:b.nps;
     if(npsB!==npsA) return npsB-npsA;
@@ -13509,7 +13532,7 @@ function renderRankingVendedorPanel_(){
       return {score:Number(r.npsFabricaScore), fecha:r.npsFabricaFecha};
     });
   }
-  var listaSucursales = Object.keys(acumSucursalReal).map(function(s){
+  var listaSucursales = Object.keys(acumSucursalReal).filter(function(s){ return s.toLowerCase()!=='anonimo' && s.toLowerCase()!=='anónimo'; }).map(function(s){
     var v = acumSucursalReal[s];
     return {nombre:s, nps:npsDeConteo_(v), total:v.total, promotores:v.promotores, pasivos:v.pasivos, detractores:v.detractores, ventas: ventasPorSucursal[s]||0};
   });
