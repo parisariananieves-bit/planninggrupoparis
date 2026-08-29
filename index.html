@@ -2427,6 +2427,7 @@
         <button class="pdf-btn filter-pill" style="flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="imprimirComoPDF_()" title="Descargar PDF"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span></button>
         <span class="ayuda-tip" style="flex-shrink:0;" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Combina lo cargado en el sistema (entregas con NPS) + lo que venga de los archivos importados (que ya traen vendedor, sucursal y VIN) — sin duplicar lo que ya está en el archivo. La marca se filtra con los botones de arriba de la página. "Ventas" cuenta TODOS los autos entregados de ese vendedor (respondan o no la encuesta). "Tasa de respuesta" es Respuestas sobre Ventas del propio vendedor. "% Participación" es cuánto representan las respuestas de este vendedor sobre el total de respuestas de TODOS los vendedores juntos. Un solo archivo carga las 3 encuestas de una — subilo dos veces (Directa y PDA).</span></span>
       </div>
+      <div id="rankCorteVentas" style="font-size:9.5px;color:var(--text-faint);margin-bottom:14px;"></div>
 
       <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--warn);">military_tech</span>Top 5 Vendedores</div>
       <div class="report-wrap"><table class="report-table" id="rankVendedorTop5Tabla"></table></div>
@@ -12110,11 +12111,13 @@ function renderNpsContactoPosteriorPanel_(){
   var sucFResumenCp = document.getElementById('cpFiltroSucursal').value;
   var ventasTotalCp = 0;
   var vinsYaContadosCp = {};
+  var corteVentasCp = {directa:'0000-00-00', pda:'0000-00-00'};
   ['directa','pda'].forEach(function(canalKey){
     var esteCanalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
     if(filterCanal && filterCanal!==esteCanalUrl) return;
     var archVentas = obtenerArchivoNps_('ventas', canalKey);
     if(archVentas){
+      corteVentasCp[canalKey] = archVentas.fechaCorte || '0000-00-00';
       archVentas.puntos.forEach(function(p){
         if(!p.vin) return;
         if(sucFResumenCp && p.sucursal!==sucFResumenCp) return;
@@ -12124,6 +12127,10 @@ function renderNpsContactoPosteriorPanel_(){
   });
   rows.forEach(function(r){
     if(r.chasis && vinsYaContadosCp[r.chasis]) return;
+    var canalKeyR = esCanalPDA_(r) ? 'pda' : 'directa';
+    var corteR = corteVentasCp[canalKeyR];
+    var fIsoR = fechaAIso_(r.fecha);
+    if(fIsoR && corteR!=='0000-00-00' && fIsoR < corteR) return;
     ventasTotalCp++;
   });
   var pct = ventasTotalCp ? Math.round(respondidasTotalCp/ventasTotalCp*100) : 0;
@@ -13226,11 +13233,13 @@ function renderNpsFabricaPanel_(){
   var sucFResumen = document.getElementById('fabFiltroSucursal').value;
   var ventasTotal = 0;
   var vinsYaContadosResumen = {};
+  var corteVentasResumen = {directa:'0000-00-00', pda:'0000-00-00'};
   ['directa','pda'].forEach(function(canalKey){
     var esteCanalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
     if(filterCanal && filterCanal!==esteCanalUrl) return;
     var archVentas = obtenerArchivoNps_('ventas', canalKey);
     if(archVentas){
+      corteVentasResumen[canalKey] = archVentas.fechaCorte || '0000-00-00';
       archVentas.puntos.forEach(function(p){
         if(!p.vin) return;
         if(sucFResumen && p.sucursal!==sucFResumen) return;
@@ -13240,6 +13249,10 @@ function renderNpsFabricaPanel_(){
   });
   elegibles.forEach(function(r){
     if(r.chasis && vinsYaContadosResumen[r.chasis]) return;
+    var canalKeyR = esCanalPDA_(r) ? 'pda' : 'directa';
+    var corteR = corteVentasResumen[canalKeyR];
+    var fIsoR = fechaAIso_(r.fecha);
+    if(fIsoR && corteR!=='0000-00-00' && fIsoR < corteR) return;
     ventasTotal++;
   });
   var pct = ventasTotal ? Math.round(respondidasTotal/ventasTotal*100) : 0;
@@ -13406,17 +13419,26 @@ function renderRankingVendedorPanel_(){
   var instanciaSel = document.getElementById('rankFiltroInstancia').value;
   var rows = entregasParaDashboard();
 
+  var archVentasDirecta = obtenerArchivoNps_('ventas','directa');
+  var archVentasPda = obtenerArchivoNps_('ventas','pda');
+  document.getElementById('rankCorteVentas').innerHTML =
+    'Corte de Ventas — Directa: '+(archVentasDirecta?soloFechaISO_(archVentasDirecta.fechaCorte):'sin archivo')+' <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="editarFechaCorte_(\'ventas\',\'directa\')">editar</span>'+
+    ' · PDA: '+(archVentasPda?soloFechaISO_(archVentasPda.fechaCorte):'sin archivo')+' <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="editarFechaCorte_(\'ventas\',\'pda\')">editar</span>'+
+    ' — desde esa fecha, las entregas cargadas en Planning cuentan como ventas en vivo (no vienen ya del archivo).';
+
   // Cantidad de ventas (autos, no respuestas) por vendedor y por sucursal —
   // viene de un dataset propio ("ventas": TODAS las entregas con VIN del
   // archivo, tengan o no alguna encuesta respondida), no de las 3 encuestas
   // — así un auto entregado pero sin ninguna respuesta todavía SÍ cuenta
   // como venta.
   var vinVendedor = {}, vinSucursal = {};
+  var corteVentasPorCanal = {directa:'0000-00-00', pda:'0000-00-00'};
   ['directa','pda'].forEach(function(canalKey){
     var esteCanalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
     if(filterCanal && filterCanal!==esteCanalUrl) return;
     var arch = obtenerArchivoNps_('ventas', canalKey);
     if(!arch) return;
+    corteVentasPorCanal[canalKey] = arch.fechaCorte || '0000-00-00';
     arch.puntos.forEach(function(p){
       if(!p.vin) return;
       if(!vinVendedor[p.vin]) vinVendedor[p.vin] = (p.vendedor||'').trim() || '(sin asignar)';
@@ -13432,7 +13454,11 @@ function renderRankingVendedorPanel_(){
   });
   rows.forEach(function(r){
     if(r.chasis && vinVendedor[r.chasis]) return; // este auto ya se contó desde el archivo
-    var norm = normalizarVendedorSucursalPDA_(r.vendedor, r.sucursal, esCanalPDA_(r) ? 'pda' : 'directa');
+    var canalKeyR = esCanalPDA_(r) ? 'pda' : 'directa';
+    var corteR = corteVentasPorCanal[canalKeyR];
+    var fIsoR = fechaAIso_(r.fecha);
+    if(fIsoR && corteR!=='0000-00-00' && fIsoR < corteR) return; // antes del corte: ya debería estar contado desde el archivo
+    var norm = normalizarVendedorSucursalPDA_(r.vendedor, r.sucursal, canalKeyR);
     var vend = (norm.vendedor||'').trim() || '(sin asignar)';
     var suc = (norm.sucursal||'').trim() || '(sin asignar)';
     ventasPorVendedor[vend] = (ventasPorVendedor[vend]||0)+1;
