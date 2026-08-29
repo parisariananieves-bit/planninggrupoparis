@@ -1948,7 +1948,7 @@
 
       <div id="atResumenArchivo" style="display:none;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
       <div class="chart-panel" style="margin-bottom:16px;">
-        <div class="chart-panel-title"><span class="chart-icon ambar"><span class="material-symbols-outlined">show_chart</span></span>Evolución mensual (archivo + sistema — respeta el filtro de canal de arriba)</div>
+        <div class="chart-panel-title" style="display:flex;align-items:center;gap:6px;"><span class="chart-icon ambar"><span class="material-symbols-outlined">show_chart</span></span>Evolución mensual <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Suma el archivo importado + lo cargado en el sistema. Respeta el filtro de canal (Todos/PDA/Tradicional) de arriba de la página.</span></span></div>
         <canvas id="atChartEvolucionMensual" height="65"></canvas>
       </div>
       <div style="background:var(--panel-2);border:1px dashed var(--hairline);border-radius:10px;padding:12px 14px;margin-bottom:16px;">
@@ -2204,11 +2204,11 @@
         <button class="save-btn" style="width:auto;margin:0;" onclick="agregarItemCatalogoAccesoriosUI_()">+ Agregar</button>
         <select id="catImportMarca" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;"></select>
         <label style="display:inline-block;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:12px;color:var(--text-dim);">
-          📎 Importar Excel (hoja "PRECIOS")
+          📎 Importar Excel
           <input type="file" accept=".xlsx,.xls" id="catalogoAccesoriosFileInput" onchange="importarCatalogoAccesoriosArchivo_(event)" style="display:none;">
         </label>
+        <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">El Excel se lee de la hoja llamada "PRECIOS" (la que trae cada modelo con Accesorio/Aplica/PN/Precio/M.O/Contado final/Tarjeta/3 cuotas) — las demás hojas del archivo (por modelo, o el registro de ventas) no se importan. Todo lo que traiga el archivo se guarda con la marca que elijas acá al lado.</span></span>
       </div>
-      <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:10px;">El Excel se lee de la hoja llamada "PRECIOS" (la que trae cada modelo con Accesorio/Aplica/PN/Precio/M.O/Contado final/Tarjeta/3 cuotas) — las demás hojas del archivo (por modelo, o el registro de ventas) no se importan. Todo lo que traiga el archivo se guarda con la marca que elijas acá al lado.</div>
       <div id="catalogoAccesoriosTabla"></div>
     </div>
     <div class="maestro-block">
@@ -2258,8 +2258,7 @@
         </div>
       </div>
 
-      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">fact_check</span>Cobertura de Medición</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-bottom:8px;">Cuántos clientes respondieron todas las encuestas que les correspondían, y a cuántos les falta alguna.</div>
+      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;">Cobertura de Medición <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Cuántos clientes respondieron todas las encuestas que les correspondían, y a cuántos les falta alguna.</span></span></div>
       <div class="stats-grid" id="calidadCoberturaKpis" style="margin-bottom:14px;"></div>
       <div class="report-wrap"><table class="report-table" id="calidadCoberturaTabla"></table></div>
       <div id="calidadCoberturaVerMas" style="text-align:center;margin-top:8px;"></div>
@@ -2287,7 +2286,7 @@
 
       <div id="cpResumenArchivo" style="display:none;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
       <div class="chart-panel" style="margin-bottom:16px;">
-        <div class="chart-panel-title"><span class="chart-icon ambar"><span class="material-symbols-outlined">show_chart</span></span>Evolución mensual (archivo + sistema — respeta el filtro de canal de arriba)</div>
+        <div class="chart-panel-title" style="display:flex;align-items:center;gap:6px;"><span class="chart-icon ambar"><span class="material-symbols-outlined">show_chart</span></span>Evolución mensual <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Suma el archivo importado + lo cargado en el sistema. Respeta el filtro de canal (Todos/PDA/Tradicional) de arriba de la página.</span></span></div>
         <canvas id="cpChartEvolucionMensual" height="65"></canvas>
       </div>
       <div style="background:var(--panel-2);border:1px dashed var(--hairline);border-radius:10px;padding:12px 14px;margin-bottom:16px;">
@@ -2352,7 +2351,7 @@
       <div id="fabReporteImagen">
       <div id="fabResumenArchivo" style="display:none;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
       <div class="chart-panel" style="margin-bottom:16px;">
-        <div class="chart-panel-title"><span class="chart-icon ambar"><span class="material-symbols-outlined">show_chart</span></span>Evolución mensual (archivo + sistema — respeta el filtro de canal de arriba)</div>
+        <div class="chart-panel-title" style="display:flex;align-items:center;gap:6px;"><span class="chart-icon ambar"><span class="material-symbols-outlined">show_chart</span></span>Evolución mensual <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Suma el archivo importado + lo cargado en el sistema. Respeta el filtro de canal (Todos/PDA/Tradicional) de arriba de la página.</span></span></div>
         <canvas id="fabChartEvolucionMensual" height="65"></canvas>
       </div>
 
@@ -2435,11 +2434,9 @@
       <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">emoji_events</span>Ranking completo por Vendedor</div>
       <div class="report-wrap"><table class="report-table" id="rankVendedorTabla"></table></div>
 
-      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--warn);">military_tech</span>Top 5 Sucursales</div>
-      <div class="report-wrap"><table class="report-table" id="rankSucursalTop5Tabla"></table></div>
-
-      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">store</span>Medición completa por Sucursal</div>
+      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">store</span>Medición por Sucursal</div>
       <div class="report-wrap"><table class="report-table" id="rankSucursalTabla"></table></div>
+      <div id="rankTotales" style="font-size:10.5px;color:var(--text-faint);margin-top:8px;text-align:right;"></div>
     </div>
 
     <div id="paneMaestroGarantiascalidad" style="display:none;padding:10px 0;">
@@ -3287,6 +3284,17 @@ function sesionActual(){
     return raw ? JSON.parse(raw) : null;
   }catch(e){ return null; }
 }
+// Heartbeat — cada 2 minutos, mientras tengas la app abierta y con sesión
+// iniciada, le avisamos al servidor "seguís acá". Antes, el punto de
+// "Online" solo se prendía un ratito después del login y a los 5 minutos
+// ya figurabas offline aunque siguieras usando el sistema.
+function enviarLatidoActividad_(){
+  var s = sesionActual();
+  if(!s || !s.usuario || !s.password) return;
+  gasPost('registrarActividad', {usuario:s.usuario, password:s.password}).catch(function(){});
+}
+setInterval(enviarLatidoActividad_, 120000);
+setTimeout(enviarLatidoActividad_, 3000);
 function guardarSesion_(s, recordar){
   if(recordar){
     localStorage.setItem('sesionUsuario', JSON.stringify(s));
@@ -3610,13 +3618,19 @@ function renderUsuariosTabla_(){
   var tabla = document.getElementById('tablaUsuarios');
   if(!tabla) return;
   tabla.classList.add('users-table');
-  tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--text-faint);">Cargando usuarios...</th></tr>';
+  // Solo mostramos "Cargando..." la primera vez (tabla vacía) — en los
+  // refrescos automáticos de cada 20s, dejamos lo que ya había mientras
+  // llega lo nuevo, así no parpadea toda la tabla todo el tiempo.
+  if(!tabla.dataset.cargadaAlgunaVez){
+    tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--text-faint);">Cargando usuarios...</th></tr>';
+  }
   var s = sesionActual();
   if(!s) return;
   var pass = credencialesActor_();
   if(pass===null){ tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--text-faint);">Cerrá sesión y volvé a entrar para ver esto.</th></tr>'; return; }
   gasPost('listarUsuarios',{actorUsuario:s.usuario, actorPassword:pass}).then(function(res){
     if(res.error){ tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">'+res.error+'</th></tr>'; return; }
+    tabla.dataset.cargadaAlgunaVez = 'true';
     window._ultimaPasswordActor = pass; // se reusa para las acciones de esta sesión de la pestaña
     window._usuariosCache = res.usuarios||[];
     var html = '<tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th><th>Módulos</th><th>Acciones</th></tr>';
@@ -12118,7 +12132,7 @@ function renderNpsContactoPosteriorPanel_(){
     var archVentas = obtenerArchivoNps_('ventas', canalKey);
     if(archVentas){
       corteVentasCp[canalKey] = archVentas.fechaCorte || '0000-00-00';
-      archVentas.puntos.forEach(function(p){
+      filtrarPuntosPorFecha_(archVentas.puntos).forEach(function(p){
         if(!p.vin) return;
         if(sucFResumenCp && p.sucursal!==sucFResumenCp) return;
         if(!vinsYaContadosCp[p.vin]){ vinsYaContadosCp[p.vin]=true; ventasTotalCp++; }
@@ -12268,24 +12282,38 @@ function fechaAIso_(str){
   if(!m) return '';
   return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
 }
+// Filtra un array de puntos del archivo ({fecha, score, ...}) por el
+// Desde/Hasta que esté puesto arriba de la página — antes esto NUNCA se
+// aplicaba al archivo importado (solo a las entregas cargadas a mano),
+// por eso mover las fechas no cambiaba casi nada.
+function pasaFiltroFechaGlobal_(fIso){
+  if(!fIso) return true; // sin fecha cargada: mejor no perderlo que sacarlo de más
+  if(dashboardFechaDesde && fIso < dashboardFechaDesde) return false;
+  if(dashboardFechaHasta && fIso > dashboardFechaHasta) return false;
+  return true;
+}
+function filtrarPuntosPorFecha_(puntos){
+  if(!dashboardFechaDesde && !dashboardFechaHasta) return puntos;
+  return puntos.filter(function(p){ return pasaFiltroFechaGlobal_(fechaAIso_(p.fecha)); });
+}
 // Conteo acumulado de un canal (archivo base + entregas con VIN cargadas
 // después + respuestas anónimas), respetando la fecha de corte del
 // archivo. Lo usan tanto la tarjeta de arriba como el Puntaje GM, para
 // que sea SIEMPRE el mismo número en los dos lados.
 function conteoAcumuladoFabrica_(canalKey, respondidasCanal){
   var entrada = obtenerArchivoNps_('fabrica', canalKey);
-  var base = entrada ? entrada.conteo : null;
+  var base = entrada ? contarNpsCrudo_(filtrarPuntosPorFecha_(entrada.puntos).map(function(p){return p.score;})) : null;
   var corte = entrada ? (entrada.fechaCorte || fechaHoyIso_()) : '0000-00-00';
   var todasCanal = respondidasCanal || [];
   var nuevas = todasCanal.filter(function(r){
     var f = fechaAIso_(r.npsFabricaFecha);
-    return !f || f>=corte;
+    return (!f || f>=corte) && pasaFiltroFechaGlobal_(f);
   });
   var canalLabel = canalKey==='directa' ? 'TD' : 'PDA';
   var anonimasCanal = ANONIMAS_FABRICA_.filter(function(a){
     if(a.canal!==canalLabel) return false;
     var f = fechaAIso_(a.fecha);
-    return !f || f>=corte;
+    return (!f || f>=corte) && pasaFiltroFechaGlobal_(f);
   });
   var vivo = contarNpsCrudo_(
     nuevas.map(function(r){return Number(r.npsFabricaScore);}).concat(anonimasCanal.map(function(a){return Number(a.puntaje);}))
@@ -12542,18 +12570,18 @@ function guardarResumenArchivoAT_(canal, nombreArchivo, puntos){
 }
 function conteoAcumuladoAT_(canalKey, respondidasCanal){
   var entrada = obtenerArchivoNps_('alertatemprana', canalKey);
-  var base = entrada ? entrada.conteo : null;
+  var base = entrada ? contarNpsCrudo_(filtrarPuntosPorFecha_(entrada.puntos).map(function(p){return p.score;})) : null;
   var corte = entrada ? (entrada.fechaCorte || fechaHoyIso_()) : '0000-00-00';
   var todasCanal = respondidasCanal || [];
   var nuevas = todasCanal.filter(function(r){
     var f = fechaAIso_(r.alertaTempranaFechaRespuesta);
-    return !f || f>=corte;
+    return (!f || f>=corte) && pasaFiltroFechaGlobal_(f);
   });
   var canalLabel = canalKey==='directa' ? 'TD' : 'PDA';
   var anonimasCanal = ANONIMAS_AT_.filter(function(a){
     if(a.canal!==canalLabel) return false;
     var f = fechaAIso_(a.fecha);
-    return !f || f>=corte;
+    return (!f || f>=corte) && pasaFiltroFechaGlobal_(f);
   });
   var vivo = contarNpsCrudo_(
     nuevas.map(function(r){return Number(r.npsScore);}).concat(anonimasCanal.map(function(a){return Number(a.puntaje);}))
@@ -12954,18 +12982,18 @@ function guardarResumenArchivoCp_(canal, nombreArchivo, puntos){
 }
 function conteoAcumuladoCp_(canalKey, respondidasCanal){
   var entrada = obtenerArchivoNps_('contactoposterior', canalKey);
-  var base = entrada ? entrada.conteo : null;
+  var base = entrada ? contarNpsCrudo_(filtrarPuntosPorFecha_(entrada.puntos).map(function(p){return p.score;})) : null;
   var corte = entrada ? (entrada.fechaCorte || fechaHoyIso_()) : '0000-00-00';
   var todasCanal = respondidasCanal || []; // array de {r, d} con d.fecha / d.recomienda
   var nuevas = todasCanal.filter(function(x){
     var f = fechaAIso_(x.d.fecha);
-    return !f || f>=corte;
+    return (!f || f>=corte) && pasaFiltroFechaGlobal_(f);
   });
   var canalLabel = canalKey==='directa' ? 'TD' : 'PDA';
   var anonimasCanal = ANONIMAS_CP_.filter(function(a){
     if(a.canal!==canalLabel) return false;
     var f = fechaAIso_(a.fecha);
-    return !f || f>=corte;
+    return (!f || f>=corte) && pasaFiltroFechaGlobal_(f);
   });
   var vivo = contarNpsCrudo_(
     nuevas.map(function(x){return Number(x.d.recomienda);}).concat(anonimasCanal.map(function(a){return Number(a.puntaje);}))
@@ -13240,7 +13268,7 @@ function renderNpsFabricaPanel_(){
     var archVentas = obtenerArchivoNps_('ventas', canalKey);
     if(archVentas){
       corteVentasResumen[canalKey] = archVentas.fechaCorte || '0000-00-00';
-      archVentas.puntos.forEach(function(p){
+      filtrarPuntosPorFecha_(archVentas.puntos).forEach(function(p){
         if(!p.vin) return;
         if(sucFResumen && p.sucursal!==sucFResumen) return;
         if(!vinsYaContadosResumen[p.vin]){ vinsYaContadosResumen[p.vin]=true; ventasTotal++; }
@@ -13398,7 +13426,7 @@ function agregarInstanciaAlRanking_(acum, instancia, entregasVivas, extractor){
     var arch = obtenerArchivoNps_(instancia, canalKey);
     var corte = arch ? (arch.fechaCorte || '0000-00-00') : '0000-00-00';
     if(arch){
-      arch.puntos.forEach(function(p){
+      filtrarPuntosPorFecha_(arch.puntos).forEach(function(p){
         sumarAVendedor_(acum, p.vendedor, p.sucursal, Number(p.score));
       });
     }
@@ -13408,6 +13436,7 @@ function agregarInstanciaAlRanking_(acum, instancia, entregasVivas, extractor){
       if(!datos) return;
       var fIso = fechaAIso_(datos.fecha);
       if(fIso && corte!=='0000-00-00' && fIso < corte) return; // ya está adentro del archivo
+      if(!pasaFiltroFechaGlobal_(fIso)) return;
       var norm = normalizarVendedorSucursalPDA_(r.vendedor, r.sucursal, canalKey);
       sumarAVendedor_(acum, norm.vendedor, norm.sucursal, datos.score);
     });
@@ -13439,7 +13468,7 @@ function renderRankingVendedorPanel_(){
     var arch = obtenerArchivoNps_('ventas', canalKey);
     if(!arch) return;
     corteVentasPorCanal[canalKey] = arch.fechaCorte || '0000-00-00';
-    arch.puntos.forEach(function(p){
+    filtrarPuntosPorFecha_(arch.puntos).forEach(function(p){
       if(!p.vin) return;
       if(!vinVendedor[p.vin]) vinVendedor[p.vin] = (p.vendedor||'').trim() || '(sin asignar)';
       if(!vinSucursal[p.vin]) vinSucursal[p.vin] = (p.sucursal||'').trim() || '(sin asignar)';
@@ -13527,13 +13556,14 @@ function renderRankingVendedorPanel_(){
       if(filterCanal && filterCanal!==esteCanalUrl) return;
       var arch = obtenerArchivoNps_(instancia, canalKey);
       var corte = arch ? (arch.fechaCorte || '0000-00-00') : '0000-00-00';
-      if(arch){ arch.puntos.forEach(function(p){ sumarASucursal_(p.sucursal, Number(p.score)); }); }
+      if(arch){ filtrarPuntosPorFecha_(arch.puntos).forEach(function(p){ sumarASucursal_(p.sucursal, Number(p.score)); }); }
       entregasVivas.forEach(function(r){
         if(esCanalPDA_(r) !== (canalKey==='pda')) return;
         var datos = extractor(r);
         if(!datos) return;
         var fIso = fechaAIso_(datos.fecha);
         if(fIso && corte!=='0000-00-00' && fIso < corte) return;
+        if(!pasaFiltroFechaGlobal_(fIso)) return;
         var norm = normalizarVendedorSucursalPDA_(r.vendedor, r.sucursal, canalKey);
         sumarASucursal_(norm.sucursal, datos.score);
       });
@@ -13576,10 +13606,11 @@ function renderRankingVendedorPanel_(){
       '<td style="color:var(--ok);">'+v.promotores+'</td><td style="color:var(--warn);">'+v.pasivos+'</td><td style="color:var(--danger);">'+v.detractores+'</td></tr>';
   }
   var encabezadoSucursal = '<tr><th>#</th><th>Sucursal</th><th>NPS</th><th>Ventas</th><th>Respuestas</th><th>Tasa de respuesta</th><th>% Participación</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>';
-  document.getElementById('rankSucursalTop5Tabla').innerHTML = encabezadoSucursal+
-    (listaSucursales.slice(0,5).map(filaSucursalHtml_).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
   document.getElementById('rankSucursalTabla').innerHTML = encabezadoSucursal+
     (listaSucursales.map(filaSucursalHtml_).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
+
+  var ventasTotalGeneral = listaSucursales.reduce(function(a,v){return a+v.ventas;}, 0);
+  document.getElementById('rankTotales').textContent = 'Total: '+ventasTotalGeneral+' ventas · '+totalRespuestasSucursales+' respuestas';
 }
 function filtrarCoberturaCalidad_(bucket){
   ['covChipTodas','covChipFalta1','covChipFalta2','covChipNinguna'].forEach(function(id){
