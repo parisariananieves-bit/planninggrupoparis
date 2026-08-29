@@ -1926,27 +1926,26 @@
     <div id="paneMaestroAlertatemprana" style="display:none;padding:10px 0;">
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:14px;">Encuesta de Alerta Temprana — por ahora solo Chevrolet.</div>
 
-      <div class="filter-bar" style="flex-wrap:wrap;gap:10px;margin-bottom:16px;">
-        <div class="filter-field"><label>Desde</label><input type="date" id="atRepFechaDesde" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"></div>
-        <div class="filter-field"><label>Hasta</label><input type="date" id="atRepFechaHasta" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"></div>
-        <select id="atRepSucursal" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
-        <select id="atRepVendedor" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todos los vendedores</option></select>
-        <select id="atRepEstado" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;">
+      <div class="filter-bar" style="flex-wrap:nowrap;overflow-x:auto;gap:10px;margin-bottom:16px;">
+        <div id="atCanalToggleRep" class="filter-pills" style="margin:0;flex-shrink:0;"></div>
+        <div class="filter-field" style="flex-shrink:0;"><label>Desde</label><input type="date" id="atRepFechaDesde" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"></div>
+        <div class="filter-field" style="flex-shrink:0;"><label>Hasta</label><input type="date" id="atRepFechaHasta" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"></div>
+        <select id="atRepSucursal" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;flex-shrink:0;"><option value="">Todas las sucursales</option></select>
+        <select id="atRepVendedor" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;flex-shrink:0;"><option value="">Todos los vendedores</option></select>
+        <select id="atRepEstado" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;flex-shrink:0;">
           <option value="">Todos los estados</option><option value="Respondida">Respondida</option><option value="Cliente no desea responder">No respondida</option><option value="">Sin encuesta todavía</option>
         </select>
-        <button class="print-btn" style="margin:0;" onclick="limpiarFiltrosAlertaTemprana_()">Limpiar filtros</button>
-        <button class="pdf-btn print-btn" style="margin:0;" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px;">picture_as_pdf</span> Descargar PDF</button>
+        <button class="print-btn" style="margin:0;flex-shrink:0;white-space:nowrap;" onclick="limpiarFiltrosAlertaTemprana_()">Limpiar filtros</button>
+        <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;">
+          📎 Cargar planilla
+          <input type="file" accept=".xlsx,.xls" id="atArchivoFileInput" onchange="importarNpsAlertaTempranaArchivo_(event)" style="display:none;">
+        </label>
+        <button class="pdf-btn print-btn" style="margin:0;flex-shrink:0;white-space:nowrap;" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px;">picture_as_pdf</span> Descargar PDF</button>
       </div>
 
       <div class="costos-grid" id="atRepIndicadores" style="margin-bottom:6px;"></div>
       <div id="atRepNotaArchivo" style="font-size:10px;color:var(--text-faint);margin-bottom:20px;"></div>
 
-      <div style="margin-bottom:14px;">
-        <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text-dim);">
-          📎 Cargar planilla de Alerta Temprana (mismo Excel de Fábrica)
-          <input type="file" accept=".xlsx,.xls" id="atArchivoFileInput" onchange="importarNpsAlertaTempranaArchivo_(event)" style="display:none;">
-        </label>
-      </div>
       <div id="atResumenArchivo" style="display:none;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
       <div class="chart-panel" style="margin-bottom:16px;">
         <div class="chart-panel-title"><span class="chart-icon ambar"><span class="material-symbols-outlined">show_chart</span></span>Evolución mensual (archivo + sistema — respeta el filtro de canal de arriba)</div>
@@ -2267,13 +2266,18 @@
     </div>
 
     <div id="paneMaestroNpscontactoposterior" style="display:none;padding:10px 0;">
-      <div class="filter-bar" style="flex-wrap:wrap;">
-        <select id="cpFiltroSucursal" onchange="renderNpsContactoPosteriorPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
-        <div id="cpCanalToggle" class="filter-pills" style="margin:0;"></div>
-        <div class="filter-field"><label>Desde</label><input type="date" id="cpFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
-        <div class="filter-field"><label>Hasta</label><input type="date" id="cpFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
-        <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
-        <button class="pdf-btn filter-pill" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span> Descargar PDF</button>
+      <div class="filter-bar" style="flex-wrap:nowrap;overflow-x:auto;">
+        <select id="cpFiltroSucursal" onchange="renderNpsContactoPosteriorPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;flex-shrink:0;"><option value="">Todas las sucursales</option></select>
+        <div id="cpCanalToggle" class="filter-pills" style="margin:0;flex-shrink:0;"></div>
+        <div class="filter-field" style="flex-shrink:0;"><label>Desde</label><input type="date" id="cpFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
+        <div class="filter-field" style="flex-shrink:0;"><label>Hasta</label><input type="date" id="cpFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
+        <button class="filter-pill" style="flex-shrink:0;white-space:nowrap;" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
+        <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;">
+          📎 Cargar planilla
+          <input type="file" accept=".xlsx,.xls" id="cpArchivoFileInput" onchange="importarNpsContactoPosteriorArchivo_(event)" style="display:none;">
+        </label>
+        <span class="ayuda-tip" style="flex-shrink:0;" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Toma el puntaje de la columna AH y la fecha de la columna AN del archivo.</span></span>
+        <button class="pdf-btn filter-pill" style="flex-shrink:0;white-space:nowrap;" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span> Descargar PDF</button>
       </div>
       <div style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:6px;" onclick="toggleBloqueVisible_('cpResumen','cpResumenIcon')">
         <span class="material-symbols-outlined" id="cpResumenIcon" style="font-size:15px;transition:transform .15s;">expand_more</span>
@@ -2281,13 +2285,6 @@
       </div>
       <div class="costos-grid" id="cpResumen" style="margin:0 0 14px;"></div>
 
-      <div style="margin-bottom:14px;">
-        <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text-dim);">
-          📎 Cargar planilla de Contacto Posterior (mismo Excel de Fábrica)
-          <input type="file" accept=".xlsx,.xls" id="cpArchivoFileInput" onchange="importarNpsContactoPosteriorArchivo_(event)" style="display:none;">
-        </label>
-        <div style="font-size:9.5px;color:var(--text-faint);margin-top:4px;">Toma el puntaje de la columna AH y la fecha de la columna AN del archivo.</div>
-      </div>
       <div id="cpResumenArchivo" style="display:none;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
       <div class="chart-panel" style="margin-bottom:16px;">
         <div class="chart-panel-title"><span class="chart-icon ambar"><span class="material-symbols-outlined">show_chart</span></span>Evolución mensual (archivo + sistema — respeta el filtro de canal de arriba)</div>
@@ -2338,20 +2335,18 @@
     </div>
 
     <div id="paneMaestroNpsfabrica" style="display:none;padding:10px 0;">
-      <div class="filter-bar" style="flex-wrap:wrap;">
-        <select id="fabFiltroSucursal" onchange="renderNpsFabricaPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
-        <div id="fabCanalToggle" class="filter-pills" style="margin:0;"></div>
-        <div class="filter-field"><label>Desde</label><input type="date" id="fabFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
-        <div class="filter-field"><label>Hasta</label><input type="date" id="fabFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
-        <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;">
+      <div class="filter-bar" style="flex-wrap:nowrap;overflow-x:auto;">
+        <select id="fabFiltroSucursal" onchange="renderNpsFabricaPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;flex-shrink:0;"><option value="">Todas las sucursales</option></select>
+        <div id="fabCanalToggle" class="filter-pills" style="margin:0;flex-shrink:0;"></div>
+        <div class="filter-field" style="flex-shrink:0;"><label>Desde</label><input type="date" id="fabFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
+        <div class="filter-field" style="flex-shrink:0;"><label>Hasta</label><input type="date" id="fabFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
+        <button class="filter-pill" style="flex-shrink:0;white-space:nowrap;" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
         <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;">
           📎 Cargar planilla de Fábrica
           <input type="file" accept=".xlsx,.xls" id="npsFabricaFileInput" onchange="importarNpsFabricaArchivo_(event)" style="display:none;">
         </label>
-        <span class="ayuda-tip" style="flex-shrink:0;" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Solo entran acá las entregas que ya tienen garantía cargada — son las únicas elegibles para esta encuesta. Si querés el NPS tal cual sale de la planilla que manda Fábrica (sin cruzar con las entregas), subila con el botón de arriba.</span></span>
         <button class="pdf-btn filter-pill" style="flex-shrink:0;white-space:nowrap;" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span> Descargar PDF</button>
+        <span class="ayuda-tip" style="flex-shrink:0;" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Solo entran acá las entregas que ya tienen garantía cargada — son las únicas elegibles para esta encuesta. Si querés el NPS tal cual sale de la planilla que manda Fábrica (sin cruzar con las entregas), subila con el botón de arriba.</span></span>
       </div>
       <button class="pdf-btn print-btn" style="margin-bottom:12px;margin-top:10px;" onclick="descargarImagenReporte_('fabReporteImagen','NPS_Fabrica')"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px;">image</span> Descargar imagen (Acumulado + Puntaje GM)</button>
       <div id="fabReporteImagen">
@@ -2406,30 +2401,31 @@
       </div>
       <div class="two-col-grid" style="margin-bottom:20px;" id="gmPuntajeCardsFab"></div>
       </div>
-      <div class="section-title">Elegibles (con garantía cargada)</div>
+      <div class="section-title" style="display:flex;align-items:center;gap:10px;">Elegibles (con garantía cargada)
+        <label style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:400;color:var(--text-dim);cursor:pointer;">
+          <input type="checkbox" id="fabSoloSinResponder" onchange="renderNpsFabricaPanel_()"> Solo sin responder
+        </label>
+      </div>
       <div class="report-wrap"><table class="report-table" id="fabTabla"></table></div>
       <div id="fabVerMas" style="text-align:center;margin-top:8px;"></div>
     </div>
 
     <div id="paneMaestroRankingvendedor" style="display:none;padding:10px 0;">
-      <div class="filter-bar" style="flex-wrap:wrap;">
-        <select id="rankFiltroInstancia" onchange="renderRankingVendedorPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;">
+      <div class="filter-bar" style="flex-wrap:nowrap;overflow-x:auto;">
+        <select id="rankFiltroInstancia" onchange="renderRankingVendedorPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;flex-shrink:0;">
           <option value="todas">Las 3 encuestas juntas</option>
           <option value="alertatemprana">Solo Alerta Temprana</option>
           <option value="contactoposterior">Solo Contacto Posterior</option>
           <option value="fabrica">Solo Fábrica</option>
         </select>
-        <div id="rankCanalToggle" class="filter-pills" style="margin:0;"></div>
-        <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
-        <button class="pdf-btn filter-pill" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span> Descargar PDF</button>
-        <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Combina lo cargado en el sistema (entregas con NPS) + lo que venga de los archivos importados (que ya traen vendedor, sucursal y VIN) — sin duplicar lo que ya está en el archivo. La marca se filtra con los botones de arriba de la página. "Ventas" cuenta TODOS los autos entregados de ese vendedor (respondan o no la encuesta). "Tasa de respuesta" es Respuestas sobre Ventas del propio vendedor. "% Participación" es cuánto representan las respuestas de este vendedor sobre el total de respuestas de TODOS los vendedores juntos.</span></span>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;">
+        <div id="rankCanalToggle" class="filter-pills" style="margin:0;flex-shrink:0;"></div>
+        <button class="filter-pill" style="flex-shrink:0;white-space:nowrap;" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
         <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;">
-          📎 Cargar planilla (Fábrica + Alerta Temprana + Contacto Posterior)
+          📎 Cargar planilla
           <input type="file" accept=".xlsx,.xls" onchange="importarNpsTodasLasInstancias_(event)" style="display:none;">
         </label>
-        <span style="font-size:9.5px;color:var(--text-faint);flex-shrink:0;">Un solo archivo carga las 3 encuestas de una — subilo dos veces (Directa y PDA).</span>
+        <button class="pdf-btn filter-pill" style="flex-shrink:0;white-space:nowrap;" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span> Descargar PDF</button>
+        <span class="ayuda-tip" style="flex-shrink:0;" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Combina lo cargado en el sistema (entregas con NPS) + lo que venga de los archivos importados (que ya traen vendedor, sucursal y VIN) — sin duplicar lo que ya está en el archivo. La marca se filtra con los botones de arriba de la página. "Ventas" cuenta TODOS los autos entregados de ese vendedor (respondan o no la encuesta). "Tasa de respuesta" es Respuestas sobre Ventas del propio vendedor. "% Participación" es cuánto representan las respuestas de este vendedor sobre el total de respuestas de TODOS los vendedores juntos. Un solo archivo carga las 3 encuestas de una — subilo dos veces (Directa y PDA).</span></span>
       </div>
 
       <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--warn);">military_tech</span>Top 5 Vendedores</div>
@@ -10905,6 +10901,7 @@ function limpiarFiltrosAlertaTemprana_(){
   renderAlertaTempranaReporte_();
 }
 function renderAlertaTempranaReporte_(){
+  renderCanalToggleGenerico_('atCanalToggleRep');
   var selSuc = document.getElementById('atRepSucursal');
   var selVend = document.getElementById('atRepVendedor');
   if(selSuc.options.length<=1){
@@ -10923,6 +10920,7 @@ function renderAlertaTempranaReporte_(){
 
   var base = ENTREGAS.filter(function(r){
     if(r.marca!=='chevrolet') return false;
+    if(!pasaFiltroCanal_(r)) return false;
     var f = parsearFecha_(r.fecha);
     if(desde && f && f < new Date(desde)) return false;
     if(hasta && f && f > new Date(hasta+'T23:59:59')) return false;
@@ -12266,8 +12264,11 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
     var activo = filterCanal===canalUrl;
     return '<div class="chart-panel" style="cursor:pointer;'+(activo?'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);':'')+'" onclick="setFilterCanal(\''+canalUrl+'\')" title="Tocá para ver el gráfico de abajo filtrado por este canal — volvé a tocar para ver todos juntos">'+
       '<div class="chart-panel-title">'+titulo+(activo?' <span style="font-size:9px;color:var(--accent);font-weight:800;">● filtrando abajo</span>':'')+'</div>'+
-      '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+soloFechaISO_(entrada.fecha)+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
-      '<div style="font-size:9.5px;color:var(--text-faint);margin-bottom:8px;">Corte: '+soloFechaISO_(entrada.fechaCorte)+' <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="event.stopPropagation();editarFechaCorte_(\'fabrica\',\''+canalKey+'\')">editar</span></div>'+
+      '<div style="font-size:9.5px;color:var(--accent);cursor:pointer;margin-bottom:4px;" onclick="event.stopPropagation();toggleDetalleArchivo_(this)">▸ Ver detalle del archivo</div>'+
+      '<div style="display:none;">'+
+        '<div style="font-size:10px;color:var(--text-faint);margin-bottom:4px;">Base: "'+entrada.nombreArchivo+'" ('+soloFechaISO_(entrada.fecha)+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
+        '<div style="font-size:9.5px;color:var(--text-faint);margin-bottom:8px;">Corte: '+soloFechaISO_(entrada.fechaCorte)+' <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="event.stopPropagation();editarFechaCorte_(\'fabrica\',\''+canalKey+'\')">editar</span></div>'+
+      '</div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
       '<div style="font-size:10px;margin-top:3px;"><span style="color:var(--ok);font-weight:700;">'+r.conteo.promotores+' promotoras</span> · <span style="color:var(--warn);font-weight:700;">'+r.conteo.pasivos+' neutrales</span> · <span style="color:var(--danger);font-weight:700;">'+r.conteo.detractores+' detractoras</span></div>'+
@@ -12425,6 +12426,14 @@ function guardarArchivoNpsBackend_(instancia, canalKey, nombreArchivo, puntos){
 // Edita solo la fecha de corte de un archivo ya subido (sin resubir el
 // Excel) — para cuando quieren que el sistema empiece a contar en vivo
 // desde una fecha puntual, en vez de "cuando se subió el archivo".
+// Muestra/oculta el detalle de "Base + Corte" de cada tarjeta de archivo
+// — usa el hermano siguiente en el DOM, así no hace falta un id único.
+function toggleDetalleArchivo_(el){
+  var cont = el.nextElementSibling;
+  var abierto = cont.style.display !== 'none';
+  cont.style.display = abierto ? 'none' : 'block';
+  el.textContent = abierto ? '▸ Ver detalle del archivo' : '▾ Ocultar detalle del archivo';
+}
 function editarFechaCorte_(instancia, canalKey){
   var actual = (function(){ var a=obtenerArchivoNps_(instancia, canalKey); return a?a.fechaCorte:''; })();
   var nueva = prompt('Fecha de corte para este canal (desde esa fecha, todo lo que se cargue en el sistema se suma como "en vivo", no como parte del archivo). Formato: AAAA-MM-DD', actual||fechaHoyIso_());
@@ -12523,8 +12532,11 @@ function pintarResumenArchivoAT_(respondidasPorCanal){
     var activo = filterCanal===canalUrl;
     return '<div class="chart-panel" style="cursor:pointer;'+(activo?'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);':'')+'" onclick="setFilterCanal(\''+canalUrl+'\')" title="Tocá para ver el gráfico de abajo filtrado por este canal — volvé a tocar para ver todos juntos">'+
       '<div class="chart-panel-title">'+titulo+(activo?' <span style="font-size:9px;color:var(--accent);font-weight:800;">● filtrando abajo</span>':'')+'</div>'+
-      '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+soloFechaISO_(entrada.fecha)+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
-      '<div style="font-size:9.5px;color:var(--text-faint);margin-bottom:8px;">Corte: '+soloFechaISO_(entrada.fechaCorte)+' <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="event.stopPropagation();editarFechaCorte_(\'alertatemprana\',\''+canalKey+'\')">editar</span></div>'+
+      '<div style="font-size:9.5px;color:var(--accent);cursor:pointer;margin-bottom:4px;" onclick="event.stopPropagation();toggleDetalleArchivo_(this)">▸ Ver detalle del archivo</div>'+
+      '<div style="display:none;">'+
+        '<div style="font-size:10px;color:var(--text-faint);margin-bottom:4px;">Base: "'+entrada.nombreArchivo+'" ('+soloFechaISO_(entrada.fecha)+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
+        '<div style="font-size:9.5px;color:var(--text-faint);margin-bottom:8px;">Corte: '+soloFechaISO_(entrada.fechaCorte)+' <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="event.stopPropagation();editarFechaCorte_(\'alertatemprana\',\''+canalKey+'\')">editar</span></div>'+
+      '</div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
       '<div style="font-size:10px;margin-top:3px;"><span style="color:var(--ok);font-weight:700;">'+r.conteo.promotores+' promotoras</span> · <span style="color:var(--warn);font-weight:700;">'+r.conteo.pasivos+' neutrales</span> · <span style="color:var(--danger);font-weight:700;">'+r.conteo.detractores+' detractoras</span></div>'+
@@ -12903,8 +12915,11 @@ function pintarResumenArchivoCp_(respondidasPorCanal){
     var activo = filterCanal===canalUrl;
     return '<div class="chart-panel" style="cursor:pointer;'+(activo?'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);':'')+'" onclick="setFilterCanal(\''+canalUrl+'\')" title="Tocá para ver el gráfico de abajo filtrado por este canal — volvé a tocar para ver todos juntos">'+
       '<div class="chart-panel-title">'+titulo+(activo?' <span style="font-size:9px;color:var(--accent);font-weight:800;">● filtrando abajo</span>':'')+'</div>'+
-      '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+soloFechaISO_(entrada.fecha)+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
-      '<div style="font-size:9.5px;color:var(--text-faint);margin-bottom:8px;">Corte: '+soloFechaISO_(entrada.fechaCorte)+' <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="event.stopPropagation();editarFechaCorte_(\'contactoposterior\',\''+canalKey+'\')">editar</span></div>'+
+      '<div style="font-size:9.5px;color:var(--accent);cursor:pointer;margin-bottom:4px;" onclick="event.stopPropagation();toggleDetalleArchivo_(this)">▸ Ver detalle del archivo</div>'+
+      '<div style="display:none;">'+
+        '<div style="font-size:10px;color:var(--text-faint);margin-bottom:4px;">Base: "'+entrada.nombreArchivo+'" ('+soloFechaISO_(entrada.fecha)+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
+        '<div style="font-size:9.5px;color:var(--text-faint);margin-bottom:8px;">Corte: '+soloFechaISO_(entrada.fechaCorte)+' <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="event.stopPropagation();editarFechaCorte_(\'contactoposterior\',\''+canalKey+'\')">editar</span></div>'+
+      '</div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
       '<div style="font-size:10px;margin-top:3px;"><span style="color:var(--ok);font-weight:700;">'+r.conteo.promotores+' promotoras</span> · <span style="color:var(--warn);font-weight:700;">'+r.conteo.pasivos+' neutrales</span> · <span style="color:var(--danger);font-weight:700;">'+r.conteo.detractores+' detractoras</span></div>'+
@@ -13147,10 +13162,12 @@ function renderNpsFabricaPanel_(){
     }
   });
   dibujarEvolucionMensualFab_();
-  window._fabElegibles = elegibles;
+  var soloSinResponder = document.getElementById('fabSoloSinResponder') && document.getElementById('fabSoloSinResponder').checked;
+  var elegiblesTabla = soloSinResponder ? elegibles.filter(function(r){ return r.npsFabricaScore===null || r.npsFabricaScore===undefined || r.npsFabricaScore===''; }) : elegibles;
+  window._fabElegibles = elegiblesTabla;
   document.getElementById('fabTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Fecha garantía</th><th>Fecha respuesta</th><th>Puntaje</th><th>Comentario</th><th>Estado</th></tr>'+
-    (elegibles.slice(0,10).map(filaElegibleFabrica_).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-faint);">Sin entregas con garantía cargada en este período.</td></tr>');
-  document.getElementById('fabVerMas').innerHTML = elegibles.length>10 ? '<button class="print-btn" style="margin:0;" onclick="mostrarTablaFabCompleta_()">Ver las '+elegibles.length+' entregas elegibles</button>' : '';
+    (elegiblesTabla.slice(0,10).map(filaElegibleFabrica_).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-faint);">'+(soloSinResponder?'No hay entregas sin responder en este período. 🎉':'Sin entregas con garantía cargada en este período.')+'</td></tr>');
+  document.getElementById('fabVerMas').innerHTML = elegiblesTabla.length>10 ? '<button class="print-btn" style="margin:0;" onclick="mostrarTablaFabCompleta_()">Ver las '+elegiblesTabla.length+' entregas elegibles</button>' : '';
 
   // ---- Puntaje de Recomendación GM (por canal) — usa el mismo acumulado
   // de arriba (archivo + sistema + anónimas), no solo lo cargado a mano.
@@ -13263,6 +13280,8 @@ function sumarAVendedor_(acum, nombre, sucursal, score){
 }
 function agregarInstanciaAlRanking_(acum, instancia, entregasVivas, extractor){
   ['directa','pda'].forEach(function(canalKey){
+    var esteCanalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
+    if(filterCanal && filterCanal!==esteCanalUrl) return; // respeta el filtro Todos/PDA/Tradicional de arriba
     var arch = obtenerArchivoNps_(instancia, canalKey);
     var corte = arch ? (arch.fechaCorte || '0000-00-00') : '0000-00-00';
     if(arch){
@@ -13293,6 +13312,8 @@ function renderRankingVendedorPanel_(){
   // como venta.
   var vinVendedor = {}, vinSucursal = {};
   ['directa','pda'].forEach(function(canalKey){
+    var esteCanalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
+    if(filterCanal && filterCanal!==esteCanalUrl) return;
     var arch = obtenerArchivoNps_('ventas', canalKey);
     if(!arch) return;
     arch.puntos.forEach(function(p){
@@ -13374,6 +13395,8 @@ function renderRankingVendedorPanel_(){
   }
   function agregarInstanciaASucursal_(instancia, entregasVivas, extractor){
     ['directa','pda'].forEach(function(canalKey){
+      var esteCanalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
+      if(filterCanal && filterCanal!==esteCanalUrl) return;
       var arch = obtenerArchivoNps_(instancia, canalKey);
       var corte = arch ? (arch.fechaCorte || '0000-00-00') : '0000-00-00';
       if(arch){ arch.puntos.forEach(function(p){ sumarASucursal_(p.sucursal, Number(p.score)); }); }
