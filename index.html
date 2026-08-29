@@ -2210,15 +2210,21 @@
     </div>
 
     <div id="paneMaestroNpsgeneral" style="display:none;padding:10px 0;">
-      <div class="filter-bar" style="flex-wrap:wrap;">
-        <select id="calidadFiltroSucursal" onchange="renderNpsGeneralPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"><option value="">Todas las sucursales</option></select>
-        <div id="npsGeneralCanalToggle" class="filter-pills" style="margin:0;"></div>
-        <div class="filter-field"><label>Desde</label><input type="date" id="calidadFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
-        <div class="filter-field"><label>Hasta</label><input type="date" id="calidadFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
-        <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
-        <button class="xlsx-btn" style="margin:0;" onclick="exportarExcelCalidad_()"><span class="material-symbols-outlined">download</span> Exportar Excel</button>
-        <button class="pdf-btn xlsx-btn" style="margin:0;background:var(--panel-2);color:var(--text);border-color:var(--hairline);" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined">picture_as_pdf</span> Descargar PDF</button>
-        <div style="font-size:10.5px;color:var(--text-faint);margin-left:auto;">La marca se filtra con los botones de arriba de la página.</div>
+      <div class="filter-bar" style="flex-wrap:wrap;gap:8px;">
+        <select id="calidadFiltroSucursal" onchange="renderNpsGeneralPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 8px;font-size:11.5px;flex-shrink:0;"><option value="">Todas las sucursales</option></select>
+        <select id="calidadFiltroInstancia" onchange="renderNpsGeneralPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 8px;font-size:11.5px;flex-shrink:0;">
+          <option value="todas">Las 3 encuestas juntas</option>
+          <option value="alertatemprana">Solo Alerta Temprana</option>
+          <option value="contactoposterior">Solo Contacto Posterior</option>
+          <option value="fabrica">Solo Fábrica</option>
+        </select>
+        <div id="npsGeneralCanalToggle" class="filter-pills" style="margin:0;flex-shrink:0;"></div>
+        <div class="filter-field" style="flex-shrink:0;"><label style="font-size:8.5px;">Desde</label><input type="date" id="calidadFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
+        <div class="filter-field" style="flex-shrink:0;"><label style="font-size:8.5px;">Hasta</label><input type="date" id="calidadFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
+        <button class="filter-pill" style="flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="limpiarDashboardFecha()" title="Todo el período"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span></button>
+        <button class="xlsx-btn" style="margin:0;flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="exportarExcelCalidad_()" title="Exportar Excel"><span class="material-symbols-outlined">download</span></button>
+        <button class="pdf-btn xlsx-btn" style="margin:0;background:var(--panel-2);color:var(--text);border-color:var(--hairline);flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="imprimirComoPDF_()" title="Descargar PDF"><span class="material-symbols-outlined">picture_as_pdf</span></button>
+        <span class="ayuda-tip" style="flex-shrink:0;" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">La marca se filtra con los botones de arriba de la página.</span></span>
       </div>
 
       <div class="stats-grid" id="calidadKpis" style="margin-top:14px;"></div>
@@ -2226,6 +2232,8 @@
       <div class="section-title" style="margin-top:20px;display:flex;align-items:center;gap:7px;">NPS por instancia <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Cada tarjeta cuenta cuántos clientes ya respondieron esa encuesta, sobre cuántos debían responderla. En Fábrica solo cuentan los que ya tienen la garantía cargada. El detalle completo de cada una está en su propia página, en el menú. Si importaste algún Excel de encuestas, esas respuestas también suman acá — por eso a veces hay más respuestas que entregas del período. Los botones "Todos los canales / Solo PDA / Solo Tradicional" de arriba filtran también estos números.</span></span></div>
       <div class="costos-grid" id="calidadNpsInstancias"></div>
 
+      <div id="calidadNotaInstanciaUnica" style="display:none;font-size:12px;color:var(--text-faint);text-align:center;padding:20px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:10px;margin-top:16px;">Los gráficos de evolución, la distribución mensual, las alertas y la cobertura son cosas de "las 3 encuestas juntas" — no aplican cuando filtrás por una sola. Elegí "Las 3 encuestas juntas" arriba para verlos de nuevo.</div>
+      <div id="calidadCoberturaYAlertasWrap">
       <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">insights</span>Evolución del NPS</div>
       <div class="two-col-grid" style="margin-bottom:14px;align-items:stretch;">
         <div class="chart-panel" style="grid-column:span 2;">
@@ -2249,6 +2257,7 @@
       <div class="stats-grid" id="calidadCoberturaKpis" style="margin-bottom:14px;"></div>
       <div class="report-wrap"><table class="report-table" id="calidadCoberturaTabla"></table></div>
       <div id="calidadCoberturaVerMas" style="text-align:center;margin-top:8px;"></div>
+      </div>
     </div>
 
     <div id="paneMaestroNpscontactoposterior" style="display:none;padding:10px 0;">
@@ -11945,8 +11954,33 @@ function conteoAcumuladoGeneral_(instancia, anonimasArr, scoresVivos){
 }
 function dibujarNpsGeneral_(){
   if(!document.getElementById('calidadKpis')) return;
+  var instanciaFiltroGeneral = document.getElementById('calidadFiltroInstancia').value;
   var rows = entregasCalidadFiltro_('calidadFiltroSucursal');
   var total = rows.length;
+
+  // El total de "ventas" (por VIN, sin duplicar) es el mismo que ya usa el
+  // Ranking y los resúmenes de Fábrica/Contacto Posterior — así el
+  // denominador de "esperadas" también suma lo que trajo el archivo, no
+  // solo lo que está cargado en Planning.
+  var sucFGeneral = document.getElementById('calidadFiltroSucursal').value;
+  var ventasTotalGeneral_ = 0;
+  var vinsYaContadosGeneral_ = {};
+  ['directa','pda'].forEach(function(canalKey){
+    var esteCanalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
+    if(filterCanal && filterCanal!==esteCanalUrl) return;
+    var archVentas = obtenerArchivoNps_('ventas', canalKey);
+    if(archVentas){
+      filtrarPuntosPorFecha_(archVentas.puntos).forEach(function(p){
+        if(!p.vin) return;
+        if(sucFGeneral && p.sucursal!==sucFGeneral) return;
+        if(!vinsYaContadosGeneral_[p.vin]){ vinsYaContadosGeneral_[p.vin]=true; ventasTotalGeneral_++; }
+      });
+    }
+  });
+  rows.forEach(function(r){
+    if(r.chasis && vinsYaContadosGeneral_[r.chasis]) return;
+    ventasTotalGeneral_++;
+  });
 
   var atRespondidas = rows.filter(function(r){ return r.npsScore!==null && r.npsScore!==undefined && r.npsScore!==''; });
   var conteoAT = conteoAcumuladoGeneral_('alertatemprana', ANONIMAS_AT_, atRespondidas.map(function(r){return Number(r.npsScore);}));
@@ -11963,10 +11997,17 @@ function dibujarNpsGeneral_(){
   var conteoFAB = conteoAcumuladoGeneral_('fabrica', ANONIMAS_FABRICA_, fabRows.map(function(x){return x.npsScore;}));
   var fabNps = conteoFAB.total ? npsDeConteo_(conteoFAB) : null;
 
-  var totalEsperadoGeneral = total + total + fabElegibles.length;
+  var totalEsperadoGeneral = ventasTotalGeneral_ + ventasTotalGeneral_ + fabElegibles.length;
   var totalRespGeneralArchivo = conteoAT.total + conteoCP.total + conteoFAB.total;
   var conteoGeneral = sumarConteos_(sumarConteos_(conteoAT, conteoCP), conteoFAB);
   var npsGeneral = conteoGeneral.total ? npsDeConteo_(conteoGeneral) : null;
+
+  // Si eligieron ver una sola encuesta (en vez de las 3 juntas), el "NPS
+  // General" y "Respuestas totales" pasan a ser directamente los de esa
+  // encuesta — así el filtro tiene efecto real en los números de arriba.
+  if(instanciaFiltroGeneral==='alertatemprana'){ npsGeneral = atNps; totalRespGeneralArchivo = conteoAT.total; totalEsperadoGeneral = ventasTotalGeneral_; }
+  else if(instanciaFiltroGeneral==='contactoposterior'){ npsGeneral = cpNps; totalRespGeneralArchivo = conteoCP.total; totalEsperadoGeneral = ventasTotalGeneral_; }
+  else if(instanciaFiltroGeneral==='fabrica'){ npsGeneral = fabNps; totalRespGeneralArchivo = conteoFAB.total; totalEsperadoGeneral = fabElegibles.length; }
 
   var detractores = atRespondidas.filter(function(r){ return r.npsScore<=6; }).length;
   var casosAbiertos = casosGCFiltrados_('calidadFiltroSucursal').filter(function(c){ var e=(c.estado||'').toLowerCase(); return e.indexOf('cerrad')===-1 && e.indexOf('resuelt')===-1; });
@@ -11974,9 +12015,11 @@ function dibujarNpsGeneral_(){
   var regSolicitados = rows.filter(function(r){ return !!r.regaloCorporativo; });
   var regPendientes = regSolicitados.filter(function(r){ return r.regaloEstado!=='Entregado'; });
 
+  var etiquetaRespTotales = instanciaFiltroGeneral==='todas' ? 'Respuestas totales (3 encuestas)' :
+    (instanciaFiltroGeneral==='alertatemprana' ? 'Respuestas — Alerta Temprana' : (instanciaFiltroGeneral==='contactoposterior' ? 'Respuestas — Contacto Posterior' : 'Respuestas — Fábrica'));
   window._calidadChipsFiltros = [
-    {n: npsGeneral===null?'—':npsGeneral, l:'NPS General', cls: npsGeneral===null?'pending':(npsGeneral>=50?'ok':(npsGeneral>=0?'warn':'danger')), icon:'star'},
-    {n: totalRespGeneralArchivo+' / '+totalEsperadoGeneral, l:'Respuestas totales (3 encuestas)', cls:'pending', icon:'forum'},
+    {n: npsGeneral===null?'—':npsGeneral, l: instanciaFiltroGeneral==='todas'?'NPS General':'NPS', cls: npsGeneral===null?'pending':(npsGeneral>=50?'ok':(npsGeneral>=0?'warn':'danger')), icon:'star'},
+    {n: totalRespGeneralArchivo+' / '+totalEsperadoGeneral, l:etiquetaRespTotales, cls:'pending', icon:'forum'},
     {n: detractores, l:'Detractores (Alerta Temprana)', cls: detractores?'danger':'ok', icon:'thumb_down', filtro:function(r){return r.npsScore<=6;}, titulo:'Detractores — Alerta Temprana'},
     {n: casosAbiertos.length, l:'Casos abiertos', cls: casosAbiertos.length?'warn':'ok', icon:'report'},
     {n: garFaltan.length, l:'Garantías pendientes', cls: garFaltan.length?'warn':'ok', icon:'verified', filtro:function(r){return !r.garantiaFecha;}, titulo:'Garantías sin cargar'},
@@ -11986,11 +12029,13 @@ function dibujarNpsGeneral_(){
     return '<div class="stat-chip '+c.cls+'" style="cursor:'+(c.filtro?'pointer':'default')+';min-width:150px;" '+(c.filtro?'onclick="abrirDetalleFiltradoCalidad_('+i+')"':'')+'><div class="icon-badge"><span class="material-symbols-outlined">'+c.icon+'</span></div><div class="n">'+c.n+'</div><div class="l">'+c.l+'</div></div>';
   }).join('');
 
-  function tarjetaInstancia_(nombre, nps, respondidas, totalInst, icon, iconCls){
+  function tarjetaInstancia_(nombre, nps, respondidas, totalInst, icon, iconCls, clave){
     var pendientes = Math.max(0, totalInst - respondidas);
     var pct = totalInst ? Math.round(respondidas/totalInst*100) : 0;
     var color = nps===null ? 'var(--text-faint)' : (nps>=50?'var(--ok)':(nps>=0?'var(--warn)':'var(--danger)'));
-    return '<div class="chart-panel" style="min-width:150px;">'+
+    var esElegida = clave && instanciaFiltroGeneral===clave;
+    var atenuada = instanciaFiltroGeneral!=='todas' && !esElegida && clave;
+    return '<div class="chart-panel" style="min-width:150px;'+(esElegida?'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);':'')+(atenuada?'opacity:.45;':'')+'">'+
       '<div class="chart-panel-title"><span class="chart-icon '+iconCls+'"><span class="material-symbols-outlined">'+icon+'</span></span>'+nombre+'</div>'+
       '<div style="font-size:26px;font-weight:800;color:'+color+';margin:6px 0 2px;">'+(nps===null?'—':nps)+'</div>'+
       '<div style="font-size:11.5px;color:var(--text-dim);">'+respondidas+' / '+totalInst+' respondidas ('+pct+'%)</div>'+
@@ -11998,10 +12043,23 @@ function dibujarNpsGeneral_(){
     '</div>';
   }
   document.getElementById('calidadNpsInstancias').innerHTML =
-    tarjetaInstancia_('Alerta Temprana', atNps, atRespondidas.length, total, 'campaign', 'teal')+
-    tarjetaInstancia_('Contacto Posterior', cpNps, cpRows.length, total, 'forum', 'morado')+
-    tarjetaInstancia_('NPS Fábrica', fabNps, fabRespondidas.length, fabElegibles.length, 'factory', 'ambar')+
-    tarjetaInstancia_('General', npsGeneral, totalRespGeneralArchivo, totalEsperadoGeneral, 'insights', 'ok');
+    tarjetaInstancia_('Alerta Temprana', atNps, atRespondidas.length, ventasTotalGeneral_, 'campaign', 'teal', 'alertatemprana')+
+    tarjetaInstancia_('Contacto Posterior', cpNps, cpRows.length, ventasTotalGeneral_, 'forum', 'morado', 'contactoposterior')+
+    tarjetaInstancia_('NPS Fábrica', fabNps, fabRespondidas.length, fabElegibles.length, 'factory', 'ambar', 'fabrica')+
+    tarjetaInstancia_('General', npsGeneral, totalRespGeneralArchivo, totalEsperadoGeneral, 'insights', 'ok', null);
+
+  // Cobertura y Alertas son conceptos de "las 3 encuestas juntas" (cuántas
+  // le faltan de las 3) — no tienen sentido si filtraste a una sola, así
+  // que se ocultan con una nota en vez de mostrar números que confunden.
+  var seccionesSoloTodas = document.getElementById('calidadCoberturaYAlertasWrap');
+  var notaInstanciaUnica = document.getElementById('calidadNotaInstanciaUnica');
+  if(instanciaFiltroGeneral!=='todas'){
+    if(seccionesSoloTodas) seccionesSoloTodas.style.display = 'none';
+    if(notaInstanciaUnica) notaInstanciaUnica.style.display = 'block';
+    return;
+  }
+  if(seccionesSoloTodas) seccionesSoloTodas.style.display = '';
+  if(notaInstanciaUnica) notaInstanciaUnica.style.display = 'none';
 
   // ---- Cobertura de medición ----
   var coberturaItems = rows.map(coberturaEntrega_);
@@ -13530,9 +13588,9 @@ function renderRankingVendedorPanel_(){
   }
   var listaVendedores = Object.keys(acumVendedor).filter(function(n){ return n.toLowerCase()!=='anonimo' && n.toLowerCase()!=='anónimo'; }).map(function(n){ return filaTabla_(n, acumVendedor[n]); });
   listaVendedores.sort(function(a,b){
-    var npsA = a.nps===null?-999:a.nps, npsB = b.nps===null?-999:b.nps;
-    if(npsB!==npsA) return npsB-npsA;
-    return b.total-a.total; // empate en NPS: gana quien tiene más respuestas
+    var cumpleA = a.nps!==null && a.nps>=90, cumpleB = b.nps!==null && b.nps>=90;
+    if(cumpleA!==cumpleB) return cumpleB - cumpleA; // primero: ¿llegó al 90% de NPS?
+    return b.total-a.total; // segundo: más respuestas
   });
   var totalRespuestasTodos = listaVendedores.reduce(function(a,v){return a+v.total;}, 0);
 
@@ -13601,8 +13659,8 @@ function renderRankingVendedorPanel_(){
     return {nombre:s, nps:npsDeConteo_(v), total:v.total, promotores:v.promotores, pasivos:v.pasivos, detractores:v.detractores, ventas: ventasPorSucursal[s]||0};
   });
   listaSucursales.sort(function(a,b){
-    var npsA = a.nps===null?-999:a.nps, npsB = b.nps===null?-999:b.nps;
-    if(npsB!==npsA) return npsB-npsA;
+    var cumpleA = a.nps!==null && a.nps>=90, cumpleB = b.nps!==null && b.nps>=90;
+    if(cumpleA!==cumpleB) return cumpleB - cumpleA;
     return b.total-a.total;
   });
   var totalRespuestasSucursales = listaSucursales.reduce(function(a,v){return a+v.total;}, 0);
