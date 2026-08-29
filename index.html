@@ -1926,21 +1926,21 @@
     <div id="paneMaestroAlertatemprana" style="display:none;padding:10px 0;">
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:14px;">Encuesta de Alerta Temprana — por ahora solo Chevrolet.</div>
 
-      <div class="filter-bar" style="flex-wrap:nowrap;overflow-x:auto;gap:10px;margin-bottom:16px;">
+      <div class="filter-bar" style="flex-wrap:wrap;gap:8px;margin-bottom:16px;">
         <div id="atCanalToggleRep" class="filter-pills" style="margin:0;flex-shrink:0;"></div>
-        <div class="filter-field" style="flex-shrink:0;"><label>Desde</label><input type="date" id="atRepFechaDesde" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"></div>
-        <div class="filter-field" style="flex-shrink:0;"><label>Hasta</label><input type="date" id="atRepFechaHasta" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;"></div>
-        <select id="atRepSucursal" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;flex-shrink:0;"><option value="">Todas las sucursales</option></select>
-        <select id="atRepVendedor" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;flex-shrink:0;"><option value="">Todos los vendedores</option></select>
-        <select id="atRepEstado" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;flex-shrink:0;">
+        <div class="filter-field" style="flex-shrink:0;"><label>Desde</label><input type="date" id="atRepFechaDesde" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 8px;font-size:11.5px;"></div>
+        <div class="filter-field" style="flex-shrink:0;"><label>Hasta</label><input type="date" id="atRepFechaHasta" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 8px;font-size:11.5px;"></div>
+        <select id="atRepSucursal" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 8px;font-size:11.5px;flex-shrink:0;"><option value="">Todas las sucursales</option></select>
+        <select id="atRepVendedor" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 8px;font-size:11.5px;flex-shrink:0;"><option value="">Todos los vendedores</option></select>
+        <select id="atRepEstado" onchange="renderAlertaTempranaReporte_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 8px;font-size:11.5px;flex-shrink:0;">
           <option value="">Todos los estados</option><option value="Respondida">Respondida</option><option value="Cliente no desea responder">No respondida</option><option value="">Sin encuesta todavía</option>
         </select>
-        <button class="print-btn" style="margin:0;flex-shrink:0;white-space:nowrap;" onclick="limpiarFiltrosAlertaTemprana_()">Limpiar filtros</button>
-        <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;">
-          📎 Cargar planilla
+        <button class="print-btn" style="margin:0;flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="limpiarFiltrosAlertaTemprana_()">Limpiar</button>
+        <label style="display:inline-flex;align-items:center;gap:4px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:11.5px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;" title="Cargar planilla">
+          📎 Cargar
           <input type="file" accept=".xlsx,.xls" id="atArchivoFileInput" onchange="importarNpsAlertaTempranaArchivo_(event)" style="display:none;">
         </label>
-        <button class="pdf-btn print-btn" style="margin:0;flex-shrink:0;white-space:nowrap;" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px;">picture_as_pdf</span> Descargar PDF</button>
+        <button class="pdf-btn print-btn" style="margin:0;flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="imprimirComoPDF_()" title="Descargar PDF"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px;">picture_as_pdf</span></button>
       </div>
 
       <div class="costos-grid" id="atRepIndicadores" style="margin-bottom:6px;"></div>
@@ -2266,18 +2266,18 @@
     </div>
 
     <div id="paneMaestroNpscontactoposterior" style="display:none;padding:10px 0;">
-      <div class="filter-bar" style="flex-wrap:nowrap;overflow-x:auto;">
-        <select id="cpFiltroSucursal" onchange="renderNpsContactoPosteriorPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;flex-shrink:0;"><option value="">Todas las sucursales</option></select>
+      <div class="filter-bar" style="flex-wrap:wrap;gap:8px;">
+        <select id="cpFiltroSucursal" onchange="renderNpsContactoPosteriorPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 8px;font-size:11.5px;flex-shrink:0;"><option value="">Todas las sucursales</option></select>
         <div id="cpCanalToggle" class="filter-pills" style="margin:0;flex-shrink:0;"></div>
         <div class="filter-field" style="flex-shrink:0;"><label>Desde</label><input type="date" id="cpFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
         <div class="filter-field" style="flex-shrink:0;"><label>Hasta</label><input type="date" id="cpFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
-        <button class="filter-pill" style="flex-shrink:0;white-space:nowrap;" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
-        <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;">
-          📎 Cargar planilla
+        <button class="filter-pill" style="flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="limpiarDashboardFecha()" title="Todo el período"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span></button>
+        <label style="display:inline-flex;align-items:center;gap:4px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:11.5px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;" title="Cargar planilla">
+          📎 Cargar
           <input type="file" accept=".xlsx,.xls" id="cpArchivoFileInput" onchange="importarNpsContactoPosteriorArchivo_(event)" style="display:none;">
         </label>
         <span class="ayuda-tip" style="flex-shrink:0;" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Toma el puntaje de la columna AH y la fecha de la columna AN del archivo.</span></span>
-        <button class="pdf-btn filter-pill" style="flex-shrink:0;white-space:nowrap;" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span> Descargar PDF</button>
+        <button class="pdf-btn filter-pill" style="flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="imprimirComoPDF_()" title="Descargar PDF"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span></button>
       </div>
       <div style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:6px;" onclick="toggleBloqueVisible_('cpResumen','cpResumenIcon')">
         <span class="material-symbols-outlined" id="cpResumenIcon" style="font-size:15px;transition:transform .15s;">expand_more</span>
@@ -2335,17 +2335,17 @@
     </div>
 
     <div id="paneMaestroNpsfabrica" style="display:none;padding:10px 0;">
-      <div class="filter-bar" style="flex-wrap:nowrap;overflow-x:auto;">
-        <select id="fabFiltroSucursal" onchange="renderNpsFabricaPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;flex-shrink:0;"><option value="">Todas las sucursales</option></select>
+      <div class="filter-bar" style="flex-wrap:wrap;gap:8px;">
+        <select id="fabFiltroSucursal" onchange="renderNpsFabricaPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 8px;font-size:11.5px;flex-shrink:0;"><option value="">Todas las sucursales</option></select>
         <div id="fabCanalToggle" class="filter-pills" style="margin:0;flex-shrink:0;"></div>
         <div class="filter-field" style="flex-shrink:0;"><label>Desde</label><input type="date" id="fabFechaDesde" onchange="setDashboardFecha('desde', this.value)"></div>
         <div class="filter-field" style="flex-shrink:0;"><label>Hasta</label><input type="date" id="fabFechaHasta" onchange="setDashboardFecha('hasta', this.value)"></div>
-        <button class="filter-pill" style="flex-shrink:0;white-space:nowrap;" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
-        <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;">
-          📎 Cargar planilla de Fábrica
+        <button class="filter-pill" style="flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="limpiarDashboardFecha()" title="Todo el período"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span></button>
+        <label style="display:inline-flex;align-items:center;gap:4px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:11.5px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;" title="Cargar planilla de Fábrica">
+          📎 Cargar
           <input type="file" accept=".xlsx,.xls" id="npsFabricaFileInput" onchange="importarNpsFabricaArchivo_(event)" style="display:none;">
         </label>
-        <button class="pdf-btn filter-pill" style="flex-shrink:0;white-space:nowrap;" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span> Descargar PDF</button>
+        <button class="pdf-btn filter-pill" style="flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="imprimirComoPDF_()" title="Descargar PDF"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span></button>
         <span class="ayuda-tip" style="flex-shrink:0;" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Solo entran acá las entregas que ya tienen garantía cargada — son las únicas elegibles para esta encuesta. Si querés el NPS tal cual sale de la planilla que manda Fábrica (sin cruzar con las entregas), subila con el botón de arriba.</span></span>
       </div>
       <button class="pdf-btn print-btn" style="margin-bottom:12px;margin-top:10px;" onclick="descargarImagenReporte_('fabReporteImagen','NPS_Fabrica')"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px;">image</span> Descargar imagen (Acumulado + Puntaje GM)</button>
@@ -2411,20 +2411,20 @@
     </div>
 
     <div id="paneMaestroRankingvendedor" style="display:none;padding:10px 0;">
-      <div class="filter-bar" style="flex-wrap:nowrap;overflow-x:auto;">
-        <select id="rankFiltroInstancia" onchange="renderRankingVendedorPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 9px;font-size:12px;flex-shrink:0;">
+      <div class="filter-bar" style="flex-wrap:wrap;gap:8px;">
+        <select id="rankFiltroInstancia" onchange="renderRankingVendedorPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:6px 8px;font-size:11.5px;flex-shrink:0;">
           <option value="todas">Las 3 encuestas juntas</option>
           <option value="alertatemprana">Solo Alerta Temprana</option>
           <option value="contactoposterior">Solo Contacto Posterior</option>
           <option value="fabrica">Solo Fábrica</option>
         </select>
         <div id="rankCanalToggle" class="filter-pills" style="margin:0;flex-shrink:0;"></div>
-        <button class="filter-pill" style="flex-shrink:0;white-space:nowrap;" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
-        <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;">
-          📎 Cargar planilla
+        <button class="filter-pill" style="flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="limpiarDashboardFecha()" title="Todo el período"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span></button>
+        <label style="display:inline-flex;align-items:center;gap:4px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:11.5px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;" title="Cargar planilla">
+          📎 Cargar
           <input type="file" accept=".xlsx,.xls" onchange="importarNpsTodasLasInstancias_(event)" style="display:none;">
         </label>
-        <button class="pdf-btn filter-pill" style="flex-shrink:0;white-space:nowrap;" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span> Descargar PDF</button>
+        <button class="pdf-btn filter-pill" style="flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="imprimirComoPDF_()" title="Descargar PDF"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span></button>
         <span class="ayuda-tip" style="flex-shrink:0;" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Combina lo cargado en el sistema (entregas con NPS) + lo que venga de los archivos importados (que ya traen vendedor, sucursal y VIN) — sin duplicar lo que ya está en el archivo. La marca se filtra con los botones de arriba de la página. "Ventas" cuenta TODOS los autos entregados de ese vendedor (respondan o no la encuesta). "Tasa de respuesta" es Respuestas sobre Ventas del propio vendedor. "% Participación" es cuánto representan las respuestas de este vendedor sobre el total de respuestas de TODOS los vendedores juntos. Un solo archivo carga las 3 encuestas de una — subilo dos veces (Directa y PDA).</span></span>
       </div>
 
@@ -12081,10 +12081,32 @@ function renderNpsContactoPosteriorPanel_(){
   var conteoCpResumen = filterCanal==='tradicional' ? acumTDresumenCp.conteo : (filterCanal==='pda' ? acumPDAresumenCp.conteo : sumarConteos_(acumTDresumenCp.conteo, acumPDAresumenCp.conteo));
   var nps = conteoCpResumen.total ? npsDeConteo_(conteoCpResumen) : null;
   var respondidasTotalCp = conteoCpResumen.total;
-  var pct = rows.length ? Math.round(respondidasTotalCp/rows.length*100) : 0;
+  // Mismo arreglo que en Fábrica: "rows" solo son las entregas de Planning
+  // — el archivo trae muchos más autos. Usamos el total de "Ventas" (por
+  // VIN, sin duplicar) como denominador real.
+  var sucFResumenCp = document.getElementById('cpFiltroSucursal').value;
+  var ventasTotalCp = 0;
+  var vinsYaContadosCp = {};
+  ['directa','pda'].forEach(function(canalKey){
+    var esteCanalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
+    if(filterCanal && filterCanal!==esteCanalUrl) return;
+    var archVentas = obtenerArchivoNps_('ventas', canalKey);
+    if(archVentas){
+      archVentas.puntos.forEach(function(p){
+        if(!p.vin) return;
+        if(sucFResumenCp && p.sucursal!==sucFResumenCp) return;
+        if(!vinsYaContadosCp[p.vin]){ vinsYaContadosCp[p.vin]=true; ventasTotalCp++; }
+      });
+    }
+  });
+  rows.forEach(function(r){
+    if(r.chasis && vinsYaContadosCp[r.chasis]) return;
+    ventasTotalCp++;
+  });
+  var pct = ventasTotalCp ? Math.round(respondidasTotalCp/ventasTotalCp*100) : 0;
   document.getElementById('cpResumen').innerHTML =
     statChipCalidad_(nps===null?'—':nps, 'NPS Contacto Posterior', nps===null?'pending':(nps>=50?'ok':(nps>=0?'warn':'danger')), 'forum')+
-    statChipCalidad_(respondidasTotalCp+' / '+rows.length, 'Respondidas', 'pending', 'fact_check')+
+    statChipCalidad_(respondidasTotalCp+' / '+ventasTotalCp, 'Respondidas', 'pending', 'fact_check')+
     statChipCalidad_(pct+'%', 'Tasa de respuesta', pct>=50?'ok':'warn', 'percent');
   window._cpConDato = conDato;
   document.getElementById('cpTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Fecha respuesta</th><th>Puntaje</th><th>Atención asesor</th><th>Gestión admin.</th><th>Exp. entrega</th><th>Comentario</th></tr>'+
@@ -12665,22 +12687,30 @@ function agregarNpsAnonimoATUI_(){
 // Lee el Excel UNA sola vez (es el mismo archivo para las 3 encuestas) y
 // carga Fábrica + Alerta Temprana + Contacto Posterior de un tirón — así
 // no hay que subir el mismo archivo 3 veces.
-// En PDA el "Vendedor" no es una persona — viene como "SL - AUTOPLAN" o
-// "SJ - AUTOPLAN" (sigla de la sucursal), así que lo normalizamos para
-// que se agrupe con la sucursal real (San Luis / San Juan) en vez de
-// aparecer como si fuera un vendedor más. Se usa en todos los
-// importadores (el unificado y los de cada página).
+// En PDA el "Vendedor" no es una persona. Si viene como "SL - AUTOPLAN" /
+// "SJ - AUTOPLAN" (típico del archivo importado) lo mapeamos directo; si
+// no matchea ese texto pero sabemos la Sucursal (típico de una entrega
+// cargada a mano en Planning), armamos "PDA - <Sucursal>" igual — así
+// nunca queda un ítem suelto sin agrupar, venga de donde venga el dato.
+function normalizarVendedorSucursalPDA_(vendedor, sucursal, canal){
+  if(canal!=='pda') return {vendedor:vendedor, sucursal:sucursal};
+  var v = (vendedor||'').trim().toUpperCase();
+  var s = (sucursal||'').trim();
+  if(/^SL\b/.test(v) || v.indexOf('SAN LUIS')>-1) return {vendedor:'PDA - San Luis', sucursal:'San Luis'};
+  if(/^SJ\b/.test(v) || v.indexOf('SAN JUAN')>-1) return {vendedor:'PDA - San Juan', sucursal:'San Juan'};
+  if(s) return {vendedor:'PDA - '+s, sucursal:s};
+  return {vendedor:vendedor, sucursal:sucursal};
+}
+// Lee el Excel UNA sola vez (es el mismo archivo para las 3 encuestas) y
+// carga Fábrica + Alerta Temprana + Contacto Posterior de un tirón — así
+// no hay que subir el mismo archivo 3 veces.
 function normalizarPuntosPDA_(puntos, canal){
   if(canal!=='pda') return puntos;
   return puntos.map(function(p){
-    var v = (p.vendedor||'').trim().toUpperCase();
-    var sucursalNueva = p.sucursal;
-    var vendedorNuevo = p.vendedor;
-    if(/^SL\b/.test(v) || v.indexOf('SAN LUIS')>-1){ sucursalNueva = 'San Luis'; vendedorNuevo = 'PDA - San Luis'; }
-    else if(/^SJ\b/.test(v) || v.indexOf('SAN JUAN')>-1){ sucursalNueva = 'San Juan'; vendedorNuevo = 'PDA - San Juan'; }
-    if(vendedorNuevo===p.vendedor && sucursalNueva===p.sucursal) return p;
+    var norm = normalizarVendedorSucursalPDA_(p.vendedor, p.sucursal, canal);
+    if(norm.vendedor===p.vendedor && norm.sucursal===p.sucursal) return p;
     var pNuevo = {}; for(var k in p){ pNuevo[k]=p[k]; }
-    pNuevo.vendedor = vendedorNuevo; pNuevo.sucursal = sucursalNueva;
+    pNuevo.vendedor = norm.vendedor; pNuevo.sucursal = norm.sucursal;
     return pNuevo;
   });
 }
@@ -13165,10 +13195,34 @@ function renderNpsFabricaPanel_(){
   var conteoFabResumen = filterCanal==='tradicional' ? acumTDresumen.conteo : (filterCanal==='pda' ? acumPDAresumen.conteo : sumarConteos_(acumTDresumen.conteo, acumPDAresumen.conteo));
   var nps = conteoFabResumen.total ? npsDeConteo_(conteoFabResumen) : null;
   var respondidasTotal = conteoFabResumen.total;
-  var pct = elegibles.length ? Math.round(respondidasTotal/elegibles.length*100) : 0;
+  // "Elegibles" de Planning solo cuenta lo que está cargado ahí — pero el
+  // archivo importado trae muchos más autos. Armamos el mismo total de
+  // "Ventas" (por VIN, sin duplicar) que ya usa el Ranking, para que la
+  // Tasa de respuesta tenga un denominador real y no dé disparates
+  // como "963%".
+  var sucFResumen = document.getElementById('fabFiltroSucursal').value;
+  var ventasTotal = 0;
+  var vinsYaContadosResumen = {};
+  ['directa','pda'].forEach(function(canalKey){
+    var esteCanalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
+    if(filterCanal && filterCanal!==esteCanalUrl) return;
+    var archVentas = obtenerArchivoNps_('ventas', canalKey);
+    if(archVentas){
+      archVentas.puntos.forEach(function(p){
+        if(!p.vin) return;
+        if(sucFResumen && p.sucursal!==sucFResumen) return;
+        if(!vinsYaContadosResumen[p.vin]){ vinsYaContadosResumen[p.vin]=true; ventasTotal++; }
+      });
+    }
+  });
+  elegibles.forEach(function(r){
+    if(r.chasis && vinsYaContadosResumen[r.chasis]) return;
+    ventasTotal++;
+  });
+  var pct = ventasTotal ? Math.round(respondidasTotal/ventasTotal*100) : 0;
   document.getElementById('fabResumen').innerHTML =
     statChipCalidad_(nps===null?'—':nps, 'NPS Fábrica', nps===null?'pending':(nps>=50?'ok':(nps>=0?'warn':'danger')), 'factory')+
-    statChipCalidad_(respondidasTotal+' / '+elegibles.length, 'Respondidas', 'pending', 'fact_check')+
+    statChipCalidad_(respondidasTotal+' / '+ventasTotal, 'Respondidas', 'pending', 'fact_check')+
     statChipCalidad_(pct+'%', 'Tasa de respuesta', pct>=50?'ok':'warn', 'percent');
   pintarResumenArchivoFabrica_({
     directa: respondidas.filter(function(r){return !esCanalPDA_(r);}),
@@ -13318,7 +13372,8 @@ function agregarInstanciaAlRanking_(acum, instancia, entregasVivas, extractor){
       if(!datos) return;
       var fIso = fechaAIso_(datos.fecha);
       if(fIso && corte!=='0000-00-00' && fIso < corte) return; // ya está adentro del archivo
-      sumarAVendedor_(acum, r.vendedor, r.sucursal, datos.score);
+      var norm = normalizarVendedorSucursalPDA_(r.vendedor, r.sucursal, canalKey);
+      sumarAVendedor_(acum, norm.vendedor, norm.sucursal, datos.score);
     });
   });
 }
@@ -13354,8 +13409,9 @@ function renderRankingVendedorPanel_(){
   });
   rows.forEach(function(r){
     if(r.chasis && vinVendedor[r.chasis]) return; // este auto ya se contó desde el archivo
-    var vend = (r.vendedor||'').trim() || '(sin asignar)';
-    var suc = (r.sucursal||'').trim() || '(sin asignar)';
+    var norm = normalizarVendedorSucursalPDA_(r.vendedor, r.sucursal, esCanalPDA_(r) ? 'pda' : 'directa');
+    var vend = (norm.vendedor||'').trim() || '(sin asignar)';
+    var suc = (norm.sucursal||'').trim() || '(sin asignar)';
     ventasPorVendedor[vend] = (ventasPorVendedor[vend]||0)+1;
     ventasPorSucursal[suc] = (ventasPorSucursal[suc]||0)+1;
   });
@@ -13429,7 +13485,8 @@ function renderRankingVendedorPanel_(){
         if(!datos) return;
         var fIso = fechaAIso_(datos.fecha);
         if(fIso && corte!=='0000-00-00' && fIso < corte) return;
-        sumarASucursal_(r.sucursal, datos.score);
+        var norm = normalizarVendedorSucursalPDA_(r.vendedor, r.sucursal, canalKey);
+        sumarASucursal_(norm.sucursal, datos.score);
       });
     });
   }
