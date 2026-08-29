@@ -2420,7 +2420,7 @@
         <div id="rankCanalToggle" class="filter-pills" style="margin:0;"></div>
         <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
         <button class="pdf-btn filter-pill" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span> Descargar PDF</button>
-        <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Combina lo cargado en el sistema (entregas con NPS) + lo que venga de los archivos importados (que ya traen vendedor y sucursal) — sin duplicar lo que ya está en el archivo. La marca se filtra con los botones de arriba de la página. "Ventas" cuenta entregas totales de ese vendedor/sucursal en el período, tengan o no NPS respondido.</span></span>
+        <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Combina lo cargado en el sistema (entregas con NPS) + lo que venga de los archivos importados (que ya traen vendedor, sucursal y VIN) — sin duplicar lo que ya está en el archivo. La marca se filtra con los botones de arriba de la página. "Ventas" cuenta autos (no respuestas) por VIN — si el mismo auto respondió más de una encuesta, se cuenta una sola vez.</span></span>
       </div>
 
       <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--warn);">military_tech</span>Top 5 Vendedores</div>
@@ -10762,7 +10762,12 @@ function setMaestroTab(tab){
   if(tab==='accesoriosreporte') renderReporteAccesorios_();
   if(tab==='garantiascalidad') renderGarantiasPanel_();
   if(tab==='casosgestion') renderCasosGestionPanel_();
-  if(tab==='rankingvendedor') renderRankingVendedorPanel_();
+  if(tab==='rankingvendedor'){
+    renderRankingVendedorPanel_();
+    cargarArchivosNpsSiHaceFalta_().then(function(){
+      if(maestroTabActual==='rankingvendedor') renderRankingVendedorPanel_();
+    });
+  }
   if(tab==='permisos'){
     renderUsuariosTabla_();
     if(window._intervalUsuariosTabla) clearInterval(window._intervalUsuariosTabla);
@@ -11363,22 +11368,22 @@ function renderTarjetaPuntajeGM_(titulo, nps, puntosMax, umbral, nacional, zona,
       filaComp_('Zona', zona, maxZona, nps>=zona)+
       (maxZona>1 ? filaComp_('90% de la Zona', zona*0.9, maxZona/2, nps>=zona*0.9) : '')
     ) : '<div style="font-size:10.5px;color:var(--text-faint);margin-top:6px;">Cargá el valor de Zona arriba para ver el detalle.</div>')+
-    (conteo ? renderProyeccionGM_(conteo, umbral, nacional, zona, maxZona) : '')+
+    (conteo ? renderProyeccionGM_(conteo, umbral, nacional, zona, maxZona, puntosMax, maxNacional) : '')+
   '</div>';
 }
 // Tarjetitas "cuántas encuestas promotoras faltan para cada objetivo",
 // como en la planilla de Fábrica que mandó GM.
-function renderProyeccionGM_(conteo, umbral, nacional, zona, maxZona){
+function renderProyeccionGM_(conteo, umbral, nacional, zona, maxZona, puntosMax, maxNacional){
   var objetivos = [
-    {label:'Umbral máximo ('+umbral+'%)', target:umbral},
-    {label:'Igualar Nacional', target:nacional},
-    {label:'90% de Nacional', target:nacional*0.9},
-    {label:'Igualar Zona', target:zona}
+    {label:'Umbral máximo ('+umbral+'%)', target:umbral, pts:puntosMax},
+    {label:'Igualar Nacional', target:nacional, pts:maxNacional},
+    {label:'90% de Nacional', target:nacional*0.9, pts:maxNacional/2},
+    {label:'Igualar Zona', target:zona, pts:maxZona}
   ];
   // El escalón intermedio "90% de Zona" solo existe en la regla oficial
   // para Ventas TD (maxZona=2) — PDA (maxZona=1) va directo de "Igualar
   // Zona" a 0, sin paso intermedio.
-  if(maxZona>1) objetivos.push({label:'90% de Zona', target:zona*0.9});
+  if(maxZona>1) objetivos.push({label:'90% de Zona', target:zona*0.9, pts:maxZona/2});
   objetivos = objetivos.filter(function(o){ return o.target>0; });
   if(objetivos.length===0) return '';
   return '<div style="font-size:10.5px;color:var(--text-faint);margin:10px 0 4px;">Encuestas promotoras que faltan sumar (sin tocar lo que ya hay):</div>'+
@@ -11388,8 +11393,8 @@ function renderProyeccionGM_(conteo, umbral, nacional, zona, maxZona){
       if(falta===null) return '';
       var cumplido = falta===0;
       return '<div style="flex:1;min-width:90px;background:'+(cumplido?'var(--ok-soft)':'var(--panel-2)')+';border:1px solid '+(cumplido?'var(--ok)':'var(--hairline)')+';border-radius:8px;padding:6px 8px;text-align:center;">'+
-        '<div style="font-size:9.5px;color:var(--text-faint);margin-bottom:2px;">'+o.label+'</div>'+
-        (cumplido ? '<div style="font-size:11.5px;font-weight:800;color:var(--ok);">✓ Cumplido</div>' : '<div style="font-size:13px;font-weight:800;">+'+falta+'</div>')+
+        '<div style="font-size:9.5px;color:var(--text-faint);margin-bottom:2px;">'+o.label+' <span style="opacity:.65;">('+o.pts+(o.pts===1?' pto':' ptos')+')</span></div>'+
+        (cumplido ? '<div style="font-size:11.5px;font-weight:800;color:var(--ok);">✓ Cumplido</div>' : '<div style="font-size:12px;font-weight:800;">Faltan '+falta+'</div>')+
       '</div>';
     }).join('')+
     '</div>';
@@ -12158,6 +12163,7 @@ function calcularNpsDesdeFilas_(filas, idxHeaderRow, headers){
   var colFecha = buscarColPorNombre_(headers, ['FECHA','RESPUESTA','NPS']);
   var colVendedor = buscarColPorNombre_(headers, ['VENDEDOR']);
   var colSucursal = buscarColPorNombre_(headers, ['SUCURSAL']);
+  var colVin = buscarColPorNombre_(headers, ['VIN','CHASIS']);
   if(colScore===-1) return null;
   var puntos = [];
   for(var r=idxHeaderRow+1; r<filas.length; r++){
@@ -12170,7 +12176,8 @@ function calcularNpsDesdeFilas_(filas, idxHeaderRow, headers){
     puntos.push({
       fecha: colFecha>-1 ? String(fila[colFecha]||'').trim() : '', score:n,
       vendedor: colVendedor>-1 ? String(fila[colVendedor]||'').trim() : '',
-      sucursal: colSucursal>-1 ? String(fila[colSucursal]||'').trim() : ''
+      sucursal: colSucursal>-1 ? String(fila[colSucursal]||'').trim() : '',
+      vin: colVin>-1 ? String(fila[colVin]||'').trim() : ''
     });
   }
   if(puntos.length===0) return null;
@@ -12246,6 +12253,7 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
     return '<div class="chart-panel" style="cursor:pointer;'+(activo?'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);':'')+'" onclick="setFilterCanal(\''+canalUrl+'\')" title="Tocá para ver el gráfico de abajo filtrado por este canal — volvé a tocar para ver todos juntos">'+
       '<div class="chart-panel-title">'+titulo+(activo?' <span style="font-size:9px;color:var(--accent);font-weight:800;">● filtrando abajo</span>':'')+'</div>'+
       '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+soloFechaISO_(entrada.fecha)+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
+      '<div style="font-size:9.5px;color:var(--text-faint);margin-bottom:8px;">Corte: '+soloFechaISO_(entrada.fechaCorte)+' <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="event.stopPropagation();editarFechaCorte_(\'fabrica\',\''+canalKey+'\')">editar</span></div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
       '<div style="font-size:10px;margin-top:3px;"><span style="color:var(--ok);font-weight:700;">'+r.conteo.promotores+' promotoras</span> · <span style="color:var(--warn);font-weight:700;">'+r.conteo.pasivos+' neutrales</span> · <span style="color:var(--danger);font-weight:700;">'+r.conteo.detractores+' detractoras</span></div>'+
@@ -12400,6 +12408,23 @@ function guardarArchivoNpsBackend_(instancia, canalKey, nombreArchivo, puntos){
   if(idx>-1) ARCHIVOS_NPS_[idx] = filaLocal; else ARCHIVOS_NPS_.push(filaLocal);
   return gasPost('guardarArchivoNpsImportado', {instancia:instancia, canal:canal, nombreArchivo:nombreArchivo, fechaCorte:fechaCorte, puntosJson:puntosJson, autor:usuarioActual()});
 }
+// Edita solo la fecha de corte de un archivo ya subido (sin resubir el
+// Excel) — para cuando quieren que el sistema empiece a contar en vivo
+// desde una fecha puntual, en vez de "cuando se subió el archivo".
+function editarFechaCorte_(instancia, canalKey){
+  var actual = (function(){ var a=obtenerArchivoNps_(instancia, canalKey); return a?a.fechaCorte:''; })();
+  var nueva = prompt('Fecha de corte para este canal (desde esa fecha, todo lo que se cargue en el sistema se suma como "en vivo", no como parte del archivo). Formato: AAAA-MM-DD', actual||fechaHoyIso_());
+  if(!nueva) return;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(nueva.trim())){ showToast('La fecha tiene que ser AAAA-MM-DD, por ejemplo 2026-08-01'); return; }
+  var canal = canalKey==='directa' ? 'directa' : 'pda';
+  gasPost('actualizarFechaCorteArchivo', {instancia:instancia, canal:canal, nuevaFecha:nueva.trim()}).then(function(res){
+    if(!res.ok){ showToast(res.error||'No se pudo actualizar'); return; }
+    var idx = ARCHIVOS_NPS_.findIndex(function(a){ return a.instancia===instancia && a.canal===canal; });
+    if(idx>-1) ARCHIVOS_NPS_[idx].fechaCorte = nueva.trim();
+    showToast('Fecha de corte actualizada');
+    refrescarPanelCalidadActivo_();
+  });
+}
 function fechaHoyIso_(){
   var d = new Date();
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -12485,6 +12510,7 @@ function pintarResumenArchivoAT_(respondidasPorCanal){
     return '<div class="chart-panel" style="cursor:pointer;'+(activo?'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);':'')+'" onclick="setFilterCanal(\''+canalUrl+'\')" title="Tocá para ver el gráfico de abajo filtrado por este canal — volvé a tocar para ver todos juntos">'+
       '<div class="chart-panel-title">'+titulo+(activo?' <span style="font-size:9px;color:var(--accent);font-weight:800;">● filtrando abajo</span>':'')+'</div>'+
       '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+soloFechaISO_(entrada.fecha)+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
+      '<div style="font-size:9.5px;color:var(--text-faint);margin-bottom:8px;">Corte: '+soloFechaISO_(entrada.fechaCorte)+' <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="event.stopPropagation();editarFechaCorte_(\'alertatemprana\',\''+canalKey+'\')">editar</span></div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
       '<div style="font-size:10px;margin-top:3px;"><span style="color:var(--ok);font-weight:700;">'+r.conteo.promotores+' promotoras</span> · <span style="color:var(--warn);font-weight:700;">'+r.conteo.pasivos+' neutrales</span> · <span style="color:var(--danger);font-weight:700;">'+r.conteo.detractores+' detractoras</span></div>'+
@@ -12544,29 +12570,31 @@ function eliminarNpsAnonimoUI_(tipo, fila, tablaId){
 // vacío), así no hay que scrollear hasta Puntaje GM para ver lo mismo.
 function tarjetaProgresoObjetivo_(conteoActivo, esTD, sufijoBenchmark){
   var puntosMax = esTD ? 6 : 3;
+  var maxNacional = esTD ? 4 : 2;
   var maxZona = esTD ? 2 : 1;
   var prefijo = esTD ? 'TD' : 'PDA';
   var umbral = Number((document.getElementById('gmUmbralMaximo'+prefijo+sufijoBenchmark)||{}).value)||0;
   var nacional = Number((document.getElementById('gmNacional'+prefijo+sufijoBenchmark)||{}).value)||0;
   var zona = Number((document.getElementById('gmZona'+prefijo+sufijoBenchmark)||{}).value)||0;
   var objetivos = [
-    {label:'Umbral máximo ('+umbral+'%)', target:umbral},
-    {label:'Igualar Nacional', target:nacional},
-    {label:'90% de Nacional', target:nacional*0.9},
-    {label:'Igualar Zona', target:zona}
+    {label:'Umbral máximo ('+umbral+'%)', target:umbral, pts:puntosMax},
+    {label:'Igualar Nacional', target:nacional, pts:maxNacional},
+    {label:'90% de Nacional', target:nacional*0.9, pts:maxNacional/2},
+    {label:'Igualar Zona', target:zona, pts:maxZona}
   ];
-  if(maxZona>1) objetivos.push({label:'90% de Zona', target:zona*0.9});
+  if(maxZona>1) objetivos.push({label:'90% de Zona', target:zona*0.9, pts:maxZona/2});
   objetivos = objetivos.filter(function(o){ return o.target>0; });
   var filas = objetivos.map(function(o){
     var falta = encuestasQueFaltan_(conteoActivo, o.target);
     if(falta===null) return '';
     var cumplido = falta===0;
     return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--hairline);font-size:11px;'+(cumplido?'color:var(--ok);font-weight:700;':'color:var(--text-faint);')+'">'+
-      '<span>'+o.label+'</span><span>'+(cumplido?'✓ Cumplido':'+'+falta)+'</span></div>';
+      '<span>'+o.label+' <span style="opacity:.65;">('+o.pts+(o.pts===1?' pto':' ptos')+')</span></span>'+
+      '<span>'+(cumplido?'✓ Cumplido':'Faltan '+falta+' encuestas')+'</span></div>';
   }).join('');
   return '<div class="chart-panel">'+
     '<div class="chart-panel-title" style="color:var(--text-faint);">Progreso hacia el objetivo — '+puntosMax+' pts</div>'+
-    '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Cuántas encuestas promotoras faltan para el canal que estás mirando abajo.</div>'+
+    '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Cuántas encuestas promotoras faltan sumar para el canal que estás mirando abajo, y cuántos puntos vale cada objetivo.</div>'+
     (filas || '<div style="font-size:10.5px;color:var(--text-faint);">Cargá Umbral/Nacional/Zona más abajo para ver esto.</div>')+
   '</div>';
 }
@@ -12624,6 +12652,7 @@ function importarNpsAlertaTempranaArchivo_(event){
       var colFechaAT = buscarColPorNombre_(headers, ['FECH','REALIZO']);
       var colVendedorAT = buscarColPorNombre_(headers, ['VENDEDOR']);
       var colSucursalAT = buscarColPorNombre_(headers, ['SUCURSAL']);
+      var colVinAT = buscarColPorNombre_(headers, ['VIN','CHASIS']);
       var puntos = [];
       for(var r=idxHeaderRow+1; r<filas.length; r++){
         var fila = filas[r];
@@ -12635,7 +12664,8 @@ function importarNpsAlertaTempranaArchivo_(event){
         puntos.push({
           fecha: colFechaAT>-1 ? String(fila[colFechaAT]||'').trim() : '', score:n,
           vendedor: colVendedorAT>-1 ? String(fila[colVendedorAT]||'').trim() : '',
-          sucursal: colSucursalAT>-1 ? String(fila[colSucursalAT]||'').trim() : ''
+          sucursal: colSucursalAT>-1 ? String(fila[colSucursalAT]||'').trim() : '',
+          vin: colVinAT>-1 ? String(fila[colVinAT]||'').trim() : ''
         });
       }
       if(puntos.length===0){ showToast('No se encontraron respuestas de NPS Alerta Temprana en el archivo.'); event.target.value=''; return; }
@@ -12729,6 +12759,7 @@ function pintarResumenArchivoCp_(respondidasPorCanal){
     return '<div class="chart-panel" style="cursor:pointer;'+(activo?'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);':'')+'" onclick="setFilterCanal(\''+canalUrl+'\')" title="Tocá para ver el gráfico de abajo filtrado por este canal — volvé a tocar para ver todos juntos">'+
       '<div class="chart-panel-title">'+titulo+(activo?' <span style="font-size:9px;color:var(--accent);font-weight:800;">● filtrando abajo</span>':'')+'</div>'+
       '<div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;">Base: "'+entrada.nombreArchivo+'" ('+soloFechaISO_(entrada.fecha)+') + '+r.nuevas.length+' con VIN + '+r.anonimasCanal.length+' anónimas, desde entonces</div>'+
+      '<div style="font-size:9.5px;color:var(--text-faint);margin-bottom:8px;">Corte: '+soloFechaISO_(entrada.fechaCorte)+' <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="event.stopPropagation();editarFechaCorte_(\'contactoposterior\',\''+canalKey+'\')">editar</span></div>'+
       '<div style="font-size:28px;font-weight:800;color:'+(r.nps>=50?'var(--ok)':(r.nps>=0?'var(--warn)':'var(--danger)'))+';">'+r.nps.toFixed(1)+'</div>'+
       '<div style="font-size:11px;color:var(--text-dim);">NPS acumulado — '+r.conteo.total+' respuestas en total</div>'+
       '<div style="font-size:10px;margin-top:3px;"><span style="color:var(--ok);font-weight:700;">'+r.conteo.promotores+' promotoras</span> · <span style="color:var(--warn);font-weight:700;">'+r.conteo.pasivos+' neutrales</span> · <span style="color:var(--danger);font-weight:700;">'+r.conteo.detractores+' detractoras</span></div>'+
@@ -12806,6 +12837,7 @@ function importarNpsContactoPosteriorArchivo_(event){
       var colFechaCp = 39; // AN
       var colVendedorCp = buscarColPorNombre_(headers, ['VENDEDOR']);
       var colSucursalCp = buscarColPorNombre_(headers, ['SUCURSAL']);
+      var colVinCp = buscarColPorNombre_(headers, ['VIN','CHASIS']);
       var puntos = [];
       for(var r=idxHeaderRow+1; r<filas.length; r++){
         var fila = filas[r];
@@ -12817,7 +12849,8 @@ function importarNpsContactoPosteriorArchivo_(event){
         puntos.push({
           fecha: String(fila[colFechaCp]||'').trim(), score:n,
           vendedor: colVendedorCp>-1 ? String(fila[colVendedorCp]||'').trim() : '',
-          sucursal: colSucursalCp>-1 ? String(fila[colSucursalCp]||'').trim() : ''
+          sucursal: colSucursalCp>-1 ? String(fila[colSucursalCp]||'').trim() : '',
+          vin: colVinCp>-1 ? String(fila[colVinCp]||'').trim() : ''
         });
       }
       if(puntos.length===0){ showToast('No se encontraron respuestas de NPS Contacto Posterior en el archivo.'); event.target.value=''; return; }
@@ -13095,10 +13128,31 @@ function renderRankingVendedorPanel_(){
   var instanciaSel = document.getElementById('rankFiltroInstancia').value;
   var rows = entregasParaDashboard();
 
-  // Cantidad de ventas (entregas totales, tengan o no NPS respondido) por
-  // vendedor y por sucursal — independiente del NPS.
+  // Cantidad de ventas (autos, no respuestas) por vendedor y por sucursal —
+  // se deduplica por VIN entre las 3 encuestas del archivo, porque el mismo
+  // auto puede haber respondido más de una (si no, se contaría 2 o 3 veces).
+  var instanciasParaVentas = instanciaSel==='todas' ? ['fabrica','alertatemprana','contactoposterior'] : [instanciaSel];
+  var vinVendedor = {}, vinSucursal = {};
+  instanciasParaVentas.forEach(function(inst){
+    ['directa','pda'].forEach(function(canalKey){
+      var arch = obtenerArchivoNps_(inst, canalKey);
+      if(!arch) return;
+      arch.puntos.forEach(function(p){
+        if(!p.vin) return;
+        if(!vinVendedor[p.vin]) vinVendedor[p.vin] = (p.vendedor||'').trim() || '(sin asignar)';
+        if(!vinSucursal[p.vin]) vinSucursal[p.vin] = (p.sucursal||'').trim() || '(sin asignar)';
+      });
+    });
+  });
   var ventasPorVendedor = {}, ventasPorSucursal = {};
+  Object.keys(vinVendedor).forEach(function(vin){
+    ventasPorVendedor[vinVendedor[vin]] = (ventasPorVendedor[vinVendedor[vin]]||0)+1;
+  });
+  Object.keys(vinSucursal).forEach(function(vin){
+    ventasPorSucursal[vinSucursal[vin]] = (ventasPorSucursal[vinSucursal[vin]]||0)+1;
+  });
   rows.forEach(function(r){
+    if(r.chasis && vinVendedor[r.chasis]) return; // este auto ya se contó desde el archivo
     var vend = (r.vendedor||'').trim() || '(sin asignar)';
     var suc = (r.sucursal||'').trim() || '(sin asignar)';
     ventasPorVendedor[vend] = (ventasPorVendedor[vend]||0)+1;
