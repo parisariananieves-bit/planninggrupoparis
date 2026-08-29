@@ -2422,7 +2422,7 @@
         <div id="rankCanalToggle" class="filter-pills" style="margin:0;"></div>
         <button class="filter-pill" onclick="limpiarDashboardFecha()"><span class="material-symbols-outlined" style="font-size:14px;">restart_alt</span> Todo el período</button>
         <button class="pdf-btn filter-pill" onclick="imprimirComoPDF_()"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span> Descargar PDF</button>
-        <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Combina lo cargado en el sistema (entregas con NPS) + lo que venga de los archivos importados (que ya traen vendedor, sucursal y VIN) — sin duplicar lo que ya está en el archivo. La marca se filtra con los botones de arriba de la página. "Ventas" cuenta autos (no respuestas) por VIN — si el mismo auto respondió más de una encuesta, se cuenta una sola vez.</span></span>
+        <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Combina lo cargado en el sistema (entregas con NPS) + lo que venga de los archivos importados (que ya traen vendedor, sucursal y VIN) — sin duplicar lo que ya está en el archivo. La marca se filtra con los botones de arriba de la página. "Ventas" cuenta TODOS los autos entregados de ese vendedor (respondan o no la encuesta). "Tasa de respuesta" es Respuestas sobre Ventas del propio vendedor. "% Participación" es cuánto representan las respuestas de este vendedor sobre el total de respuestas de TODOS los vendedores juntos.</span></span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;">
         <label style="display:inline-flex;align-items:center;gap:5px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;">
@@ -12673,6 +12673,30 @@ function importarNpsTodasLasInstancias_(event){
       var canal = detectarCanalArchivoFabrica_(filas);
       var resumen = [];
 
+      // ---- Ventas (TODAS las entregas con VIN, tengan o no alguna
+      // encuesta respondida — es la base real para contar "cuántos autos
+      // vendió" cada vendedor, no solo los que ya respondieron algo). ----
+      var colVendedorVentas = buscarColPorNombre_(headers, ['VENDEDOR']);
+      var colSucursalVentas = buscarColPorNombre_(headers, ['SUCURSAL']);
+      var colVinVentas = buscarColPorNombre_(headers, ['VIN','CHASIS']);
+      var colFechaEntrega = buscarColPorNombre_(headers, ['FECHA','ENTREGA']);
+      var puntosVentas = [];
+      if(colVinVentas>-1){
+        for(var rv=idxHeaderRow+1; rv<filas.length; rv++){
+          var filaV = filas[rv];
+          if(!filaV || !filaV.length) continue;
+          var vin = String(filaV[colVinVentas]||'').trim();
+          if(!vin) continue;
+          puntosVentas.push({
+            vin: vin, score: 0,
+            fecha: colFechaEntrega>-1 ? String(filaV[colFechaEntrega]||'').trim() : '',
+            vendedor: colVendedorVentas>-1 ? String(filaV[colVendedorVentas]||'').trim() : '',
+            sucursal: colSucursalVentas>-1 ? String(filaV[colSucursalVentas]||'').trim() : ''
+          });
+        }
+      }
+      if(puntosVentas.length){ guardarArchivoNpsBackend_('ventas', canal, file.name, puntosVentas); resumen.push('Ventas: '+puntosVentas.length); }
+
       // ---- Fábrica ----
       var puntosFab = calcularNpsDesdeFilas_(filas, idxHeaderRow, headers);
       if(puntosFab){ guardarResumenArchivoFabrica_(canal, file.name, puntosFab); resumen.push('Fábrica: '+puntosFab.length); }
@@ -13156,7 +13180,9 @@ function filaElegibleFabrica_(r){
       estado = dias<=30 ? '<span style="color:var(--accent);font-weight:700;">Animar</span>' : '<span style="color:var(--text-faint);">Vencido ('+dias+'d)</span>';
     }
   }
-  return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td>'+soloFechaISO_(r.garantiaFecha)+'</td><td>'+(r.npsFabricaFecha?soloFechaISO_(r.npsFabricaFecha):'—')+'</td><td style="font-weight:700;">'+(respondio?r.npsFabricaScore:'—')+'</td><td>'+(r.npsFabricaComentario||'—')+'</td><td>'+(respondio?'—':estado)+'</td></tr>';
+  var comentario = r.npsFabricaComentario||'—';
+  var celdaComentario = '<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;" title="Tocá para ver completo" onclick="event.stopPropagation();var abierto=this.style.whiteSpace===\'normal\';this.style.whiteSpace=abierto?\'nowrap\':\'normal\';this.style.maxWidth=abierto?\'160px\':\'320px\';">'+comentario+'</td>';
+  return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td>'+soloFechaISO_(r.garantiaFecha)+'</td><td>'+(r.npsFabricaFecha?soloFechaISO_(r.npsFabricaFecha):'—')+'</td><td style="font-weight:700;">'+(respondio?r.npsFabricaScore:'—')+'</td>'+celdaComentario+'<td>'+(respondio?'—':estado)+'</td></tr>';
 }
 function mostrarTablaFabCompleta_(){
   var elegibles = window._fabElegibles||[];
@@ -13261,25 +13287,20 @@ function renderRankingVendedorPanel_(){
   var rows = entregasParaDashboard();
 
   // Cantidad de ventas (autos, no respuestas) por vendedor y por sucursal —
-  // se deduplica por VIN entre las 3 encuestas del archivo, porque el mismo
-  // auto puede haber respondido más de una (si no, se contaría 2 o 3 veces).
-  var instanciasParaVentas = instanciaSel==='todas' ? ['fabrica','alertatemprana','contactoposterior'] : [instanciaSel];
+  // viene de un dataset propio ("ventas": TODAS las entregas con VIN del
+  // archivo, tengan o no alguna encuesta respondida), no de las 3 encuestas
+  // — así un auto entregado pero sin ninguna respuesta todavía SÍ cuenta
+  // como venta.
   var vinVendedor = {}, vinSucursal = {};
-  var _diagTotalPuntos = 0, _diagConVin = 0;
-  instanciasParaVentas.forEach(function(inst){
-    ['directa','pda'].forEach(function(canalKey){
-      var arch = obtenerArchivoNps_(inst, canalKey);
-      if(!arch) return;
-      arch.puntos.forEach(function(p){
-        _diagTotalPuntos++;
-        if(p.vin) _diagConVin++;
-        if(!p.vin) return;
-        if(!vinVendedor[p.vin]) vinVendedor[p.vin] = (p.vendedor||'').trim() || '(sin asignar)';
-        if(!vinSucursal[p.vin]) vinSucursal[p.vin] = (p.sucursal||'').trim() || '(sin asignar)';
-      });
+  ['directa','pda'].forEach(function(canalKey){
+    var arch = obtenerArchivoNps_('ventas', canalKey);
+    if(!arch) return;
+    arch.puntos.forEach(function(p){
+      if(!p.vin) return;
+      if(!vinVendedor[p.vin]) vinVendedor[p.vin] = (p.vendedor||'').trim() || '(sin asignar)';
+      if(!vinSucursal[p.vin]) vinSucursal[p.vin] = (p.sucursal||'').trim() || '(sin asignar)';
     });
   });
-  console.log('[Diagnóstico Ventas] Puntos del archivo:', _diagTotalPuntos, '— con VIN:', _diagConVin, '— vendedores únicos con VIN:', Object.keys(vinVendedor).length);
   var ventasPorVendedor = {}, ventasPorSucursal = {};
   Object.keys(vinVendedor).forEach(function(vin){
     ventasPorVendedor[vinVendedor[vin]] = (ventasPorVendedor[vinVendedor[vin]]||0)+1;
@@ -13327,18 +13348,20 @@ function renderRankingVendedorPanel_(){
     if(npsB!==npsA) return npsB-npsA;
     return b.total-a.total; // empate en NPS: gana quien tiene más respuestas
   });
+  var totalRespuestasTodos = listaVendedores.reduce(function(a,v){return a+v.total;}, 0);
 
   function filaVendedorHtml_(v, i){
     var color = v.nps===null?'var(--text-faint)':(v.nps>=90?'var(--ok)':(v.nps>=0?'var(--warn)':'var(--danger)'));
-    var participacion = v.ventas>0 ? Math.round(v.total/v.ventas*100)+'%' : '—';
-    return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td>'+v.sucursalPrincipal+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps)+'</td><td>'+v.ventas+'</td><td>'+v.total+'</td><td>'+participacion+'</td>'+
+    var tasaRespuesta = v.ventas>0 ? Math.round(v.total/v.ventas*100)+'%' : '—';
+    var participacion = totalRespuestasTodos>0 ? Math.round(v.total/totalRespuestasTodos*100)+'%' : '—';
+    return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td>'+v.sucursalPrincipal+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps+'%')+'</td><td>'+v.ventas+'</td><td>'+v.total+'</td><td>'+tasaRespuesta+'</td><td>'+participacion+'</td>'+
       '<td style="color:var(--ok);">'+v.promotores+'</td><td style="color:var(--warn);">'+v.pasivos+'</td><td style="color:var(--danger);">'+v.detractores+'</td></tr>';
   }
-  var encabezadoVendedor = '<tr><th>#</th><th>Vendedor</th><th>Sucursal</th><th>NPS</th><th>Ventas</th><th>Respuestas</th><th>% Participación</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>';
+  var encabezadoVendedor = '<tr><th>#</th><th>Vendedor</th><th>Sucursal</th><th>NPS</th><th>Ventas</th><th>Respuestas</th><th>Tasa de respuesta</th><th>% Participación</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>';
   document.getElementById('rankVendedorTop5Tabla').innerHTML = encabezadoVendedor+
-    (listaVendedores.slice(0,5).map(filaVendedorHtml_).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
+    (listaVendedores.slice(0,5).map(filaVendedorHtml_).join('') || '<tr><td colspan="11" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
   document.getElementById('rankVendedorTabla').innerHTML = encabezadoVendedor+
-    (listaVendedores.map(filaVendedorHtml_).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
+    (listaVendedores.map(filaVendedorHtml_).join('') || '<tr><td colspan="11" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
 
   // ---- Por sucursal — mismo acumulado, pero agrupado por sucursal ----
   var acumSucursalReal = {};
@@ -13392,17 +13415,19 @@ function renderRankingVendedorPanel_(){
     if(npsB!==npsA) return npsB-npsA;
     return b.total-a.total;
   });
+  var totalRespuestasSucursales = listaSucursales.reduce(function(a,v){return a+v.total;}, 0);
   function filaSucursalHtml_(v, i){
     var color = v.nps===null?'var(--text-faint)':(v.nps>=90?'var(--ok)':(v.nps>=0?'var(--warn)':'var(--danger)'));
-    var participacion = v.ventas>0 ? Math.round(v.total/v.ventas*100)+'%' : '—';
-    return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps)+'</td><td>'+v.ventas+'</td><td>'+v.total+'</td><td>'+participacion+'</td>'+
+    var tasaRespuesta = v.ventas>0 ? Math.round(v.total/v.ventas*100)+'%' : '—';
+    var participacion = totalRespuestasSucursales>0 ? Math.round(v.total/totalRespuestasSucursales*100)+'%' : '—';
+    return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps+'%')+'</td><td>'+v.ventas+'</td><td>'+v.total+'</td><td>'+tasaRespuesta+'</td><td>'+participacion+'</td>'+
       '<td style="color:var(--ok);">'+v.promotores+'</td><td style="color:var(--warn);">'+v.pasivos+'</td><td style="color:var(--danger);">'+v.detractores+'</td></tr>';
   }
-  var encabezadoSucursal = '<tr><th>#</th><th>Sucursal</th><th>NPS</th><th>Ventas</th><th>Respuestas</th><th>% Participación</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>';
+  var encabezadoSucursal = '<tr><th>#</th><th>Sucursal</th><th>NPS</th><th>Ventas</th><th>Respuestas</th><th>Tasa de respuesta</th><th>% Participación</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>';
   document.getElementById('rankSucursalTop5Tabla').innerHTML = encabezadoSucursal+
-    (listaSucursales.slice(0,5).map(filaSucursalHtml_).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
+    (listaSucursales.slice(0,5).map(filaSucursalHtml_).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
   document.getElementById('rankSucursalTabla').innerHTML = encabezadoSucursal+
-    (listaSucursales.map(filaSucursalHtml_).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
+    (listaSucursales.map(filaSucursalHtml_).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
 }
 function filtrarCoberturaCalidad_(bucket){
   ['covChipTodas','covChipFalta1','covChipFalta2','covChipNinguna'].forEach(function(id){
