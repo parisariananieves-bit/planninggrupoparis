@@ -13372,8 +13372,8 @@ function renderNpsFabricaPanel_(){
   var soloSinResponder = document.getElementById('fabSoloSinResponder') && document.getElementById('fabSoloSinResponder').checked;
   var elegiblesTabla = soloSinResponder ? elegibles.filter(function(r){ return r.npsFabricaScore===null || r.npsFabricaScore===undefined || r.npsFabricaScore===''; }) : elegibles;
   window._fabElegibles = elegiblesTabla;
-  document.getElementById('fabTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Fecha garantía</th><th>Fecha respuesta</th><th>Puntaje</th><th>Comentario</th><th>Estado</th></tr>'+
-    (elegiblesTabla.slice(0,10).map(filaElegibleFabrica_).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-faint);">'+(soloSinResponder?'No hay entregas sin responder en este período. 🎉':'Sin entregas con garantía cargada en este período.')+'</td></tr>');
+  document.getElementById('fabTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>VIN</th><th>Email</th><th>Fecha garantía</th><th>Días</th><th>Fecha respuesta</th><th>Puntaje</th><th>Comentario</th><th>Estado</th></tr>'+
+    (elegiblesTabla.slice(0,10).map(filaElegibleFabrica_).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--text-faint);">'+(soloSinResponder?'No hay entregas sin responder en este período. 🎉':'Sin entregas con garantía cargada en este período.')+'</td></tr>');
   document.getElementById('fabVerMas').innerHTML = elegiblesTabla.length>10 ? '<button class="print-btn" style="margin:0;" onclick="mostrarTablaFabCompleta_()">Ver las '+elegiblesTabla.length+' entregas elegibles</button>' : '';
 
   // ---- Puntaje de Recomendación GM (por canal) — usa el mismo acumulado
@@ -13396,21 +13396,20 @@ function renderNpsFabricaPanel_(){
 function filaElegibleFabrica_(r){
   var b=BRANDS.find(function(y){return y.id===r.marca;});
   var respondio = r.npsFabricaScore!==null && r.npsFabricaScore!==undefined && r.npsFabricaScore!=='';
+  var dias = null;
+  var fIso = fechaAIso_(r.garantiaFecha);
+  if(fIso) dias = Math.floor((new Date() - new Date(fIso+'T00:00:00')) / 86400000);
   var estado = '';
-  if(!respondio){
-    var fIso = fechaAIso_(r.garantiaFecha);
-    if(fIso){
-      var dias = Math.floor((new Date() - new Date(fIso+'T00:00:00')) / 86400000);
-      estado = dias<=30 ? '<span style="color:var(--accent);font-weight:700;">Animar</span>' : '<span style="color:var(--text-faint);">Vencido ('+dias+'d)</span>';
-    }
+  if(!respondio && dias!==null){
+    estado = dias<=30 ? '<span style="color:var(--accent);font-weight:700;">Animar</span>' : '<span style="color:var(--text-faint);">Vencido ('+dias+'d)</span>';
   }
   var comentario = r.npsFabricaComentario||'—';
   var celdaComentario = '<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;" title="Tocá para ver completo" onclick="event.stopPropagation();var abierto=this.style.whiteSpace===\'normal\';this.style.whiteSpace=abierto?\'nowrap\':\'normal\';this.style.maxWidth=abierto?\'160px\':\'320px\';">'+comentario+'</td>';
-  return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td>'+soloFechaISO_(r.garantiaFecha)+'</td><td>'+(r.npsFabricaFecha?soloFechaISO_(r.npsFabricaFecha):'—')+'</td><td style="font-weight:700;">'+(respondio?r.npsFabricaScore:'—')+'</td>'+celdaComentario+'<td>'+(respondio?'—':estado)+'</td></tr>';
+  return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;">'+(r.chasis||'—')+'</td><td>'+(r.email||'—')+'</td><td>'+soloFechaISO_(r.garantiaFecha)+'</td><td>'+(dias!==null?dias+'d':'—')+'</td><td>'+(r.npsFabricaFecha?soloFechaISO_(r.npsFabricaFecha):'—')+'</td><td style="font-weight:700;">'+(respondio?r.npsFabricaScore:'—')+'</td>'+celdaComentario+'<td>'+(respondio?'—':estado)+'</td></tr>';
 }
 function mostrarTablaFabCompleta_(){
   var elegibles = window._fabElegibles||[];
-  document.getElementById('fabTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Fecha garantía</th><th>Fecha respuesta</th><th>Puntaje</th><th>Comentario</th><th>Estado</th></tr>'+
+  document.getElementById('fabTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>VIN</th><th>Email</th><th>Fecha garantía</th><th>Días</th><th>Fecha respuesta</th><th>Puntaje</th><th>Comentario</th><th>Estado</th></tr>'+
     elegibles.map(filaElegibleFabrica_).join('');
   document.getElementById('fabVerMas').innerHTML = '';
 }
@@ -13586,7 +13585,7 @@ function renderRankingVendedorPanel_(){
     var sucursalPrincipal = Object.keys(v.sucursales).sort(function(a,b){return v.sucursales[b]-v.sucursales[a];})[0] || '—';
     return {nombre:nombre, nps:nps, total:v.total, promotores:v.promotores, pasivos:v.pasivos, detractores:v.detractores, sucursalPrincipal:sucursalPrincipal, ventas: ventasPorVendedor[nombre]||0};
   }
-  var listaVendedores = Object.keys(acumVendedor).filter(function(n){ return n.toLowerCase()!=='anonimo' && n.toLowerCase()!=='anónimo'; }).map(function(n){ return filaTabla_(n, acumVendedor[n]); });
+  var listaVendedores = Object.keys(acumVendedor).filter(function(n){ var nl=n.toLowerCase(); return nl!=='anonimo' && nl!=='anónimo' && nl!=='(sin asignar)'; }).map(function(n){ return filaTabla_(n, acumVendedor[n]); });
   listaVendedores.sort(function(a,b){
     var cumpleA = a.nps!==null && a.nps>=90, cumpleB = b.nps!==null && b.nps>=90;
     if(cumpleA!==cumpleB) return cumpleB - cumpleA; // primero: ¿llegó al 90% de NPS?
