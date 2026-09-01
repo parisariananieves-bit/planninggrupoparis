@@ -1505,6 +1505,22 @@
             </label>
           </div>
           <div id="preparacionBoard" style="display:flex;gap:14px;overflow-x:auto;padding-bottom:10px;margin-top:14px;align-items:flex-start;"></div>
+
+          <div style="margin-top:26px;">
+            <div style="display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="toggleBloqueVisible_('prepCalendarioWrap','prepCalendarioIcon')">
+              <span class="material-symbols-outlined" id="prepCalendarioIcon" style="font-size:18px;transition:transform .15s;">expand_more</span>
+              <h3 style="margin:0;">Calendario de Fechas Prometidas</h3>
+              <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Se va llenando solo con la "Fecha Prometida" que ya tiene cada unidad — no hace falta cargar nada más acá. Tocá un día para ver o abrir esas unidades.</span></span>
+            </div>
+            <div id="prepCalendarioWrap" style="margin-top:10px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                <button class="filter-pill" onclick="prepCalendarioMes(-1)"><span class="material-symbols-outlined" style="font-size:16px;">chevron_left</span></button>
+                <div id="prepCalendarioTitulo" style="font-weight:800;font-size:14px;"></div>
+                <button class="filter-pill" onclick="prepCalendarioMes(1)"><span class="material-symbols-outlined" style="font-size:16px;">chevron_right</span></button>
+              </div>
+              <div id="prepCalendarioGrilla" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;"></div>
+            </div>
+          </div>
         </div>
 
         <div class="app-view" id="viewHistorialcoms">
@@ -2396,10 +2412,18 @@
       </div>
       <div class="two-col-grid" style="margin-bottom:20px;" id="gmPuntajeCardsFab"></div>
       </div>
-      <div class="section-title" style="display:flex;align-items:center;gap:10px;">Elegibles (con garantía cargada)
+      <div class="section-title" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">Elegibles (con garantía cargada)
         <label style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:400;color:var(--text-dim);cursor:pointer;">
           <input type="checkbox" id="fabSoloSinResponder" onchange="renderNpsFabricaPanel_()"> Solo sin responder
         </label>
+        <select id="fabFiltroVendedorElegibles" onchange="renderNpsFabricaPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:5px 8px;font-size:11px;"><option value="">Todos los vendedores</option></select>
+        <select id="fabOrdenElegibles" onchange="renderNpsFabricaPanel_()" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:5px 8px;font-size:11px;">
+          <option value="">Orden: más reciente primero</option>
+          <option value="az">Cliente A-Z</option>
+          <option value="za">Cliente Z-A</option>
+          <option value="puntajeDesc">Puntaje: mayor a menor</option>
+          <option value="puntajeAsc">Puntaje: menor a mayor</option>
+        </select>
       </div>
       <div class="report-wrap"><table class="report-table" id="fabTabla"></table></div>
       <div id="fabVerMas" style="text-align:center;margin-top:8px;"></div>
@@ -2968,6 +2992,7 @@
     <div class="section-title" style="margin-bottom:8px;">Checklist</div>
     <div id="prepFichaChecklist"></div>
     <button id="prepBtnProgramarEntrega" onclick="abrirNuevaEntregaDesdePreparacion_()" style="display:none;width:100%;margin-top:14px;background:linear-gradient(135deg,var(--ok),#0d8a4a);color:#fff;border:none;border-radius:8px;padding:11px;font-weight:700;font-size:13px;cursor:pointer;"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">event_available</span> Programar Entrega</button>
+    <button id="prepBtnTraslado" class="toggle-btn" style="margin-top:10px;width:100%;" onclick="toggleTrasladoPreparacion_()">📦 Marcar unidad para traslado a otra sucursal</button>
     <div class="section-title" style="margin-top:18px;margin-bottom:8px;">Historial</div>
     <div id="prepFichaHistorial" style="max-height:180px;overflow-y:auto;"></div>
     <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
@@ -4433,7 +4458,7 @@ function setAppView(view){
   if(view==='notificaciones'){ renderNotificaciones(); }
   if(view==='traslados'){ renderTraslados(); }
   if(view==='faltantes'){ renderFaltantes(); }
-  if(view==='preparacion'){ cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPrepVencimientos_(); renderPreparacionKanban_(); }); }
+  if(view==='preparacion'){ cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPrepVencimientos_(); renderPreparacionKanban_(); renderPrepCalendario_(); }); }
 }
 
 function fmtFecha(d){ var dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0'); return dd+'/'+mm+'/'+d.getFullYear(); }
@@ -5533,6 +5558,61 @@ function renderPrepDashboardKpis_(){
     });
   }
 }
+var _prepCalendarioFecha_ = new Date(); // mes que se está mostrando
+function prepCalendarioMes(delta){
+  _prepCalendarioFecha_ = new Date(_prepCalendarioFecha_.getFullYear(), _prepCalendarioFecha_.getMonth()+delta, 1);
+  renderPrepCalendario_();
+}
+var MESES_PREP_ = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+function renderPrepCalendario_(){
+  var grilla = document.getElementById('prepCalendarioGrilla');
+  if(!grilla) return;
+  var año = _prepCalendarioFecha_.getFullYear(), mes = _prepCalendarioFecha_.getMonth();
+  document.getElementById('prepCalendarioTitulo').textContent = MESES_PREP_[mes]+' '+año;
+
+  // Agrupamos las unidades activas (no entregadas ni con venta caída) por
+  // su Fecha Prometida.
+  var porDia = {};
+  (PREP_UNIDADES||[]).forEach(function(u){
+    if(!u.fechaPrometida) return;
+    if(u.estado==='Entregado' || u.estado==='Venta caída') return;
+    var f = parsearFecha_(u.fechaPrometida);
+    if(!f || f.getFullYear()!==año || f.getMonth()!==mes) return;
+    var dia = f.getDate();
+    (porDia[dia] = porDia[dia]||[]).push(u);
+  });
+
+  var primerDiaSemana = new Date(año, mes, 1).getDay(); // 0=domingo
+  var offset = (primerDiaSemana+6)%7; // que arranque en lunes
+  var diasEnMes = new Date(año, mes+1, 0).getDate();
+  var hoy = new Date();
+  var esHoyMes = hoy.getFullYear()===año && hoy.getMonth()===mes;
+
+  var html = ['L','M','X','J','V','S','D'].map(function(d){
+    return '<div style="text-align:center;font-size:9.5px;font-weight:800;color:var(--text-faint);padding:3px 0;">'+d+'</div>';
+  }).join('');
+  for(var i=0;i<offset;i++) html += '<div></div>';
+  for(var dia=1; dia<=diasEnMes; dia++){
+    var unidadesDia = porDia[dia]||[];
+    var esHoy = esHoyMes && hoy.getDate()===dia;
+    html += '<div style="min-height:56px;border:1px solid var(--hairline);border-radius:8px;padding:4px;background:'+(esHoy?'var(--panel-2)':'var(--panel)')+';'+(esHoy?'box-shadow:inset 0 0 0 1px var(--accent);':'')+(unidadesDia.length?'cursor:pointer;':'')+'" '+(unidadesDia.length?'onclick="mostrarUnidadesPrometidasDia_('+dia+','+mes+','+año+')"':'')+'>'+
+      '<div style="font-size:10px;color:var(--text-faint);font-weight:700;">'+dia+'</div>'+
+      (unidadesDia.length ? '<div style="font-size:9.5px;background:var(--accent-soft,rgba(232,163,61,.18));color:var(--accent);border-radius:5px;padding:2px 4px;margin-top:2px;font-weight:700;text-align:center;">'+unidadesDia.length+' unidad'+(unidadesDia.length>1?'es':'')+'</div>' : '')+
+    '</div>';
+  }
+  grilla.innerHTML = html;
+}
+function mostrarUnidadesPrometidasDia_(dia, mes, año){
+  var unidades = (PREP_UNIDADES||[]).filter(function(u){
+    if(!u.fechaPrometida) return false;
+    if(u.estado==='Entregado' || u.estado==='Venta caída') return false;
+    var f = parsearFecha_(u.fechaPrometida);
+    return f && f.getFullYear()===año && f.getMonth()===mes && f.getDate()===dia;
+  });
+  if(unidades.length===1){ abrirFichaPreparacion_(unidades[0].id); return; }
+  var lista = unidades.map(function(u){ return '• '+u.cliente+' — '+u.modelo+' ('+u.estado+')'; }).join('\n');
+  if(confirm('Unidades prometidas para el '+dia+'/'+(mes+1)+':\n\n'+lista+'\n\n¿Abrir la primera?')) abrirFichaPreparacion_(unidades[0].id);
+}
 function renderPreparacionKanban_(){
   var board = document.getElementById('preparacionBoard');
   if(!board) return;
@@ -5651,6 +5731,51 @@ function actualizarBotonGuardarPrep_(){
   btn.disabled = false;
   btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">save</span> Guardar cambios';
 }
+// Mismo concepto que toggleTraslado() (Planning), pero para una unidad
+// del Centro de Preparación — antes de que tenga entrega programada.
+function toggleTrasladoPreparacion_(){
+  if(!puedeEditarModulo_('preparacion')){ showToast('Tenés acceso de solo lectura a Preparación.'); return; }
+  if(!_prepFichaAbierta_) return;
+  var u = PREP_UNIDADES.find(function(x){return x.id===_prepFichaAbierta_;});
+  if(!u) return;
+  if(u.traslado && !u.traslado.completado){
+    if(!confirm('¿Marcar el traslado como completado (unidad ya preparada/enviada)?')) return;
+    u.traslado.completado = true;
+    gasPost('prepMarcarTraslado', {id:u.id, datos:u.traslado, autor:usuarioActual()});
+    showToast('Traslado marcado como completado');
+  } else if(u.traslado && u.traslado.completado){
+    if(!confirm('¿Reabrir este traslado como pendiente de nuevo?')) return;
+    u.traslado.completado = false;
+    gasPost('prepMarcarTraslado', {id:u.id, datos:u.traslado, autor:usuarioActual()});
+    showToast('Traslado reabierto');
+  } else {
+    var opciones = ['San Juan','San Luis','Villa Mercedes','Merlo'].filter(function(s){return s!==u.sucursal;});
+    var destino = prompt('¿A qué sucursal hay que trasladar esta unidad?\n\nOpciones: '+opciones.join(', '));
+    if(destino===null) return;
+    destino = destino.trim();
+    if(!destino){ showToast('Necesitás indicar a qué sucursal se traslada'); return; }
+    var obs = prompt('¿Alguna observación para Logística? (opcional)') || '';
+    u.traslado = {destino:destino, completado:false, obs:obs.trim(), fecha:fechaHoraAhora_(), usuario:usuarioActual()||'Sin identificar'};
+    gasPost('prepMarcarTraslado', {id:u.id, datos:u.traslado, autor:usuarioActual()});
+    showToast('Marcada para traslado a '+destino);
+  }
+  u.historial = u.historial || [];
+  u.historial.push({fecha:fechaHoraAhora_(), texto: u.traslado ? (u.traslado.completado ? '✓ Traslado completado — a "'+(u.traslado.destino||'sin especificar')+'"' : '📦 Marcada para traslado a "'+(u.traslado.destino||'sin especificar')+'"'+(u.traslado.obs?' — '+u.traslado.obs:'')) : '📦 Traslado eliminado', autor:usuarioActual()||'—'});
+  updateTrasladoPreparacionUI_(u);
+  renderPreparacionKanban_();
+  abrirFichaPreparacion_(u.id);
+}
+function updateTrasladoPreparacionUI_(u){
+  var btn = document.getElementById('prepBtnTraslado');
+  if(!btn) return;
+  if(u.traslado){
+    btn.textContent = u.traslado.completado ? '↺ Reabrir traslado a "'+u.traslado.destino+'" como pendiente' : '✓ Marcar traslado a "'+u.traslado.destino+'" como completado';
+    btn.className = 'toggle-btn '+(u.traslado.completado?'done':'');
+  } else {
+    btn.textContent = '📦 Marcar unidad para traslado a otra sucursal';
+    btn.className = 'toggle-btn';
+  }
+}
 function abrirFichaPreparacion_(id){
   var u = PREP_UNIDADES.find(function(x){return x.id===id;});
   if(!u) return;
@@ -5710,6 +5835,7 @@ function abrirFichaPreparacion_(id){
     return '<div style="font-size:11.5px;padding:5px 0;border-bottom:1px solid var(--hairline);"><span style="color:var(--text-faint);">'+h.fecha+'</span> — '+h.texto+' <span style="color:var(--text-faint);">('+h.autor+')</span></div>';
   }).join('') : '<div style="font-size:11.5px;color:var(--text-faint);">Sin movimientos todavía.</div>';
 
+  updateTrasladoPreparacionUI_(u);
   document.getElementById('overlay').classList.add('show');
   document.getElementById('modalFichaPreparacion').classList.add('show');
 }
@@ -13371,9 +13497,34 @@ function renderNpsFabricaPanel_(){
   dibujarEvolucionMensualFab_();
   var soloSinResponder = document.getElementById('fabSoloSinResponder') && document.getElementById('fabSoloSinResponder').checked;
   var elegiblesTabla = soloSinResponder ? elegibles.filter(function(r){ return r.npsFabricaScore===null || r.npsFabricaScore===undefined || r.npsFabricaScore===''; }) : elegibles;
+
+  // Filtro por vendedor — llenamos el desplegable con los vendedores que
+  // realmente aparecen en esta lista.
+  var selVendElegibles = document.getElementById('fabFiltroVendedorElegibles');
+  if(selVendElegibles){
+    var vendedoresDisponibles = Array.from(new Set(elegibles.map(function(r){return (r.vendedor||'').trim();}).filter(Boolean))).sort();
+    var valorActualVend = selVendElegibles.value;
+    selVendElegibles.innerHTML = '<option value="">Todos los vendedores</option>'+vendedoresDisponibles.map(function(v){return '<option value="'+v.replace(/"/g,'')+'"'+(v===valorActualVend?' selected':'')+'>'+v+'</option>';}).join('');
+    var vendElegido = selVendElegibles.value;
+    if(vendElegido) elegiblesTabla = elegiblesTabla.filter(function(r){ return (r.vendedor||'').trim()===vendElegido; });
+  }
+
+  // Orden — por defecto se queda como venía (más reciente primero); si
+  // eligieron otra cosa, ordenamos por cliente o por puntaje.
+  var ordenElegibles = document.getElementById('fabOrdenElegibles') ? document.getElementById('fabOrdenElegibles').value : '';
+  if(ordenElegibles==='az'){
+    elegiblesTabla = elegiblesTabla.slice().sort(function(a,b){ return (a.cliente||'').localeCompare(b.cliente||''); });
+  } else if(ordenElegibles==='za'){
+    elegiblesTabla = elegiblesTabla.slice().sort(function(a,b){ return (b.cliente||'').localeCompare(a.cliente||''); });
+  } else if(ordenElegibles==='puntajeDesc'){
+    elegiblesTabla = elegiblesTabla.slice().sort(function(a,b){ return (Number(b.npsFabricaScore)||-1) - (Number(a.npsFabricaScore)||-1); });
+  } else if(ordenElegibles==='puntajeAsc'){
+    elegiblesTabla = elegiblesTabla.slice().sort(function(a,b){ return (a.npsFabricaScore===''||a.npsFabricaScore==null?999:Number(a.npsFabricaScore)) - (b.npsFabricaScore===''||b.npsFabricaScore==null?999:Number(b.npsFabricaScore)); });
+  }
+
   window._fabElegibles = elegiblesTabla;
-  document.getElementById('fabTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>VIN</th><th>Email</th><th>Fecha garantía</th><th>Días</th><th>Fecha respuesta</th><th>Puntaje</th><th>Comentario</th><th>Estado</th></tr>'+
-    (elegiblesTabla.slice(0,10).map(filaElegibleFabrica_).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--text-faint);">'+(soloSinResponder?'No hay entregas sin responder en este período. 🎉':'Sin entregas con garantía cargada en este período.')+'</td></tr>');
+  document.getElementById('fabTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>VIN</th><th>Email</th><th>Vendedor</th><th>Fecha garantía</th><th>Días</th><th>Fecha respuesta</th><th>Puntaje</th><th>Comentario</th><th>Estado</th></tr>'+
+    (elegiblesTabla.slice(0,10).map(filaElegibleFabrica_).join('') || '<tr><td colspan="11" style="text-align:center;color:var(--text-faint);">'+(soloSinResponder?'No hay entregas sin responder en este período. 🎉':'Sin entregas con garantía cargada en este período.')+'</td></tr>');
   document.getElementById('fabVerMas').innerHTML = elegiblesTabla.length>10 ? '<button class="print-btn" style="margin:0;" onclick="mostrarTablaFabCompleta_()">Ver las '+elegiblesTabla.length+' entregas elegibles</button>' : '';
 
   // ---- Puntaje de Recomendación GM (por canal) — usa el mismo acumulado
@@ -13405,11 +13556,11 @@ function filaElegibleFabrica_(r){
   }
   var comentario = r.npsFabricaComentario||'—';
   var celdaComentario = '<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;" title="Tocá para ver completo" onclick="event.stopPropagation();var abierto=this.style.whiteSpace===\'normal\';this.style.whiteSpace=abierto?\'nowrap\':\'normal\';this.style.maxWidth=abierto?\'160px\':\'320px\';">'+comentario+'</td>';
-  return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;">'+(r.chasis||'—')+'</td><td>'+(r.email||'—')+'</td><td>'+soloFechaISO_(r.garantiaFecha)+'</td><td>'+(dias!==null?dias+'d':'—')+'</td><td>'+(r.npsFabricaFecha?soloFechaISO_(r.npsFabricaFecha):'—')+'</td><td style="font-weight:700;">'+(respondio?r.npsFabricaScore:'—')+'</td>'+celdaComentario+'<td>'+(respondio?'—':estado)+'</td></tr>';
+  return '<tr style="cursor:pointer;" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><td>'+r.cliente+'</td><td>'+(b?b.label:r.marca)+'</td><td style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;">'+(r.chasis||'—')+'</td><td>'+(r.email||'—')+'</td><td>'+(r.vendedor||'—')+'</td><td>'+soloFechaISO_(r.garantiaFecha)+'</td><td>'+(dias!==null?dias+'d':'—')+'</td><td>'+(r.npsFabricaFecha?soloFechaISO_(r.npsFabricaFecha):'—')+'</td><td style="font-weight:700;">'+(respondio?r.npsFabricaScore:'—')+'</td>'+celdaComentario+'<td>'+(respondio?'—':estado)+'</td></tr>';
 }
 function mostrarTablaFabCompleta_(){
   var elegibles = window._fabElegibles||[];
-  document.getElementById('fabTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>VIN</th><th>Email</th><th>Fecha garantía</th><th>Días</th><th>Fecha respuesta</th><th>Puntaje</th><th>Comentario</th><th>Estado</th></tr>'+
+  document.getElementById('fabTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>VIN</th><th>Email</th><th>Vendedor</th><th>Fecha garantía</th><th>Días</th><th>Fecha respuesta</th><th>Puntaje</th><th>Comentario</th><th>Estado</th></tr>'+
     elegibles.map(filaElegibleFabrica_).join('');
   document.getElementById('fabVerMas').innerHTML = '';
 }
