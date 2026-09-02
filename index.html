@@ -5523,10 +5523,19 @@ function renderPrepVencimientos_(){
   });
   function tarjetaGrupo(titulo, color, colorSoft, lista, icono){
     if(lista.length===0) return '';
+    var colorPrioridad = {Alta:'var(--danger)', Media:'var(--warn)', Baja:'var(--text-faint)'};
     return '<div style="flex:1;min-width:220px;background:'+colorSoft+';border:1px solid '+color+';border-radius:12px;padding:12px 14px;">'+
       '<div style="display:flex;align-items:center;gap:6px;font-weight:800;font-size:11.5px;color:'+color+';text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px;"><span class="material-symbols-outlined" style="font-size:15px;">'+icono+'</span>'+titulo+' ('+lista.length+')</div>'+
       lista.slice(0,5).map(function(u){
-        return '<div style="font-size:12px;padding:4px 0;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.08);" onclick="abrirFichaPreparacion_(\''+u.id+'\')"><b>'+(u.cliente||'—')+'</b> — '+(u.modelo||'—')+'</div>';
+        var d = prepDiasRestantes_(u);
+        var diasTxt = d===null ? '' : (d<0 ? Math.abs(d)+'d vencida' : (d===0 ? 'hoy' : (d===1 ? 'mañana' : 'en '+d+'d')));
+        return '<div style="font-size:12px;padding:4px 0;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;gap:6px;" onclick="abrirFichaPreparacion_(\''+u.id+'\')">'+
+          '<span><b>'+(u.cliente||'—')+'</b> — '+(u.modelo||'—')+'</span>'+
+          '<span style="display:flex;align-items:center;gap:5px;flex-shrink:0;white-space:nowrap;">'+
+            (u.prioridad ? '<span style="font-size:9.5px;font-weight:800;color:'+(colorPrioridad[u.prioridad]||'var(--text-faint)')+';">'+u.prioridad+'</span>' : '')+
+            (diasTxt ? '<span style="font-size:10px;color:var(--text-faint);">'+diasTxt+'</span>' : '')+
+          '</span>'+
+        '</div>';
       }).join('')+
       (lista.length>5 ? '<div style="font-size:10.5px;color:var(--text-faint);margin-top:4px;">+ '+(lista.length-5)+' más</div>' : '')+
     '</div>';
