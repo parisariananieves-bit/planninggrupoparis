@@ -4514,6 +4514,14 @@ function parsearFecha_(fechaStr){
   if(p.length!==3) return null;
   return new Date(Number(p[2]), Number(p[1])-1, Number(p[0]));
 }
+  function formatearFechaPreparacion_(fecha){
+  if(!fecha) return '';
+  
+  var m = String(fecha).match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if(!m) return fecha;
+  
+  return Number(m[1])+'-'+m[2]+'-'+m[3];
+}
 var rangoFechaDesde = null, rangoFechaHasta = null;
 var mostrarTodosLosDias = false; // true cuando se aprieta "Todo el período" sin un rango específico
 function sincronizarInputsRangoFecha_(){
@@ -5668,7 +5676,7 @@ function renderPreparacionKanban_(){
       '</div>'+
       '<div class="cli">'+(u.cliente||'—')+(u.autoElectrico?' <span title="Auto Eléctrico" style="font-size:10px;">⚡</span>':'')+'</div>'+
       '<div class="veh" style="color:var('+b.color+');font-weight:700;">'+(u.modelo||'—')+(u.vin?' · VIN '+u.vin:'')+(u.patente?' · '+u.patente:'')+'</div>'+
-      '<div class="fecha">'+(u.sucursal||'—')+(u.fechaPrometida?' · Prometida '+u.fechaPrometida:'')+'</div>'+
+      '<div class="fecha">'+(u.sucursal||'—')+(u.fechaPrometida?' · Prometida '+formatearFechaPreparacion_(u.fechaPrometida):'')+'</div>'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;font-size:10.5px;">'+
         '<span style="color:var(--text-faint);">'+u.estado+'</span>'+diasTxt+
       '</div>'+
@@ -5808,7 +5816,7 @@ function abrirFichaPreparacion_(id){
   var campos = [
     ['Referencia', u.referencia], ['Cliente', u.cliente], ['VIN', u.vin], ['Patente', u.patente], ['Modelo', u.modelo], ['Versión', u.version],
     ['Color', u.color], ['Motor', u.motor], ['Vendedor', u.vendedor], ['Administrativo', u.administrativo],
-    ['Fecha de venta', u.fechaVenta], ['Fecha prometida', u.fechaPrometida]
+    ['Fecha de venta', formatearFechaPreparacion_(u.fechaVenta)], ['Fecha prometida', formatearFechaPreparacion_(u.fechaPrometida)]
   ];
   document.getElementById('prepFichaInfoGeneral').innerHTML = campos.map(function(c){
     return '<div class="field"><div class="l">'+c[0]+'</div><div style="font-size:12.5px;font-weight:600;padding:2px 0;">'+(c[1]||'—')+'</div></div>';
