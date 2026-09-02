@@ -4514,13 +4514,24 @@ function parsearFecha_(fechaStr){
   if(p.length!==3) return null;
   return new Date(Number(p[2]), Number(p[1])-1, Number(p[0]));
 }
-  function formatearFechaPreparacion_(fecha){
+function formatearFechaPreparacion_(fecha){
   if(!fecha) return '';
-  
-  var m = String(fecha).match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
-  if(!m) return fecha;
-  
-  return Number(m[1])+'-'+m[2]+'-'+m[3];
+
+  var s = String(fecha);
+
+  // Fecha ISO: 2026-09-02T03:00:00.000Z
+  var iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(iso){
+    return Number(iso[3])+'-'+iso[2]+'-'+iso[1];
+  }
+
+  // Fecha dd/mm/yyyy o dd-mm-yyyy
+  var m = s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if(m){
+    return Number(m[1])+'-'+m[2]+'-'+m[3];
+  }
+
+  return fecha;
 }
 var rangoFechaDesde = null, rangoFechaHasta = null;
 var mostrarTodosLosDias = false; // true cuando se aprieta "Todo el período" sin un rango específico
