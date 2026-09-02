@@ -399,6 +399,7 @@
   .del-btn{width:100%;padding:9px;margin-top:6px;background:transparent;border:1px solid var(--hairline);color:var(--text-faint);border-radius:7px;cursor:pointer;}
   .del-btn:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-soft);}
   .modal{position:fixed;top:50%;left:calc(50% + 32px);transform:translate(-50%,-48%);width:min(540px,92vw);max-height:82vh;overflow-y:auto;background:var(--panel);border:1px solid var(--hairline);border-radius:15px;z-index:76;opacity:0;pointer-events:none;transition:all .2s;}
+  .modal.agrandado{width:min(900px,95vw)!important;max-height:92vh!important;}
   @media(max-width:640px){
     .modal{left:50%;}
     /* Modal de Reportar Caso y detalle de NPS: en celular las filas de 2 campos
@@ -3013,6 +3014,7 @@
 <div class="modal" id="modalNpsDetalle">
   <div class="modal-head">
     <div><h3><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">star</span> NPS Alerta Temprana</h3><div class="sub" id="npsDetalleSub"></div></div>
+    <button class="close" style="margin-right:6px;" title="Agrandar/achicar" onclick="toggleAgrandarModal_('modalNpsDetalle', this)"><span class="material-symbols-outlined" style="font-size:18px;">open_in_full</span></button>
     <button class="close" onclick="cerrarModalNpsDetalle_()">✕</button>
   </div>
   <div class="modal-body" id="npsDetalleBody"></div>
@@ -3021,6 +3023,7 @@
 <div class="modal" id="modalContactoPosterior">
   <div class="modal-head">
     <div><h3><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">forum</span> Contacto Posterior</h3><div class="sub">Encuesta pública de satisfacción 0km (post-venta) — solo lectura, cruce por VIN o patente.</div></div>
+    <button class="close" style="margin-right:6px;" title="Agrandar/achicar" onclick="toggleAgrandarModal_('modalContactoPosterior', this)"><span class="material-symbols-outlined" style="font-size:18px;">open_in_full</span></button>
     <button class="close" onclick="cerrarModalContactoPosterior_()">✕</button>
   </div>
   <div id="contactoPosteriorClienteHeader" style="padding:10px 20px;background:var(--panel-2);border-bottom:1px solid var(--hairline);font-size:11.5px;color:var(--text-dim);"></div>
@@ -5651,7 +5654,7 @@ function renderPreparacionKanban_(){
         '<div style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var('+b.color+');flex:none;"></span><span style="font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var('+b.color+');">'+b.label+'</span></div>'+
         '<span style="font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;color:#fff;background:'+prepColorPrioridad_(u.prioridad)+';">'+(u.prioridad||'Media')+'</span>'+
       '</div>'+
-      '<div class="cli">'+(u.cliente||'—')+'</div>'+
+      '<div class="cli">'+(u.cliente||'—')+(u.autoElectrico?' <span title="Auto Eléctrico" style="font-size:10px;">⚡</span>':'')+'</div>'+
       '<div class="veh" style="color:var('+b.color+');font-weight:700;">'+(u.modelo||'—')+(u.vin?' · VIN '+u.vin:'')+(u.patente?' · '+u.patente:'')+'</div>'+
       '<div class="fecha">'+(u.sucursal||'—')+(u.fechaPrometida?' · Prometida '+u.fechaPrometida:'')+'</div>'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;font-size:10.5px;">'+
@@ -5787,7 +5790,7 @@ function abrirFichaPreparacion_(id){
   _prepFichaAbierta_ = id;
   actualizarBotonGuardarPrep_();
   var b = BRANDS.find(function(x){return x.id===u.marca;}) || BRANDS[0];
-  document.getElementById('prepFichaTitulo').innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">directions_car</span> '+(u.cliente||'—')+' · '+(u.modelo||'—');
+  document.getElementById('prepFichaTitulo').innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">directions_car</span> '+(u.cliente||'—')+' · '+(u.modelo||'—')+(u.autoElectrico?' <span style="background:var(--ok-soft);color:var(--ok);border-radius:20px;padding:2px 9px;font-size:11px;font-weight:800;vertical-align:2px;">⚡ Auto Eléctrico</span>':'');
   document.getElementById('prepFichaSub').textContent = u.id+' · '+b.label+' · '+(u.sucursal||'—');
 
   var campos = [
@@ -6066,7 +6069,7 @@ function crearUnidadPreparacionUI_(){
     showToast('Unidad creada: '+res.id);
     cerrarModalNuevaPreparacion_();
     _preparacionCargada_ = false;
-    cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPrepVencimientos_(); renderPreparacionKanban_(); });
+    cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPrepVencimientos_(); renderPreparacionKanban_(); renderPrepCalendario_(); });
   });
 }
 // Convierte la fecha serial de Excel (así vienen Fec.aper, F.matric, etc. en
@@ -6137,7 +6140,7 @@ function importarUnidadesPreparacionArchivo_(event){
         if(!res.ok){ showToast(res.error||'No se pudo importar'); return; }
         showToast(res.creadas+' unidad(es) importada(s)'+(res.saltadas?' — '+res.saltadas+' ya existían (mismo VIN o referencia)':'')+(esFormatoConocido?' · Formato U19 detectado':''));
         _preparacionCargada_ = false;
-        cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPrepVencimientos_(); renderPreparacionKanban_(); });
+        cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPrepVencimientos_(); renderPreparacionKanban_(); renderPrepCalendario_(); });
       });
     }catch(err){
       showToast('No se pudo leer el archivo: '+err.message);
@@ -8198,6 +8201,16 @@ function verNpsCompleto_(marca, id){
   document.getElementById('npsDetalleBody').innerHTML = html;
   document.getElementById('overlay').classList.add('show');
   document.getElementById('modalNpsDetalle').classList.add('show');
+}
+// Agranda/achica cualquier modal — se usa en NPS Alerta Temprana y
+// Contacto Posterior, pero sirve para cualquier otro con el mismo botón.
+function toggleAgrandarModal_(modalId, btn){
+  var modal = document.getElementById(modalId);
+  if(!modal) return;
+  var agrandado = modal.classList.toggle('agrandado');
+  var icono = btn.querySelector('.material-symbols-outlined');
+  if(icono) icono.textContent = agrandado ? 'close_fullscreen' : 'open_in_full';
+  btn.title = agrandado ? 'Achicar' : 'Agrandar/achicar';
 }
 function cerrarModalNpsDetalle_(){
   document.getElementById('overlay').classList.remove('show');
