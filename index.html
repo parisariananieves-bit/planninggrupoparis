@@ -4461,7 +4461,7 @@ function setAppView(view){
   if(view==='notificaciones'){ renderNotificaciones(); }
   if(view==='traslados'){ renderTraslados(); }
   if(view==='faltantes'){ renderFaltantes(); }
-  if(view==='preparacion'){ cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPrepVencimientos_(); renderPreparacionKanban_(); renderPrepCalendario_(); }); }
+  if(view==='preparacion'){ cargarPreparacionSiHaceFalta_().then(function(){ renderPrepPantallaCompleta_(); }); }
 }
 
 function fmtFecha(d){ var dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0'); return dd+'/'+mm+'/'+d.getFullYear(); }
@@ -5561,6 +5561,18 @@ function renderPrepDashboardKpis_(){
     });
   }
 }
+// Repinta las 4 partes de Centro de Preparación (KPIs, Vencimientos,
+// Kanban, Calendario) — cada una en su propio try/catch, así si alguna
+// tira un error, no le tapa la ejecución a las demás (antes, si por
+// ejemplo el Kanban fallaba con algún dato raro, el Calendario ni
+// siquiera llegaba a intentar dibujarse, porque estaban todas seguidas
+// en la misma línea).
+function renderPrepPantallaCompleta_(){
+  try{ renderPrepDashboardKpis_(); }catch(e){ console.error('Error en renderPrepDashboardKpis_:', e); }
+  try{ renderPrepVencimientos_(); }catch(e){ console.error('Error en renderPrepVencimientos_:', e); }
+  try{ renderPreparacionKanban_(); }catch(e){ console.error('Error en renderPreparacionKanban_:', e); }
+  try{ renderPrepCalendario_(); }catch(e){ console.error('Error en renderPrepCalendario_:', e); }
+}
 var _prepCalendarioFecha_ = new Date(); // mes que se está mostrando
 function prepCalendarioMes(delta){
   _prepCalendarioFecha_ = new Date(_prepCalendarioFecha_.getFullYear(), _prepCalendarioFecha_.getMonth()+delta, 1);
@@ -6069,7 +6081,7 @@ function crearUnidadPreparacionUI_(){
     showToast('Unidad creada: '+res.id);
     cerrarModalNuevaPreparacion_();
     _preparacionCargada_ = false;
-    cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPrepVencimientos_(); renderPreparacionKanban_(); renderPrepCalendario_(); });
+    cargarPreparacionSiHaceFalta_().then(function(){ renderPrepPantallaCompleta_(); });
   });
 }
 // Convierte la fecha serial de Excel (así vienen Fec.aper, F.matric, etc. en
@@ -6140,7 +6152,7 @@ function importarUnidadesPreparacionArchivo_(event){
         if(!res.ok){ showToast(res.error||'No se pudo importar'); return; }
         showToast(res.creadas+' unidad(es) importada(s)'+(res.saltadas?' — '+res.saltadas+' ya existían (mismo VIN o referencia)':'')+(esFormatoConocido?' · Formato U19 detectado':''));
         _preparacionCargada_ = false;
-        cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPrepVencimientos_(); renderPreparacionKanban_(); renderPrepCalendario_(); });
+        cargarPreparacionSiHaceFalta_().then(function(){ renderPrepPantallaCompleta_(); });
       });
     }catch(err){
       showToast('No se pudo leer el archivo: '+err.message);
