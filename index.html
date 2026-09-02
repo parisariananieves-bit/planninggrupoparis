@@ -4461,7 +4461,7 @@ function setAppView(view){
   if(view==='notificaciones'){ renderNotificaciones(); }
   if(view==='traslados'){ renderTraslados(); }
   if(view==='faltantes'){ renderFaltantes(); }
-  if(view==='preparacion'){ cargarPreparacionSiHaceFalta_().then(function(){ renderPrepPantallaCompleta_(); }); }
+  if(view==='preparacion'){ cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPrepVencimientos_(); renderPreparacionKanban_(); renderPrepCalendario_(); }); }
 }
 
 function fmtFecha(d){ var dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0'); return dd+'/'+mm+'/'+d.getFullYear(); }
@@ -4510,50 +4510,9 @@ function entregasContexto(){
   });
 }
 function parsearFecha_(fechaStr){
-  if(!fechaStr) return null;
-
-  var s = String(fechaStr);
-
-  // Fecha ISO: 2026-09-03T03:00:00.000Z
-  var iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if(iso){
-    return new Date(
-      Number(iso[1]),
-      Number(iso[2])-1,
-      Number(iso[3])
-    );
-  }
-
-  // Fecha dd/mm/yyyy o dd-mm-yyyy
-  var p = s.split(/[\/-]/);
-  if(p.length === 3){
-    return new Date(
-      Number(p[2]),
-      Number(p[1])-1,
-      Number(p[0])
-    );
-  }
-
-  return null;
-}
-function formatearFechaPreparacion_(fecha){
-  if(!fecha) return '';
-
-  var s = String(fecha);
-
-  // Fecha ISO: 2026-09-02T03:00:00.000Z
-  var iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if(iso){
-    return Number(iso[3])+'-'+iso[2]+'-'+iso[1];
-  }
-
-  // Fecha dd/mm/yyyy o dd-mm-yyyy
-  var m = s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
-  if(m){
-    return Number(m[1])+'-'+m[2]+'-'+m[3];
-  }
-
-  return fecha;
+  var p=(fechaStr||'').split('/');
+  if(p.length!==3) return null;
+  return new Date(Number(p[2]), Number(p[1])-1, Number(p[0]));
 }
 var rangoFechaDesde = null, rangoFechaHasta = null;
 var mostrarTodosLosDias = false; // true cuando se aprieta "Todo el período" sin un rango específico
@@ -5602,18 +5561,6 @@ function renderPrepDashboardKpis_(){
     });
   }
 }
-// Repinta las 4 partes de Centro de Preparación (KPIs, Vencimientos,
-// Kanban, Calendario) — cada una en su propio try/catch, así si alguna
-// tira un error, no le tapa la ejecución a las demás (antes, si por
-// ejemplo el Kanban fallaba con algún dato raro, el Calendario ni
-// siquiera llegaba a intentar dibujarse, porque estaban todas seguidas
-// en la misma línea).
-function renderPrepPantallaCompleta_(){
-  try{ renderPrepDashboardKpis_(); }catch(e){ console.error('Error en renderPrepDashboardKpis_:', e); }
-  try{ renderPrepVencimientos_(); }catch(e){ console.error('Error en renderPrepVencimientos_:', e); }
-  try{ renderPreparacionKanban_(); }catch(e){ console.error('Error en renderPreparacionKanban_:', e); }
-  try{ renderPrepCalendario_(); }catch(e){ console.error('Error en renderPrepCalendario_:', e); }
-}
 var _prepCalendarioFecha_ = new Date(); // mes que se está mostrando
 function prepCalendarioMes(delta){
   _prepCalendarioFecha_ = new Date(_prepCalendarioFecha_.getFullYear(), _prepCalendarioFecha_.getMonth()+delta, 1);
@@ -5709,7 +5656,7 @@ function renderPreparacionKanban_(){
       '</div>'+
       '<div class="cli">'+(u.cliente||'—')+(u.autoElectrico?' <span title="Auto Eléctrico" style="font-size:10px;">⚡</span>':'')+'</div>'+
       '<div class="veh" style="color:var('+b.color+');font-weight:700;">'+(u.modelo||'—')+(u.vin?' · VIN '+u.vin:'')+(u.patente?' · '+u.patente:'')+'</div>'+
-      '<div class="fecha">'+(u.sucursal||'—')+(u.fechaPrometida?' · Prometida '+formatearFechaPreparacion_(u.fechaPrometida):'')+'</div>'+
+      '<div class="fecha">'+(u.sucursal||'—')+(u.fechaPrometida?' · Prometida '+u.fechaPrometida:'')+'</div>'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;font-size:10.5px;">'+
         '<span style="color:var(--text-faint);">'+u.estado+'</span>'+diasTxt+
       '</div>'+
@@ -5849,7 +5796,7 @@ function abrirFichaPreparacion_(id){
   var campos = [
     ['Referencia', u.referencia], ['Cliente', u.cliente], ['VIN', u.vin], ['Patente', u.patente], ['Modelo', u.modelo], ['Versión', u.version],
     ['Color', u.color], ['Motor', u.motor], ['Vendedor', u.vendedor], ['Administrativo', u.administrativo],
-    ['Fecha de venta', formatearFechaPreparacion_(u.fechaVenta)], ['Fecha prometida', formatearFechaPreparacion_(u.fechaPrometida)]
+    ['Fecha de venta', u.fechaVenta], ['Fecha prometida', u.fechaPrometida]
   ];
   document.getElementById('prepFichaInfoGeneral').innerHTML = campos.map(function(c){
     return '<div class="field"><div class="l">'+c[0]+'</div><div style="font-size:12.5px;font-weight:600;padding:2px 0;">'+(c[1]||'—')+'</div></div>';
@@ -6122,7 +6069,7 @@ function crearUnidadPreparacionUI_(){
     showToast('Unidad creada: '+res.id);
     cerrarModalNuevaPreparacion_();
     _preparacionCargada_ = false;
-    cargarPreparacionSiHaceFalta_().then(function(){ renderPrepPantallaCompleta_(); });
+    cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPrepVencimientos_(); renderPreparacionKanban_(); renderPrepCalendario_(); });
   });
 }
 // Convierte la fecha serial de Excel (así vienen Fec.aper, F.matric, etc. en
@@ -6193,7 +6140,7 @@ function importarUnidadesPreparacionArchivo_(event){
         if(!res.ok){ showToast(res.error||'No se pudo importar'); return; }
         showToast(res.creadas+' unidad(es) importada(s)'+(res.saltadas?' — '+res.saltadas+' ya existían (mismo VIN o referencia)':'')+(esFormatoConocido?' · Formato U19 detectado':''));
         _preparacionCargada_ = false;
-        cargarPreparacionSiHaceFalta_().then(function(){ renderPrepPantallaCompleta_(); });
+        cargarPreparacionSiHaceFalta_().then(function(){ renderPrepDashboardKpis_(); renderPrepVencimientos_(); renderPreparacionKanban_(); renderPrepCalendario_(); });
       });
     }catch(err){
       showToast('No se pudo leer el archivo: '+err.message);
