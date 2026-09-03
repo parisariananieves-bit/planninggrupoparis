@@ -12088,6 +12088,18 @@ function entregasCalidadFiltro_(selectId){
   if(suc) rows = rows.filter(function(r){ return r.sucursal===suc; });
   return rows;
 }
+// Igual que entregasCalidadFiltro_, pero SIN el filtro de Desde/Hasta del
+// dashboard (que filtra por fecha de ENTREGA) — lo usa Fábrica, porque ahí
+// lo que importa es la fecha de GARANTÍA (o de respuesta), no la de
+// entrega, que puede ser meses antes.
+function entregasCalidadSinFiltroFecha_(selectId){
+  var base = dashboardMarcasActivas.indexOf('todas')>-1 ? ENTREGAS : ENTREGAS.filter(function(r){ return dashboardMarcasActivas.indexOf(r.marca)>-1; });
+  base = base.filter(pasaFiltroCanal_);
+  var el = document.getElementById(selectId);
+  var suc = el ? el.value : '';
+  if(suc) base = base.filter(function(r){ return r.sucursal===suc; });
+  return base;
+}
 function casosGCFiltrados_(selectId){
   var sucSel = document.getElementById(selectId) ? document.getElementById(selectId).value : '';
   return CASOS_GC_.filter(function(c){
@@ -12154,8 +12166,14 @@ function conteoAcumuladoGeneral_(instancia, anonimasArr, scoresVivos){
 function dibujarNpsGeneral_(){
   if(!document.getElementById('calidadKpis')) return;
   var instanciaFiltroGeneral = document.getElementById('calidadFiltroInstancia').value;
-  var rows = entregasCalidadFiltro_('calidadFiltroSucursal');
-  var total = rows.length;
+  // "rows" (sin el filtro de Desde/Hasta del dashboard, que es por fecha
+  // de ENTREGA) se usa como base para sacar las respuestas de cada
+  // encuesta, aplicando el filtro de fecha por la fecha de RESPUESTA de
+  // cada una (son cosas distintas: el auto se pudo entregar meses antes
+  // de que llegue la respuesta).
+  var rows = entregasCalidadSinFiltroFecha_('calidadFiltroSucursal');
+  var rowsVentas = entregasCalidadFiltro_('calidadFiltroSucursal'); // este sí por fecha de entrega, para "Ventas"
+  var total = rowsVentas.length;
 
   // El total de "ventas" (por VIN, sin duplicar) es el mismo que ya usa el
   // Ranking y los resúmenes de Fábrica/Contacto Posterior — así el
@@ -12176,21 +12194,29 @@ function dibujarNpsGeneral_(){
       });
     }
   });
-  rows.forEach(function(r){
+  rowsVentas.forEach(function(r){
     if(r.chasis && vinsYaContadosGeneral_[r.chasis]) return;
     ventasTotalGeneral_++;
   });
 
-  var atRespondidas = rows.filter(function(r){ return r.npsScore!==null && r.npsScore!==undefined && r.npsScore!==''; });
+  var atRespondidas = rows.filter(function(r){
+    if(r.npsScore===null || r.npsScore===undefined || r.npsScore==='') return false;
+    return pasaFiltroFechaGlobal_(fechaAIso_(r.npsFecha||r.alertaTempranaFechaRespuesta));
+  });
   var conteoAT = conteoAcumuladoGeneral_('alertatemprana', ANONIMAS_AT_, atRespondidas.map(function(r){return Number(r.npsScore);}));
   var atNps = conteoAT.total ? npsDeConteo_(conteoAT) : null;
 
-  var cpConDato = rows.map(function(r){ return {r:r, d:contactoPosteriorInfo_(r)}; }).filter(function(x){ return x.d && x.d.recomienda!==undefined && x.d.recomienda!==''; });
+  var cpConDato = rows.map(function(r){ return {r:r, d:contactoPosteriorInfo_(r)}; }).filter(function(x){
+    if(!x.d || x.d.recomienda===undefined || x.d.recomienda==='') return false;
+    return pasaFiltroFechaGlobal_(fechaAIso_(x.d.fecha));
+  });
   var cpRows = cpConDato.map(function(x){ return {npsScore:Number(x.d.recomienda)}; });
   var conteoCP = conteoAcumuladoGeneral_('contactoposterior', ANONIMAS_CP_, cpRows.map(function(x){return x.npsScore;}));
   var cpNps = conteoCP.total ? npsDeConteo_(conteoCP) : null;
 
-  var fabElegibles = rows.filter(function(r){ return !!r.garantiaFecha && !r.garantiaFiltrada; });
+  var fabElegibles = rows.filter(function(r){ return !!r.garantiaFecha && !r.garantiaFiltrada; }).filter(function(r){
+    return pasaFiltroFechaGlobal_(fechaAIso_(r.npsFabricaFecha||r.garantiaFecha));
+  });
   var fabRespondidas = fabElegibles.filter(function(r){ return r.npsFabricaScore!==null && r.npsFabricaScore!==undefined && r.npsFabricaScore!==''; });
   var fabRows = fabRespondidas.map(function(r){ return {npsScore:Number(r.npsFabricaScore)}; });
   var conteoFAB = conteoAcumuladoGeneral_('fabrica', ANONIMAS_FABRICA_, fabRows.map(function(x){return x.npsScore;}));
@@ -13507,8 +13533,16 @@ function renderNpsFabricaPanel_(){
   renderCanalToggleGenerico_('fabCanalToggle');
   iniciarAutoRefrescoFabrica_();
   if(!document.getElementById('fabResumen')) return;
-  var rows = entregasCalidadFiltro_('fabFiltroSucursal');
+  var rows = entregasCalidadSinFiltroFecha_('fabFiltroSucursal');
   var elegibles = rows.filter(function(r){ return !!r.garantiaFecha && !r.garantiaFiltrada; });
+  // El filtro de Desde/Hasta acá aplica sobre la fecha de garantía (o de
+  // respuesta si ya respondió) — no sobre la fecha de entrega, que puede
+  // ser meses antes y no tiene nada que ver con cuándo corresponde esta
+  // encuesta.
+  elegibles = elegibles.filter(function(r){
+    var fRelevante = r.npsFabricaFecha || r.garantiaFecha;
+    return pasaFiltroFechaGlobal_(fechaAIso_(fRelevante));
+  });
   var respondidas = elegibles.filter(function(r){ return r.npsFabricaScore!==null && r.npsFabricaScore!==undefined && r.npsFabricaScore!==''; });
   // El resumen de arriba tiene que sumar también el archivo importado, no
   // solo lo cargado en Planning — usamos el mismo acumulado que ya usan la
