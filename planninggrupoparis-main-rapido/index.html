@@ -12989,7 +12989,7 @@ function pintarTablaPuntosManuales_(tablaId, instancia){
     var arch = obtenerArchivoNps_(instancia, canalKey);
     if(!arch) return;
     arch.puntos.forEach(function(p, idx){
-      if(p.manual || p.cliente) filas.push({p:p, canalKey:canalKey, idx:idx});
+      if(p.manual) filas.push({p:p, canalKey:canalKey, idx:idx});
     });
   });
   if(filas.length===0){
