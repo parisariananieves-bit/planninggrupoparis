@@ -1972,6 +1972,15 @@
           <span class="material-symbols-outlined" id="atAnonAccordionIcon" style="font-size:16px;transition:transform .15s;">expand_more</span>
         </div>
         <div id="atAnonBody" style="display:none;padding-top:12px;border-top:1px solid var(--hairline);margin-top:10px;">
+          <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;margin-bottom:8px;">
+            <input type="checkbox" id="atAnonConDatos" onchange="document.getElementById('atAnonDatosExtra').style.display=this.checked?'flex':'none';if(this.checked)poblarVendedorYSucursalAnon_('atAnon');"> Cargar con nombre del cliente, VIN y vendedor (no anónima)
+          </label>
+          <div id="atAnonDatosExtra" style="display:none;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+            <div class="field" style="width:150px;"><div class="l">Cliente</div><input id="atAnonCliente" placeholder="Nombre del cliente"></div>
+            <div class="field" style="width:140px;"><div class="l">VIN</div><input id="atAnonVin" placeholder="Opcional"></div>
+            <div class="field" style="width:150px;"><div class="l">Vendedor</div><select id="atAnonVendedor"></select></div>
+            <div class="field" style="width:130px;"><div class="l">Sucursal</div><select id="atAnonSucursal"></select></div>
+          </div>
           <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
             <div class="field" style="width:125px;"><div class="l">Canal</div><select id="atAnonCanal"><option value="TD">Tradicional</option><option value="PDA">PDA</option></select></div>
             <div class="field" style="width:78px;"><div class="l">Puntaje</div><input type="number" min="0" max="10" id="atAnonPuntaje"></div>
@@ -2308,6 +2317,15 @@
           <span class="material-symbols-outlined" id="cpAnonAccordionIcon" style="font-size:16px;transition:transform .15s;">expand_more</span>
         </div>
         <div id="cpAnonBody" style="display:none;padding-top:12px;border-top:1px solid var(--hairline);margin-top:10px;">
+          <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;margin-bottom:8px;">
+            <input type="checkbox" id="cpAnonConDatos" onchange="document.getElementById('cpAnonDatosExtra').style.display=this.checked?'flex':'none';if(this.checked)poblarVendedorYSucursalAnon_('cpAnon');"> Cargar con nombre del cliente, VIN y vendedor (no anónima)
+          </label>
+          <div id="cpAnonDatosExtra" style="display:none;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+            <div class="field" style="width:150px;"><div class="l">Cliente</div><input id="cpAnonCliente" placeholder="Nombre del cliente"></div>
+            <div class="field" style="width:140px;"><div class="l">VIN</div><input id="cpAnonVin" placeholder="Opcional"></div>
+            <div class="field" style="width:150px;"><div class="l">Vendedor</div><select id="cpAnonVendedor"></select></div>
+            <div class="field" style="width:130px;"><div class="l">Sucursal</div><select id="cpAnonSucursal"></select></div>
+          </div>
           <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
             <div class="field" style="width:125px;"><div class="l">Canal</div><select id="cpAnonCanal"><option value="TD">Tradicional</option><option value="PDA">PDA</option></select></div>
             <div class="field" style="width:78px;"><div class="l">Puntaje</div><input type="number" min="0" max="10" id="cpAnonPuntaje"></div>
@@ -2374,6 +2392,15 @@
           <span class="material-symbols-outlined" id="fabAnonAccordionIcon" style="font-size:16px;transition:transform .15s;">expand_more</span>
         </div>
         <div id="fabAnonBody" style="display:none;padding-top:12px;border-top:1px solid var(--hairline);margin-top:10px;">
+          <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;margin-bottom:8px;">
+            <input type="checkbox" id="fabAnonConDatos" onchange="document.getElementById('fabAnonDatosExtra').style.display=this.checked?'flex':'none';if(this.checked)poblarVendedorYSucursalAnon_('fabAnon');"> Cargar con nombre del cliente, VIN y vendedor (no anónima)
+          </label>
+          <div id="fabAnonDatosExtra" style="display:none;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+            <div class="field" style="width:150px;"><div class="l">Cliente</div><input id="fabAnonCliente" placeholder="Nombre del cliente"></div>
+            <div class="field" style="width:140px;"><div class="l">VIN</div><input id="fabAnonVin" placeholder="Opcional"></div>
+            <div class="field" style="width:150px;"><div class="l">Vendedor</div><select id="fabAnonVendedor"></select></div>
+            <div class="field" style="width:130px;"><div class="l">Sucursal</div><select id="fabAnonSucursal"></select></div>
+          </div>
           <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
             <div class="field" style="width:125px;"><div class="l">Canal</div><select id="fabAnonCanal"><option value="TD">Tradicional</option><option value="PDA">PDA</option></select></div>
             <div class="field" style="width:78px;"><div class="l">Puntaje</div><input type="number" min="0" max="10" id="fabAnonPuntaje"></div>
@@ -13017,11 +13044,47 @@ function toggleSeccionAnonimaAT_(){
   icono.style.transform = abierto ? 'rotate(-90deg)' : 'rotate(0deg)';
   if(!abierto) pintarTablaAnonimas_('atAnonTabla', ANONIMAS_AT_, 'alertatemprana');
 }
+// Agrega un punto CON nombre, VIN y vendedor directo al archivo (no al
+// sistema de anónimas) — comparte esta lógica entre Alerta Temprana,
+// Contacto Posterior y Fábrica, cambiando solo el prefijo de los ids.
+function poblarVendedorYSucursalAnon_(prefijo){
+  var selVend = document.getElementById(prefijo+'Vendedor');
+  var selSuc = document.getElementById(prefijo+'Sucursal');
+  if(selVend.options.length<=0){
+    var vends = (CONFIG.maestros.vendedores||[]).map(function(v){return v.nombre||v;});
+    selVend.innerHTML = '<option value="">Elegir...</option>' + vends.map(function(v){return '<option>'+v+'</option>';}).join('');
+  }
+  if(selSuc.options.length<=0){
+    selSuc.innerHTML = '<option value="">Elegir...</option>' + SUCURSALES.map(function(s){return '<option>'+s+'</option>';}).join('');
+  }
+}
+function agregarPuntoConDatosArchivo_(prefijo, instancia, canal, puntaje, comentario, onOk){
+  var cliente = document.getElementById(prefijo+'Cliente').value.trim();
+  var vin = document.getElementById(prefijo+'Vin').value.trim().toUpperCase();
+  var vendedor = document.getElementById(prefijo+'Vendedor').value;
+  var sucursal = document.getElementById(prefijo+'Sucursal').value;
+  if(!cliente){ showToast('Falta el nombre del cliente'); return; }
+  if(!vendedor){ showToast('Falta el vendedor'); return; }
+  var punto = {vin:vin, score:Number(puntaje), vendedor:vendedor, sucursal:sucursal, fecha:fechaHoyIso_(), cliente:cliente, comentario:comentario};
+  gasPost('agregarPuntoManualArchivo', {instancia:instancia, canal:(canal==='PDA'?'pda':'directa'), punto:punto, autor:usuarioActual()}).then(function(res){
+    if(!res.ok){ showToast(res.error||'No se pudo agregar'); return; }
+    document.getElementById(prefijo+'Cliente').value=''; document.getElementById(prefijo+'Vin').value='';
+    showToast('Cargado con datos del cliente — ya cuenta en el Ranking');
+    if(onOk) onOk();
+  });
+}
 function agregarNpsAnonimoATUI_(){
   var canal = document.getElementById('atAnonCanal').value;
   var puntaje = document.getElementById('atAnonPuntaje').value;
   var comentario = document.getElementById('atAnonComentario').value.trim();
   if(puntaje===''){ showToast('Falta el puntaje'); return; }
+  if(document.getElementById('atAnonConDatos').checked){
+    agregarPuntoConDatosArchivo_('atAnon', 'alertatemprana', canal, puntaje, comentario, function(){
+      document.getElementById('atAnonPuntaje').value=''; document.getElementById('atAnonComentario').value='';
+      renderAlertaTempranaReporte_();
+    });
+    return;
+  }
   gasPost('agregarNpsAnonimo', {tipo:'alertatemprana', canal:canal, puntaje:puntaje, comentario:comentario, autor:usuarioActual()}).then(function(res){
     if(!res.ok){ showToast(res.error||'No se pudo agregar'); return; }
     document.getElementById('atAnonPuntaje').value=''; document.getElementById('atAnonComentario').value='';
@@ -13363,6 +13426,13 @@ function agregarNpsAnonimoCpUI_(){
   var puntaje = document.getElementById('cpAnonPuntaje').value;
   var comentario = document.getElementById('cpAnonComentario').value.trim();
   if(puntaje===''){ showToast('Falta el puntaje'); return; }
+  if(document.getElementById('cpAnonConDatos').checked){
+    agregarPuntoConDatosArchivo_('cpAnon', 'contactoposterior', canal, puntaje, comentario, function(){
+      document.getElementById('cpAnonPuntaje').value=''; document.getElementById('cpAnonComentario').value='';
+      renderNpsContactoPosteriorPanel_();
+    });
+    return;
+  }
   gasPost('agregarNpsAnonimo', {tipo:'contactoposterior', canal:canal, puntaje:puntaje, comentario:comentario, autor:usuarioActual()}).then(function(res){
     if(!res.ok){ showToast(res.error||'No se pudo agregar'); return; }
     document.getElementById('cpAnonPuntaje').value=''; document.getElementById('cpAnonComentario').value='';
@@ -13517,6 +13587,13 @@ function agregarNpsFabricaAnonimoUI_(){
   var puntaje = document.getElementById('fabAnonPuntaje').value;
   var comentario = document.getElementById('fabAnonComentario').value.trim();
   if(puntaje===''){ showToast('Falta el puntaje'); return; }
+  if(document.getElementById('fabAnonConDatos').checked){
+    agregarPuntoConDatosArchivo_('fabAnon', 'fabrica', canal, puntaje, comentario, function(){
+      document.getElementById('fabAnonPuntaje').value=''; document.getElementById('fabAnonComentario').value='';
+      renderNpsFabricaPanel_();
+    });
+    return;
+  }
   gasPost('agregarNpsFabricaAnonimo', {canal:canal, puntaje:puntaje, comentario:comentario, autor:usuarioActual()}).then(function(res){
     if(!res.ok){ showToast(res.error||'No se pudo agregar'); return; }
     document.getElementById('fabAnonPuntaje').value=''; document.getElementById('fabAnonComentario').value='';
