@@ -2147,6 +2147,12 @@
       <button class="save-btn" style="margin-top:10px;" onclick="guardarAlertaAccesorios()">Guardar emails de alerta</button>
     </div>
 
+    <div class="maestro-block">
+      <div class="section-title">Emails de alerta de campañas pendientes (24hs antes) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">A quién avisar por marca cuando hay una entrega de mañana con la campaña todavía pendiente de controlar. Podés poner uno o varios emails separados por coma.</span></span></div>
+      <div class="form-grid" id="alertaCampanasContainer"></div>
+      <button class="save-btn" style="margin-top:10px;" onclick="guardarAlertaCampanas()">Guardar emails de alerta</button>
+    </div>
+
     </div>
     <div id="paneMaestroPermisos" style="display:none;padding:10px 0;">
       <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:12px;">Cada persona entra con su propio usuario y contraseña. <b>Maestro</b>: acceso total (incluido este Panel Maestro). <b>Administrativo</b>: puede cargar y editar entregas, no entra al Maestro. <b>Vendedor</b>: solo puede ver, no puede editar nada.</div>
@@ -2793,6 +2799,9 @@
     <div class="section" id="dCampanaSection" style="display:none;">
       <div class="section-title">Campaña</div>
       <input id="dCampanaInput" placeholder="Ej: Campaña de bomba de combustible (vacío si no aplica)" onchange="guardarCampanaTexto(this.value)" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;">
+      <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-dim);cursor:pointer;margin-top:6px;">
+        <input type="checkbox" id="dCampanaNoAplica" onchange="guardarCampanaNoAplica_(this.checked)"> No corresponde (dejar el texto como observación nomás, sin pedir Pendiente/Colocado)
+      </label>
       <div class="dual-toggle-wrap" id="dCampanaToggleWrap" style="display:none;">
         <button class="dual-toggle-btn pend" id="dCampanaBtnPend" onclick="marcarEstadoItem_('campana', 'pendiente')"><span class="material-symbols-outlined">schedule</span>Pendiente</button>
         <button class="dual-toggle-btn no" id="dCampanaBtnNo" onclick="marcarEstadoItem_('campana', 'no_colocado')"><span class="material-symbols-outlined">cancel</span>No colocado</button>
@@ -5039,7 +5048,7 @@ function renderHeroProximaEntrega_(r){
   if(accHayAlgo_(r)){
     controles += '<button class="hero-chip '+(accTodosColocados_(r)?'ok':'warn')+'" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">build</span>Accesorios: '+accCantidadColocados_(r)+'/'+r.accesoriosItems.length+' colocados</button>';
   }
-  if(r.campanaTexto){
+  if(r.campanaTexto && !r.campanaNoAplica){
     controles += '<button class="hero-chip '+(r.campanaControlada?'ok':'warn')+(puedeHero?'':' readonly')+'" '+(puedeHero?'onclick="heroToggleCampana(\''+r.marca+'\',\''+r.id+'\')"':'')+'><span class="material-symbols-outlined">campaign</span>Campaña: '+(r.campanaControlada?'Controlada':'Pendiente')+'</button>';
   }
   if(b.onstar){
@@ -7990,7 +7999,7 @@ function itemsPendientesParaEntregar_(r){
   if(r.llaveDuplicada && !r.llaveDuplicadaEntregada && !r.llaveDuplicadaMotivo) faltan.push('Llave duplicada');
   if(r.alfombras && !r.alfombrasColocadas && !r.alfombrasMotivo) faltan.push('Alfombras');
   if(r.regaloCorporativo && r.regaloEstado!=='Entregado' && !r.regaloObservaciones) faltan.push('Regalo corporativo');
-  if(r.campanaTexto && !r.campanaControlada && !r.campanaMotivo) faltan.push('Campaña ("'+r.campanaTexto+'")');
+  if(r.campanaTexto && !r.campanaNoAplica && !r.campanaControlada && !r.campanaMotivo) faltan.push('Campaña ("'+r.campanaTexto+'")');
   // OnStar queda afuera a propósito: no bloquea la entrega.
   // Si un ítem quedó "no colocado" pero tiene un motivo/observación cargado, no bloquea — ya está justificado.
   return faltan;
@@ -8697,6 +8706,7 @@ function openDetail(marca, id){
   var campanaSection=document.getElementById('dCampanaSection');
   campanaSection.style.display='block';
   document.getElementById('dCampanaInput').value = r.campanaTexto || '';
+  document.getElementById('dCampanaNoAplica').checked = !!r.campanaNoAplica;
   renderCampanaDualUI_(r);
   document.getElementById('dVendedor').value = r.vendedor || '';
   document.getElementById('dAdministrativo').value = r.administrativo || '';
@@ -9165,7 +9175,7 @@ function itemsPendientesEnEntrega_(r){
   var relevantes = [];
   Object.keys(ITEMS_COLOCADO_CONFIG_).forEach(function(key){
     var cfg = ITEMS_COLOCADO_CONFIG_[key];
-    var corresponde = key==='campana' ? !!r.campanaTexto : !!r[cfg.corresponde];
+    var corresponde = key==='campana' ? (!!r.campanaTexto && !r.campanaNoAplica) : !!r[cfg.corresponde];
     if(!corresponde) return;
     relevantes.push({key:key, label:cfg.label, estado: estadoItemActual_(cfg, r)});
   });
@@ -9202,7 +9212,7 @@ function renderDualToggleUI_(itemKey, r){
   var idBase = itemKey.charAt(0).toUpperCase()+itemKey.slice(1);
   var wrap = document.getElementById('d'+idBase+'ToggleWrap');
   if(!wrap) return;
-  var corresponde = itemKey==='campana' ? !!r.campanaTexto : !!r[cfg.corresponde];
+  var corresponde = itemKey==='campana' ? (!!r.campanaTexto && !r.campanaNoAplica) : !!r[cfg.corresponde];
   var obsWrap = document.getElementById('d'+idBase+'ObsWrap');
   if(!corresponde){ wrap.style.display='none'; if(obsWrap) obsWrap.style.display='none'; return; }
   wrap.style.display='flex';
@@ -9327,6 +9337,20 @@ function guardarCampanaTexto(valor){
   openDetail(detailMarca, detailId);
   renderAll();
   showToast('Campaña actualizada');
+}
+// "No corresponde" — deja el texto de la campaña como una simple
+// observación (ej: "no aplica", "campaña de otro cliente") sin que el
+// sistema pida marcar Pendiente/Colocado, porque no hay nada que colocar.
+function guardarCampanaNoAplica_(marcado){
+  if(!detailId) return;
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); openDetail(detailMarca, detailId); return; }
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  r.campanaNoAplica = marcado;
+  if(marcado){ r.campanaControlada=false; r.campanaControladaFecha=''; r.campanaMotivo=''; r.campanaPendienteStock=false; }
+  gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{campanaNoAplica:marcado, campanaControlada:r.campanaControlada, campanaControladaFecha:r.campanaControladaFecha||'', campanaMotivo:r.campanaMotivo||''}});
+  logHistorial_(detailMarca, detailId, marcado ? 'Campaña marcada como "No corresponde"' : 'Campaña — se sacó "No corresponde"');
+  openDetail(detailMarca, detailId);
+  renderAll();
 }
 
 function toggleCampana(){
@@ -10430,6 +10454,7 @@ function openConfig(){
   document.getElementById('cfgCopiaA').value = CONFIG.copiaSiempreA || '';
   document.getElementById('cfgDuracion').value = CONFIG.duracionEntrega || 60;
   renderAlertaAccesoriosUI();
+  renderAlertaCampanasUI();
   inicializarAcordeonConfig_();
 }
 var _acordeonConfigInicializado_ = false;
@@ -10460,6 +10485,22 @@ function guardarAlertaAccesorios(){
     if(el) CONFIG.alertaAccesoriosEmails[b.id] = el.value.trim();
   });
   persistirConfig('Emails de alerta de accesorios guardados');
+}
+function renderAlertaCampanasUI(){
+  var cont = document.getElementById('alertaCampanasContainer');
+  if(!cont) return;
+  if(!CONFIG.alertaCampanasEmails) CONFIG.alertaCampanasEmails = {};
+  cont.innerHTML = BRANDS.map(function(b){
+    return '<div class="form-field"><label>'+b.label+'</label><input type="text" id="alertaCampEmail_'+b.id+'" placeholder="mail1@parisautos.com.ar, mail2@..." value="'+(CONFIG.alertaCampanasEmails[b.id]||'').replace(/"/g,'&quot;')+'"></div>';
+  }).join('');
+}
+function guardarAlertaCampanas(){
+  if(!CONFIG.alertaCampanasEmails) CONFIG.alertaCampanasEmails = {};
+  BRANDS.forEach(function(b){
+    var el = document.getElementById('alertaCampEmail_'+b.id);
+    if(el) CONFIG.alertaCampanasEmails[b.id] = el.value.trim();
+  });
+  persistirConfig('Emails de alerta de campañas guardados');
 }
 function filtrarMaestroLista(inputEl, containerId){
   var q = inputEl.value.trim().toLowerCase();
