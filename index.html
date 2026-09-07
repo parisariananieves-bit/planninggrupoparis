@@ -2800,7 +2800,7 @@
       <div class="section-title">Campaña</div>
       <input id="dCampanaInput" placeholder="Ej: Campaña de bomba de combustible (vacío si no aplica)" onchange="guardarCampanaTexto(this.value)" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;">
       <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-dim);cursor:pointer;margin-top:6px;">
-        <input type="checkbox" id="dCampanaNoAplica" onchange="guardarCampanaNoAplica_(this.checked)"> No corresponde (dejar el texto como observación nomás, sin pedir Pendiente/Colocado)
+        <input type="checkbox" id="dCampanaNoAplica" onchange="guardarCampanaNoAplica_(this.checked)"> No corresponde (unidad verificada - no tiene campañas pendientes)
       </label>
       <div class="dual-toggle-wrap" id="dCampanaToggleWrap" style="display:none;">
         <button class="dual-toggle-btn pend" id="dCampanaBtnPend" onclick="marcarEstadoItem_('campana', 'pendiente')"><span class="material-symbols-outlined">schedule</span>Pendiente</button>
