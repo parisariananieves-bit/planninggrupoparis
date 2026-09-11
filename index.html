@@ -1959,6 +1959,7 @@
       </div>
 
       <div class="costos-grid" id="atRepIndicadores" style="margin-bottom:6px;"></div>
+      <div id="atUltimaActualizacion" style="font-size:9.5px;color:var(--text-faint);text-align:right;margin-bottom:8px;"></div>
       <div id="atRepNotaArchivo" style="font-size:10px;color:var(--text-faint);margin-bottom:20px;"></div>
 
       <div id="atResumenArchivo" style="display:none;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
@@ -2264,6 +2265,7 @@
       </div>
 
       <div class="stats-grid" id="calidadKpis" style="margin-top:14px;"></div>
+      <div id="calidadUltimaActualizacion" style="font-size:9.5px;color:var(--text-faint);text-align:right;margin-top:4px;"></div>
 
       <div class="section-title" style="margin-top:20px;display:flex;align-items:center;gap:7px;">NPS por instancia <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Cada tarjeta cuenta cuántos clientes ya respondieron esa encuesta, sobre cuántos debían responderla. En Fábrica solo cuentan los que ya tienen la garantía cargada. El detalle completo de cada una está en su propia página, en el menú. Si importaste algún Excel de encuestas, esas respuestas también suman acá — por eso a veces hay más respuestas que entregas del período. Los botones "Todos los canales / Solo PDA / Solo Tradicional" de arriba filtran también estos números.</span></span></div>
       <div class="costos-grid" id="calidadNpsInstancias"></div>
@@ -2315,6 +2317,7 @@
         <span style="font-size:10.5px;color:var(--text-faint);font-weight:600;">Ocultar / mostrar resumen</span>
       </div>
       <div class="costos-grid" id="cpResumen" style="margin:0 0 14px;"></div>
+      <div id="cpUltimaActualizacion" style="font-size:9.5px;color:var(--text-faint);text-align:right;margin-top:-8px;margin-bottom:8px;"></div>
 
       <div id="cpResumenArchivo" style="display:none;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
       <div class="chart-panel" style="margin-bottom:16px;">
@@ -2436,6 +2439,7 @@
         <span style="font-size:10.5px;color:var(--text-faint);font-weight:600;">Ocultar / mostrar resumen</span>
       </div>
       <div class="costos-grid" id="fabResumen" style="margin-bottom:14px;"></div>
+      <div id="fabUltimaActualizacion" style="font-size:9.5px;color:var(--text-faint);text-align:right;margin-top:-8px;margin-bottom:8px;"></div>
 
       <div class="section-title" style="display:flex;align-items:center;gap:7px;">Puntaje de Recomendación GM (regla oficial) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Mismos valores que en Alerta Temprana y Contacto Posterior — se comparten entre las tres páginas. Son distintos para TD y para PDA.</span></span></div>
       <div class="two-col-grid" style="margin-bottom:14px;">
@@ -11325,6 +11329,8 @@ function renderAlertaTempranaReporte_(){
     '<div class="costo-card ok"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_very_satisfied</span></div><div class="valor">'+promotores+'</div><div class="label">Promotores</div></div>'+
     '<div class="costo-card ambar"><div class="icon-badge"><span class="material-symbols-outlined">sentiment_neutral</span></div><div class="valor">'+pasivos+'</div><div class="label">Neutrales</div></div>'+
     '<div class="costo-card"><div class="icon-badge" style="background:var(--danger-soft);color:var(--danger);"><span class="material-symbols-outlined">sentiment_dissatisfied</span></div><div class="valor" style="color:var(--danger);">'+detractores+'</div><div class="label">Detractores</div></div>';
+  var elAtUltimaActualizacion = document.getElementById('atUltimaActualizacion');
+  if(elAtUltimaActualizacion) elAtUltimaActualizacion.textContent = 'Calculado: '+new Date().toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   var elNota = document.getElementById('atRepNotaArchivo');
   if(elNota) elNota.textContent = notaArchivo;
 
@@ -12333,6 +12339,8 @@ function dibujarNpsGeneral_(){
   document.getElementById('calidadKpis').innerHTML = window._calidadChipsFiltros.map(function(c,i){
     return '<div class="stat-chip '+c.cls+'" style="cursor:'+(c.filtro?'pointer':'default')+';min-width:150px;" '+(c.filtro?'onclick="abrirDetalleFiltradoCalidad_('+i+')"':'')+'><div class="icon-badge"><span class="material-symbols-outlined">'+c.icon+'</span></div><div class="n">'+c.n+'</div><div class="l">'+c.l+'</div></div>';
   }).join('');
+  var elUltimaActualizacion = document.getElementById('calidadUltimaActualizacion');
+  if(elUltimaActualizacion) elUltimaActualizacion.textContent = 'Calculado: '+new Date().toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
 
   function tarjetaInstancia_(nombre, nps, respondidas, totalInst, icon, iconCls, clave){
     var pendientes = Math.max(0, totalInst - respondidas);
@@ -12523,6 +12531,8 @@ function renderNpsContactoPosteriorPanel_(){
     statChipCalidad_(nps===null?'—':nps, 'NPS Contacto Posterior', nps===null?'pending':(nps>=50?'ok':(nps>=0?'warn':'danger')), 'forum')+
     statChipCalidad_(respondidasTotalCp+' / '+ventasTotalCp, 'Respondidas', 'pending', 'fact_check')+
     statChipCalidad_(pct+'%', 'Tasa de respuesta', pct>=50?'ok':'warn', 'percent');
+  var elCpUltimaActualizacion = document.getElementById('cpUltimaActualizacion');
+  if(elCpUltimaActualizacion) elCpUltimaActualizacion.textContent = 'Calculado: '+new Date().toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   window._cpConDato = conDato;
   document.getElementById('cpTabla').innerHTML = '<tr><th>Cliente</th><th>Marca</th><th>Fecha respuesta</th><th>Puntaje</th><th>Atención asesor</th><th>Gestión admin.</th><th>Exp. entrega</th><th>Comentario</th></tr>'+
     (conDato.slice(0,10).map(function(x){
@@ -13775,6 +13785,8 @@ function renderNpsFabricaPanel_(){
     statChipCalidad_(nps===null?'—':nps, 'NPS Fábrica', nps===null?'pending':(nps>=50?'ok':(nps>=0?'warn':'danger')), 'factory')+
     statChipCalidad_(respondidasTotal+' / '+ventasTotal, 'Respondidas', 'pending', 'fact_check')+
     statChipCalidad_(pct+'%', 'Tasa de respuesta', pct>=50?'ok':'warn', 'percent');
+  var elFabUltimaActualizacion = document.getElementById('fabUltimaActualizacion');
+  if(elFabUltimaActualizacion) elFabUltimaActualizacion.textContent = 'Calculado: '+new Date().toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   pintarResumenArchivoFabrica_({
     directa: respondidas.filter(function(r){return !esCanalPDA_(r);}),
     pda: respondidas.filter(function(r){return esCanalPDA_(r);})
