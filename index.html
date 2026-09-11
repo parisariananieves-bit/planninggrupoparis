@@ -12648,6 +12648,15 @@ function guardarResumenArchivoFabrica_(canal, nombreArchivo, puntos){
 }
 // Convierte "dd/mm/aaaa" (como guarda el input de fecha de la ficha) a
 // "aaaa-mm-dd" para poder comparar contra la fecha de corte ISO.
+// Convierte "dd/MM/yyyy HH:mm" (o solo la fecha, para archivos viejos que
+// se cargaron antes de que guardáramos la hora) a un valor que se puede
+// comparar — para saber cuál de los dos canales se cargó más reciente.
+function fechaCargaAOrden_(str){
+  if(!str) return 0;
+  var m = String(str).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/);
+  if(!m) return 0;
+  return new Date(Number(m[3]), Number(m[2])-1, Number(m[1]), Number(m[4]||0), Number(m[5]||0)).getTime();
+}
 function fechaAIso_(str){
   if(!str) return '';
   var soloFecha = soloFechaISO_(str);
@@ -12713,7 +12722,7 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
       }
     }
     var r = conteoAcumuladoFabrica_(canalKey, respondidasPorCanal[canalKey]);
-    if(totalesPorCanal) totalesPorCanal.push(r.conteo.total);
+    if(totalesPorCanal) totalesPorCanal.push({canal:canalKey, total:r.conteo.total, fechaCarga: entrada.fechaCarga});
     var canalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
     var activo = filterCanal===canalUrl;
     return '<div class="chart-panel" style="cursor:pointer;'+(activo?'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);':'')+'" onclick="setFilterCanal(\''+canalUrl+'\')" title="Tocá para ver el gráfico de abajo filtrado por este canal — volvé a tocar para ver todos juntos">'+
@@ -12731,14 +12740,16 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
   var totalesPorCanal = [];
   var htmlDirecta = bloqueCanal_('Directa / Tradicional', 'directa', totalesPorCanal);
   var htmlPda = bloqueCanal_('PDA', 'pda', totalesPorCanal);
-  var totalCombinado = totalesPorCanal.reduce(function(a,x){return a+x;}, 0);
-  var badgeTotalFab = filterCanal==='pda' ? (totalesPorCanal[1]||0)+' PDA' : (filterCanal==='tradicional' ? (totalesPorCanal[0]||0)+' Directa' : totalCombinado+' encuestas en total (Directa + PDA)');
-  var horaCalculoFab = new Date().toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  var totalCombinado = totalesPorCanal.reduce(function(a,x){return a+x.total;}, 0);
+  var directaEntry = totalesPorCanal.find(function(x){return x.canal==='directa';});
+  var pdaEntry = totalesPorCanal.find(function(x){return x.canal==='pda';});
+  var badgeTotalFab = filterCanal==='pda' ? (pdaEntry?pdaEntry.total:0)+' PDA' : (filterCanal==='tradicional' ? (directaEntry?directaEntry.total:0)+' Directa' : totalCombinado+' encuestas en total (Directa + PDA)');
+  var horaCalculoFab = (function(){ if(filterCanal==='pda') return pdaEntry?pdaEntry.fechaCarga:''; if(filterCanal==='tradicional') return directaEntry?directaEntry.fechaCarga:''; var op=[directaEntry,pdaEntry].filter(Boolean).sort(function(a,b){return fechaCargaAOrden_(b.fechaCarga)-fechaCargaAOrden_(a.fechaCarga);}); return op.length?op[0].fechaCarga:''; })();
   cont.style.display = 'block';
   cont.innerHTML =
-    '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">NPS de Fábrica — acumulado  <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades. Guardado en el sistema, lo ven todos los usuarios.</span></span>'+
+    '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">NPS de Fábrica — acumulado (archivo + lo cargado en el sistema) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades. Guardado en el sistema, lo ven todos los usuarios.</span></span>'+
       (totalCombinado ? '<span style="font-size:10px;font-weight:700;color:var(--text-faint);background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:2px 9px;">'+badgeTotalFab+'</span>' : '')+
-      '<span style="font-size:9.5px;font-weight:400;color:var(--text-faint);margin-left:auto;">Calculado: '+horaCalculoFab+'</span>'+
+      (horaCalculoFab ? '<span style="font-size:9.5px;font-weight:400;color:var(--text-faint);margin-left:auto;">Última carga: '+horaCalculoFab+'</span>' : '')+
     '</div>'+
     '<div class="two-col-grid">'+ htmlDirecta + htmlPda +'</div>';
 }
@@ -12985,7 +12996,7 @@ function pintarResumenArchivoAT_(respondidasPorCanal){
       }
     }
     var r = conteoAcumuladoAT_(canalKey, respondidasPorCanal[canalKey]);
-    if(totalesPorCanal) totalesPorCanal.push(r.conteo.total);
+    if(totalesPorCanal) totalesPorCanal.push({canal:canalKey, total:r.conteo.total, fechaCarga: entrada.fechaCarga});
     var canalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
     var activo = filterCanal===canalUrl;
     return '<div class="chart-panel" style="cursor:pointer;'+(activo?'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);':'')+'" onclick="setFilterCanal(\''+canalUrl+'\')" title="Tocá para ver el gráfico de abajo filtrado por este canal — volvé a tocar para ver todos juntos">'+
@@ -13003,14 +13014,16 @@ function pintarResumenArchivoAT_(respondidasPorCanal){
   var totalesPorCanal = [];
   var htmlDirecta = bloqueCanal_('Directa / Tradicional', 'directa', totalesPorCanal);
   var htmlPda = bloqueCanal_('PDA', 'pda', totalesPorCanal);
-  var totalCombinado = totalesPorCanal.reduce(function(a,x){return a+x;}, 0);
-  var badgeTotalAt = filterCanal==='pda' ? (totalesPorCanal[1]||0)+' PDA' : (filterCanal==='tradicional' ? (totalesPorCanal[0]||0)+' Directa' : totalCombinado+' encuestas en total (Directa + PDA)');
-  var horaCalculoAt = new Date().toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  var totalCombinado = totalesPorCanal.reduce(function(a,x){return a+x.total;}, 0);
+  var directaEntry = totalesPorCanal.find(function(x){return x.canal==='directa';});
+  var pdaEntry = totalesPorCanal.find(function(x){return x.canal==='pda';});
+  var badgeTotalAt = filterCanal==='pda' ? (pdaEntry?pdaEntry.total:0)+' PDA' : (filterCanal==='tradicional' ? (directaEntry?directaEntry.total:0)+' Directa' : totalCombinado+' encuestas en total (Directa + PDA)');
+  var horaCalculoAt = (function(){ if(filterCanal==='pda') return pdaEntry?pdaEntry.fechaCarga:''; if(filterCanal==='tradicional') return directaEntry?directaEntry.fechaCarga:''; var op=[directaEntry,pdaEntry].filter(Boolean).sort(function(a,b){return fechaCargaAOrden_(b.fechaCarga)-fechaCargaAOrden_(a.fechaCarga);}); return op.length?op[0].fechaCarga:''; })();
   cont.style.display = 'block';
   cont.innerHTML =
     '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">NPS Alerta Temprana — acumulado (archivo + lo cargado en el sistema) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades.</span></span>'+
       (totalCombinado ? '<span style="font-size:10px;font-weight:700;color:var(--text-faint);background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:2px 9px;">'+badgeTotalAt+'</span>' : '')+
-      '<span style="font-size:9.5px;font-weight:400;color:var(--text-faint);margin-left:auto;">Calculado: '+horaCalculoAt+'</span>'+
+      (horaCalculoAt ? '<span style="font-size:9.5px;font-weight:400;color:var(--text-faint);margin-left:auto;">Última carga: '+horaCalculoAt+'</span>' : '')+
     '</div>'+
     '<div class="two-col-grid">'+ htmlDirecta + htmlPda +'</div>';
 }
@@ -13486,7 +13499,7 @@ function pintarResumenArchivoCp_(respondidasPorCanal){
       }
     }
     var r = conteoAcumuladoCp_(canalKey, respondidasPorCanal[canalKey]);
-    if(totalesPorCanal) totalesPorCanal.push(r.conteo.total);
+    if(totalesPorCanal) totalesPorCanal.push({canal:canalKey, total:r.conteo.total, fechaCarga: entrada.fechaCarga});
     var canalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
     var activo = filterCanal===canalUrl;
     return '<div class="chart-panel" style="cursor:pointer;'+(activo?'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);':'')+'" onclick="setFilterCanal(\''+canalUrl+'\')" title="Tocá para ver el gráfico de abajo filtrado por este canal — volvé a tocar para ver todos juntos">'+
@@ -13504,14 +13517,16 @@ function pintarResumenArchivoCp_(respondidasPorCanal){
   var totalesPorCanal = [];
   var htmlDirecta = bloqueCanal_('Directa / Tradicional', 'directa', totalesPorCanal);
   var htmlPda = bloqueCanal_('PDA', 'pda', totalesPorCanal);
-  var totalCombinado = totalesPorCanal.reduce(function(a,x){return a+x;}, 0);
-  var badgeTotalCp = filterCanal==='pda' ? (totalesPorCanal[1]||0)+' PDA' : (filterCanal==='tradicional' ? (totalesPorCanal[0]||0)+' Directa' : totalCombinado+' encuestas en total (Directa + PDA)');
-  var horaCalculoCp = new Date().toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  var totalCombinado = totalesPorCanal.reduce(function(a,x){return a+x.total;}, 0);
+  var directaEntry = totalesPorCanal.find(function(x){return x.canal==='directa';});
+  var pdaEntry = totalesPorCanal.find(function(x){return x.canal==='pda';});
+  var badgeTotalCp = filterCanal==='pda' ? (pdaEntry?pdaEntry.total:0)+' PDA' : (filterCanal==='tradicional' ? (directaEntry?directaEntry.total:0)+' Directa' : totalCombinado+' encuestas en total (Directa + PDA)');
+  var horaCalculoCp = (function(){ if(filterCanal==='pda') return pdaEntry?pdaEntry.fechaCarga:''; if(filterCanal==='tradicional') return directaEntry?directaEntry.fechaCarga:''; var op=[directaEntry,pdaEntry].filter(Boolean).sort(function(a,b){return fechaCargaAOrden_(b.fechaCarga)-fechaCargaAOrden_(a.fechaCarga);}); return op.length?op[0].fechaCarga:''; })();
   cont.style.display = 'block';
   cont.innerHTML =
     '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">NPS Contacto Posterior — acumulado (archivo + lo cargado en el sistema) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Suma los totales del archivo con las respuestas que vayan llegando de la encuesta pública — no cruza por VIN, solo suma cantidades.</span></span>'+
       (totalCombinado ? '<span style="font-size:10px;font-weight:700;color:var(--text-faint);background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:2px 9px;">'+badgeTotalCp+'</span>' : '')+
-      '<span style="font-size:9.5px;font-weight:400;color:var(--text-faint);margin-left:auto;">Calculado: '+horaCalculoCp+'</span>'+
+      (horaCalculoCp ? '<span style="font-size:9.5px;font-weight:400;color:var(--text-faint);margin-left:auto;">Última carga: '+horaCalculoCp+'</span>' : '')+
     '</div>'+
     '<div class="two-col-grid">'+ htmlDirecta + htmlPda +'</div>';
 }
