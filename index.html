@@ -2115,6 +2115,19 @@
       <button class="save-btn" onclick="guardarDirecciones()">Guardar direcciones, teléfono y acceso libre</button>
     </div>
 
+    <div class="maestro-block">
+      <div class="section-title">Activar / desactivar módulos (para todos los usuarios) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Si apagás un módulo acá, desaparece del menú para todo el mundo, sin importar el rol o los permisos que tenga cada usuario.</span></span></div>
+      <div class="modulos-check-row" id="cfgModulosRow">
+        <label class="switch-field"><span class="switch-label">Dashboard</span><label class="switch"><input type="checkbox" value="dashboard" checked><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Nueva Entrega</span><label class="switch"><input type="checkbox" value="nuevaentrega" checked><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Calendario</span><label class="switch"><input type="checkbox" value="calendario" checked><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Lista</span><label class="switch"><input type="checkbox" value="lista" checked><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Reportes</span><label class="switch"><input type="checkbox" value="reportes" checked><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Maestro</span><label class="switch"><input type="checkbox" value="maestro" checked><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">TV</span><label class="switch"><input type="checkbox" value="tv" checked><span class="switch-slider"></span></label></label>
+      </div>
+      <button class="save-btn" style="margin-top:6px;" onclick="guardarModulosActivos()">Guardar módulos activos</button>
+    </div>
 
     <div class="maestro-block">
       <div class="section-title" style="display:flex;align-items:center;gap:7px;"><svg width="14" height="14" viewBox="0 0 24 24" style="flex-shrink:0;"><path fill="#25D366" d="M12 0C5.373 0 0 5.373 0 12c0 2.121.554 4.113 1.523 5.842L0 24l6.335-1.492A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>WhatsApp de Postventa por marca <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Se usa en el mensaje de bienvenida que se manda cuando se entrega el vehículo.</span></span></div>
@@ -2135,7 +2148,53 @@
     </div>
 
     <div class="maestro-block">
-      <div style="font-size:11px;color:var(--text-faint);margin:2px 0 10px;">Los permisos de acceso se asignan después de crear el usuario, desde <strong>Permisos</strong> en la tabla de usuarios.</div>
+      <div class="section-title">Emails de alerta de campañas pendientes (24hs antes) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">A quién avisar por marca cuando hay una entrega de mañana con la campaña todavía pendiente de controlar. Podés poner uno o varios emails separados por coma.</span></span></div>
+      <div class="form-grid" id="alertaCampanasContainer"></div>
+      <button class="save-btn" style="margin-top:10px;" onclick="guardarAlertaCampanas()">Guardar emails de alerta</button>
+    </div>
+
+    </div>
+    <div id="paneMaestroPermisos" style="display:none;padding:10px 0;">
+      <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:12px;">Cada persona entra con su propio usuario y contraseña. <b>Maestro</b>: acceso total (incluido este Panel Maestro). <b>Administrativo</b>: puede cargar y editar entregas, no entra al Maestro. <b>Vendedor</b>: solo puede ver, no puede editar nada.</div>
+      <div style="position:relative;max-width:340px;margin-bottom:12px;">
+        <span class="material-symbols-outlined" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--text-faint);">search</span>
+        <input id="buscarUsuarioInput" placeholder="Buscar por nombre, usuario o email..." oninput="filtrarUsuariosTabla_()" style="width:100%;box-sizing:border-box;padding:8px 10px 8px 34px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);font-size:12px;">
+      </div>
+      <div id="uContadorOnline" style="font-size:11px;color:var(--text-faint);margin-bottom:8px;"></div>
+      <div class="report-wrap" style="max-height:65vh;min-height:200px;margin-bottom:14px;resize:vertical;overflow:auto;">
+        <table class="report-table users-table-compact" id="tablaUsuarios"></table>
+      </div>
+      <div id="uFormTitulo" style="font-weight:700;font-size:12.5px;margin-bottom:8px;">Crear usuario nuevo</div>
+      <div class="form-grid" style="margin-bottom:8px;">
+        <div class="form-field"><label>Nombre y apellido</label><input id="uNombre" placeholder="Ej: María Gómez"></div>
+        <div class="form-field"><label>Sector</label><input id="uSector" placeholder="Ej: Ventas, PDA, Postventa..."></div>
+        <div class="form-field"><label>Email</label><input id="uEmail" type="email" placeholder="Ej: mgomez@grupoparis.com" autocomplete="off"></div>
+        <div class="form-field"><label>Usuario</label><input id="uUsuario" placeholder="Ej: mgomez" autocomplete="off"></div>
+        <div class="form-field" id="uPasswordWrap"><label>Contraseña inicial</label><input id="uPassword" type="text" placeholder="Mínimo 4 caracteres" autocomplete="off"></div>
+        <div class="form-field"><label style="display:flex;align-items:center;gap:5px;">Rol <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">El rol es solo una etiqueta descriptiva — lo que ve y puede hacer cada usuario lo definís abajo, en "Módulos".</span></span></label>
+          <select id="uRol">
+            <option value="vendedor">Vendedor</option>
+            <option value="administrativo">Administrativo</option>
+            <option value="logistica">Logística</option>
+            <option value="supervisor_logistica">Supervisor de Logística</option>
+            <option value="recepcion">Recepción</option>
+            <option value="supervisor">Supervisor</option>
+            <option value="calidad">Calidad</option>
+            <option value="maestro">Maestro</option>
+            <option value="tv">TV Recepción</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin:2px 0 6px;font-size:11.5px;font-weight:700;">Módulos <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Opcional — módulos que puede ver este usuario en el menú. Si no tildás ninguno, se usan los del rol por defecto.</span></span></div>
+      <div class="modulos-check-row" id="uModulosRow">
+        <label class="switch-field"><span class="switch-label">Dashboard</span><label class="switch"><input type="checkbox" value="dashboard"><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Nueva Entrega</span><label class="switch"><input type="checkbox" value="nuevaentrega"><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Calendario</span><label class="switch"><input type="checkbox" value="calendario"><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Lista</span><label class="switch"><input type="checkbox" value="lista"><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Reportes</span><label class="switch"><input type="checkbox" value="reportes"><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">Maestro</span><label class="switch"><input type="checkbox" value="maestro"><span class="switch-slider"></span></label></label>
+        <label class="switch-field"><span class="switch-label">TV</span><label class="switch"><input type="checkbox" value="tv"><span class="switch-slider"></span></label></label>
+      </div>
       <button class="save-btn" id="uSubmitBtn" style="width:auto;display:inline-block;margin-right:8px;" onclick="crearUsuarioUI()">Crear usuario</button>
       <button class="view-btn" id="uCancelarBtn" style="display:none;" onclick="cancelarEdicionUsuarioUI()">Cancelar edición</button>
       <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">Si le cargás el email, le llega un mail automático con su usuario y contraseña. Igual pasale los datos vos también por las dudas.</div>
@@ -3341,20 +3400,7 @@ function modulosUsuarioActual(){
     if(candidatos.length) return candidatos[0].modulos || [];
     return [];
   }
-  var s=sesionActual();
-  if(!s) return [];
-  // Compatibilidad de seguridad: el usuario Maestro/origen del sistema
-  // conserva acceso total si su registro histórico todavía no tiene una
-  // lista explícita de módulos. En cuanto se guarda Permisos, la lista
-  // individual pasa a ser la fuente de verdad.
-  if((s.modulos||[]).length===0 && s.rol==='maestro') return MODULOS_PERMISOS_TODOS_.slice();
-  return s.modulos || [];
-}
-var MODULOS_PERMISOS_TODOS_ = ['dashboard','nuevaentrega','calendario','lista','reportes','tv','preparacion','traslados','faltantes','historialcoms','casos','notificaciones','maestro'];
-function permisosEfectivosUsuario_(u){
-  if(!u) return [];
-  if((u.modulos||[]).length===0 && u.rol==='maestro') return MODULOS_PERMISOS_TODOS_.slice();
-  return (u.modulos||[]).slice();
+  var s=sesionActual(); return (s && s.modulos) || [];
 }
 function esCalidad(){ var r=rolActual(); return r==='calidad' || r==='maestro' || modulosUsuarioActual().indexOf('maestro')>-1; }
 // El acceso de Ver/Editar por módulo se respeta SIEMPRE tal cual lo dejaste
@@ -3365,27 +3411,10 @@ function esCalidad(){ var r=rolActual(); return r==='calidad' || r==='maestro' |
 // de permisos sea la única fuente de verdad.
 function puedeEditarModulo_(mod){
   var s = sesionActual();
-  if(!s) return false;
-  var modulos = modulosUsuarioActual();
-  var soloVer = s.modulosSoloVer || [];
-  // El acceso individual es la única fuente de verdad. La única excepción
-  // de compatibilidad es el Maestro histórico sin permisos explícitos.
-  return modulos.indexOf(mod)>-1 && soloVer.indexOf(mod)===-1;
+  var soloVer = (s && s.modulosSoloVer) || [];
+  return soloVer.indexOf(mod)===-1;
 }
-function puedeVerModulo_(mod){
-  var s = sesionActual();
-  if(!s) return false;
-  return modulosUsuarioActual().indexOf(mod)>-1;
-}
-function puedeEditar(mod){
-  // Compatibilidad con llamadas antiguas sin módulo: permite editar solo si
-  // el usuario tiene al menos un módulo explícitamente asignado para edición.
-  if(mod) return puedeEditarModulo_(mod);
-  var s = sesionActual();
-  if(!s) return false;
-  var mods = s.modulos || [], solo = s.modulosSoloVer || [];
-  return mods.some(function(m){ return solo.indexOf(m)===-1; });
-}
+function puedeEditar(){ var r=rolActual(); return esCalidad() || r==='administrativo' || r==='supervisor' || r==='recepcion' || r==='logistica' || r==='supervisor_logistica'; }
 function esSupervisorLogistica(){ return rolActual()==='supervisor_logistica'; }
 function etiquetaRol_(r){
   var etiquetas = {calidad:'Calidad', maestro:'Maestro', administrativo:'Administrativo', vendedor:'Vendedor', tv:'TV Recepción', recepcion:'Recepción', supervisor:'Supervisor', logistica:'Logística', supervisor_logistica:'Supervisor de Logística'};
@@ -3427,7 +3456,7 @@ function activarRolPreview(rol){
         if(res && res.usuarios) window._usuariosCache = res.usuarios;
         refrescarTodo();
       }).catch(function(){ refrescarTodo(); });
-      showToast('Cargando permisos configurados para ese rol...');
+      showToast('Cargando módulos configurados para ese rol...');
       return;
     }
   }
@@ -3526,7 +3555,8 @@ var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', 
 function aplicarPermisosUI(){
   var puede = puedeEditar();
   var modulosDelUsuario = modulosUsuarioActual();
-  var modulosUsuario = modulosDelUsuario;
+  var modulosUsuario = modulosDelUsuario.length ? modulosDelUsuario : null;
+  var modulosGlobales = (typeof CONFIG!=='undefined' && CONFIG && CONFIG.modulosActivos) || {};
   // Módulos que SOLO ve el admin (Calidad/Maestro) por defecto — para todos
   // los demás, ni por rol ni por defecto: hay que dárselos a mano, uno por
   // uno, desde Maestro → Permisos. Nada de esto aparece solo.
@@ -3547,9 +3577,34 @@ function aplicarPermisosUI(){
     // rol "maestro" sin importar lo que tuviera marcado en Permisos; se
     // sacó a pedido explícito, para que la configuración de permisos sea
     // la única fuente de verdad (igual que ya se hizo con puedeEditarModulo_).
-    // Los permisos individuales mandan para todos los módulos.
-    // No hay permisos globales ni permisos implícitos por rol.
-    visible = modulosUsuario ? (modulosUsuario.indexOf(mod)>-1) : false;
+    if(mod==='maestro') visible = esCalidad();
+    else if(mod==='preparacion'){
+      // Mismo criterio: por defecto lo ven Logística/Supervisor/Maestro,
+      // pero si hay una lista explícita en Permisos, esa lista manda —
+      // sin excepción de rol.
+      visible = modulosUsuario ? (modulosUsuario.indexOf(mod)>-1) : (ROLES_CON_PREPARACION_POR_DEFECTO_.indexOf(rolActual())>-1);
+      if(modulosGlobales[mod]===false) visible = false;
+    }
+    else if(MODULOS_SOLO_ADMIN_POR_DEFECTO_.indexOf(mod)>-1){
+      // Por defecto (sin nada configurado a mano en Permisos) SOLO el rol
+      // "maestro" los ve. Pero si el usuario YA tiene una lista de módulos
+      // explícita en Permisos, esa lista manda — para todos, sin excepción
+      // de rol — así se puede sacar este módulo aunque el rol sea maestro.
+      visible = modulosUsuario ? (modulosUsuario.indexOf(mod)>-1) : (rolActual()==='maestro');
+      if(modulosGlobales[mod]===false) visible = false; // interruptor global, por si hace falta apagarlo hasta para el maestro
+    }
+    else if(mod==='historialcoms') visible = esCalidad();
+    else if(mod==='nuevaentrega' || mod==='reportes'){
+      // Mismo criterio que el resto: si hay una lista explícita en
+      // Permisos, esa lista manda. Si no, cae al criterio por rol de
+      // siempre (puede editar = lo ve).
+      visible = modulosUsuario ? (modulosUsuario.indexOf(mod)>-1) : puede;
+    }
+    else {
+      visible = true;
+      if(modulosUsuario) visible = modulosUsuario.indexOf(mod)>-1;
+      if(modulosGlobales[mod]===false) visible = false;
+    }
     el.style.display = visible ? '' : 'none';
     var bnEl = document.getElementById('bn'+mod.charAt(0).toUpperCase()+mod.slice(1));
     if(bnEl) bnEl.style.display = visible ? '' : 'none';
@@ -3636,81 +3691,60 @@ document.addEventListener('click', function(ev){
   if(ev.target.closest('.user-menu-wrap')) return;
   document.querySelectorAll('.user-menu-dropdown.open').forEach(function(el){ el.classList.remove('open'); });
 });
-function pintarUsuariosTabla_(usuarios){
+function renderUsuariosTabla_(){
   var tabla = document.getElementById('tablaUsuarios');
   if(!tabla) return;
-  usuarios = usuarios || [];
-  window._usuariosCache = usuarios;
-  tabla.dataset.cargadaAlgunaVez = 'true';
-  var totalOnline = usuarios.filter(function(u){return u.online;}).length;
-  var totalInactivos = usuarios.filter(function(u){return !u.activo;}).length;
-  var contadorEl = document.getElementById('uContadorOnline');
-  if(contadorEl) contadorEl.innerHTML = '<span style="color:var(--ok);font-weight:700;">● '+totalOnline+' online</span> · '+usuarios.length+' usuarios en total · <span style="color:var(--danger);">'+totalInactivos+' inactivos</span>';
-  var html = '<tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th><th>Permisos</th><th>Acciones</th></tr>';
-  usuarios.forEach(function(u){
-    var nombreEsc = (u.nombre||'').replace(/'/g,"\\'");
-    var modulosUsuario = u.modulos || [];
-    html += '<tr data-buscar="'+(u.nombre+' '+u.usuario+' '+(u.email||'')).toLowerCase().replace(/"/g,'')+'">'+
-      '<td><div class="user-cell"><div class="user-avatar'+(u.activo?'':' inactivo')+'" style="position:relative;">'+iniciales_(u.nombre)+'<span class="online-dot'+(u.online?' online':'')+'" title="'+(u.online?'Online':'Offline')+'"></span></div><div><div class="user-name">'+u.nombre+'</div><div class="user-username">@'+u.usuario+'</div></div></div></td>'+
-      '<td>'+(u.email||'<span style="color:var(--text-faint);">—</span>')+'</td>'+
-      '<td>'+etiquetaRol_(u.rol)+'</td>'+
-      '<td>'+(u.activo?'<span class="tag ok">Activo</span>':'<span class="tag danger">Inactivo</span>')+'</td>'+
-      '<td><button class="pill-btn" onclick="abrirModalPermisos_(\''+u.usuario+'\')" style="white-space:nowrap;"><span class="material-symbols-outlined">tune</span>'+modulosUsuario.length+' módulo'+(modulosUsuario.length===1?'':'s')+'</button></td>'+
-      '<td><div class="user-actions" style="flex-wrap:nowrap;justify-content:flex-end;">'+
-        '<button class="pill-btn edit" title="Editar" onclick="editarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\',\''+(u.email||'')+'\',\''+u.rol+'\',[],\''+(u.sector||'').replace(/'/g,"\\'")+'\')"><span class="material-symbols-outlined">edit</span></button>'+
-        '<div class="user-menu-wrap">'+
-          '<button class="user-menu-btn" onclick="toggleUserMenu(\'um_'+u.usuario+'\',event)"><span class="material-symbols-outlined">more_vert</span></button>'+
-          '<div class="user-menu-dropdown" id="um_'+u.usuario+'">'+
-            '<button onclick="mostrarUltimoIngreso_(\''+nombreEsc+'\',\''+(u.ultimoIngreso||'')+'\')"><span class="material-symbols-outlined">history</span>Última actividad</button>'+
-            (u.email ? '<button onclick="reenviarCredencialesUI(\''+u.usuario+'\')"><span class="material-symbols-outlined">mail</span>Reenviar mail</button>' : '')+
-            '<button onclick="resetPasswordUsuarioUI(\''+u.usuario+'\')"><span class="material-symbols-outlined">key</span>Resetear contraseña</button>'+ 
-            '<button onclick="toggleActivoUsuarioUI(\''+u.usuario+'\','+(!u.activo)+')"><span class="material-symbols-outlined">'+(u.activo?'block':'check_circle')+'</span>'+(u.activo?'Desactivar':'Reactivar')+'</button>'+ 
-            '<button class="danger" onclick="eliminarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\')"><span class="material-symbols-outlined">delete</span>Eliminar</button>'+ 
-          '</div>'+ 
-        '</div>'+ 
-      '</div></td>'+ 
-    '</tr>';
-  });
-  tabla.innerHTML = html;
-  filtrarUsuariosTabla_();
-}
-
-var _usuariosCargaEnCurso_ = null;
-var _ultimaCargaUsuariosMs_ = 0;
-function renderUsuariosTabla_(forzar){
-  var tabla = document.getElementById('tablaUsuarios');
-  if(!tabla) return;
-  var s = sesionActual();
-  if(!s) return;
-  var pass = window._ultimaPasswordActor || credencialesActor_();
-  if(pass===null) return;
-
-  // Al volver a abrir la pestaña, reutilizamos la memoria inmediatamente.
-  // Así no se espera a Apps Script para poder editar permisos.
-  if(window._usuariosCache && window._usuariosCache.length && !forzar){
-    pintarUsuariosTabla_(window._usuariosCache);
-  } else if(!tabla.dataset.cargadaAlgunaVez){
+  tabla.classList.add('users-table', 'users-table-compact');
+  // Solo mostramos "Cargando..." la primera vez (tabla vacía) — en los
+  // refrescos automáticos de cada 20s, dejamos lo que ya había mientras
+  // llega lo nuevo, así no parpadea toda la tabla todo el tiempo.
+  if(!tabla.dataset.cargadaAlgunaVez){
     tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--text-faint);">Cargando usuarios...</th></tr>';
   }
-
-  // Evita solicitudes duplicadas y refrescos demasiado seguidos.
-  var ahora = Date.now();
-  if(_usuariosCargaEnCurso_ || (!forzar && ahora - _ultimaCargaUsuariosMs_ < 10000)) return;
-  _ultimaCargaUsuariosMs_ = ahora;
-  _usuariosCargaEnCurso_ = gasPost('listarUsuarios',{actorUsuario:s.usuario, actorPassword:pass}).then(function(res){
-    _usuariosCargaEnCurso_ = null;
-    if(res.error){
-      if(!window._usuariosCache) tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">'+res.error+'</th></tr>';
-      return;
-    }
-    window._ultimaPasswordActor = pass;
-    pintarUsuariosTabla_(res.usuarios||[]);
+  var s = sesionActual();
+  if(!s) return;
+  var pass = credencialesActor_();
+  if(pass===null){ tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--text-faint);">Cerrá sesión y volvé a entrar para ver esto.</th></tr>'; return; }
+  gasPost('listarUsuarios',{actorUsuario:s.usuario, actorPassword:pass}).then(function(res){
+    if(res.error){ tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">'+res.error+'</th></tr>'; return; }
+    tabla.dataset.cargadaAlgunaVez = 'true';
+    window._ultimaPasswordActor = pass; // se reusa para las acciones de esta sesión de la pestaña
+    window._usuariosCache = res.usuarios||[];
+    var totalOnline = (res.usuarios||[]).filter(function(u){return u.online;}).length;
+    var totalInactivos = (res.usuarios||[]).filter(function(u){return !u.activo;}).length;
+    var contadorEl = document.getElementById('uContadorOnline');
+    if(contadorEl) contadorEl.innerHTML = '<span style="color:var(--ok);font-weight:700;">● '+totalOnline+' online</span> · '+(res.usuarios||[]).length+' usuarios en total · <span style="color:var(--danger);">'+totalInactivos+' inactivos</span>';
+    var html = '<tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th><th>Módulos</th><th>Acciones</th></tr>';
+    (res.usuarios||[]).forEach(function(u){
+      var nombreEsc = u.nombre.replace(/'/g,"\\'");
+      var modulosUsuario = u.modulos || [];
+      html += '<tr data-buscar="'+(u.nombre+' '+u.usuario+' '+(u.email||'')).toLowerCase().replace(/"/g,'')+'">'+
+        '<td><div class="user-cell"><div class="user-avatar'+(u.activo?'':' inactivo')+'" style="position:relative;">'+iniciales_(u.nombre)+'<span class="online-dot'+(u.online?' online':'')+'" title="'+(u.online?'Online':'Offline')+'"></span></div><div><div class="user-name">'+u.nombre+'</div><div class="user-username">@'+u.usuario+'</div></div></div></td>'+
+        '<td>'+(u.email||'<span style="color:var(--text-faint);">—</span>')+'</td>'+
+        '<td>'+etiquetaRol_(u.rol)+'</td>'+
+        '<td>'+(u.activo?'<span class="tag ok">Activo</span>':'<span class="tag danger">Inactivo</span>')+'</td>'+
+        '<td><button class="pill-btn" onclick="abrirModalPermisos_(\''+u.usuario+'\')" style="white-space:nowrap;"><span class="material-symbols-outlined">tune</span>'+modulosUsuario.length+' módulo'+(modulosUsuario.length===1?'':'s')+'</button></td>'+
+        '<td><div class="user-actions" style="flex-wrap:nowrap;justify-content:flex-end;">'+
+          '<button class="pill-btn edit" title="Editar" onclick="editarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\',\''+(u.email||'')+'\',\''+u.rol+'\','+JSON.stringify(u.modulos||[]).replace(/"/g,'&quot;')+',\''+(u.sector||'').replace(/'/g,"\\'")+'\')"><span class="material-symbols-outlined">edit</span></button>'+
+          '<div class="user-menu-wrap">'+
+            '<button class="user-menu-btn" onclick="toggleUserMenu(\'um_'+u.usuario+'\',event)"><span class="material-symbols-outlined">more_vert</span></button>'+
+            '<div class="user-menu-dropdown" id="um_'+u.usuario+'">'+
+              '<button onclick="mostrarUltimoIngreso_(\''+nombreEsc+'\',\''+(u.ultimoIngreso||'')+'\')"><span class="material-symbols-outlined">history</span>Última actividad</button>'+
+              (u.email ? '<button onclick="reenviarCredencialesUI(\''+u.usuario+'\')"><span class="material-symbols-outlined">mail</span>Reenviar mail</button>' : '')+
+              '<button onclick="resetPasswordUsuarioUI(\''+u.usuario+'\')"><span class="material-symbols-outlined">key</span>Resetear contraseña</button>'+
+              '<button onclick="toggleActivoUsuarioUI(\''+u.usuario+'\','+(!u.activo)+')"><span class="material-symbols-outlined">'+(u.activo?'block':'check_circle')+'</span>'+(u.activo?'Desactivar':'Reactivar')+'</button>'+
+              '<button class="danger" onclick="eliminarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\')"><span class="material-symbols-outlined">delete</span>Eliminar</button>'+
+            '</div>'+
+          '</div>'+
+        '</div></td>'+
+      '</tr>';
+    });
+    tabla.innerHTML = html;
+    filtrarUsuariosTabla_();
   }).catch(function(){
-    _usuariosCargaEnCurso_ = null;
-    if(!window._usuariosCache) tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">No se pudo conectar.</th></tr>';
+    tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">No se pudo conectar.</th></tr>';
   });
 }
-
 function filtrarUsuariosTabla_(){
   var input = document.getElementById('buscarUsuarioInput');
   var tabla = document.getElementById('tablaUsuarios');
@@ -3744,12 +3778,6 @@ var iconos = {dashboard:'dashboard', nuevaentrega:'add_circle', calendario:'cale
 function abrirModalPermisos_(usuario){
   var u = (window._usuariosCache||[]).find(function(x){return x.usuario===usuario;});
   if(!u) return;
-  // Si es el Maestro histórico y todavía no tiene permisos explícitos,
-  // materializamos sus permisos actuales para que el panel no aparezca vacío.
-  if(u.rol==='maestro' && (!u.modulos || !u.modulos.length)){
-    u.modulos = MODULOS_PERMISOS_TODOS_.slice();
-    u.modulosSoloVer = u.modulosSoloVer || [];
-  }
   document.getElementById('permisosModalTitulo').innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">tune</span> Permisos — '+u.nombre;
   _permisosDirty_ = false;
   _permisosUsuarioAbierto_ = usuario;
@@ -3767,7 +3795,8 @@ function cerrarModalPermisos_(forzar){
   document.getElementById('modalPermisos').classList.remove('show');
   _permisosDirty_ = false;
   _permisosUsuarioAbierto_ = null;
-  if(window._usuariosCache) pintarUsuariosTabla_(window._usuariosCache); // refresca la tabla localmente, sin otro viaje de red
+  var s = sesionActual();
+  if(s) renderUsuariosTabla_(); // refresca el contador "X módulos" de la tabla de atrás
 }
 var _permisosDirty_ = false;
 var _permisosUsuarioAbierto_ = null;
@@ -3779,7 +3808,7 @@ function actualizarBotonGuardarPermisos_(){
   btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">save</span> Guardar cambios';
 }
 function pintarModalPermisos_(u){
-  var modulosUsuario = permisosEfectivosUsuario_(u);
+  var modulosUsuario = u.modulos || [];
   var soloVer = u.modulosSoloVer || [];
   var html = GRUPOS_MODULOS_.map(function(grupo){
     return '<div style="margin-bottom:16px;">'+
@@ -3883,6 +3912,12 @@ function cicloModuloUsuarioInline(usuario, modulo, estadoActual, btn){
   });
 }
 var usuarioEnEdicion = null; // null = modo "crear"; si no, es el "usuario" que se está editando
+function leerModulosSeleccionados_(){
+  return Array.prototype.slice.call(document.querySelectorAll('#uModulosRow input:checked')).map(function(c){return c.value;});
+}
+function marcarModulosUI_(modulos){
+  document.querySelectorAll('#uModulosRow input').forEach(function(c){ c.checked = (modulos||[]).indexOf(c.value)>-1; });
+}
 function editarUsuarioUI(usuario, nombre, email, rol, modulos, sector){
   usuarioEnEdicion = usuario;
   document.getElementById('uFormTitulo').textContent = 'Editando a '+nombre;
@@ -3892,6 +3927,7 @@ function editarUsuarioUI(usuario, nombre, email, rol, modulos, sector){
   document.getElementById('uUsuario').value = usuario;
   document.getElementById('uUsuario').disabled = true;
   document.getElementById('uRol').value = rol;
+  marcarModulosUI_(modulos);
   document.getElementById('uPasswordWrap').style.display = 'none';
   document.getElementById('uSubmitBtn').textContent = 'Guardar cambios';
   document.getElementById('uCancelarBtn').style.display = 'inline-block';
@@ -3907,6 +3943,7 @@ function cancelarEdicionUsuarioUI(){
   document.getElementById('uUsuario').disabled = false;
   document.getElementById('uPassword').value = '';
   document.getElementById('uRol').value = 'vendedor';
+  marcarModulosUI_([]);
   document.getElementById('uPasswordWrap').style.display = '';
   document.getElementById('uSubmitBtn').textContent = 'Crear usuario';
   document.getElementById('uCancelarBtn').style.display = 'none';
@@ -3917,14 +3954,14 @@ function crearUsuarioUI(){
   var email = document.getElementById('uEmail').value.trim();
   var usuario = document.getElementById('uUsuario').value.trim();
   var rol = document.getElementById('uRol').value;
+  var modulos = leerModulosSeleccionados_();
   var s = sesionActual();
   var pass = window._ultimaPasswordActor || credencialesActor_();
   if(pass===null) return;
 
   if(usuarioEnEdicion){
     if(!nombre){ showToast('Completá el nombre'); return; }
-    var usuarioExistente = (window._usuariosCache||[]).find(function(u){return u.usuario===usuarioEnEdicion;}) || {};
-    gasPost('editarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuarioEnEdicion, nombre:nombre, email:email, rol:rol, modulos:usuarioExistente.modulos||[], sector:sector, modulosSoloVer:usuarioExistente.modulosSoloVer||[]}).then(function(res){
+    gasPost('editarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuarioEnEdicion, nombre:nombre, email:email, rol:rol, modulos:modulos, sector:sector}).then(function(res){
       if(res.error){ showToast(res.error); return; }
       showToast('Usuario "'+nombre+'" actualizado');
       cancelarEdicionUsuarioUI();
@@ -3935,7 +3972,7 @@ function crearUsuarioUI(){
 
   var password = document.getElementById('uPassword').value;
   if(!nombre || !usuario || !password){ showToast('Completá nombre, usuario y contraseña'); return; }
-  gasPost('crearUsuario',{actorUsuario:s.usuario, actorPassword:pass, nombre:nombre, usuario:usuario, password:password, rol:rol, email:email, modulos:[], modulosSoloVer:[], sector:sector}).then(function(res){
+  gasPost('crearUsuario',{actorUsuario:s.usuario, actorPassword:pass, nombre:nombre, usuario:usuario, password:password, rol:rol, email:email, modulos:modulos, sector:sector}).then(function(res){
     if(res.error){ showToast(res.error); return; }
     cancelarEdicionUsuarioUI();
     if(res.mailError){
@@ -7943,19 +7980,15 @@ function importarCatalogoAccesoriosArchivo_(event){
 function hayModalAbierto(){
   return document.querySelector('.modal.show') || document.getElementById('drawer').classList.contains('show');
 }
-var _actualizacionEnCurso_ = false;
 function actualizacionSilenciosa(){
-  if(!GAS_URL || hayModalAbierto() || document.visibilityState==='hidden' || _actualizacionEnCurso_) return;
-  _actualizacionEnCurso_ = true;
+  if(!GAS_URL || hayModalAbierto()) return;
   gasGet('entregas').then(function(data){
     ENTREGAS=data;
     renderAll();
     guardarDatosCache_(ENTREGAS, CONFIG); // mantiene la caché fresca para la próxima apertura
-  }).catch(function(){}).finally(function(){ _actualizacionEnCurso_ = false; });
+  }).catch(function(){});
 }
-setInterval(function(){
-  if(document.visibilityState !== 'hidden' && !document.hidden) actualizacionSilenciosa();
-}, 60000);
+setInterval(actualizacionSilenciosa, 25000);
 
 function itemsPendientesParaEntregar_(r){
   var faltan = [];
@@ -10417,6 +10450,8 @@ function openConfig(){
   var requierePass = !!CONFIG.accesoLibrePassword;
   document.getElementById('cfgAccesoLibreRequierePassword').checked = requierePass;
   actualizarUIAccesoLibreSwitch_(requierePass);
+  var modActivos = CONFIG.modulosActivos || {};
+  document.querySelectorAll('#cfgModulosRow input').forEach(function(c){ c.checked = modActivos[c.value]!==false; });
   document.getElementById('cfgCopiaA').value = CONFIG.copiaSiempreA || '';
   document.getElementById('cfgDuracion').value = CONFIG.duracionEntrega || 60;
   renderAlertaAccesoriosUI();
@@ -10719,6 +10754,13 @@ function guardarRepuestosServicio(){
   });
   CONFIG.repuestosServicio = nuevo;
   persistirConfig('Números de Repuestos y Servicio actualizados');
+}
+function guardarModulosActivos(){
+  var activos = {};
+  document.querySelectorAll('#cfgModulosRow input').forEach(function(c){ activos[c.value] = c.checked; });
+  CONFIG.modulosActivos = activos;
+  aplicarPermisosUI();
+  persistirConfig('Módulos actualizados');
 }
 function guardarDirecciones(){
   BRANDS.forEach(function(b){
@@ -11069,10 +11111,7 @@ function setMaestroTab(tab){
   if(tab==='permisos'){
     renderUsuariosTabla_();
     if(window._intervalUsuariosTabla) clearInterval(window._intervalUsuariosTabla);
-    if(window._intervalUsuariosTabla) clearInterval(window._intervalUsuariosTabla);
-    window._intervalUsuariosTabla = setInterval(function(){
-      if(document.visibilityState !== 'hidden' && maestroTabActual==='permisos') renderUsuariosTabla_(true);
-    }, 60000);
+    window._intervalUsuariosTabla = setInterval(renderUsuariosTabla_, 20000);
   } else if(window._intervalUsuariosTabla){
     clearInterval(window._intervalUsuariosTabla);
     window._intervalUsuariosTabla = null;
@@ -12708,7 +12747,7 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
   var horaCalculoFab = (function(){ if(filterCanal==='pda') return pdaEntry?pdaEntry.fechaCarga:''; if(filterCanal==='tradicional') return directaEntry?directaEntry.fechaCarga:''; var op=[directaEntry,pdaEntry].filter(Boolean).sort(function(a,b){return fechaCargaAOrden_(b.fechaCarga)-fechaCargaAOrden_(a.fechaCarga);}); return op.length?op[0].fechaCarga:''; })();
   cont.style.display = 'block';
   cont.innerHTML =
-    '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">NPS de Fábrica — acumulado (archivo + lo cargado en el sistema) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades. Guardado en el sistema, lo ven todos los usuarios.</span></span>'+
+    '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">NPS de Fábrica — acumulado <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades. Guardado en el sistema, lo ven todos los usuarios.</span></span>'+
       (totalCombinado ? '<span style="font-size:10px;font-weight:700;color:var(--text-faint);background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:2px 9px;">'+badgeTotalFab+'</span>' : '')+
       (horaCalculoFab ? '<span style="font-size:9.5px;font-weight:400;color:var(--text-faint);margin-left:auto;">Última carga: '+horaCalculoFab+'</span>' : '')+
     '</div>'+
@@ -14868,12 +14907,20 @@ function exportarReporteExcel(){
   XLSX.writeFile(libro, 'Reporte_GrupoParis.xlsx');
 }
 
-// Service Worker: cachea recursos estáticos para que las aperturas siguientes
-// sean mucho más rápidas, pero nunca intercepta llamadas a Apps Script/API.
-// La navegación usa red primero y caché como respaldo, evitando quedarse
-// atrapada en una versión vieja cuando hay conexión.
+// Se saca el Service Worker: estaba guardando versiones viejas en caché y
+// haciendo que la app pareciera "trabada" o desactualizada aunque ya se
+// hubiera subido una versión nueva a Vercel. Esto desinstala cualquier
+// Service Worker que haya quedado activo en el navegador de cada persona
+// (una sola vez, la próxima vez que entren) y borra sus cachés viejas.
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/sw.js').catch(function(){});
+  navigator.serviceWorker.getRegistrations().then(function(regs){
+    regs.forEach(function(reg){ reg.unregister(); });
+  }).catch(function(){});
+  if(window.caches && caches.keys){
+    caches.keys().then(function(keys){
+      keys.forEach(function(k){ caches.delete(k); });
+    }).catch(function(){});
+  }
 }
 init();
 </script>
