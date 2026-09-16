@@ -3341,7 +3341,20 @@ function modulosUsuarioActual(){
     if(candidatos.length) return candidatos[0].modulos || [];
     return [];
   }
-  var s=sesionActual(); return (s && s.modulos) || [];
+  var s=sesionActual();
+  if(!s) return [];
+  // Compatibilidad de seguridad: el usuario Maestro/origen del sistema
+  // conserva acceso total si su registro histórico todavía no tiene una
+  // lista explícita de módulos. En cuanto se guarda Permisos, la lista
+  // individual pasa a ser la fuente de verdad.
+  if((s.modulos||[]).length===0 && s.rol==='maestro') return MODULOS_PERMISOS_TODOS_.slice();
+  return s.modulos || [];
+}
+var MODULOS_PERMISOS_TODOS_ = ['dashboard','nuevaentrega','calendario','lista','reportes','tv','preparacion','traslados','faltantes','historialcoms','casos','notificaciones','maestro'];
+function permisosEfectivosUsuario_(u){
+  if(!u) return [];
+  if((u.modulos||[]).length===0 && u.rol==='maestro') return MODULOS_PERMISOS_TODOS_.slice();
+  return (u.modulos||[]).slice();
 }
 function esCalidad(){ var r=rolActual(); return r==='calidad' || r==='maestro' || modulosUsuarioActual().indexOf('maestro')>-1; }
 // El acceso de Ver/Editar por módulo se respeta SIEMPRE tal cual lo dejaste
@@ -3353,16 +3366,16 @@ function esCalidad(){ var r=rolActual(); return r==='calidad' || r==='maestro' |
 function puedeEditarModulo_(mod){
   var s = sesionActual();
   if(!s) return false;
-  var modulos = s.modulos || [];
+  var modulos = modulosUsuarioActual();
   var soloVer = s.modulosSoloVer || [];
-  // El acceso individual es la única fuente de verdad: si el módulo no está
-  // asignado, no puede editarse; si está en solo ver, tampoco.
+  // El acceso individual es la única fuente de verdad. La única excepción
+  // de compatibilidad es el Maestro histórico sin permisos explícitos.
   return modulos.indexOf(mod)>-1 && soloVer.indexOf(mod)===-1;
 }
 function puedeVerModulo_(mod){
   var s = sesionActual();
   if(!s) return false;
-  return (s.modulos||[]).indexOf(mod)>-1;
+  return modulosUsuarioActual().indexOf(mod)>-1;
 }
 function puedeEditar(mod){
   // Compatibilidad con llamadas antiguas sin módulo: permite editar solo si
@@ -3623,60 +3636,81 @@ document.addEventListener('click', function(ev){
   if(ev.target.closest('.user-menu-wrap')) return;
   document.querySelectorAll('.user-menu-dropdown.open').forEach(function(el){ el.classList.remove('open'); });
 });
-function renderUsuariosTabla_(){
+function pintarUsuariosTabla_(usuarios){
   var tabla = document.getElementById('tablaUsuarios');
   if(!tabla) return;
-  tabla.classList.add('users-table', 'users-table-compact');
-  // Solo mostramos "Cargando..." la primera vez (tabla vacía) — en los
-  // refrescos automáticos de cada 20s, dejamos lo que ya había mientras
-  // llega lo nuevo, así no parpadea toda la tabla todo el tiempo.
-  if(!tabla.dataset.cargadaAlgunaVez){
-    tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--text-faint);">Cargando usuarios...</th></tr>';
-  }
+  usuarios = usuarios || [];
+  window._usuariosCache = usuarios;
+  tabla.dataset.cargadaAlgunaVez = 'true';
+  var totalOnline = usuarios.filter(function(u){return u.online;}).length;
+  var totalInactivos = usuarios.filter(function(u){return !u.activo;}).length;
+  var contadorEl = document.getElementById('uContadorOnline');
+  if(contadorEl) contadorEl.innerHTML = '<span style="color:var(--ok);font-weight:700;">● '+totalOnline+' online</span> · '+usuarios.length+' usuarios en total · <span style="color:var(--danger);">'+totalInactivos+' inactivos</span>';
+  var html = '<tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th><th>Permisos</th><th>Acciones</th></tr>';
+  usuarios.forEach(function(u){
+    var nombreEsc = (u.nombre||'').replace(/'/g,"\\'");
+    var modulosUsuario = u.modulos || [];
+    html += '<tr data-buscar="'+(u.nombre+' '+u.usuario+' '+(u.email||'')).toLowerCase().replace(/"/g,'')+'">'+
+      '<td><div class="user-cell"><div class="user-avatar'+(u.activo?'':' inactivo')+'" style="position:relative;">'+iniciales_(u.nombre)+'<span class="online-dot'+(u.online?' online':'')+'" title="'+(u.online?'Online':'Offline')+'"></span></div><div><div class="user-name">'+u.nombre+'</div><div class="user-username">@'+u.usuario+'</div></div></div></td>'+
+      '<td>'+(u.email||'<span style="color:var(--text-faint);">—</span>')+'</td>'+
+      '<td>'+etiquetaRol_(u.rol)+'</td>'+
+      '<td>'+(u.activo?'<span class="tag ok">Activo</span>':'<span class="tag danger">Inactivo</span>')+'</td>'+
+      '<td><button class="pill-btn" onclick="abrirModalPermisos_(\''+u.usuario+'\')" style="white-space:nowrap;"><span class="material-symbols-outlined">tune</span>'+modulosUsuario.length+' módulo'+(modulosUsuario.length===1?'':'s')+'</button></td>'+
+      '<td><div class="user-actions" style="flex-wrap:nowrap;justify-content:flex-end;">'+
+        '<button class="pill-btn edit" title="Editar" onclick="editarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\',\''+(u.email||'')+'\',\''+u.rol+'\',[],\''+(u.sector||'').replace(/'/g,"\\'")+'\')"><span class="material-symbols-outlined">edit</span></button>'+
+        '<div class="user-menu-wrap">'+
+          '<button class="user-menu-btn" onclick="toggleUserMenu(\'um_'+u.usuario+'\',event)"><span class="material-symbols-outlined">more_vert</span></button>'+
+          '<div class="user-menu-dropdown" id="um_'+u.usuario+'">'+
+            '<button onclick="mostrarUltimoIngreso_(\''+nombreEsc+'\',\''+(u.ultimoIngreso||'')+'\')"><span class="material-symbols-outlined">history</span>Última actividad</button>'+
+            (u.email ? '<button onclick="reenviarCredencialesUI(\''+u.usuario+'\')"><span class="material-symbols-outlined">mail</span>Reenviar mail</button>' : '')+
+            '<button onclick="resetPasswordUsuarioUI(\''+u.usuario+'\')"><span class="material-symbols-outlined">key</span>Resetear contraseña</button>'+ 
+            '<button onclick="toggleActivoUsuarioUI(\''+u.usuario+'\','+(!u.activo)+')"><span class="material-symbols-outlined">'+(u.activo?'block':'check_circle')+'</span>'+(u.activo?'Desactivar':'Reactivar')+'</button>'+ 
+            '<button class="danger" onclick="eliminarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\')"><span class="material-symbols-outlined">delete</span>Eliminar</button>'+ 
+          '</div>'+ 
+        '</div>'+ 
+      '</div></td>'+ 
+    '</tr>';
+  });
+  tabla.innerHTML = html;
+  filtrarUsuariosTabla_();
+}
+
+var _usuariosCargaEnCurso_ = null;
+var _ultimaCargaUsuariosMs_ = 0;
+function renderUsuariosTabla_(forzar){
+  var tabla = document.getElementById('tablaUsuarios');
+  if(!tabla) return;
   var s = sesionActual();
   if(!s) return;
-  var pass = credencialesActor_();
-  if(pass===null){ tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--text-faint);">Cerrá sesión y volvé a entrar para ver esto.</th></tr>'; return; }
-  gasPost('listarUsuarios',{actorUsuario:s.usuario, actorPassword:pass}).then(function(res){
-    if(res.error){ tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">'+res.error+'</th></tr>'; return; }
-    tabla.dataset.cargadaAlgunaVez = 'true';
-    window._ultimaPasswordActor = pass; // se reusa para las acciones de esta sesión de la pestaña
-    window._usuariosCache = res.usuarios||[];
-    var totalOnline = (res.usuarios||[]).filter(function(u){return u.online;}).length;
-    var totalInactivos = (res.usuarios||[]).filter(function(u){return !u.activo;}).length;
-    var contadorEl = document.getElementById('uContadorOnline');
-    if(contadorEl) contadorEl.innerHTML = '<span style="color:var(--ok);font-weight:700;">● '+totalOnline+' online</span> · '+(res.usuarios||[]).length+' usuarios en total · <span style="color:var(--danger);">'+totalInactivos+' inactivos</span>';
-    var html = '<tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th><th>Permisos</th><th>Acciones</th></tr>';
-    (res.usuarios||[]).forEach(function(u){
-      var nombreEsc = u.nombre.replace(/'/g,"\\'");
-      var modulosUsuario = u.modulos || [];
-      html += '<tr data-buscar="'+(u.nombre+' '+u.usuario+' '+(u.email||'')).toLowerCase().replace(/"/g,'')+'">'+
-        '<td><div class="user-cell"><div class="user-avatar'+(u.activo?'':' inactivo')+'" style="position:relative;">'+iniciales_(u.nombre)+'<span class="online-dot'+(u.online?' online':'')+'" title="'+(u.online?'Online':'Offline')+'"></span></div><div><div class="user-name">'+u.nombre+'</div><div class="user-username">@'+u.usuario+'</div></div></div></td>'+
-        '<td>'+(u.email||'<span style="color:var(--text-faint);">—</span>')+'</td>'+
-        '<td>'+etiquetaRol_(u.rol)+'</td>'+
-        '<td>'+(u.activo?'<span class="tag ok">Activo</span>':'<span class="tag danger">Inactivo</span>')+'</td>'+
-        '<td><button class="pill-btn" onclick="abrirModalPermisos_(\''+u.usuario+'\')" style="white-space:nowrap;"><span class="material-symbols-outlined">tune</span>'+modulosUsuario.length+' módulo'+(modulosUsuario.length===1?'':'s')+'</button></td>'+
-        '<td><div class="user-actions" style="flex-wrap:nowrap;justify-content:flex-end;">'+
-          '<button class="pill-btn edit" title="Editar" onclick="editarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\',\''+(u.email||'')+'\',\''+u.rol+'\','+JSON.stringify(u.modulos||[]).replace(/"/g,'&quot;')+',\''+(u.sector||'').replace(/'/g,"\\'")+'\')"><span class="material-symbols-outlined">edit</span></button>'+
-          '<div class="user-menu-wrap">'+
-            '<button class="user-menu-btn" onclick="toggleUserMenu(\'um_'+u.usuario+'\',event)"><span class="material-symbols-outlined">more_vert</span></button>'+
-            '<div class="user-menu-dropdown" id="um_'+u.usuario+'">'+
-              '<button onclick="mostrarUltimoIngreso_(\''+nombreEsc+'\',\''+(u.ultimoIngreso||'')+'\')"><span class="material-symbols-outlined">history</span>Última actividad</button>'+
-              (u.email ? '<button onclick="reenviarCredencialesUI(\''+u.usuario+'\')"><span class="material-symbols-outlined">mail</span>Reenviar mail</button>' : '')+
-              '<button onclick="resetPasswordUsuarioUI(\''+u.usuario+'\')"><span class="material-symbols-outlined">key</span>Resetear contraseña</button>'+
-              '<button onclick="toggleActivoUsuarioUI(\''+u.usuario+'\','+(!u.activo)+')"><span class="material-symbols-outlined">'+(u.activo?'block':'check_circle')+'</span>'+(u.activo?'Desactivar':'Reactivar')+'</button>'+
-              '<button class="danger" onclick="eliminarUsuarioUI(\''+u.usuario+'\',\''+nombreEsc+'\')"><span class="material-symbols-outlined">delete</span>Eliminar</button>'+
-            '</div>'+
-          '</div>'+
-        '</div></td>'+
-      '</tr>';
-    });
-    tabla.innerHTML = html;
-    filtrarUsuariosTabla_();
+  var pass = window._ultimaPasswordActor || credencialesActor_();
+  if(pass===null) return;
+
+  // Al volver a abrir la pestaña, reutilizamos la memoria inmediatamente.
+  // Así no se espera a Apps Script para poder editar permisos.
+  if(window._usuariosCache && window._usuariosCache.length && !forzar){
+    pintarUsuariosTabla_(window._usuariosCache);
+  } else if(!tabla.dataset.cargadaAlgunaVez){
+    tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--text-faint);">Cargando usuarios...</th></tr>';
+  }
+
+  // Evita solicitudes duplicadas y refrescos demasiado seguidos.
+  var ahora = Date.now();
+  if(_usuariosCargaEnCurso_ || (!forzar && ahora - _ultimaCargaUsuariosMs_ < 10000)) return;
+  _ultimaCargaUsuariosMs_ = ahora;
+  _usuariosCargaEnCurso_ = gasPost('listarUsuarios',{actorUsuario:s.usuario, actorPassword:pass}).then(function(res){
+    _usuariosCargaEnCurso_ = null;
+    if(res.error){
+      if(!window._usuariosCache) tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">'+res.error+'</th></tr>';
+      return;
+    }
+    window._ultimaPasswordActor = pass;
+    pintarUsuariosTabla_(res.usuarios||[]);
   }).catch(function(){
-    tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">No se pudo conectar.</th></tr>';
+    _usuariosCargaEnCurso_ = null;
+    if(!window._usuariosCache) tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">No se pudo conectar.</th></tr>';
   });
 }
+
 function filtrarUsuariosTabla_(){
   var input = document.getElementById('buscarUsuarioInput');
   var tabla = document.getElementById('tablaUsuarios');
@@ -3710,6 +3744,12 @@ var iconos = {dashboard:'dashboard', nuevaentrega:'add_circle', calendario:'cale
 function abrirModalPermisos_(usuario){
   var u = (window._usuariosCache||[]).find(function(x){return x.usuario===usuario;});
   if(!u) return;
+  // Si es el Maestro histórico y todavía no tiene permisos explícitos,
+  // materializamos sus permisos actuales para que el panel no aparezca vacío.
+  if(u.rol==='maestro' && (!u.modulos || !u.modulos.length)){
+    u.modulos = MODULOS_PERMISOS_TODOS_.slice();
+    u.modulosSoloVer = u.modulosSoloVer || [];
+  }
   document.getElementById('permisosModalTitulo').innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;vertical-align:-3px;">tune</span> Permisos — '+u.nombre;
   _permisosDirty_ = false;
   _permisosUsuarioAbierto_ = usuario;
@@ -3727,8 +3767,7 @@ function cerrarModalPermisos_(forzar){
   document.getElementById('modalPermisos').classList.remove('show');
   _permisosDirty_ = false;
   _permisosUsuarioAbierto_ = null;
-  var s = sesionActual();
-  if(s) renderUsuariosTabla_(); // refresca el contador "X módulos" de la tabla de atrás
+  if(window._usuariosCache) pintarUsuariosTabla_(window._usuariosCache); // refresca la tabla localmente, sin otro viaje de red
 }
 var _permisosDirty_ = false;
 var _permisosUsuarioAbierto_ = null;
@@ -3740,7 +3779,7 @@ function actualizarBotonGuardarPermisos_(){
   btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">save</span> Guardar cambios';
 }
 function pintarModalPermisos_(u){
-  var modulosUsuario = u.modulos || [];
+  var modulosUsuario = permisosEfectivosUsuario_(u);
   var soloVer = u.modulosSoloVer || [];
   var html = GRUPOS_MODULOS_.map(function(grupo){
     return '<div style="margin-bottom:16px;">'+
@@ -7904,15 +7943,19 @@ function importarCatalogoAccesoriosArchivo_(event){
 function hayModalAbierto(){
   return document.querySelector('.modal.show') || document.getElementById('drawer').classList.contains('show');
 }
+var _actualizacionEnCurso_ = false;
 function actualizacionSilenciosa(){
-  if(!GAS_URL || hayModalAbierto()) return;
+  if(!GAS_URL || hayModalAbierto() || document.visibilityState==='hidden' || _actualizacionEnCurso_) return;
+  _actualizacionEnCurso_ = true;
   gasGet('entregas').then(function(data){
     ENTREGAS=data;
     renderAll();
     guardarDatosCache_(ENTREGAS, CONFIG); // mantiene la caché fresca para la próxima apertura
-  }).catch(function(){});
+  }).catch(function(){}).finally(function(){ _actualizacionEnCurso_ = false; });
 }
-setInterval(actualizacionSilenciosa, 25000);
+setInterval(function(){
+  if(document.visibilityState !== 'hidden' && !document.hidden) actualizacionSilenciosa();
+}, 60000);
 
 function itemsPendientesParaEntregar_(r){
   var faltan = [];
@@ -11026,7 +11069,10 @@ function setMaestroTab(tab){
   if(tab==='permisos'){
     renderUsuariosTabla_();
     if(window._intervalUsuariosTabla) clearInterval(window._intervalUsuariosTabla);
-    window._intervalUsuariosTabla = setInterval(renderUsuariosTabla_, 20000);
+    if(window._intervalUsuariosTabla) clearInterval(window._intervalUsuariosTabla);
+    window._intervalUsuariosTabla = setInterval(function(){
+      if(document.visibilityState !== 'hidden' && maestroTabActual==='permisos') renderUsuariosTabla_(true);
+    }, 60000);
   } else if(window._intervalUsuariosTabla){
     clearInterval(window._intervalUsuariosTabla);
     window._intervalUsuariosTabla = null;
@@ -14822,20 +14868,12 @@ function exportarReporteExcel(){
   XLSX.writeFile(libro, 'Reporte_GrupoParis.xlsx');
 }
 
-// Se saca el Service Worker: estaba guardando versiones viejas en caché y
-// haciendo que la app pareciera "trabada" o desactualizada aunque ya se
-// hubiera subido una versión nueva a Vercel. Esto desinstala cualquier
-// Service Worker que haya quedado activo en el navegador de cada persona
-// (una sola vez, la próxima vez que entren) y borra sus cachés viejas.
+// Service Worker: cachea recursos estáticos para que las aperturas siguientes
+// sean mucho más rápidas, pero nunca intercepta llamadas a Apps Script/API.
+// La navegación usa red primero y caché como respaldo, evitando quedarse
+// atrapada en una versión vieja cuando hay conexión.
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.getRegistrations().then(function(regs){
-    regs.forEach(function(reg){ reg.unregister(); });
-  }).catch(function(){});
-  if(window.caches && caches.keys){
-    caches.keys().then(function(keys){
-      keys.forEach(function(k){ caches.delete(k); });
-    }).catch(function(){});
-  }
+  navigator.serviceWorker.register('/sw.js').catch(function(){});
 }
 init();
 </script>
