@@ -2185,19 +2185,9 @@
           </select>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:6px;margin:2px 0 6px;font-size:11.5px;font-weight:700;">Módulos <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Opcional — módulos que puede ver este usuario en el menú. Si no tildás ninguno, se usan los del rol por defecto.</span></span></div>
-      <div class="modulos-check-row" id="uModulosRow">
-        <label class="switch-field"><span class="switch-label">Dashboard</span><label class="switch"><input type="checkbox" value="dashboard"><span class="switch-slider"></span></label></label>
-        <label class="switch-field"><span class="switch-label">Nueva Entrega</span><label class="switch"><input type="checkbox" value="nuevaentrega"><span class="switch-slider"></span></label></label>
-        <label class="switch-field"><span class="switch-label">Calendario</span><label class="switch"><input type="checkbox" value="calendario"><span class="switch-slider"></span></label></label>
-        <label class="switch-field"><span class="switch-label">Lista</span><label class="switch"><input type="checkbox" value="lista"><span class="switch-slider"></span></label></label>
-        <label class="switch-field"><span class="switch-label">Reportes</span><label class="switch"><input type="checkbox" value="reportes"><span class="switch-slider"></span></label></label>
-        <label class="switch-field"><span class="switch-label">Maestro</span><label class="switch"><input type="checkbox" value="maestro"><span class="switch-slider"></span></label></label>
-        <label class="switch-field"><span class="switch-label">TV</span><label class="switch"><input type="checkbox" value="tv"><span class="switch-slider"></span></label></label>
-      </div>
       <button class="save-btn" id="uSubmitBtn" style="width:auto;display:inline-block;margin-right:8px;" onclick="crearUsuarioUI()">Crear usuario</button>
       <button class="view-btn" id="uCancelarBtn" style="display:none;" onclick="cancelarEdicionUsuarioUI()">Cancelar edición</button>
-      <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">Si le cargás el email, le llega un mail automático con su usuario y contraseña. Igual pasale los datos vos también por las dudas.</div>
+      <div style="font-size:11px;color:var(--text-faint);margin-top:6px;">Si le cargás el email, le llega un mail automático con su usuario y contraseña. Igual pasale los datos vos también por las dudas. Después de crearlo, se abre directo la pantalla de Permisos para darle acceso a los módulos que corresponda — recién ahí puede entrar a algo (arranca sin ver nada).</div>
     </div>
 
     <div id="paneMaestroCargas" style="display:none;padding:10px 0;">
@@ -3390,7 +3380,7 @@ function cerrarSesion(){
 function usuarioActual(){ var s=sesionActual(); return s ? s.nombre : ''; }
 var rolPreview = null;
 function rolActualReal_(){ var s=sesionActual(); return s ? s.rol : null; }
-function esCalidadReal_(){ var r=rolActualReal_(); var s=sesionActual(); return r==='calidad' || r==='maestro' || (s && (s.modulos||[]).indexOf('maestro')>-1); }
+function esCalidadReal_(){ var r=rolActualReal_(); var s=sesionActual(); return r==='maestro' || (s && (s.modulos||[]).indexOf('maestro')>-1); }
 function rolActual(){ if(rolPreview) return rolPreview; var s=sesionActual(); return s ? s.rol : null; }
 // El rol ya no "encierra" los permisos por sí solo — es una etiqueta descriptiva.
 // La autoridad real de Maestro también la puede dar el módulo "maestro" (ver modulosUsuarioActual()).
@@ -3402,7 +3392,7 @@ function modulosUsuarioActual(){
   }
   var s=sesionActual(); return (s && s.modulos) || [];
 }
-function esCalidad(){ var r=rolActual(); return r==='calidad' || r==='maestro' || modulosUsuarioActual().indexOf('maestro')>-1; }
+function esCalidad(){ var r=rolActual(); return r==='maestro' || modulosUsuarioActual().indexOf('maestro')>-1; }
 // El acceso de Ver/Editar por módulo se respeta SIEMPRE tal cual lo dejaste
 // configurado en Permisos, para cualquier usuario y cualquier rol — incluido
 // Maestro. Antes acá había una excepción que le daba edición total a
@@ -3691,7 +3681,7 @@ document.addEventListener('click', function(ev){
   if(ev.target.closest('.user-menu-wrap')) return;
   document.querySelectorAll('.user-menu-dropdown.open').forEach(function(el){ el.classList.remove('open'); });
 });
-function renderUsuariosTabla_(){
+function renderUsuariosTabla_(onDone){
   var tabla = document.getElementById('tablaUsuarios');
   if(!tabla) return;
   tabla.classList.add('users-table', 'users-table-compact');
@@ -3741,6 +3731,7 @@ function renderUsuariosTabla_(){
     });
     tabla.innerHTML = html;
     filtrarUsuariosTabla_();
+    if(onDone) onDone();
   }).catch(function(){
     tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">No se pudo conectar.</th></tr>';
   });
@@ -3912,12 +3903,6 @@ function cicloModuloUsuarioInline(usuario, modulo, estadoActual, btn){
   });
 }
 var usuarioEnEdicion = null; // null = modo "crear"; si no, es el "usuario" que se está editando
-function leerModulosSeleccionados_(){
-  return Array.prototype.slice.call(document.querySelectorAll('#uModulosRow input:checked')).map(function(c){return c.value;});
-}
-function marcarModulosUI_(modulos){
-  document.querySelectorAll('#uModulosRow input').forEach(function(c){ c.checked = (modulos||[]).indexOf(c.value)>-1; });
-}
 function editarUsuarioUI(usuario, nombre, email, rol, modulos, sector){
   usuarioEnEdicion = usuario;
   document.getElementById('uFormTitulo').textContent = 'Editando a '+nombre;
@@ -3927,7 +3912,6 @@ function editarUsuarioUI(usuario, nombre, email, rol, modulos, sector){
   document.getElementById('uUsuario').value = usuario;
   document.getElementById('uUsuario').disabled = true;
   document.getElementById('uRol').value = rol;
-  marcarModulosUI_(modulos);
   document.getElementById('uPasswordWrap').style.display = 'none';
   document.getElementById('uSubmitBtn').textContent = 'Guardar cambios';
   document.getElementById('uCancelarBtn').style.display = 'inline-block';
@@ -3954,14 +3938,15 @@ function crearUsuarioUI(){
   var email = document.getElementById('uEmail').value.trim();
   var usuario = document.getElementById('uUsuario').value.trim();
   var rol = document.getElementById('uRol').value;
-  var modulos = leerModulosSeleccionados_();
   var s = sesionActual();
   var pass = window._ultimaPasswordActor || credencialesActor_();
   if(pass===null) return;
 
   if(usuarioEnEdicion){
     if(!nombre){ showToast('Completá el nombre'); return; }
-    gasPost('editarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuarioEnEdicion, nombre:nombre, email:email, rol:rol, modulos:modulos, sector:sector}).then(function(res){
+    // Los módulos/permisos se editan aparte (botón "tune" de cada fila) —
+    // esta edición rápida no manda modulos, así el backend no los toca.
+    gasPost('editarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:usuarioEnEdicion, nombre:nombre, email:email, rol:rol, sector:sector}).then(function(res){
       if(res.error){ showToast(res.error); return; }
       showToast('Usuario "'+nombre+'" actualizado');
       cancelarEdicionUsuarioUI();
@@ -3972,15 +3957,18 @@ function crearUsuarioUI(){
 
   var password = document.getElementById('uPassword').value;
   if(!nombre || !usuario || !password){ showToast('Completá nombre, usuario y contraseña'); return; }
-  gasPost('crearUsuario',{actorUsuario:s.usuario, actorPassword:pass, nombre:nombre, usuario:usuario, password:password, rol:rol, email:email, modulos:modulos, sector:sector}).then(function(res){
+  gasPost('crearUsuario',{actorUsuario:s.usuario, actorPassword:pass, nombre:nombre, usuario:usuario, password:password, rol:rol, email:email, sector:sector}).then(function(res){
     if(res.error){ showToast(res.error); return; }
     cancelarEdicionUsuarioUI();
     if(res.mailError){
       showToast('Usuario "'+nombre+'" creado, pero el mail FALLÓ: '+res.mailError);
     } else {
-      showToast('Usuario "'+nombre+'" creado'+(email?' — le mandamos el mail con sus datos':''));
+      showToast('Usuario "'+nombre+'" creado — ahora dale acceso a los módulos que corresponda');
     }
-    renderUsuariosTabla_();
+    // Se crea sin ver nada (arranca sin módulos) — abrimos directo la
+    // pantalla de permisos para darle acceso ahí mismo, apenas termine de
+    // refrescarse la tabla (así el usuario nuevo ya está en la caché).
+    renderUsuariosTabla_(function(){ abrirModalPermisos_(usuario); });
   });
 }
 var _resetPasswordUsuarioObjetivo = null;
@@ -12747,7 +12735,7 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
   var horaCalculoFab = (function(){ if(filterCanal==='pda') return pdaEntry?pdaEntry.fechaCarga:''; if(filterCanal==='tradicional') return directaEntry?directaEntry.fechaCarga:''; var op=[directaEntry,pdaEntry].filter(Boolean).sort(function(a,b){return fechaCargaAOrden_(b.fechaCarga)-fechaCargaAOrden_(a.fechaCarga);}); return op.length?op[0].fechaCarga:''; })();
   cont.style.display = 'block';
   cont.innerHTML =
-    '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">NPS de Fábrica — acumulado <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades. Guardado en el sistema, lo ven todos los usuarios.</span></span>'+
+    '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">NPS de Fábrica — acumulado (archivo + lo cargado en el sistema) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades. Guardado en el sistema, lo ven todos los usuarios.</span></span>'+
       (totalCombinado ? '<span style="font-size:10px;font-weight:700;color:var(--text-faint);background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;padding:2px 9px;">'+badgeTotalFab+'</span>' : '')+
       (horaCalculoFab ? '<span style="font-size:9.5px;font-weight:400;color:var(--text-faint);margin-left:auto;">Última carga: '+horaCalculoFab+'</span>' : '')+
     '</div>'+
