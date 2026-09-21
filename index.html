@@ -8093,7 +8093,7 @@ function marcarEntregadaEfectiva_(marca, id, r){
 function toggleEntregada(){ if(detailId) toggleEntregadaId(detailMarca, detailId); }
 // ---- Auditoría de entrega (app aparte) ----
 // Pegá acá la dirección de la app de auditoría (la de Vercel), con la barra final. Ej: 'https://mi-app-auditoria.vercel.app/'
-var AUDITORIA_APP_URL = '';
+var AUDITORIA_APP_URL = 'https://auditoria-de-entregas.vercel.app/';
 function abrirAuditoriaEntrega_(){
   var r = ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
   if(!r || !r.chasis){ showToast('Esta entrega no tiene VIN cargado.'); return; }
