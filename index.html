@@ -2682,6 +2682,7 @@
     <button class="view-btn" id="dEntregaFallidaBtn" style="width:100%;margin-top:8px;font-size:11.5px;" onclick="marcarEntregaFallida_()">✕ No se pudo entregar — registrar motivo</button>
     <div id="dTrasladoBadge" style="display:none;margin-top:8px;background:var(--invertido-soft);border:1px solid var(--invertido);border-radius:8px;padding:9px 11px;font-size:12px;color:var(--invertido);"></div>
     <button class="toggle-btn" id="dTrasladoBtn" style="margin-top:8px;width:100%;" onclick="toggleTraslado()">📦 Marcar unidad para traslado a otra sucursal</button>
+    <button class="view-btn" id="dAuditoriaBtn" style="width:100%;margin-top:8px;font-size:11.5px;display:none;" onclick="abrirAuditoriaEntrega_()">📋 Auditoría de entrega — ver informe</button>
 
     <button onclick="toggleTodasLasSecciones()" id="dToggleTodasBtn" style="width:100%;margin-top:12px;background:transparent;border:1px dashed var(--hairline);border-radius:8px;padding:7px;font-size:11px;color:var(--text-dim);cursor:pointer;font-weight:700;">Expandir todo ▾</button>
 
@@ -8090,6 +8091,16 @@ function marcarEntregadaEfectiva_(marca, id, r){
   showToast(r.entregada?'Unidad entregada a '+r.cliente:'Se desmarcó como entregada');
 }
 function toggleEntregada(){ if(detailId) toggleEntregadaId(detailMarca, detailId); }
+// ---- Auditoría de entrega (app aparte) ----
+// Pegá acá la dirección de la app de auditoría (la de Vercel), con la barra final. Ej: 'https://mi-app-auditoria.vercel.app/'
+var AUDITORIA_APP_URL = '';
+function abrirAuditoriaEntrega_(){
+  var r = ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  if(!r || !r.chasis){ showToast('Esta entrega no tiene VIN cargado.'); return; }
+  if(!AUDITORIA_APP_URL){ showToast('Falta configurar la dirección de la app de auditoría (AUDITORIA_APP_URL).'); return; }
+  var base = AUDITORIA_APP_URL.replace(/\/?$/, '/');
+  window.open(base + '#informe=' + encodeURIComponent(String(r.chasis).trim().toUpperCase()), '_blank', 'noopener');
+}
 var npsContexto_ = null;
 // ============================================================
 // ALERTA TEMPRANA (Chevrolet) — asistente paso a paso, una pregunta por pantalla
@@ -8673,6 +8684,7 @@ function openDetail(marca, id){
   document.getElementById('dHeadName').textContent=r.cliente;
   document.getElementById('dHeadSub').textContent=r.fecha+' · '+r.hora+' · '+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+(r.sucursal?' · '+r.sucursal:'')+(r.vendedor?' · Vend: '+r.vendedor:'')+(r.administrativo?' · Adm: '+r.administrativo:'');
   updateEntregaToggleUI(r);
+  var bAudit=document.getElementById('dAuditoriaBtn'); if(bAudit) bAudit.style.display = r.chasis ? 'block' : 'none';
   updateTrasladoUI(r);
   renderEstadoComunicaciones(r);
   renderEstadoBienvenida_(r);
