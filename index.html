@@ -8222,6 +8222,20 @@ function cargarAuditoriaDetalle_(r){
   if(!sec || !body) return;
   var vin = audVin_(r);
   if(!vin){ sec.style.display = 'none'; return; }
+  // La auditoría se hace cerca de la entrega (24hs antes, más o menos) —
+  // si la entrega todavía está a varios días, ni consultamos: no puede
+  // haber nada cargado, y esa consulta a la otra planilla es la que hace
+  // más lenta la vista (recién creada una entrega, no tiene sentido
+  // pedirla igual).
+  var fEntrega = parsearFecha_(r.fecha);
+  if(fEntrega){
+    var diffDias = Math.round((fEntrega.getTime() - new Date().setHours(0,0,0,0)) / 86400000);
+    if(diffDias > 3){
+      sec.style.display = '';
+      body.innerHTML = '<span style="color:var(--text-faint);">Todavía falta para la entrega — la auditoría se hace más cerca de la fecha.</span>';
+      return;
+    }
+  }
   sec.style.display = '';
   var c = AUD_CACHE[vin];
   if(c && Date.now() - c.t < 60000){ audRenderResumen_(r, c.res); return; }

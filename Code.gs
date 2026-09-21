@@ -755,7 +755,12 @@ function findRowIndexById_(marca, id){
 
 function addEntrega(marca, obj){
   obj.id=Utilities.getUuid();
-  getSheetPorMarca_(marca).appendRow(objToRow_(obj));
+  var sheet = getSheetPorMarca_(marca);
+  // Usamos getRange+setValues en vez de appendRow — en hojas grandes
+  // (meses de entregas acumuladas), appendRow tarda mucho más porque
+  // internamente "busca" dónde termina la hoja de una forma más costosa.
+  var fila = sheet.getLastRow() + 1;
+  sheet.getRange(fila, 1, 1, CAMPOS.length).setValues([objToRow_(obj)]);
   return obj.id;
 }
 
