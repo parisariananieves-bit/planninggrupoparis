@@ -412,6 +412,50 @@
   }
   .modal.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%);}
   .modal.wide{width:min(1320px,90vw);max-height:92vh;}
+  /* ---- Auditoría de entrega (detalle del cliente) ---- */
+  .aud-pill{display:inline-block;padding:4px 11px;border-radius:99px;font-size:12px;font-weight:800;}
+  .aud-pill.ok{background:var(--ok-soft);color:var(--ok);}
+  .aud-pill.obs{background:var(--accent-soft);color:var(--accent);}
+  .aud-pill.bad{background:var(--danger-soft);color:var(--danger);}
+  .aud-pill.none{background:var(--panel-2);color:var(--text-dim);}
+  .aud-fases{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0;}
+  .aud-f{font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;border:1px solid var(--hairline);color:var(--text-dim);}
+  .aud-f.cerrada{background:var(--ok-soft);color:var(--ok);border-color:var(--ok);}
+  .aud-f.curso{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);}
+  .aud-pend{margin:6px 0 0;padding-left:17px;font-size:12px;color:var(--text);}
+  .aud-link{font-size:11.5px;color:var(--accent);text-decoration:none;font-weight:700;}
+  /* Informe (se ve como una hoja, con cualquier tema) */
+  .aud-rp{background:#fff;color:#16212C;padding:18px;border-radius:10px;font-size:12.5px;line-height:1.4;overflow-x:auto;}
+  .aud-rp .rp-h{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;border-bottom:2px solid #16212C;padding-bottom:12px;margin-bottom:6px;}
+  .aud-rp .rp-h img.gp{height:30px;width:auto;display:block;margin-bottom:8px;}
+  .aud-rp .rp-h h1{font-size:18px;margin:0;font-weight:800;color:#16212C;}
+  .aud-rp .rp-h .no{text-align:right;font-size:11px;color:#556;}
+  .aud-rp .rp-h .no img{height:34px;width:auto;display:block;margin:0 0 6px auto;}
+  .aud-rp .rp-h .no b{display:block;font-size:13px;color:#16212C;}
+  .aud-rp h2{background:#111;color:#fff;font-size:11.5px;padding:6px 9px;margin:14px 0 0;letter-spacing:.3px;font-weight:700;}
+  .aud-rp h2.s{background:#E6EBEE;color:#16212C;}
+  .aud-rp table{width:100%;border-collapse:collapse;min-width:520px;}
+  .aud-rp td,.aud-rp th{border:1px solid #D5DCE1;padding:5px 8px;vertical-align:top;text-align:left;color:#16212C;}
+  .aud-rp th{background:#F3F5F7;font-weight:700;}
+  .aud-rp table.g th{width:18%;}
+  .aud-rp td.r{text-align:center;font-weight:800;}
+  .aud-rp td.r.Si{color:#26714F;} .aud-rp td.r.No{color:#A8261F;}
+  .aud-rp tr{page-break-inside:avoid;}
+  .aud-rp .fotos{display:flex;flex-wrap:wrap;gap:4px;}
+  .aud-rp .fotos img{width:92px;height:70px;object-fit:cover;border:1px solid #ccd;}
+  .aud-rp .firmas{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:10px;}
+  .aud-rp .firmas img{max-height:62px;max-width:100%;display:block;margin-bottom:4px;}
+  .aud-rp .firmas div{border-top:1px solid #16212C;padding-top:4px;font-size:11px;min-height:70px;display:flex;flex-direction:column;justify-content:flex-end;}
+  .aud-rp .foot{margin-top:14px;font-size:10.5px;color:#778;text-align:center;}
+  @media print{
+    html.print-aud, html.print-aud body.print-aud{height:auto!important;min-height:0!important;overflow:visible!important;}
+    body.print-aud > *:not(#auditoriaModal){display:none!important;}
+    body.print-aud #auditoriaModal, body.print-aud #auditoriaModal *{visibility:visible!important;}
+    body.print-aud #auditoriaModal{display:block!important;position:static!important;transition:none!important;animation:none!important;transform:none!important;left:auto!important;top:auto!important;width:auto!important;max-width:none!important;max-height:none!important;overflow:visible!important;opacity:1!important;border:0!important;box-shadow:none!important;background:#fff!important;}
+    body.print-aud #auditoriaModal .modal-head{display:none!important;}
+    body.print-aud #auditoriaModal .aud-rp{padding:0;overflow:visible;}
+    body.print-aud .aud-rp table{min-width:0;}
+  }
   .modal-head{padding:18px 20px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between;align-items:flex-start;}
   .modal-head h3{margin:0 0 3px;font-family:'Space Grotesk',sans-serif;font-size:15px;}
   .modal-head .sub{color:var(--text-dim);font-size:11.5px;}
@@ -2682,9 +2726,13 @@
     <button class="view-btn" id="dEntregaFallidaBtn" style="width:100%;margin-top:8px;font-size:11.5px;" onclick="marcarEntregaFallida_()">✕ No se pudo entregar — registrar motivo</button>
     <div id="dTrasladoBadge" style="display:none;margin-top:8px;background:var(--invertido-soft);border:1px solid var(--invertido);border-radius:8px;padding:9px 11px;font-size:12px;color:var(--invertido);"></div>
     <button class="toggle-btn" id="dTrasladoBtn" style="margin-top:8px;width:100%;" onclick="toggleTraslado()">📦 Marcar unidad para traslado a otra sucursal</button>
-    <button class="view-btn" id="dAuditoriaBtn" style="width:100%;margin-top:8px;font-size:11.5px;display:none;" onclick="abrirAuditoriaEntrega_()">📋 Auditoría de entrega — ver informe</button>
 
     <button onclick="toggleTodasLasSecciones()" id="dToggleTodasBtn" style="width:100%;margin-top:12px;background:transparent;border:1px dashed var(--hairline);border-radius:8px;padding:7px;font-size:11px;color:var(--text-dim);cursor:pointer;font-weight:700;">Expandir todo ▾</button>
+
+    <div class="section" id="dAuditoriaSection" style="display:none;">
+      <div class="section-title">Auditoría de entrega</div>
+      <div id="dAuditoriaBody" style="font-size:12px;color:var(--text-dim);">Consultando auditoría…</div>
+    </div>
 
     <div class="section">
       <div class="section-title">Datos del cliente</div>
@@ -2933,6 +2981,17 @@
 
     <button class="del-btn" onclick="deleteFromDrawer()">🗑 Eliminar esta entrega</button>
   </div>
+</div>
+
+<div class="modal agrandado" id="auditoriaModal">
+  <div class="modal-head">
+    <div><h3>Auditoría de entrega</h3><div class="sub" id="auditoriaModalSub">—</div></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="view-btn aud-ver" onclick="imprimirAuditoria_()">⬇ Descargar PDF</button>
+      <button class="close aud-ver" onclick="cerrarAuditoriaModal_()">✕</button>
+    </div>
+  </div>
+  <div class="modal-body" id="auditoriaModalBody" style="padding:14px 16px;"></div>
 </div>
 
 <div class="modal" id="emailModal">
@@ -8091,15 +8150,207 @@ function marcarEntregadaEfectiva_(marca, id, r){
   showToast(r.entregada?'Unidad entregada a '+r.cliente:'Se desmarcó como entregada');
 }
 function toggleEntregada(){ if(detailId) toggleEntregadaId(detailMarca, detailId); }
-// ---- Auditoría de entrega (app aparte) ----
-// Pegá acá la dirección de la app de auditoría (la de Vercel), con la barra final. Ej: 'https://mi-app-auditoria.vercel.app/'
-var AUDITORIA_APP_URL = 'https://auditoria-de-entregas.vercel.app/';
-function abrirAuditoriaEntrega_(){
-  var r = ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
-  if(!r || !r.chasis){ showToast('Esta entrega no tiene VIN cargado.'); return; }
-  if(!AUDITORIA_APP_URL){ showToast('Falta configurar la dirección de la app de auditoría (AUDITORIA_APP_URL).'); return; }
-  var base = AUDITORIA_APP_URL.replace(/\/?$/, '/');
-  window.open(base + '#informe=' + encodeURIComponent(String(r.chasis).trim().toUpperCase()), '_blank', 'noopener');
+
+// ============================================================
+// AUDITORÍA DE ENTREGA en el detalle del cliente
+// Muestra lo que la app de auditoría guardó para el VIN de esta entrega
+// (resultado, fases, pendientes) y el informe completo con botón de PDF.
+// Los datos los lee el backend desde la planilla de auditorías (solo lectura).
+// ============================================================
+var AUDITORIA_APP_URL = 'https://auditoria-de-entregas.vercel.app/';   // (ya no se usa: el informe se muestra dentro del Planning)
+var AUD_UMBRAL = 70;          // % de "Sí" por debajo del cual el resultado es "No conforme" (igual que en la app)
+var AUD_CACHE = {};           // vin -> {t, res}
+var AUD_FOTOS = {};           // id de Drive -> imagen (data URL)
+var AUD_PH = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+var audCola_ = [], audActivas_ = 0, audPedidas_ = {};
+
+function audEsc_(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function audVin_(r){ return String((r && r.chasis) || '').replace(/[\s\-\.]+/g,'').toUpperCase(); }
+function audEntregaActual_(){ return ENTREGAS.find(function(x){ return x.marca===detailMarca && x.id===detailId; }); }
+function audLink_(r, modo){
+  if(!AUDITORIA_APP_URL) return '';
+  return AUDITORIA_APP_URL.replace(/\/?$/, '/') + '#' + modo + '=' + encodeURIComponent(audVin_(r));
+}
+function audFechaHora_(iso, conHora){
+  if(!iso) return '—';
+  var d = new Date(iso); if(isNaN(d)) return audEsc_(iso);
+  var o = {timeZone:'America/Argentina/Buenos_Aires', day:'2-digit', month:'2-digit', year:'numeric'};
+  var f = d.toLocaleDateString('es-AR', o);
+  if(conHora) f += ' ' + d.toLocaleTimeString('es-AR', {timeZone:'America/Argentina/Buenos_Aires', hour:'2-digit', minute:'2-digit', hour12:false});
+  return f;
+}
+function audSoloHora_(iso){
+  if(!iso) return '—'; var d = new Date(iso); if(isNaN(d)) return '—';
+  return d.toLocaleTimeString('es-AR', {timeZone:'America/Argentina/Buenos_Aires', hour:'2-digit', minute:'2-digit', hour12:false});
+}
+function audPregActivas_(res){ return res.preguntas.filter(function(q){ return q.activo; }); }
+function audSecNum_(q){ var m = String(q.seccion).match(/^\s*(\d+)/); return m ? m[1] : '0'; }
+function audSecNombre_(q){ var t = String(q.seccion).replace(/^\s*\d+\.?\s*/,'').toLowerCase(); return t.charAt(0).toUpperCase() + t.slice(1); }
+function audNumeracion_(res){
+  var cnt = {}, out = {};
+  audPregActivas_(res).forEach(function(q){ var s = audSecNum_(q); cnt[s] = (cnt[s]||0)+1; out[q.id] = s+'.'+cnt[s]; });
+  return out;
+}
+function audResultado_(res, fases){
+  fases = fases || [1,2,3];
+  var si = 0, no = 0, crit = false;
+  audPregActivas_(res).forEach(function(q){
+    if(fases.indexOf(q.fase) < 0) return;
+    var x = res.respuestas[q.id]; if(!x) return;
+    if(x.r === 'Si') si++; else if(x.r === 'No'){ no++; if(q.critica) crit = true; }
+  });
+  var tot = si + no, pct = tot ? Math.round(si/tot*100) : null, key = 'none', label = 'Sin datos';
+  if(tot){
+    if(crit || pct < AUD_UMBRAL){ key = 'bad'; label = 'No conforme'; }
+    else if(no > 0){ key = 'obs'; label = 'Conforme con observaciones'; }
+    else { key = 'ok'; label = 'Conforme'; }
+  }
+  return {key:key, label:label, pct:pct, si:si, no:no, crit:crit};
+}
+function audFaseEstado_(res, f){
+  var a = res.auditoria || {};
+  if(a['f'+f+'_estado'] === 'cerrada') return 'cerrada';
+  if(f === 2 && a.f2_inicio) return 'curso';
+  var hay = audPregActivas_(res).some(function(q){ return q.fase===f && res.respuestas[q.id] && res.respuestas[q.id].r; });
+  return hay ? 'curso' : 'pend';
+}
+function audPill_(r){ return '<span class="aud-pill '+r.key+'">'+audEsc_(r.label)+(r.pct!=null ? ' · '+r.pct+'%' : '')+'</span>'; }
+
+// ---- resumen dentro del detalle ----
+function cargarAuditoriaDetalle_(r){
+  var sec = document.getElementById('dAuditoriaSection'), body = document.getElementById('dAuditoriaBody');
+  if(!sec || !body) return;
+  var vin = audVin_(r);
+  if(!vin){ sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  var c = AUD_CACHE[vin];
+  if(c && Date.now() - c.t < 60000){ audRenderResumen_(r, c.res); return; }
+  body.innerHTML = 'Consultando auditoría…';
+  gasGet('auditoriaEntrega', {vin: vin}).then(function(res){
+    if(res && res.ok !== false && !res.error) AUD_CACHE[vin] = {t: Date.now(), res: res};
+    if(detailId === r.id && detailMarca === r.marca) audRenderResumen_(r, res);
+  }).catch(function(err){
+    if(detailId === r.id && detailMarca === r.marca) audRenderResumen_(r, {ok:false, error:String(err)});
+  });
+}
+function audReintentar_(){ var r = audEntregaActual_(); if(r){ delete AUD_CACHE[audVin_(r)]; cargarAuditoriaDetalle_(r); } }
+function audRenderResumen_(r, res){
+  var body = document.getElementById('dAuditoriaBody'); if(!body) return;
+  if(!res || res.ok === false || res.error){
+    body.innerHTML = 'No se pudo consultar la auditoría.'+(res && (res.error||'') ? '<div style="font-size:10.5px;margin-top:4px;color:var(--text-faint);">'+audEsc_(res.error)+'</div>' : '')+
+      '<div style="margin-top:8px;"><button class="view-btn aud-ver" style="font-size:11.5px;" onclick="audReintentar_()">Reintentar</button></div>';
+    return;
+  }
+  if(res.configurado === false){ body.innerHTML = 'La auditoría todavía no está conectada al Planning (falta el ID de la planilla de auditorías en el script).'; return; }
+  if(!res.encontrado){ body.innerHTML = 'Todavía no se auditó esta entrega.'; return; }
+  var a = res.auditoria, tot = audResultado_(res), cerradas = [1,2,3].filter(function(f){ return audFaseEstado_(res,f)==='cerrada'; }).length;
+  var nombres = {1:'Pre-entrega', 2:'Día de entrega', 3:'Post-entrega'};
+  var chips = [1,2,3].map(function(f){
+    var st = audFaseEstado_(res, f);
+    return '<span class="aud-f '+st+'">'+(st==='cerrada'?'✓ ':'')+nombres[f]+(st==='curso'?' · en curso':'')+'</span>';
+  }).join('');
+  var abiertos = res.hallazgos.filter(function(h){ return h.estado === 'Abierto'; });
+  var html = '<div>'+(cerradas ? audPill_(tot) : '<span class="aud-pill none">Auditoría en curso</span>')+'</div><div class="aud-fases">'+chips+'</div>';
+  var meta = [];
+  if(a.auditor) meta.push('Auditó '+audEsc_(a.auditor));
+  if(+a.tiempo_min > 0) meta.push('entrega de '+audEsc_(a.tiempo_min)+' min');
+  if(meta.length) html += '<div style="font-size:11.5px;">'+meta.join(' · ')+'</div>';
+  if(abiertos.length){
+    html += '<div style="margin-top:8px;font-size:11.5px;font-weight:800;color:var(--danger);">'+abiertos.length+(abiertos.length===1?' hallazgo abierto':' hallazgos abiertos')+'</div><ul class="aud-pend">'+
+      abiertos.slice(0,6).map(function(h){ return '<li>'+audEsc_(h.descripcion)+'</li>'; }).join('')+(abiertos.length>6 ? '<li>… y '+(abiertos.length-6)+' más</li>' : '')+'</ul>';
+  }
+  html += '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:10px;">'+
+    '<button class="view-btn aud-ver" style="font-size:11.5px;" onclick="verAuditoriaCompleta_()">📄 Ver informe (PDF)</button></div>';
+  body.innerHTML = html;
+}
+
+// ---- fotos (se piden de a una y se guardan mientras dura la sesión) ----
+function audFotoSrc_(vin, id){
+  if(AUD_FOTOS[id]) return AUD_FOTOS[id];
+  if(!audPedidas_[id]){ audPedidas_[id] = 1; audCola_.push([vin, id]); setTimeout(audBombear_, 0); }
+  return AUD_PH + '#f=' + id;
+}
+function audPonerFoto_(id, src){
+  document.querySelectorAll('#auditoriaModal img').forEach(function(im){ if(im.src.slice(-(id.length+3)) === '#f='+id) im.src = src; });
+}
+function audBombear_(){
+  while(audActivas_ < 3 && audCola_.length){
+    var it = audCola_.shift(); audActivas_++;
+    (function(vin, id){
+      gasGet('auditoriaFoto', {vin: vin, id: id}).then(function(j){
+        if(j && j.ok && j.data){ AUD_FOTOS[id] = j.data; audPonerFoto_(id, j.data); }
+        else audPonerFoto_(id, 'https://drive.google.com/thumbnail?id='+id+'&sz=w800');
+      }).catch(function(){ audPonerFoto_(id, 'https://drive.google.com/thumbnail?id='+id+'&sz=w800'); })
+        .then(function(){ audActivas_--; audBombear_(); });
+    })(it[0], it[1]);
+  }
+}
+function audFotosHTML_(vin, ids){
+  ids = (ids || []).filter(Boolean);
+  return ids.length ? '<div class="fotos">'+ids.map(function(id){ return '<img alt="" src="'+audEsc_(audFotoSrc_(vin, id))+'">'; }).join('')+'</div>' : '';
+}
+
+// ---- informe completo ----
+function audInformeHTML_(r, res){
+  var vin = audVin_(r), a = res.auditoria, num = audNumeracion_(res), tot = audResultado_(res);
+  var brand = BRANDS.find(function(x){ return x.id === r.marca; });
+  var mins = +a.tiempo_min > 0 ? a.tiempo_min+' minutos' : '—';
+  var resp = a.responsable || r.responsableEntrega || '';
+  var td = function(v){ return '<td>'+(audEsc_(v) || '—')+'</td>'; };
+  var h = '<div class="aud-rp"><div class="rp-h"><div><img class="gp" src="'+LOGO_GRUPOPARIS_WORDMARK+'" alt="Grupo París"><h1>Auditoría de entrega de vehículos 0 km</h1></div>'+
+    '<div class="no">'+(brand && brand.logo ? '<img src="'+brand.logo+'" alt="'+audEsc_(brand.label)+'">' : '')+'<span>N° de auditoría</span><b>'+audEsc_(vin)+'</b>'+audEsc_(r.fecha||'')+'</div></div>';
+  h += '<h2>Datos generales</h2><table class="g">'+
+    '<tr><th>Fecha de entrega</th>'+td((r.fecha||'')+' '+(r.hora||''))+'<th>Cliente</th>'+td(r.cliente)+'</tr>'+
+    '<tr><th>Vehículo</th>'+td((r.modelo||'')+(r.color?' · '+r.color:''))+'<th>VIN</th>'+td(vin)+'</tr>'+
+    '<tr><th>Asesor comercial</th>'+td(r.vendedor)+'<th>Responsable de entrega</th>'+td(resp)+'</tr>'+
+    '<tr><th>Administrativo</th>'+td(r.administrativo)+'<th>Auditor</th>'+td(a.auditor)+'</tr>'+
+    '<tr><th>Inicio de entrega</th>'+td(audSoloHora_(a.f2_inicio))+'<th>Fin de entrega</th>'+td(audSoloHora_(a.f2_fin))+'</tr>'+
+    '<tr><th>Duración</th>'+td(mins)+'<th>Pre-entrega auditada</th>'+td(a.f1_fecha ? audFechaHora_(a.f1_fecha, true) : '')+'</tr></table>';
+  h += '<h2>Accesorios — verificación previa</h2><table><tr><th>Accesorio</th><th style="width:80px;">Instalado</th><th>Observación</th><th>Foto</th></tr>'+
+    (res.accesorios.length ? res.accesorios.map(function(x){
+      return '<tr><td>'+audEsc_(x.item)+'</td><td class="r '+audEsc_(x.inst)+'">'+(x.inst==='Si'?'Sí':(audEsc_(x.inst)||'—'))+'</td><td>'+audEsc_(x.obs)+'</td><td>'+audFotosHTML_(vin, x.fotos)+'</td></tr>';
+    }).join('') : '<tr><td colspan="4">Sin accesorios registrados</td></tr>')+'</table>';
+  var secs = {}, orden = [];
+  audPregActivas_(res).forEach(function(q){ var k = audSecNum_(q); if(!secs[k]){ secs[k] = {nombre: audSecNombre_(q), items: []}; orden.push(k); } secs[k].items.push(q); });
+  h += '<h2>Auditoría de proceso — '+audPregActivas_(res).length+' puntos de verificación</h2>';
+  orden.forEach(function(k){
+    h += '<h2 class="s">'+k+'. '+audEsc_(secs[k].nombre)+'</h2><table><tr><th style="width:42px;">N°</th><th>Pregunta</th><th style="width:54px;">Resp.</th><th>Observación</th><th style="width:190px;">Foto</th></tr>'+
+      secs[k].items.map(function(q){
+        var x = res.respuestas[q.id] || {};
+        return '<tr><td>'+num[q.id]+'</td><td>'+audEsc_(q.texto)+(q.critica?' <b style="color:#A8261F;font-size:10px;">(crítico)</b>':'')+'</td><td class="r '+audEsc_(x.r||'')+'">'+(x.r==='Si'?'Sí':x.r==='NA'?'N/A':(audEsc_(x.r)||'—'))+'</td><td>'+audEsc_(x.obs)+'</td><td>'+audFotosHTML_(vin, x.fotos)+'</td></tr>';
+      }).join('')+'</table>';
+  });
+  h += '<h2>Resultado de la auditoría</h2><table><tr><td><b>'+audEsc_(tot.label)+'</b>'+(tot.pct!=null ? ' · '+tot.pct+'% de respuestas “Sí” ('+tot.si+' de '+(tot.si+tot.no)+')' : '')+(tot.crit ? ' · incluye un punto crítico en “No”' : '')+'</td></tr></table>';
+  h += '<h2>Observaciones generales</h2><table><tr><td>'+(audEsc_(a.obs_gral) || '—')+'</td></tr></table>';
+  var firmas = [['firma_auditor','Auditor',a.auditor],['firma_responsable','Responsable de entrega',resp],['firma_cliente','Cliente',r.cliente]];
+  h += '<h2>Conformidad y firmas</h2><div class="firmas">'+firmas.map(function(f){
+    return '<div>'+(a[f[0]] ? '<img alt="" src="'+audEsc_(audFotoSrc_(vin, a[f[0]]))+'">' : '')+'<span>'+f[1]+(f[2] ? ' · '+audEsc_(f[2]) : '')+'</span></div>';
+  }).join('')+'</div>';
+  h += '<div class="foot">Grupo París · Documento generado desde el Planning el '+audFechaHora_(new Date().toISOString(), true)+'</div></div>';
+  return h;
+}
+function verAuditoriaCompleta_(){
+  var r = audEntregaActual_(); if(!r) return;
+  var c = AUD_CACHE[audVin_(r)];
+  if(!c || !c.res || !c.res.encontrado){ showToast('Todavía no hay una auditoría para mostrar.'); return; }
+  document.getElementById('auditoriaModalSub').textContent = (r.cliente||'') + (r.modelo ? ' · '+r.modelo : '');
+  document.getElementById('auditoriaModalBody').innerHTML = audInformeHTML_(r, c.res);
+  document.getElementById('auditoriaModal').classList.add('show');
+  document.getElementById('auditoriaModal').scrollTop = 0;
+}
+function cerrarAuditoriaModal_(){ var m = document.getElementById('auditoriaModal'); if(m) m.classList.remove('show'); }
+function imprimirAuditoria_(){
+  var r = audEntregaActual_(), t0 = Date.now(), tituloOriginal = document.title;
+  if(r) document.title = 'Auditoria_' + String(r.cliente||'').trim().replace(/\s+/g, '_');
+  var esperar = function(){
+    if(document.querySelectorAll('#auditoriaModal img[src*="#f="]').length && Date.now() - t0 < 15000){ setTimeout(esperar, 300); return; }
+    document.documentElement.classList.add('print-aud'); document.body.classList.add('print-aud');
+    var fin = function(){ document.documentElement.classList.remove('print-aud'); document.body.classList.remove('print-aud'); document.title = tituloOriginal; window.removeEventListener('afterprint', fin); };
+    window.addEventListener('afterprint', fin);
+    window.print();
+  };
+  if(document.querySelectorAll('#auditoriaModal img[src*="#f="]').length) showToast('Cargando las fotos del informe…');
+  esperar();
 }
 var npsContexto_ = null;
 // ============================================================
@@ -8684,7 +8935,7 @@ function openDetail(marca, id){
   document.getElementById('dHeadName').textContent=r.cliente;
   document.getElementById('dHeadSub').textContent=r.fecha+' · '+r.hora+' · '+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+(r.sucursal?' · '+r.sucursal:'')+(r.vendedor?' · Vend: '+r.vendedor:'')+(r.administrativo?' · Adm: '+r.administrativo:'');
   updateEntregaToggleUI(r);
-  var bAudit=document.getElementById('dAuditoriaBtn'); if(bAudit) bAudit.style.display = r.chasis ? 'block' : 'none';
+  cargarAuditoriaDetalle_(r);
   updateTrasladoUI(r);
   renderEstadoComunicaciones(r);
   renderEstadoBienvenida_(r);
@@ -8930,7 +9181,7 @@ function aplicarSoloLecturaDrawer_(){
     'dRegaloToggle','dEntregaToggle','dTrasladoBtn','dResponsable'
   ];
   drawer.querySelectorAll('input, select, textarea, button').forEach(function(el){
-    if(el.classList.contains('close')) return;
+    if(el.classList.contains('close') || el.classList.contains('aud-ver')) return;
     if(esLogisticaLimitada){
       el.disabled = permitidosLogistica.indexOf(el.id)===-1 && !el.classList.contains('acc-item-editable');
     } else {
@@ -8971,7 +9222,7 @@ function closeAll(){
   // arriba (por ejemplo, el detalle de una entrega).
   closeDetail();
   if(currentAppView==='nuevaentrega') closeNewDelivery();
-  closeReport(); closeEmailPreview(); closePlantillas(); closeConfig(); closeMaestro();
+  closeReport(); closeEmailPreview(); cerrarAuditoriaModal_(); closePlantillas(); closeConfig(); closeMaestro();
 }
 
 function renderAlertaOnstar_(r){
