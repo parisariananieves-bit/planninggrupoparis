@@ -2721,7 +2721,10 @@
     <div id="dCasoAbiertoAlerta" style="display:none;margin-top:8px;background:var(--caso-soft);color:var(--caso);border:1px solid var(--caso);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;"><span class="material-symbols-outlined" style="font-size:15px;">report</span></div>
   </div>
   <div class="drawer-body">
-    <button class="entrega-toggle pending" id="dEntregaToggle" onclick="toggleEntregada()">🚗 Marcar unidad como entregada</button>
+    <div style="display:flex;gap:8px;margin-bottom:6px;">
+      <button class="entrega-toggle pending" id="dEntregaToggle" style="margin-bottom:0;flex:1;" onclick="toggleEntregada()">🚗 Marcar unidad como entregada</button>
+      <button class="entrega-toggle pending" id="dEnSalonToggle" style="margin-bottom:0;flex:1;" onclick="toggleEnSalon()">🏢 Unidad en el salón</button>
+    </div>
     <div id="dEntregaFallidaBadge" style="display:none;margin-top:8px;background:var(--danger-soft);border:1px solid var(--danger);border-radius:8px;padding:9px 11px;font-size:12px;color:var(--danger);"></div>
     <button class="view-btn" id="dEntregaFallidaBtn" style="width:100%;margin-top:8px;font-size:11.5px;" onclick="marcarEntregaFallida_()">✕ No se pudo entregar — registrar motivo</button>
     <div id="dTrasladoBadge" style="display:none;margin-top:8px;background:var(--invertido-soft);border:1px solid var(--invertido);border-radius:8px;padding:9px 11px;font-size:12px;color:var(--invertido);"></div>
@@ -8151,6 +8154,29 @@ function marcarEntregadaEfectiva_(marca, id, r){
 }
 function toggleEntregada(){ if(detailId) toggleEntregadaId(detailMarca, detailId); }
 
+// "Unidad en el salón" — un toggle simple, sin requisitos previos (a
+// diferencia de "entregada", que pide la encuesta antes) — guarda fecha
+// y hora del momento en que se marcó, y queda en el historial.
+function toggleEnSalon(){
+  if(!detailId) return;
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  if(!r) return;
+  r.enSalon=!r.enSalon;
+  r.enSalonFecha = r.enSalon ? fechaHoraAhora_() : '';
+  gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{enSalon:r.enSalon, enSalonFecha:r.enSalonFecha}});
+  logHistorial_(detailMarca, detailId, r.enSalon ? '🏢 Unidad marcada "en el salón" — '+r.enSalonFecha : 'Se desmarcó "en el salón"');
+  updateEnSalonToggleUI(r);
+  renderAll();
+  showToast(r.enSalon?'Marcada como "en el salón"':'Se desmarcó "en el salón"');
+}
+function updateEnSalonToggleUI(r){
+  var btn = document.getElementById('dEnSalonToggle');
+  if(!btn) return;
+  btn.textContent = r.enSalon ? ('✓ En salón — '+r.enSalonFecha) : '🏢 Unidad en el salón';
+  btn.className = 'entrega-toggle '+(r.enSalon?'done':'pending');
+}
+
 // ============================================================
 // AUDITORÍA DE ENTREGA en el detalle del cliente
 // Muestra lo que la app de auditoría guardó para el VIN de esta entrega
@@ -8949,6 +8975,7 @@ function openDetail(marca, id){
   document.getElementById('dHeadName').textContent=r.cliente;
   document.getElementById('dHeadSub').textContent=r.fecha+' · '+r.hora+' · '+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+(r.sucursal?' · '+r.sucursal:'')+(r.vendedor?' · Vend: '+r.vendedor:'')+(r.administrativo?' · Adm: '+r.administrativo:'');
   updateEntregaToggleUI(r);
+  updateEnSalonToggleUI(r);
   cargarAuditoriaDetalle_(r);
   updateTrasladoUI(r);
   renderEstadoComunicaciones(r);

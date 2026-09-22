@@ -352,7 +352,9 @@ var CAMPOS = [
   {k:'contactoSofiMail', h:'Contacto Posventa — Mail'},
   {k:'contactoPosteriorData', h:'Contacto Posterior — Datos (JSON)', hide:true},
   {k:'dni', h:'DNI / CUIT'},
-  {k:'campanaNoAplica', h:'Campaña No Aplica', bool:true}
+  {k:'campanaNoAplica', h:'Campaña No Aplica', bool:true},
+  {k:'enSalon', h:'Unidad en el Salón', bool:true},
+  {k:'enSalonFecha', h:'Unidad en el Salón — Fecha y hora'}
 ];
 
 // ============================================================
