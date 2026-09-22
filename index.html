@@ -8321,6 +8321,17 @@ function audInformeHTML_(r, res){
       }).join('')+'</table>';
   });
   h += '<h2>Resultado de la auditoría</h2><table><tr><td><b>'+audEsc_(tot.label)+'</b>'+(tot.pct!=null ? ' · '+tot.pct+'% de respuestas “Sí” ('+tot.si+' de '+(tot.si+tot.no)+')' : '')+(tot.crit ? ' · incluye un punto crítico en “No”' : '')+'</td></tr></table>';
+  var halls = (res.hallazgos||[]).slice().sort(function(x,y){ return (x.estado===y.estado) ? 0 : (x.estado==='Abierto' ? -1 : 1); });
+  h += '<h2>Hallazgos y resoluciones</h2>';
+  if(!halls.length) h += '<table><tr><td>No se generaron hallazgos en esta auditoría.</td></tr></table>';
+  else h += '<table><tr><th>Hallazgo</th><th style="width:110px;">Estado</th><th>Responsable</th><th>Resolución</th><th style="width:170px;">Foto</th></tr>'+
+    halls.map(function(hh){
+      var resuelto = hh.estado === 'Resuelto';
+      var resolucion = resuelto
+        ? audFechaHora_(hh.resuelto, true) + (hh.nota_resolucion ? ' — '+audEsc_(hh.nota_resolucion) : '')
+        : 'Abierto desde '+audFechaHora_(hh.creado, true);
+      return '<tr><td>'+audEsc_(hh.descripcion)+'</td><td class="r '+(resuelto?'Si':'No')+'">'+(resuelto?'Resuelto':'Abierto')+'</td><td>'+audEsc_(hh.responsable||'')+'</td><td>'+resolucion+'</td><td>'+(resuelto && hh.foto_resolucion ? audFotosHTML_(vin, [hh.foto_resolucion]) : '')+'</td></tr>';
+    }).join('')+'</table>';
   h += '<h2>Observaciones generales</h2><table><tr><td>'+(audEsc_(a.obs_gral) || '—')+'</td></tr></table>';
   var firmas = [['firma_auditor','Auditor',a.auditor],['firma_responsable','Responsable de entrega',resp],['firma_cliente','Cliente',r.cliente]];
   h += '<h2>Conformidad y firmas</h2><div class="firmas">'+firmas.map(function(f){
