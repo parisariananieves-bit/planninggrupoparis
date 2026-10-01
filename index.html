@@ -8391,7 +8391,7 @@ function audInformeHTML_(r, res){
     '<div class="no">'+(brand && brand.logo ? '<img src="'+brand.logo+'" alt="'+audEsc_(brand.label)+'">' : '')+'<span>N° de auditoría</span><b>'+audEsc_(vin)+'</b>'+audEsc_(r.fecha||'')+'</div></div>';
   h += '<h2>Datos generales</h2><table class="g">'+
     '<tr><th>Fecha de entrega</th>'+td((r.fecha||'')+' '+(r.hora||''))+'<th>Cliente</th>'+td(r.cliente)+'</tr>'+
-    '<tr><th>Vehículo</th>'+td((r.modelo||'')+(r.color?' · '+r.color:''))+'<th>VIN</th>'+td(vin)+'</tr>'+
+    '<tr><th>Vehículo</th>'+td((r.modelo||'')+((r.color||(a&&a.color))?' · '+(r.color||a.color):''))+'<th>VIN</th>'+td(vin)+'</tr>'+
     '<tr><th>Asesor comercial</th>'+td(r.vendedor)+'<th>Responsable de entrega</th>'+td(resp)+'</tr>'+
     '<tr><th>Administrativo</th>'+td(r.administrativo)+'<th>Auditor</th>'+td(a.auditor)+'</tr>'+
     '<tr><th>Inicio de entrega</th>'+td(audSoloHora_(a.f2_inicio))+'<th>Fin de entrega</th>'+td(audSoloHora_(a.f2_fin))+'</tr>'+
