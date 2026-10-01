@@ -161,6 +161,7 @@
   .ranking-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),#c98f2e);border-radius:20px;transition:width .4s ease;}
   .ranking-nums{display:flex;gap:10px;align-items:center;flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);min-width:110px;justify-content:flex-end;}
   .ranking-nums b{color:var(--text);font-size:14px;}
+  .rank-sin-ventas .col-ventas{display:none !important;}
   .costo-card.morado .icon-badge{background:var(--invertido-soft);color:var(--invertido);}
   .costo-card.teal .icon-badge{background:var(--invertido2-soft);color:var(--invertido2);}
   .costo-card.ambar .icon-badge{background:var(--warn-soft);color:var(--warn);}
@@ -2538,6 +2539,11 @@
           📎 Cargar
           <input type="file" accept=".xlsx,.xls" onchange="importarNpsTodasLasInstancias_(event)" style="display:none;">
         </label>
+        <label style="display:inline-flex;align-items:center;gap:4px;background:var(--panel-2);border:1px dashed var(--hairline);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:11.5px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;" title="Cargar el listado de entregas del sistema (ULSTVEN...xls) como base de Ventas">
+          🚗 Base de ventas
+          <input type="file" accept=".xls,.xlsx" onchange="importarBaseVentasDMS_(event)" style="display:none;">
+        </label>
+        <button id="rankBtnOcultarVentas" class="filter-pill" style="flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="toggleOcultarVentasRanking_()"></button>
         <button class="pdf-btn filter-pill" style="flex-shrink:0;white-space:nowrap;padding:6px 10px;" onclick="imprimirComoPDF_()" title="Descargar PDF"><span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span></button>
         <span class="ayuda-tip" style="flex-shrink:0;" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Combina lo cargado en el sistema (entregas con NPS) + lo que venga de los archivos importados (que ya traen vendedor, sucursal y VIN) — sin duplicar lo que ya está en el archivo. La marca se filtra con los botones de arriba de la página. "Ventas" cuenta TODOS los autos entregados de ese vendedor (respondan o no la encuesta). "Tasa de respuesta" es Respuestas sobre Ventas del propio vendedor. "% Participación" es cuánto representan las respuestas de este vendedor sobre el total de respuestas de TODOS los vendedores juntos. Un solo archivo carga las 3 encuestas de una — subilo dos veces (Directa y PDA).</span></span>
       </div>
@@ -13004,8 +13010,15 @@ function pasaFiltroFechaGlobal_(fIso){
   return true;
 }
 function filtrarPuntosPorFecha_(puntos){
-  if(!dashboardFechaDesde && !dashboardFechaHasta) return puntos;
-  return puntos.filter(function(p){ return pasaFiltroFechaGlobal_(fechaAIso_(p.fecha)); });
+  // Los puntos de la base de ventas del sistema (DMS) traen marca: se
+  // respetan los botones de marca de arriba. Los de los Excel de encuestas
+  // no traen marca (son todos Chevrolet) y pasan siempre.
+  var todasMarcas = dashboardMarcasActivas.indexOf('todas')>-1;
+  if(!dashboardFechaDesde && !dashboardFechaHasta && todasMarcas) return puntos;
+  return puntos.filter(function(p){
+    if(!todasMarcas && p.marca && dashboardMarcasActivas.indexOf(p.marca)===-1) return false;
+    return pasaFiltroFechaGlobal_(fechaAIso_(p.fecha));
+  });
 }
 // Conteo acumulado de un canal (archivo base + entregas con VIN cargadas
 // después + respuestas anónimas), respetando la fecha de corte del
@@ -13210,15 +13223,23 @@ function obtenerArchivoNps_(instancia, canalKey){
   };
 }
 // Guarda (o reemplaza) el archivo de una instancia+canal en el backend.
-function guardarArchivoNpsBackend_(instancia, canalKey, nombreArchivo, puntos){
+function guardarArchivoNpsBackend_(instancia, canalKey, nombreArchivo, puntos, fechaCorteOpcional){
   var canal = canalKey==='directa' ? 'directa' : 'pda';
-  var fechaCorte = fechaHoyIso_();
+  var fechaCorte = fechaCorteOpcional || fechaHoyIso_();
   var puntosJson = JSON.stringify(puntos);
   // Actualiza el caché local ya mismo, así se ve al toque sin esperar la vuelta del servidor.
   var idx = ARCHIVOS_NPS_.findIndex(function(a){ return a.instancia===instancia && a.canal===canal; });
   var filaLocal = {instancia:instancia, canal:canal, nombreArchivo:nombreArchivo, fechaCarga:fmtFecha(new Date()), fechaCorte:fechaCorte, puntosJson:puntosJson, cargadoPor:usuarioActual()};
   if(idx>-1) ARCHIVOS_NPS_[idx] = filaLocal; else ARCHIVOS_NPS_.push(filaLocal);
-  return gasPost('guardarArchivoNpsImportado', {instancia:instancia, canal:canal, nombreArchivo:nombreArchivo, fechaCorte:fechaCorte, puntosJson:puntosJson, autor:usuarioActual()});
+  return gasPost('guardarArchivoNpsImportado', {instancia:instancia, canal:canal, nombreArchivo:nombreArchivo, fechaCorte:fechaCorte, puntosJson:puntosJson, autor:usuarioActual()}).then(function(res){
+    // Antes, si el servidor rechazaba el guardado (p. ej. por tamaño), no
+    // avisaba nada: se veía bien en esta pantalla y al recargar desaparecía.
+    if(!res || !res.ok) showToast('⚠️ No se pudo guardar '+instancia+' / '+canal+' en el servidor'+(res&&res.error?': '+res.error:'')+'. ¿Está actualizado el Code.gs?');
+    return res;
+  }, function(err){
+    showToast('⚠️ No se pudo guardar '+instancia+' / '+canal+' en el servidor.');
+    throw err;
+  });
 }
 // Edita solo la fecha de corte de un archivo ya subido (sin resubir el
 // Excel) — para cuando quieren que el sistema empiece a contar en vivo
@@ -13579,6 +13600,148 @@ function normalizarPuntosPDA_(puntos, canal){
     return pNuevo;
   });
 }
+// ---- Base de ventas del sistema (DMS) ----
+// Listado de entregas del sistema de gestión (ULSTVEN...xls), todas las
+// marcas. Reemplaza las "Ventas" que salían de los Excel de encuestas:
+// es más completo (trae autos que no están en esas planillas y llega
+// hasta el día en que se descarga). Solo alimenta Ventas / Tasa de
+// respuesta — las respuestas siguen saliendo de los Excel de encuestas.
+var MARCA_POR_CODIGO_DMS_ = {'9':'chevrolet', '1':'peugeot', '2':'citroen', '7':'honda', 'HM':'honda', '8':'dfsk'};
+function marcaDesdeVin_(vin){
+  var w = String(vin||'').slice(0,3);
+  if(['9BG','8AG','LK6','3GC','KL1'].indexOf(w)>-1) return 'chevrolet';
+  if(['8AD','VF3','VR3','9V8'].indexOf(w)>-1) return 'peugeot';
+  if(['935','VR7','8BC','VF7'].indexOf(w)>-1) return 'citroen';
+  if(['8CH','JH2','MLH','ME4','93H'].indexOf(w)>-1) return 'honda';
+  if(w==='LVZ') return 'dfsk';
+  return '';
+}
+function fechaDmsADdMmAaaa_(x){
+  if(x instanceof Date && !isNaN(x)) return String(x.getDate()).padStart(2,'0')+'/'+String(x.getMonth()+1).padStart(2,'0')+'/'+x.getFullYear();
+  var m = String(x||'').match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})$/); // el DMS exporta dd/mm/aa
+  if(!m) return '';
+  var anio = m[3].length===2 ? '20'+m[3] : m[3];
+  return m[1].padStart(2,'0')+'/'+m[2].padStart(2,'0')+'/'+anio;
+}
+function importarBaseVentasDMS_(event){
+  var file = event.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var wb = XLSX.read(new Uint8Array(e.target.result), {type:'array', cellDates:true});
+      var filas = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, raw:true, defval:''});
+      var idxH = -1, H = null;
+      for(var i=0;i<Math.min(filas.length,10);i++){
+        var f = (filas[i]||[]).map(function(x){ return String(x||'').trim().toUpperCase(); });
+        if(f.indexOf('BASTIDOR')>-1 && f.indexOf('VENDEDOR')>-1){ idxH = i; H = f; break; }
+      }
+      if(idxH===-1){ showToast('No parece el listado de entregas del sistema (falta Bastidor / Vendedor).'); event.target.value=''; return; }
+      var cMar = H.indexOf('MAR'), cTv = H.indexOf('T.V'), cVin = H.indexOf('BASTIDOR'), cFe = H.indexOf('FEC.ENTR'),
+          cVend = H.indexOf('VENDEDOR'), cCp = H.indexOf('CÓDIGO POS');
+      if(cFe===-1){ showToast('No encontré la columna Fec.entr en el archivo.'); event.target.value=''; return; }
+
+      // Sucursal: el DMS no la trae limpia. Se toma, en este orden, de la
+      // planilla de ventas anterior (por VIN), de Planning (por VIN), de la
+      // sucursal habitual del vendedor, y por último del código postal.
+      var sucPorVin = {}, sucVotos = {};
+      function votar_(vend, suc){
+        if(!vend || !suc) return;
+        var k = nombreCanonicoVendedor_(vend);
+        if(!sucVotos[k]) sucVotos[k] = {};
+        sucVotos[k][suc] = (sucVotos[k][suc]||0)+1;
+      }
+      ['directa','pda'].forEach(function(ck){
+        var a = obtenerArchivoNps_('ventas', ck);
+        (a ? a.puntos : []).forEach(function(p){ if(p.vin && p.sucursal){ sucPorVin[p.vin] = p.sucursal; votar_(p.vendedor, p.sucursal); } });
+      });
+      (ENTREGAS||[]).forEach(function(r){ if(r.chasis && r.sucursal){ if(!sucPorVin[r.chasis]) sucPorVin[r.chasis] = r.sucursal; votar_(r.vendedor, r.sucursal); } });
+      function sucursalHabitual_(vend){
+        var v = sucVotos[nombreCanonicoVendedor_(vend)];
+        if(!v) return '';
+        return Object.keys(v).sort(function(a,b){ return v[b]-v[a]; })[0];
+      }
+
+      var porCanal = {directa:{}, pda:{}}, sinMarca = 0, sinFecha = 0, fechaMax = '';
+      for(var r=idxH+1; r<filas.length; r++){
+        var fila = filas[r];
+        if(!fila) continue;
+        var vin = String(fila[cVin]||'').trim().toUpperCase();
+        if(vin.length<11) continue; // filas vacías o sin chasis
+        var fecha = fechaDmsADdMmAaaa_(fila[cFe]);
+        if(!fecha){ sinFecha++; continue; } // sin fecha de entrega = todavía no se entregó
+        var marca = MARCA_POR_CODIGO_DMS_[String(fila[cMar]||'').trim()] || marcaDesdeVin_(vin);
+        if(!marca){ sinMarca++; continue; }
+        var canal = String(cTv>-1 ? fila[cTv] : '').trim()==='5' ? 'pda' : 'directa'; // T.v 5 = Plan de Ahorro
+        var vendedor = String(fila[cVend]||'').trim();
+        var cp = String(cCp>-1 ? fila[cCp] : '').trim().toUpperCase();
+        var sucursal = sucPorVin[vin] || sucursalHabitual_(vendedor) ||
+          (/^SJ/.test(cp) ? 'San Juan' : (/^SL/.test(cp) ? 'San Luis' : '')) ||
+          (/^\s*SJ\b/i.test(vendedor) ? 'San Juan' : (/^\s*(SL|VM)\b/i.test(vendedor) ? 'San Luis' : ''));
+        var norm = normalizarVendedorSucursalPDA_(vendedor, sucursal, canal);
+        porCanal[canal][vin] = {vin:vin, score:0, fecha:fecha, vendedor:norm.vendedor, sucursal:norm.sucursal, marca:marca};
+        var iso = fechaAIso_(fecha);
+        if(iso > fechaMax) fechaMax = iso;
+      }
+      // Se conservan los autos que estaban en la base anterior y no vienen
+      // en el DMS (entregas de diciembre 2025 de las planillas de encuestas,
+      // cargas manuales) — así sus respuestas no quedan sin venta.
+      var conservados = 0;
+      ['directa','pda'].forEach(function(ck){
+        var a = obtenerArchivoNps_('ventas', ck);
+        (a ? a.puntos : []).forEach(function(p){
+          var vinP = String(p.vin||'').trim().toUpperCase();
+          if(!/^[A-HJ-NPR-Z0-9]{17}$/.test(vinP)) return; // descarta "VIN" mal cargados
+          if(porCanal.directa[vinP] || porCanal.pda[vinP]) return;
+          if(p.marca && !p.manual && p.origen!=='planilla') return; // era del DMS anterior: manda el DMS nuevo
+          var copia = {}; for(var k in p) copia[k] = p[k];
+          copia.vin = vinP; copia.marca = p.marca || 'chevrolet';
+          if(!p.manual) copia.origen = 'planilla';
+          porCanal[ck][vinP] = copia; conservados++;
+        });
+      });
+      // Corte = día siguiente a la última entrega del archivo: desde ahí,
+      // lo que se cargue en Planning cuenta como venta en vivo.
+      var corte = fechaHoyIso_();
+      if(fechaMax){ var d = new Date(fechaMax+'T12:00:00'); d.setDate(d.getDate()+1); corte = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+      var nombre = 'DMS: '+file.name;
+      var promesas = [], resumen = [];
+      ['directa','pda'].forEach(function(ck){
+        var pts = Object.keys(porCanal[ck]).map(function(v){ return porCanal[ck][v]; });
+        if(!pts.length) return;
+        promesas.push(guardarArchivoNpsBackend_('ventas', ck, nombre, pts, corte));
+        var porMarca = {};
+        pts.forEach(function(p){ porMarca[p.marca] = (porMarca[p.marca]||0)+1; });
+        resumen.push((ck==='pda'?'PDA':'Directa')+': '+pts.length+' ('+Object.keys(porMarca).map(function(m){ return m+' '+porMarca[m]; }).join(', ')+')');
+      });
+      showToast('Base de ventas cargada — '+resumen.join(' · ')+' · corte '+corte+(conservados?' · '+conservados+' autos conservados de la base anterior':'')+(sinMarca?' · '+sinMarca+' sin marca reconocida':''));
+      Promise.all(promesas).then(function(){ renderRankingVendedorPanel_(); }, function(){ renderRankingVendedorPanel_(); });
+      renderRankingVendedorPanel_();
+    }catch(err){
+      showToast('No se pudo leer el archivo: '+err.message);
+    }
+    event.target.value = '';
+  };
+  reader.readAsArrayBuffer(file);
+}
+// Mostrar / ocultar las columnas de Ventas y Tasa de respuesta del ranking.
+function toggleOcultarVentasRanking_(){
+  var actual = false;
+  try{ actual = localStorage.getItem('rankOcultarVentas')==='1'; }catch(e){}
+  try{ localStorage.setItem('rankOcultarVentas', actual?'0':'1'); }catch(e){}
+  aplicarOcultarVentasRanking_();
+}
+function aplicarOcultarVentasRanking_(){
+  var ocultar = false;
+  try{ ocultar = localStorage.getItem('rankOcultarVentas')==='1'; }catch(e){}
+  var pane = document.getElementById('paneMaestroRankingvendedor');
+  if(pane) pane.classList.toggle('rank-sin-ventas', ocultar);
+  var btn = document.getElementById('rankBtnOcultarVentas');
+  if(btn){
+    btn.classList.toggle('active', ocultar);
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;vertical-align:-3px;">'+(ocultar?'visibility':'visibility_off')+'</span> '+(ocultar?'Mostrar ventas':'Ocultar ventas');
+  }
+}
 function importarNpsTodasLasInstancias_(event){
   var file = event.target.files[0];
   if(!file) return;
@@ -13623,7 +13786,10 @@ function importarNpsTodasLasInstancias_(event){
         }
       }
       puntosVentas = normalizarPuntosPDA_(puntosVentas, canal);
-      if(puntosVentas.length){ guardarArchivoNpsBackend_('ventas', canal, file.name, puntosVentas); resumen.push('Ventas: '+puntosVentas.length); }
+      var ventasActual = obtenerArchivoNps_('ventas', canal);
+      if(ventasActual && /^DMS:/.test(ventasActual.nombreArchivo||'')){
+        resumen.push('Ventas: se mantiene la base del sistema (DMS)');
+      } else if(puntosVentas.length){ guardarArchivoNpsBackend_('ventas', canal, file.name, puntosVentas); resumen.push('Ventas: '+puntosVentas.length); }
 
       // ---- Fábrica ----
       var puntosFab = calcularNpsDesdeFilas_(filas, idxHeaderRow, headers);
@@ -14418,14 +14584,14 @@ function toggleDesgloseVendedor_(tr, i){
     var n = npsDeConteo_(c);
     return '<td style="font-weight:700;color:'+colorNps_(n)+';">'+n+'% <span style="font-weight:400;color:var(--text-faint);font-size:10px;">('+c.total+')</span></td>';
   }
-  var cab = '<tr><th>Mes</th><th>Ventas</th><th>Respuestas</th><th>Tasa resp.</th><th>NPS</th><th>Prom.</th><th>Neutr.</th><th>Detr.</th>'+
+  var cab = '<tr><th>Mes</th><th class="col-ventas">Ventas</th><th>Respuestas</th><th class="col-ventas">Tasa resp.</th><th>NPS</th><th>Prom.</th><th>Neutr.</th><th>Detr.</th>'+
     (todas ? '<th>Alerta Temprana</th><th>Contacto Post.</th><th>Fábrica</th>' : '')+'</tr>';
   var cuerpo = mesesOrden.map(function(k){
     var c = (v.meses||{})[k] || {promotores:0,pasivos:0,detractores:0,total:0,porInst:{}};
     var ventas = (v.ventasMes||{})[k] || 0;
     var n = c.total ? npsDeConteo_(c) : null;
     var tasa = ventas>0 && c.total ? Math.round(c.total/ventas*100)+'%' : '—';
-    return '<tr><td style="white-space:nowrap;">'+etiquetaMes_(k)+'</td><td>'+ventas+'</td><td>'+c.total+'</td><td>'+tasa+'</td>'+
+    return '<tr><td style="white-space:nowrap;">'+etiquetaMes_(k)+'</td><td class="col-ventas">'+ventas+'</td><td>'+c.total+'</td><td class="col-ventas">'+tasa+'</td>'+
       '<td style="font-weight:800;color:'+colorNps_(n)+';">'+(n===null?'—':n+'%')+'</td>'+
       '<td style="color:var(--ok);">'+c.promotores+'</td><td style="color:var(--warn);">'+c.pasivos+'</td><td style="color:var(--danger);">'+c.detractores+'</td>'+
       (todas ? celdaNps_(c.porInst.alertatemprana)+celdaNps_(c.porInst.contactoposterior)+celdaNps_(c.porInst.fabrica) : '')+'</tr>';
@@ -14456,7 +14622,11 @@ function renderRankingVendedorPanel_(){
 
   var archVentasDirecta = obtenerArchivoNps_('ventas','directa');
   var archVentasPda = obtenerArchivoNps_('ventas','pda');
+  aplicarOcultarVentasRanking_();
+  var esDms_ = function(a){ return a && /^DMS:/.test(a.nombreArchivo||''); };
+  document.getElementById('rankCorteVentas').className = 'col-ventas';
   document.getElementById('rankCorteVentas').innerHTML =
+    ((esDms_(archVentasDirecta)||esDms_(archVentasPda)) ? 'Ventas desde la base del sistema ('+String((archVentasDirecta||archVentasPda).nombreArchivo).replace(/^DMS:\s*/,'')+'). ' : '')+
     'Corte de Ventas — Directa: '+(archVentasDirecta?soloFechaISO_(archVentasDirecta.fechaCorte):'sin archivo')+' <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="editarFechaCorte_(\'ventas\',\'directa\')">editar</span>'+
     ' · PDA: '+(archVentasPda?soloFechaISO_(archVentasPda.fechaCorte):'sin archivo')+' <span style="color:var(--accent);cursor:pointer;text-decoration:underline;" onclick="editarFechaCorte_(\'ventas\',\'pda\')">editar</span>'+
     ' — desde esa fecha, las entregas cargadas en Planning cuentan como ventas en vivo (no vienen ya del archivo).';
@@ -14553,10 +14723,10 @@ function renderRankingVendedorPanel_(){
     var color = v.nps===null?'var(--text-faint)':(v.nps>=90?'var(--ok)':(v.nps>=0?'var(--warn)':'var(--danger)'));
     var tasaRespuesta = v.ventas>0 ? Math.round(v.total/v.ventas*100)+'%' : '—';
     var participacion = totalRespuestasTodos>0 ? Math.round(v.total/totalRespuestasTodos*100)+'%' : '—';
-    return '<tr class="rank-vend-fila" style="cursor:pointer;" title="Ver desglose por mes" onclick="toggleDesgloseVendedor_(this,'+i+')"><td>'+(i+1)+'</td><td><span class="material-symbols-outlined rank-vend-chevron" style="font-size:14px;vertical-align:-3px;color:var(--text-faint);transition:transform .2s;">chevron_right</span> '+v.nombre+'</td><td>'+v.sucursalPrincipal+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps+'%')+'</td><td>'+v.ventas+'</td><td>'+v.total+'</td><td>'+tasaRespuesta+'</td><td>'+participacion+'</td>'+
+    return '<tr class="rank-vend-fila" style="cursor:pointer;" title="Ver desglose por mes" onclick="toggleDesgloseVendedor_(this,'+i+')"><td>'+(i+1)+'</td><td><span class="material-symbols-outlined rank-vend-chevron" style="font-size:14px;vertical-align:-3px;color:var(--text-faint);transition:transform .2s;">chevron_right</span> '+v.nombre+'</td><td>'+v.sucursalPrincipal+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps+'%')+'</td><td class="col-ventas">'+v.ventas+'</td><td>'+v.total+'</td><td class="col-ventas">'+tasaRespuesta+'</td><td>'+participacion+'</td>'+
       '<td style="color:var(--ok);">'+v.promotores+'</td><td style="color:var(--warn);">'+v.pasivos+'</td><td style="color:var(--danger);">'+v.detractores+'</td></tr>';
   }
-  var encabezadoVendedor = '<tr><th>#</th><th>Vendedor</th><th>Sucursal</th><th>NPS</th><th>Ventas</th><th>Respuestas</th><th>Tasa de respuesta</th><th>% Participación</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>';
+  var encabezadoVendedor = '<tr><th>#</th><th>Vendedor</th><th>Sucursal</th><th>NPS</th><th class="col-ventas">Ventas</th><th>Respuestas</th><th class="col-ventas">Tasa de respuesta</th><th>% Participación</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>';
   document.getElementById('rankVendedorTop5Tabla').innerHTML = encabezadoVendedor+
     (listaVendedores.slice(0,5).map(filaVendedorHtml_).join('') || '<tr><td colspan="11" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
   document.getElementById('rankVendedorTabla').innerHTML = encabezadoVendedor+
@@ -14623,10 +14793,10 @@ function renderRankingVendedorPanel_(){
     var color = v.nps===null?'var(--text-faint)':(v.nps>=90?'var(--ok)':(v.nps>=0?'var(--warn)':'var(--danger)'));
     var tasaRespuesta = v.ventas>0 ? Math.round(v.total/v.ventas*100)+'%' : '—';
     var participacion = totalRespuestasSucursales>0 ? Math.round(v.total/totalRespuestasSucursales*100)+'%' : '—';
-    return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps+'%')+'</td><td>'+v.ventas+'</td><td>'+v.total+'</td><td>'+tasaRespuesta+'</td><td>'+participacion+'</td>'+
+    return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps+'%')+'</td><td class="col-ventas">'+v.ventas+'</td><td>'+v.total+'</td><td class="col-ventas">'+tasaRespuesta+'</td><td>'+participacion+'</td>'+
       '<td style="color:var(--ok);">'+v.promotores+'</td><td style="color:var(--warn);">'+v.pasivos+'</td><td style="color:var(--danger);">'+v.detractores+'</td></tr>';
   }
-  var encabezadoSucursal = '<tr><th>#</th><th>Sucursal</th><th>NPS</th><th>Ventas</th><th>Respuestas</th><th>Tasa de respuesta</th><th>% Participación</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>';
+  var encabezadoSucursal = '<tr><th>#</th><th>Sucursal</th><th>NPS</th><th class="col-ventas">Ventas</th><th>Respuestas</th><th class="col-ventas">Tasa de respuesta</th><th>% Participación</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>';
   document.getElementById('rankSucursalTabla').innerHTML = encabezadoSucursal+
     (listaSucursales.map(filaSucursalHtml_).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
 
@@ -14639,7 +14809,7 @@ function renderRankingVendedorPanel_(){
     var st = statsInst[k];
     return st.label+': '+st.total+' resp. ('+(st.total-st.sinVendedor)+' con vendedor'+(st.sinVendedor?' · '+st.sinVendedor+' anónimas/sin vendedor':'')+')';
   });
-  document.getElementById('rankTotales').innerHTML = 'Total: '+ventasTotalGeneral+' ventas · '+totalRespuestasTodos+' respuestas en el ranking'+
+  document.getElementById('rankTotales').innerHTML = 'Total: <span class="col-ventas">'+ventasTotalGeneral+' ventas · </span>'+totalRespuestasTodos+' respuestas en el ranking'+
     (lineas.length ? '<br>'+lineas.join(' — ') : '')+
     (instanciaSel==='todas' ? '<br>Ojo: con "Las 3 encuestas juntas" un mismo cliente puede contar hasta 3 veces — para comparar con la tarjeta de NPS Fábrica elegí "Solo Fábrica".' : '');
 }

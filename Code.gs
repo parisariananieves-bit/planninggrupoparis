@@ -2587,6 +2587,39 @@ function listarNpsFabricaAnonimas_(){
 // armar el gráfico mensual del lado del frontend.
 // ============================================================
 var HOJA_NPS_ARCHIVO_IMPORTADO = 'NPS Archivo Importado';
+// ---- PuntosJSON partido en varias celdas ----
+// Una celda de Google Sheets admite como máximo 50.000 caracteres. La
+// base de ventas (y el archivo de Directa) ya pasaban ese límite, y el
+// guardado fallaba sin avisar. Ahora el JSON se guarda en pedazos: el
+// primero en la columna F (PuntosJSON, como siempre) y el resto en las
+// columnas H, I, J... de la misma fila. Las filas viejas (un solo pedazo)
+// se siguen leyendo igual.
+var NPS_ARCH_TAM_PEDAZO_ = 45000;
+function leerPuntosJsonFila_(filaValores){
+  function limpiar_(x){ return String(x==null?'':x).replace(/^'/,''); }
+  var s = limpiar_(filaValores[5]);
+  for(var c=7;c<filaValores.length;c++){
+    var x = filaValores[c];
+    if(x==='' || x==null) break;
+    s += limpiar_(x);
+  }
+  return s;
+}
+function leerPuntosFila_(filaValores){
+  try{ return JSON.parse(leerPuntosJsonFila_(filaValores)) || []; }catch(e){ return []; }
+}
+// fila7 = [instancia, canal, nombreArchivo, fechaCarga, fechaCorte, puntosJson, autor]
+function escribirFilaArchivoNps_(hoja, filaExistente, fila7){
+  var json = String(fila7[5]||'');
+  var pedazos = [];
+  for(var i=0;i<json.length;i+=NPS_ARCH_TAM_PEDAZO_) pedazos.push("'" + json.substr(i, NPS_ARCH_TAM_PEDAZO_));
+  if(!pedazos.length) pedazos.push('');
+  var fila = [fila7[0], fila7[1], fila7[2], fila7[3], fila7[4], pedazos[0], fila7[6]].concat(pedazos.slice(1));
+  if(filaExistente===-1){ hoja.appendRow(fila); return; }
+  var ultimaCol = hoja.getLastColumn();
+  if(ultimaCol>7) hoja.getRange(filaExistente, 8, 1, ultimaCol-7).clearContent(); // borra pedazos viejos
+  hoja.getRange(filaExistente, 1, 1, fila.length).setValues([fila]);
+}
 function getHojaNpsArchivoImportado_(){
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var hoja = ss.getSheetByName(HOJA_NPS_ARCHIVO_IMPORTADO);
@@ -2614,14 +2647,14 @@ function agregarPuntoManualArchivo_(instancia, canal, punto, autor){
   }
   var puntos = [], fechaCorte = '0000-00-00', nombreArchivo = 'Cargas manuales';
   if(filaExistente>-1){
-    try{ puntos = JSON.parse(datos[filaExistente-1][5]) || []; }catch(e){}
+    puntos = leerPuntosFila_(datos[filaExistente-1]);
     fechaCorte = String(datos[filaExistente-1][4]||'').replace(/^'/,'');
     nombreArchivo = datos[filaExistente-1][2] || nombreArchivo;
   }
   puntos.push(punto);
   var fechaCarga = "'" + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
   var fila = [instancia, canal, nombreArchivo, fechaCarga, "'"+fechaCorte, JSON.stringify(puntos), autor||'—'];
-  if(filaExistente>-1){ hoja.getRange(filaExistente,1,1,7).setValues([fila]); } else { hoja.appendRow(fila); }
+  escribirFilaArchivoNps_(hoja, filaExistente, fila);
   if(punto.vin){
     agregarPuntoManualArchivoVentas_(canal, {vin:punto.vin, vendedor:punto.vendedor, sucursal:punto.sucursal, fecha:punto.fecha, score:0, manual:true});
   }
@@ -2655,16 +2688,17 @@ function agregarPuntoManualArchivoVentas_(canal, puntoVentas){
   for(var i=1;i<datos.length;i++){
     if(datos[i][0]==='ventas' && datos[i][1]===canal){ filaExistente = i+1; break; }
   }
-  var puntos = [], fechaCorte = '0000-00-00';
+  var puntos = [], fechaCorte = '0000-00-00', nombreArchivoV = 'Cargas manuales';
   if(filaExistente>-1){
-    try{ puntos = JSON.parse(datos[filaExistente-1][5]) || []; }catch(e){}
+    puntos = leerPuntosFila_(datos[filaExistente-1]);
     fechaCorte = String(datos[filaExistente-1][4]||'').replace(/^'/,'');
+    nombreArchivoV = datos[filaExistente-1][2] || nombreArchivoV;
   }
   if(puntos.some(function(p){return p.vin===puntoVentas.vin;})) return; // ya estaba, no duplicar
   puntos.push(puntoVentas);
   var fechaCarga = "'" + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
-  var fila = ['ventas', canal, 'Cargas manuales', fechaCarga, "'"+fechaCorte, JSON.stringify(puntos), '—'];
-  if(filaExistente>-1){ hoja.getRange(filaExistente,1,1,7).setValues([fila]); } else { hoja.appendRow(fila); }
+  var fila = ['ventas', canal, nombreArchivoV, fechaCarga, "'"+fechaCorte, JSON.stringify(puntos), '—'];
+  escribirFilaArchivoNps_(hoja, filaExistente, fila);
 }
 // Elimina UN punto cargado manualmente (con datos del cliente) — lo busca
 // por VIN dentro del archivo de esa instancia+canal (y, si tenía VIN,
@@ -2680,10 +2714,10 @@ function eliminarPuntoManualArchivo_(instancia, canal, vin, indice){
   }
   if(filaExistente===-1) return {ok:false, error:'No hay archivo cargado para ese canal.'};
   var puntos = [];
-  try{ puntos = JSON.parse(datos[filaExistente-1][5]) || []; }catch(e){}
+  puntos = leerPuntosFila_(datos[filaExistente-1]);
   if(indice==null || !puntos[indice] || !(puntos[indice].manual || puntos[indice].cliente)) return {ok:false, error:'No se encontró ese punto (o no es uno cargado con datos del cliente).'};
   puntos.splice(indice, 1);
-  hoja.getRange(filaExistente, 6).setValue(JSON.stringify(puntos));
+  { var fe = datos[filaExistente-1]; escribirFilaArchivoNps_(hoja, filaExistente, [fe[0], fe[1], fe[2], fe[3], "'"+String(fe[4]||'').replace(/^'/,''), JSON.stringify(puntos), fe[6]]); }
   if(vin){
     var filaVentas = -1;
     for(var j=1;j<datos.length;j++){
@@ -2691,9 +2725,10 @@ function eliminarPuntoManualArchivo_(instancia, canal, vin, indice){
     }
     if(filaVentas>-1){
       var puntosVentas = [];
-      try{ puntosVentas = JSON.parse(datos[filaVentas-1][5]) || []; }catch(e){}
+      puntosVentas = leerPuntosFila_(datos[filaVentas-1]);
       puntosVentas = puntosVentas.filter(function(p){ return p.vin!==vin; }); // el VIN es único, alcanza con eso
-      hoja.getRange(filaVentas, 6).setValue(JSON.stringify(puntosVentas));
+      var fv = datos[filaVentas-1];
+      escribirFilaArchivoNps_(hoja, filaVentas, [fv[0], fv[1], fv[2], fv[3], "'"+String(fv[4]||'').replace(/^'/,''), JSON.stringify(puntosVentas), fv[6]]);
     }
   }
   return {ok:true};
@@ -2709,11 +2744,7 @@ function guardarArchivoNpsImportado_(instancia, canal, nombreArchivo, fechaCorte
   }
   var fechaCarga = "'" + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
   var fila = [instancia, canal, nombreArchivo, fechaCarga, "'" + fechaCorte, puntosJson, autor||'—'];
-  if(filaExistente>-1){
-    hoja.getRange(filaExistente,1,1,7).setValues([fila]);
-  } else {
-    hoja.appendRow(fila);
-  }
+  escribirFilaArchivoNps_(hoja, filaExistente, fila);
   return {ok:true};
 }
 // Cambia SOLO la fecha de corte de un archivo ya subido (sin tocar los
@@ -2740,7 +2771,7 @@ function listarArchivosNpsImportados_(){
   for(var i=1;i<datos.length;i++){
     var f = datos[i];
     if(!f[0]) continue;
-    out.push({instancia:f[0], canal:f[1], nombreArchivo:f[2], fechaCarga:f[3], fechaCorte:f[4], puntosJson:f[5], cargadoPor:f[6]});
+    out.push({instancia:f[0], canal:f[1], nombreArchivo:f[2], fechaCarga:f[3], fechaCorte:String(f[4]||'').replace(/^'/,''), puntosJson:leerPuntosJsonFila_(f), cargadoPor:f[6]});
   }
   return out;
 }
