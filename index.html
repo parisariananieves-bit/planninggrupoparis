@@ -2546,7 +2546,7 @@
       <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--warn);">military_tech</span>Top 5 Vendedores</div>
       <div class="report-wrap"><table class="report-table" id="rankVendedorTop5Tabla"></table></div>
 
-      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">emoji_events</span>Ranking completo por Vendedor</div>
+      <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">emoji_events</span>Ranking completo por Vendedor <span style="font-weight:400;font-size:10.5px;color:var(--text-faint);text-transform:none;letter-spacing:0;">— tocá un vendedor para ver su desglose por mes</span></div>
       <div class="report-wrap"><table class="report-table" id="rankVendedorTabla"></table></div>
 
       <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">store</span>Medición por Sucursal</div>
@@ -12984,7 +12984,13 @@ function fechaAIso_(str){
   var soloFecha = soloFechaISO_(str);
   if(/^\d{4}-\d{2}-\d{2}$/.test(soloFecha)) return soloFecha;
   var m = String(str).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if(!m) return '';
+  if(!m){
+    // Celdas con el formato de fecha corto de Excel (mm-dd-yy): el
+    // archivo las trae como "4/26/26" (mes/día/año). Antes se perdían.
+    var u = String(str).match(/^\s*(\d{1,2})\/(\d{1,2})\/(\d{2})\s*$/);
+    if(!u || Number(u[1])>12) return '';
+    return '20'+u[3]+'-'+u[1].padStart(2,'0')+'-'+u[2].padStart(2,'0');
+  }
   return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
 }
 // Filtra un array de puntos del archivo ({fecha, score, ...}) por el
@@ -14271,15 +14277,97 @@ function dibujarCasosGestion_(){
 // vendedor y sucursal por respuesta), sin duplicar: de cada canal, solo
 // se suman las entregas del sistema con fecha DESDE el corte del archivo
 // de ese canal (lo de antes ya está adentro del archivo).
-function sumarAVendedor_(acum, nombre, sucursal, score){
-  nombre = (nombre||'').trim() || '(sin asignar)';
-  if(!acum[nombre]) acum[nombre] = {promotores:0, pasivos:0, detractores:0, total:0, sucursales:{}};
-  var v = acum[nombre];
-  if(score>=9) v.promotores++; else if(score>=7) v.pasivos++; else v.detractores++;
-  v.total++;
-  if(sucursal){ v.sucursales[sucursal] = (v.sucursales[sucursal]||0)+1; }
+// ---- Unificar nombres de vendedor ----
+// El archivo trae el vendedor cortado a 15 letras, a veces con prefijo
+// ("SL- FRANCO VILL", "VM-ROJO JAIME") y en MAYÚSCULAS, mientras que en
+// Planning está escrito distinto ("Franco Villegas"). Sin esto, la misma
+// persona quedaba partida en 2 o 3 filas del ranking (y las ventas no
+// matcheaban con las respuestas).
+// Si alguno no se une solo, agregalo acá: clave en MAYÚSCULAS sin prefijo.
+var ALIAS_VENDEDORES_ = {
+  // 'CARLOS A CALDER': 'Carlos Calderon',
+  // 'ALBERTO ATT': 'Damian Attar',
+};
+function claveVendedor_(nombre){
+  return String(nombre||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toUpperCase().replace(/^\s*(SL|SJ|VM)\s*-\s*/,'').replace(/[.,]/g,' ')
+    .replace(/\s+/g,' ').trim();
 }
-function agregarInstanciaAlRanking_(acum, instancia, entregasVivas, extractor){
+function esVendedorAnonimo_(nombre){
+  var k = claveVendedor_(nombre);
+  return !k || k==='(SIN ASIGNAR)' || /(^|[\s-])ANONIMO$/.test(k);
+}
+function tituloVendedor_(clave){
+  return clave.toLowerCase().replace(/(^|\s)\S/g, function(c){ return c.toUpperCase(); });
+}
+var _cacheNombreVendedor_ = {};
+function nombreCanonicoVendedor_(nombre){
+  var original = String(nombre||'').trim();
+  if(esVendedorAnonimo_(original)) return '(sin asignar)';
+  if(/^PDA - /.test(original)) return original; // PDA ya viene agrupado por sucursal
+  var clave = claveVendedor_(original);
+  if(_cacheNombreVendedor_[clave]) return _cacheNombreVendedor_[clave];
+  var resultado = null;
+  var aliasUp = {}; Object.keys(ALIAS_VENDEDORES_).forEach(function(k){ aliasUp[claveVendedor_(k)] = ALIAS_VENDEDORES_[k]; });
+  if(aliasUp[clave]) resultado = aliasUp[clave];
+  if(!resultado){
+    var maestros = ((CONFIG && CONFIG.maestros && CONFIG.maestros.vendedores) || []).map(function(v){ return String(v.nombre||v).trim(); }).filter(Boolean);
+    var exacto = maestros.filter(function(m){ return claveVendedor_(m)===clave; });
+    if(exacto.length) resultado = exacto[0];
+    else {
+      // Por palabras, en cualquier orden ("VALDEZ RICARDO" = "Ricardo Valdez");
+      // la última palabra puede venir cortada ("FRANCO VILL" = "Franco Villegas").
+      // (se ignoran iniciales sueltas: "Carlos A Calder" = "Carlos Calderon")
+      var tokens = clave.split(' ').filter(function(t){ return t.length>1; });
+      if(!tokens.length) tokens = clave.split(' ');
+      var candidatos = maestros.filter(function(m){
+        var tm = claveVendedor_(m).split(' ');
+        return tokens.every(function(t, i){
+          var esUltima = i===tokens.length-1;
+          return tm.some(function(x){ return x===t || (esUltima && t.length>=3 && x.indexOf(t)===0); });
+        });
+      });
+      if(candidatos.length===1) resultado = candidatos[0];
+    }
+  }
+  if(!resultado) resultado = tituloVendedor_(clave); // al menos unifica MAYÚSCULAS/minúsculas
+  _cacheNombreVendedor_[clave] = resultado;
+  return resultado;
+}
+// "aaaa-mm" a partir de una fecha del archivo o de Planning.
+function mesDeFecha_(str){
+  var iso = fechaAIso_(str);
+  return iso ? iso.slice(0,7) : 'sin-fecha';
+}
+var MESES_NOMBRE_ = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+function etiquetaMes_(clave){
+  if(clave==='sin-fecha') return 'Sin fecha';
+  var p = clave.split('-');
+  return MESES_NOMBRE_[Number(p[1])-1]+' '+p[0];
+}
+function sumarConteoScore_(c, score){
+  if(score>=9) c.promotores++; else if(score>=7) c.pasivos++; else c.detractores++;
+  c.total++;
+}
+function sumarAVendedor_(acum, nombre, sucursal, score, stats, fecha, instancia){
+  nombre = nombreCanonicoVendedor_(nombre);
+  if(stats){ stats.total++; if(nombre==='(sin asignar)') stats.sinVendedor++; }
+  if(!acum[nombre]) acum[nombre] = {promotores:0, pasivos:0, detractores:0, total:0, sucursales:{}, meses:{}};
+  var v = acum[nombre];
+  sumarConteoScore_(v, score);
+  if(sucursal){ v.sucursales[sucursal] = (v.sucursales[sucursal]||0)+1; }
+  // Desglose por mes (y por encuesta dentro del mes) — para el detalle
+  // que se abre al tocar el vendedor.
+  var mes = mesDeFecha_(fecha);
+  if(!v.meses[mes]) v.meses[mes] = {promotores:0, pasivos:0, detractores:0, total:0, porInst:{}};
+  sumarConteoScore_(v.meses[mes], score);
+  if(instancia){
+    var pi = v.meses[mes].porInst;
+    if(!pi[instancia]) pi[instancia] = {promotores:0, pasivos:0, detractores:0, total:0};
+    sumarConteoScore_(pi[instancia], score);
+  }
+}
+function agregarInstanciaAlRanking_(acum, instancia, entregasVivas, extractor, stats){
   ['directa','pda'].forEach(function(canalKey){
     var esteCanalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
     if(filterCanal && filterCanal!==esteCanalUrl) return; // respeta el filtro Todos/PDA/Tradicional de arriba
@@ -14287,7 +14375,7 @@ function agregarInstanciaAlRanking_(acum, instancia, entregasVivas, extractor){
     var corte = arch ? (arch.fechaCorte || '0000-00-00') : '0000-00-00';
     if(arch){
       filtrarPuntosPorFecha_(arch.puntos).forEach(function(p){
-        sumarAVendedor_(acum, p.vendedor, p.sucursal, Number(p.score));
+        sumarAVendedor_(acum, p.vendedor, p.sucursal, Number(p.score), stats, p.fecha, instancia);
       });
     }
     entregasVivas.forEach(function(r){
@@ -14298,15 +14386,73 @@ function agregarInstanciaAlRanking_(acum, instancia, entregasVivas, extractor){
       if(fIso && corte!=='0000-00-00' && fIso < corte) return; // ya está adentro del archivo
       if(!pasaFiltroFechaGlobal_(fIso)) return;
       var norm = normalizarVendedorSucursalPDA_(r.vendedor, r.sucursal, canalKey);
-      sumarAVendedor_(acum, norm.vendedor, norm.sucursal, datos.score);
+      sumarAVendedor_(acum, norm.vendedor, norm.sucursal, datos.score, stats, datos.fecha, instancia);
     });
   });
+}
+// Al tocar un vendedor del ranking se abre (o cierra) debajo una tabla
+// con su evolución mes a mes: ventas, respuestas, NPS y, si están las 3
+// encuestas juntas, el NPS de cada encuesta en ese mes.
+function toggleDesgloseVendedor_(tr, i){
+  var siguiente = tr.nextElementSibling;
+  var chevron = tr.querySelector('.rank-vend-chevron');
+  if(siguiente && siguiente.classList.contains('rank-desglose')){
+    siguiente.remove();
+    if(chevron) chevron.style.transform = 'rotate(0deg)';
+    return;
+  }
+  var v = (window._rankVendedoresLista_||[])[i];
+  if(!v) return;
+  if(chevron) chevron.style.transform = 'rotate(90deg)';
+  var todas = window._rankInstanciaSel_==='todas';
+  var claves = {};
+  Object.keys(v.meses||{}).forEach(function(k){ claves[k]=true; });
+  Object.keys(v.ventasMes||{}).forEach(function(k){ claves[k]=true; });
+  var mesesOrden = Object.keys(claves).sort(function(a,b){
+    if(a==='sin-fecha') return 1; if(b==='sin-fecha') return -1;
+    return a<b ? -1 : 1;
+  });
+  function colorNps_(n){ return n===null?'var(--text-faint)':(n>=90?'var(--ok)':(n>=0?'var(--warn)':'var(--danger)')); }
+  function celdaNps_(c){
+    if(!c || !c.total) return '<td style="color:var(--text-faint);">—</td>';
+    var n = npsDeConteo_(c);
+    return '<td style="font-weight:700;color:'+colorNps_(n)+';">'+n+'% <span style="font-weight:400;color:var(--text-faint);font-size:10px;">('+c.total+')</span></td>';
+  }
+  var cab = '<tr><th>Mes</th><th>Ventas</th><th>Respuestas</th><th>Tasa resp.</th><th>NPS</th><th>Prom.</th><th>Neutr.</th><th>Detr.</th>'+
+    (todas ? '<th>Alerta Temprana</th><th>Contacto Post.</th><th>Fábrica</th>' : '')+'</tr>';
+  var cuerpo = mesesOrden.map(function(k){
+    var c = (v.meses||{})[k] || {promotores:0,pasivos:0,detractores:0,total:0,porInst:{}};
+    var ventas = (v.ventasMes||{})[k] || 0;
+    var n = c.total ? npsDeConteo_(c) : null;
+    var tasa = ventas>0 && c.total ? Math.round(c.total/ventas*100)+'%' : '—';
+    return '<tr><td style="white-space:nowrap;">'+etiquetaMes_(k)+'</td><td>'+ventas+'</td><td>'+c.total+'</td><td>'+tasa+'</td>'+
+      '<td style="font-weight:800;color:'+colorNps_(n)+';">'+(n===null?'—':n+'%')+'</td>'+
+      '<td style="color:var(--ok);">'+c.promotores+'</td><td style="color:var(--warn);">'+c.pasivos+'</td><td style="color:var(--danger);">'+c.detractores+'</td>'+
+      (todas ? celdaNps_(c.porInst.alertatemprana)+celdaNps_(c.porInst.contactoposterior)+celdaNps_(c.porInst.fabrica) : '')+'</tr>';
+  }).join('');
+  var totalCols = tr.children.length;
+  var nota = todas ? '<div style="font-size:10px;color:var(--text-faint);margin-top:6px;">El NPS del mes suma las 3 encuestas; a la derecha, el de cada una (entre paréntesis, cuántas respuestas). Ventas por mes de entrega; respuestas por mes de respuesta.</div>'
+                   : '<div style="font-size:10px;color:var(--text-faint);margin-top:6px;">Ventas por mes de entrega; respuestas por mes de respuesta — por eso la tasa de un mes puede no coincidir exacto.</div>';
+  tr.insertAdjacentHTML('afterend',
+    '<tr class="rank-desglose"><td colspan="'+totalCols+'" style="background:var(--panel-2);padding:10px 12px;">'+
+      '<div style="font-size:11px;font-weight:700;margin-bottom:6px;">'+v.nombre+' — desglose por mes</div>'+
+      '<div class="report-wrap" style="margin:0;"><table class="report-table" style="font-size:11.5px;">'+cab+(cuerpo||'<tr><td colspan="11" style="text-align:center;color:var(--text-faint);">Sin datos.</td></tr>')+'</table></div>'+
+      nota+
+    '</td></tr>');
 }
 function renderRankingVendedorPanel_(){
   if(!document.getElementById('rankVendedorTabla')) return;
   renderCanalToggleGenerico_('rankCanalToggle');
   var instanciaSel = document.getElementById('rankFiltroInstancia').value;
+  _cacheNombreVendedor_ = {};
+  // Ventas: se filtran por FECHA DE ENTREGA (entregasParaDashboard).
   var rows = entregasParaDashboard();
+  // Respuestas: NO se pueden filtrar por fecha de entrega — la encuesta
+  // (sobre todo la de Fábrica) llega semanas después. Antes, con un
+  // Desde/Hasta puesto, se perdían las respuestas de autos entregados
+  // antes del período, y por eso el ranking no daba lo mismo que la
+  // tarjeta de NPS. Acá se filtra solo por fecha de respuesta (más abajo).
+  var rowsResp = entregasCalidadSinFiltroFecha_(null);
 
   var archVentasDirecta = obtenerArchivoNps_('ventas','directa');
   var archVentasPda = obtenerArchivoNps_('ventas','pda');
@@ -14320,7 +14466,7 @@ function renderRankingVendedorPanel_(){
   // archivo, tengan o no alguna encuesta respondida), no de las 3 encuestas
   // — así un auto entregado pero sin ninguna respuesta todavía SÍ cuenta
   // como venta.
-  var vinVendedor = {}, vinSucursal = {};
+  var vinVendedor = {}, vinSucursal = {}, vinMes = {};
   var corteVentasPorCanal = {directa:'0000-00-00', pda:'0000-00-00'};
   ['directa','pda'].forEach(function(canalKey){
     var esteCanalUrl = canalKey==='directa' ? 'tradicional' : 'pda';
@@ -14330,13 +14476,18 @@ function renderRankingVendedorPanel_(){
     corteVentasPorCanal[canalKey] = arch.fechaCorte || '0000-00-00';
     filtrarPuntosPorFecha_(arch.puntos).forEach(function(p){
       if(!p.vin) return;
-      if(!vinVendedor[p.vin]) vinVendedor[p.vin] = (p.vendedor||'').trim() || '(sin asignar)';
+      if(!vinVendedor[p.vin]){ vinVendedor[p.vin] = nombreCanonicoVendedor_(p.vendedor); vinMes[p.vin] = mesDeFecha_(p.fecha); }
       if(!vinSucursal[p.vin]) vinSucursal[p.vin] = (p.sucursal||'').trim() || '(sin asignar)';
     });
   });
-  var ventasPorVendedor = {}, ventasPorSucursal = {};
+  var ventasPorVendedor = {}, ventasPorSucursal = {}, ventasPorVendedorMes = {};
+  function sumarVentaMes_(vend, mes){
+    if(!ventasPorVendedorMes[vend]) ventasPorVendedorMes[vend] = {};
+    ventasPorVendedorMes[vend][mes] = (ventasPorVendedorMes[vend][mes]||0)+1;
+  }
   Object.keys(vinVendedor).forEach(function(vin){
     ventasPorVendedor[vinVendedor[vin]] = (ventasPorVendedor[vinVendedor[vin]]||0)+1;
+    sumarVentaMes_(vinVendedor[vin], vinMes[vin]);
   });
   Object.keys(vinSucursal).forEach(function(vin){
     ventasPorSucursal[vinSucursal[vin]] = (ventasPorSucursal[vinSucursal[vin]]||0)+1;
@@ -14348,51 +14499,61 @@ function renderRankingVendedorPanel_(){
     var fIsoR = fechaAIso_(r.fecha);
     if(fIsoR && corteR!=='0000-00-00' && fIsoR < corteR) return; // antes del corte: ya debería estar contado desde el archivo
     var norm = normalizarVendedorSucursalPDA_(r.vendedor, r.sucursal, canalKeyR);
-    var vend = (norm.vendedor||'').trim() || '(sin asignar)';
+    var vend = nombreCanonicoVendedor_(norm.vendedor);
     var suc = (norm.sucursal||'').trim() || '(sin asignar)';
     ventasPorVendedor[vend] = (ventasPorVendedor[vend]||0)+1;
+    sumarVentaMes_(vend, mesDeFecha_(r.fecha));
     ventasPorSucursal[suc] = (ventasPorSucursal[suc]||0)+1;
   });
 
   var acumVendedor = {};
+  var statsInst = {
+    alertatemprana:{total:0, sinVendedor:0, label:'Alerta Temprana'},
+    contactoposterior:{total:0, sinVendedor:0, label:'Contacto Posterior'},
+    fabrica:{total:0, sinVendedor:0, label:'Fábrica'}
+  };
   if(instanciaSel==='todas' || instanciaSel==='alertatemprana'){
-    agregarInstanciaAlRanking_(acumVendedor, 'alertatemprana', rows, function(r){
+    agregarInstanciaAlRanking_(acumVendedor, 'alertatemprana', rowsResp, function(r){
       if(r.npsScore===null || r.npsScore===undefined || r.npsScore==='') return null;
       return {score:Number(r.npsScore), fecha:r.alertaTempranaFechaRespuesta};
-    });
+    }, statsInst.alertatemprana);
   }
   if(instanciaSel==='todas' || instanciaSel==='contactoposterior'){
-    agregarInstanciaAlRanking_(acumVendedor, 'contactoposterior', rows, function(r){
+    agregarInstanciaAlRanking_(acumVendedor, 'contactoposterior', rowsResp, function(r){
       var d = contactoPosteriorInfo_(r);
       if(!d || d.recomienda===undefined || d.recomienda==='') return null;
       return {score:Number(d.recomienda), fecha:d.fecha};
-    });
+    }, statsInst.contactoposterior);
   }
   if(instanciaSel==='todas' || instanciaSel==='fabrica'){
-    agregarInstanciaAlRanking_(acumVendedor, 'fabrica', rows.filter(function(r){return !!r.garantiaFecha;}), function(r){
+    // Mismo criterio que la tarjeta de NPS Fábrica: sin las garantías filtradas.
+    agregarInstanciaAlRanking_(acumVendedor, 'fabrica', rowsResp.filter(function(r){return !!r.garantiaFecha && !r.garantiaFiltrada;}), function(r){
       if(r.npsFabricaScore===null || r.npsFabricaScore===undefined || r.npsFabricaScore==='') return null;
-      return {score:Number(r.npsFabricaScore), fecha:r.npsFabricaFecha};
-    });
+      return {score:Number(r.npsFabricaScore), fecha:r.npsFabricaFecha || r.garantiaFecha};
+    }, statsInst.fabrica);
   }
 
   function filaTabla_(nombre, v, colLabel){
     var nps = npsDeConteo_(v);
     var sucursalPrincipal = Object.keys(v.sucursales).sort(function(a,b){return v.sucursales[b]-v.sucursales[a];})[0] || '—';
-    return {nombre:nombre, nps:nps, total:v.total, promotores:v.promotores, pasivos:v.pasivos, detractores:v.detractores, sucursalPrincipal:sucursalPrincipal, ventas: ventasPorVendedor[nombre]||0};
+    return {nombre:nombre, nps:nps, total:v.total, promotores:v.promotores, pasivos:v.pasivos, detractores:v.detractores, sucursalPrincipal:sucursalPrincipal, ventas: ventasPorVendedor[nombre]||0,
+      meses: v.meses, ventasMes: ventasPorVendedorMes[nombre]||{}};
   }
-  var listaVendedores = Object.keys(acumVendedor).filter(function(n){ var nl=n.toLowerCase(); return nl!=='anonimo' && nl!=='anónimo' && nl!=='(sin asignar)'; }).map(function(n){ return filaTabla_(n, acumVendedor[n]); });
+  var listaVendedores = Object.keys(acumVendedor).filter(function(n){ return !esVendedorAnonimo_(n); }).map(function(n){ return filaTabla_(n, acumVendedor[n]); });
   listaVendedores.sort(function(a,b){
     var cumpleA = a.nps!==null && a.nps>=90, cumpleB = b.nps!==null && b.nps>=90;
     if(cumpleA!==cumpleB) return cumpleB - cumpleA; // primero: ¿llegó al 90% de NPS?
     return b.total-a.total; // segundo: más respuestas
   });
   var totalRespuestasTodos = listaVendedores.reduce(function(a,v){return a+v.total;}, 0);
+  window._rankVendedoresLista_ = listaVendedores;
+  window._rankInstanciaSel_ = instanciaSel;
 
   function filaVendedorHtml_(v, i){
     var color = v.nps===null?'var(--text-faint)':(v.nps>=90?'var(--ok)':(v.nps>=0?'var(--warn)':'var(--danger)'));
     var tasaRespuesta = v.ventas>0 ? Math.round(v.total/v.ventas*100)+'%' : '—';
     var participacion = totalRespuestasTodos>0 ? Math.round(v.total/totalRespuestasTodos*100)+'%' : '—';
-    return '<tr><td>'+(i+1)+'</td><td>'+v.nombre+'</td><td>'+v.sucursalPrincipal+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps+'%')+'</td><td>'+v.ventas+'</td><td>'+v.total+'</td><td>'+tasaRespuesta+'</td><td>'+participacion+'</td>'+
+    return '<tr class="rank-vend-fila" style="cursor:pointer;" title="Ver desglose por mes" onclick="toggleDesgloseVendedor_(this,'+i+')"><td>'+(i+1)+'</td><td><span class="material-symbols-outlined rank-vend-chevron" style="font-size:14px;vertical-align:-3px;color:var(--text-faint);transition:transform .2s;">chevron_right</span> '+v.nombre+'</td><td>'+v.sucursalPrincipal+'</td><td style="font-weight:800;color:'+color+';">'+(v.nps===null?'—':v.nps+'%')+'</td><td>'+v.ventas+'</td><td>'+v.total+'</td><td>'+tasaRespuesta+'</td><td>'+participacion+'</td>'+
       '<td style="color:var(--ok);">'+v.promotores+'</td><td style="color:var(--warn);">'+v.pasivos+'</td><td style="color:var(--danger);">'+v.detractores+'</td></tr>';
   }
   var encabezadoVendedor = '<tr><th>#</th><th>Vendedor</th><th>Sucursal</th><th>NPS</th><th>Ventas</th><th>Respuestas</th><th>Tasa de respuesta</th><th>% Participación</th><th>Promotores</th><th>Neutrales</th><th>Detractores</th></tr>';
@@ -14430,25 +14591,25 @@ function renderRankingVendedorPanel_(){
     });
   }
   if(instanciaSel==='todas' || instanciaSel==='alertatemprana'){
-    agregarInstanciaASucursal_('alertatemprana', rows, function(r){
+    agregarInstanciaASucursal_('alertatemprana', rowsResp, function(r){
       if(r.npsScore===null || r.npsScore===undefined || r.npsScore==='') return null;
       return {score:Number(r.npsScore), fecha:r.alertaTempranaFechaRespuesta};
     });
   }
   if(instanciaSel==='todas' || instanciaSel==='contactoposterior'){
-    agregarInstanciaASucursal_('contactoposterior', rows, function(r){
+    agregarInstanciaASucursal_('contactoposterior', rowsResp, function(r){
       var d = contactoPosteriorInfo_(r);
       if(!d || d.recomienda===undefined || d.recomienda==='') return null;
       return {score:Number(d.recomienda), fecha:d.fecha};
     });
   }
   if(instanciaSel==='todas' || instanciaSel==='fabrica'){
-    agregarInstanciaASucursal_('fabrica', rows.filter(function(r){return !!r.garantiaFecha;}), function(r){
+    agregarInstanciaASucursal_('fabrica', rowsResp.filter(function(r){return !!r.garantiaFecha && !r.garantiaFiltrada;}), function(r){
       if(r.npsFabricaScore===null || r.npsFabricaScore===undefined || r.npsFabricaScore==='') return null;
-      return {score:Number(r.npsFabricaScore), fecha:r.npsFabricaFecha};
+      return {score:Number(r.npsFabricaScore), fecha:r.npsFabricaFecha || r.garantiaFecha};
     });
   }
-  var listaSucursales = Object.keys(acumSucursalReal).filter(function(s){ return s.toLowerCase()!=='anonimo' && s.toLowerCase()!=='anónimo'; }).map(function(s){
+  var listaSucursales = Object.keys(acumSucursalReal).filter(function(s){ return !esVendedorAnonimo_(s) && s!=='(sin asignar)'; }).map(function(s){
     var v = acumSucursalReal[s];
     return {nombre:s, nps:npsDeConteo_(v), total:v.total, promotores:v.promotores, pasivos:v.pasivos, detractores:v.detractores, ventas: ventasPorSucursal[s]||0};
   });
@@ -14470,7 +14631,17 @@ function renderRankingVendedorPanel_(){
     (listaSucursales.map(filaSucursalHtml_).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
 
   var ventasTotalGeneral = listaSucursales.reduce(function(a,v){return a+v.ventas;}, 0);
-  document.getElementById('rankTotales').textContent = 'Total: '+ventasTotalGeneral+' ventas · '+totalRespuestasSucursales+' respuestas';
+  // Conciliación: cuántas respuestas hay en total por encuesta y cuántas
+  // no entran al ranking por no tener vendedor (anónimas del archivo).
+  // Las anónimas cargadas a mano en NPS Fábrica (sin vendedor) tampoco
+  // pueden rankear: suman en la tarjeta de NPS pero no acá.
+  var lineas = Object.keys(statsInst).filter(function(k){ return statsInst[k].total>0; }).map(function(k){
+    var st = statsInst[k];
+    return st.label+': '+st.total+' resp. ('+(st.total-st.sinVendedor)+' con vendedor'+(st.sinVendedor?' · '+st.sinVendedor+' anónimas/sin vendedor':'')+')';
+  });
+  document.getElementById('rankTotales').innerHTML = 'Total: '+ventasTotalGeneral+' ventas · '+totalRespuestasTodos+' respuestas en el ranking'+
+    (lineas.length ? '<br>'+lineas.join(' — ') : '')+
+    (instanciaSel==='todas' ? '<br>Ojo: con "Las 3 encuestas juntas" un mismo cliente puede contar hasta 3 veces — para comparar con la tarjeta de NPS Fábrica elegí "Solo Fábrica".' : '');
 }
 function filtrarCoberturaCalidad_(bucket){
   ['covChipTodas','covChipFalta1','covChipFalta2','covChipNinguna'].forEach(function(id){
