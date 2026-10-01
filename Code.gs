@@ -3543,7 +3543,8 @@ function obtenerAuditoriaEntrega_(vin){
     var preguntas = audLeerHoja_(ss, 'Preguntas').filter(function(q){ return q.id_pregunta; }).map(function(q){
       return {
         id: String(q.id_pregunta), seccion: String(q.seccion), texto: String(q.texto_pregunta),
-        req_foto: audSi_(q.req_foto), fase: Number(q.fase) || 1, critica: audSi_(q.critica), activo: !audNo_(q.activo)
+        req_foto: audSi_(q.req_foto), fase: Number(q.fase) || 1, critica: audSi_(q.critica), activo: !audNo_(q.activo),
+        marcas: String(q.marcas || '').split(',').map(function(m){ return m.trim().toLowerCase(); }).filter(function(m){ return m; })
       };
     });
 

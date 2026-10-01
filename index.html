@@ -8255,7 +8255,20 @@ function audSoloHora_(iso){
   if(!iso) return '—'; var d = new Date(iso); if(isNaN(d)) return '—';
   return d.toLocaleTimeString('es-AR', {timeZone:'America/Argentina/Buenos_Aires', hour:'2-digit', minute:'2-digit', hour12:false});
 }
-function audPregActivas_(res){ return res.preguntas.filter(function(q){ return q.activo; }); }
+// Preguntas por marca (columna "Marcas" de la planilla de auditorías; vacía = todas).
+function audMarcaKey_(m){
+  var n = String(m||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  if(n.indexOf('chev')>-1) return 'chevrolet'; if(n.indexOf('peug')>-1) return 'peugeot'; if(n.indexOf('citro')>-1) return 'citroen';
+  if(n.indexOf('honda')>-1) return 'honda'; if(n.indexOf('dfsk')>-1 || n.indexOf('jetour')>-1) return 'dfsk'; return n.trim();
+}
+function audPregActivas_(res){
+  var mk = audMarcaKey_((res.auditoria && res.auditoria.marca) || '');
+  return res.preguntas.filter(function(q){
+    if(!q.activo) return false;
+    var ms = (q.marcas||[]).map(audMarcaKey_);
+    return !mk || !ms.length || ms.indexOf(mk)>-1;
+  });
+}
 function audSecNum_(q){ var m = String(q.seccion).match(/^\s*(\d+)/); return m ? m[1] : '0'; }
 function audSecNombre_(q){ var t = String(q.seccion).replace(/^\s*\d+\.?\s*/,'').toLowerCase(); return t.charAt(0).toUpperCase() + t.slice(1); }
 function audNumeracion_(res){
