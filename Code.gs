@@ -1426,7 +1426,9 @@ function registrarActividad_(usuario, password){
   if(!u) return {ok:false};
   var sheet = getOrCrearHojaUsuarios_();
   sheet.getRange(u.fila, 11).setValue(new Date().toISOString()); // columna "ÚltimoIngreso" (K)
-  return {ok:true};
+  // Devuelve los permisos actuales: así, si el Maestro los cambia, la app
+  // del usuario los toma sola sin cerrar sesión.
+  return {ok:true, rol:u.rol, modulos:u.modulos||[], modulosSoloVer:u.modulosSoloVer||[]};
 }
 
 function crearUsuario_(actorUsuario, actorPassword, nombre, usuario, password, rol, email, modulos, sector, modulosSoloVer){

@@ -1192,6 +1192,7 @@
             <button class="nav-subitem" id="subCalidadHistorialComs" onclick="setAppView('historialcoms')">Historial de Comunicaciones</button>
             <button class="nav-subitem" id="subCalidadGarantias" onclick="setMaestroTab('garantiascalidad')">Garantías</button>
             <button class="nav-subitem" id="subCalidadCasos" onclick="setMaestroTab('casosgestion')">Casos</button>
+            <button class="nav-subitem" id="subCalidadAuditoriaApp" onclick="abrirAppAuditoria_()" title="Abre la app de auditoría en otra pestaña">Auditoría de entregas ↗</button>
           </div>
         </div>
         <button class="nav-item" id="navCasos" title="Reportar Caso" onclick="setAppView('casos')" style="color:var(--caso);"><span class="material-symbols-outlined" style="color:var(--caso);">report</span><span class="nav-label">Reportar Caso</span></button>
@@ -3439,7 +3440,22 @@ function sesionActual(){
 function enviarLatidoActividad_(){
   var s = sesionActual();
   if(!s || !s.usuario || !s.password) return;
-  gasPost('registrarActividad', {usuario:s.usuario, password:s.password}).catch(function(){});
+  gasPost('registrarActividad', {usuario:s.usuario, password:s.password}).then(function(res){
+    // El servidor devuelve los permisos actuales del usuario: si el Maestro
+    // los cambió, se aplican solos en menos de 2 minutos, sin tener que
+    // cerrar sesión y volver a entrar (antes quedaban los del momento del login).
+    if(!res || !res.ok || !res.modulos) return;
+    var act = sesionActual(); if(!act || act.usuario!==s.usuario) return;
+    var nuevo = JSON.stringify([res.rol, res.modulos, res.modulosSoloVer||[]]);
+    var viejo = JSON.stringify([act.rol, act.modulos||[], act.modulosSoloVer||[]]);
+    if(nuevo===viejo) return;
+    act.rol = res.rol; act.modulos = res.modulos; act.modulosSoloVer = res.modulosSoloVer||[];
+    guardarSesion_(act, !!localStorage.getItem('sesionUsuario'));
+    actualizarBotonUsuario();
+    aplicarPermisosUI();
+    if(typeof detailId!=='undefined' && detailId && typeof aplicarSoloLecturaDrawer_==='function') aplicarSoloLecturaDrawer_();
+    showToast('Se actualizaron tus permisos.');
+  }).catch(function(){});
 }
 setInterval(enviarLatidoActividad_, 120000);
 setTimeout(enviarLatidoActividad_, 3000);
@@ -3485,7 +3501,32 @@ function puedeEditarModulo_(mod){
   var soloVer = (s && s.modulosSoloVer) || [];
   return soloVer.indexOf(mod)===-1;
 }
-function puedeEditar(){ var r=rolActual(); return esCalidad() || r==='administrativo' || r==='supervisor' || r==='recepcion' || r==='logistica' || r==='supervisor_logistica'; }
+// Antes esto miraba SOLO el rol: un usuario con rol Vendedor, Calidad o TV
+// tenía "Editar" en Permisos pero igual veía todo en solo lectura (y el
+// detalle de la entrega bloqueado). Ahora manda lo que está en Permisos:
+// si el usuario tiene módulos asignados, puede editar cuando tiene en
+// "Editar" alguno de los módulos de entregas. El rol solo se usa para los
+// usuarios viejos que todavía no tienen módulos cargados.
+var MODULOS_EDICION_ENTREGAS_ = ['lista','nuevaentrega','calendario'];
+function puedeEditar(){
+  if(esCalidad()) return true;
+  var s = sesionActual();
+  if(!s || s.usuario==='libre') return false;
+  if(rolPreview) return rolPreview!=='vendedor' && rolPreview!=='tv';
+  var mods = s.modulos || [];
+  if(mods.length){
+    return MODULOS_EDICION_ENTREGAS_.some(function(m){ return mods.indexOf(m)>-1 && puedeEditarModulo_(m); });
+  }
+  var r = rolActual();
+  return r==='calidad' || r==='administrativo' || r==='supervisor' || r==='recepcion' || r==='logistica' || r==='supervisor_logistica';
+}
+// Estado del módulo Entregas para el usuario actual: 'editar' | 'ver' | 'off'
+function estadoModuloEntregas_(){
+  var s = sesionActual(); var mods = (s && s.modulos) || [];
+  if(!mods.length) return null; // usuario sin módulos cargados: decide el rol
+  if(mods.indexOf('lista')===-1) return 'off';
+  return puedeEditarModulo_('lista') ? 'editar' : 'ver';
+}
 function esSupervisorLogistica(){ return rolActual()==='supervisor_logistica'; }
 function etiquetaRol_(r){
   var etiquetas = {calidad:'Calidad', maestro:'Maestro', administrativo:'Administrativo', vendedor:'Vendedor', tv:'TV Recepción', recepcion:'Recepción', supervisor:'Supervisor', logistica:'Logística', supervisor_logistica:'Supervisor de Logística'};
@@ -8178,7 +8219,7 @@ function toggleEntregada(){ if(detailId) toggleEntregadaId(detailMarca, detailId
 // (resultado, fases, pendientes) y el informe completo con botón de PDF.
 // Los datos los lee el backend desde la planilla de auditorías (solo lectura).
 // ============================================================
-var AUDITORIA_APP_URL = 'https://auditoria-de-entregas.vercel.app/';   // (ya no se usa: el informe se muestra dentro del Planning)
+var AUDITORIA_APP_URL = 'https://auditoria-de-entregas.vercel.app/';   // el informe se ve dentro del Planning; para AUDITAR se abre la app (link directo al VIN)
 var AUD_UMBRAL = 70;          // % de "Sí" por debajo del cual el resultado es "No conforme" (igual que en la app)
 var AUD_CACHE = {};           // vin -> {t, res}
 var AUD_FOTOS = {};           // id de Drive -> imagen (data URL)
@@ -8192,6 +8233,16 @@ function audLink_(r, modo){
   if(!AUDITORIA_APP_URL) return '';
   return AUDITORIA_APP_URL.replace(/\/?$/, '/') + '#' + modo + '=' + encodeURIComponent(audVin_(r));
 }
+// Botón que abre la app de auditoría directo en este VIN (#auditoria=VIN).
+// No se muestra en el acceso libre de vendedores.
+function audBotonAuditar_(r, texto){
+  if(rolActual()==='vendedor') return '';
+  var url = audLink_(r, 'auditoria');
+  if(!url) return '';
+  return '<a class="view-btn aud-ver" style="font-size:11.5px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;" href="'+audEsc_(url)+'" target="_blank" rel="noopener">'+
+    '<span class="material-symbols-outlined" style="font-size:15px;">fact_check</span> '+audEsc_(texto)+' ↗</a>';
+}
+function abrirAppAuditoria_(){ window.open(AUDITORIA_APP_URL, '_blank', 'noopener'); }
 function audFechaHora_(iso, conHora){
   if(!iso) return '—';
   var d = new Date(iso); if(isNaN(d)) return audEsc_(iso);
@@ -8263,7 +8314,11 @@ function audRenderResumen_(r, res){
     return;
   }
   if(res.configurado === false){ body.innerHTML = 'La auditoría todavía no está conectada al Planning (falta el ID de la planilla de auditorías en el script).'; return; }
-  if(!res.encontrado){ body.innerHTML = 'Todavía no se auditó esta entrega.'; return; }
+  if(!res.encontrado){
+    var bt = audBotonAuditar_(r, 'Auditar esta entrega');
+    body.innerHTML = 'Todavía no se auditó esta entrega.'+(bt ? '<div style="margin-top:8px;">'+bt+'</div>' : '');
+    return;
+  }
   var a = res.auditoria, tot = audResultado_(res), cerradas = [1,2,3].filter(function(f){ return audFaseEstado_(res,f)==='cerrada'; }).length;
   var nombres = {1:'Pre-entrega', 2:'Día de entrega', 3:'Post-entrega'};
   var chips = [1,2,3].map(function(f){
@@ -8281,7 +8336,8 @@ function audRenderResumen_(r, res){
       abiertos.slice(0,6).map(function(h){ return '<li>'+audEsc_(h.descripcion)+'</li>'; }).join('')+(abiertos.length>6 ? '<li>… y '+(abiertos.length-6)+' más</li>' : '')+'</ul>';
   }
   html += '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:10px;">'+
-    '<button class="view-btn aud-ver" style="font-size:11.5px;" onclick="verAuditoriaCompleta_()">📄 Ver informe (PDF)</button></div>';
+    '<button class="view-btn aud-ver" style="font-size:11.5px;" onclick="verAuditoriaCompleta_()">📄 Ver informe (PDF)</button>'+
+    audBotonAuditar_(r, cerradas===3 ? 'Abrir en Auditoría' : 'Continuar auditoría')+'</div>';
   body.innerHTML = html;
 }
 
@@ -9245,8 +9301,13 @@ document.addEventListener('click', function(ev){
   if(titulo) toggleSeccionDetalle_(titulo);
 });
 function aplicarSoloLecturaDrawer_(){
-  var soloLectura = !puedeEditar();
-  var esLogisticaLimitada = rolActual()==='logistica';
+  var estEnt = estadoModuloEntregas_();
+  // Solo lectura si no puede editar, o si en Permisos tiene Entregas en "Solo ver".
+  var soloLectura = !puedeEditar() || estEnt==='ver';
+  // Logística: modo limitado (accesorios, kit, regalo, llave...) salvo que en
+  // Permisos le hayas dado Entregas en "Editar" — ahí edita todo. Con
+  // Entregas en "Solo ver" sigue pudiendo marcar lo de logística.
+  var esLogisticaLimitada = rolActual()==='logistica' && estEnt!=='editar';
   var drawer = document.getElementById('drawer');
   var permitidosLogistica = [
     'dAccesoriosBuscador',
