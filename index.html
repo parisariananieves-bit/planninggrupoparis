@@ -988,6 +988,35 @@
   .tv-mode-toggle{background:transparent;border:1px solid rgba(255,255,255,.15);color:#9099ac;padding:7px 13px;border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'Inter',system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;margin-right:6px;}
   .tv-mode-toggle-row{display:flex;align-items:center;}
   .tv-mode-toggle.active{background:rgba(255,255,255,.09);color:#fff;border-color:rgba(255,255,255,.3);}
+  /* Vista individual en MODO CLARO (fondo blanco) con logo de Grupo París */
+  #viewTv.tv-claro{background:#EEF0F3;}
+  #viewTv.tv-claro .tv-clock-bar{border-bottom-color:rgba(201,138,46,.35);}
+  #viewTv.tv-claro .tv-brand,#viewTv.tv-claro .tv-brand span{color:#181B20;}
+  #viewTv.tv-claro .tv-clock{color:#B7791F;}
+  #viewTv.tv-claro .tv-mode-toggle{color:#464D5A;border-color:#D5D9E0;background:#fff;}
+  #viewTv.tv-claro .tv-mode-toggle.active{background:#181B20;color:#fff;border-color:#181B20;}
+  #viewTv.tv-claro #tvSalirBtn{background:#fff;color:#464D5A;border:1px solid #D5D9E0;}
+  #viewTv.tv-claro .tv-filtros-row select{background:#fff;border-color:#D5D9E0;color:#181B20;}
+  #viewTv.tv-claro .tv-filtros-row span{color:#6B7280 !important;}
+  #viewTv.tv-claro .tv-single-wrap{background:#FFFFFF;border-color:#E1E3E8;box-shadow:0 20px 50px -24px rgba(16,24,40,.25);}
+  #viewTv.tv-claro .tv-single-top{border-bottom-color:#E8EAEE;}
+  #viewTv.tv-claro .tv-single-time .h{color:#11141A;}
+  #viewTv.tv-claro .tv-single-time .d{color:#6B7280;}
+  #viewTv.tv-claro .tv-single-cliente{color:#11141A;}
+  #viewTv.tv-claro .tv-single-vehiculo{color:#464D5A;}
+  #viewTv.tv-claro .tv-single-vehiculo span{color:#8A92A3 !important;}
+  #viewTv.tv-claro .tv-single-meta-item .lbl{color:#6B7280;}
+  #viewTv.tv-claro .tv-single-meta-item b{color:#11141A;}
+  #viewTv.tv-claro .tv-single-footer{background:#F5F6F8;border-color:#E1E3E8;}
+  #viewTv.tv-claro .tv-single-footer-time,#viewTv.tv-claro .tv-single-footer-cli{color:#11141A;}
+  #viewTv.tv-claro .tv-single-empty{color:#6B7280;}
+  .tv-single-brand .tv-gp-logo{height:clamp(30px,3vw,56px);width:auto;background:transparent;padding:0;border-radius:0;}
+  #viewTv:not(.tv-claro) .tv-single-brand .tv-gp-logo{filter:invert(1);}
+  .tv-brand-sep{width:1px;align-self:stretch;background:#D5D9E0;margin:4px clamp(6px,1vw,16px);}
+  #viewTv:not(.tv-claro) .tv-brand-sep{background:rgba(255,255,255,.15);}
+  .tv-single-brand .tv-marca-logo{height:clamp(28px,2.6vw,48px);}
+  #viewTv.tv-claro .tv-single-brand .tv-marca-logo{border:1px solid #E1E3E8;}
+  #viewTv.tv-claro .tv-single-footer-logo{border:1px solid #E1E3E8;}
   .tv-single-wrap{background:#05070C;border:1px solid #12161f;border-radius:18px;overflow:hidden;width:100%;box-sizing:border-box;}
   .tv-single-top{display:flex;justify-content:space-between;align-items:center;padding:clamp(14px,2.2vw,40px) clamp(18px,3.4vw,60px);border-bottom:1px solid rgba(255,255,255,.08);}
   .tv-single-brand{display:flex;align-items:center;gap:14px;}
@@ -996,17 +1025,17 @@
   .tv-single-time{text-align:right;}
   .tv-single-time .h{font-family:'IBM Plex Mono',monospace;font-weight:800;font-size:clamp(22px,2.6vw,50px);color:#fff;letter-spacing:.02em;}
   .tv-single-time .d{font-size:12.5px;color:#8890a0;text-transform:capitalize;}
-  .tv-single-body{display:grid;grid-template-columns:2fr 1fr;gap:clamp(20px,3vw,54px);padding:clamp(18px,3.4vw,60px);}
-  .tv-single-label{color:var(--tv-accent);font-weight:700;font-size:clamp(13px,1.3vw,24px);letter-spacing:.6px;display:inline-block;position:relative;padding-bottom:8px;}
+  .tv-single-body{display:grid;grid-template-columns:1fr;gap:clamp(20px,3vw,54px);padding:clamp(22px,4vw,72px) clamp(18px,3.4vw,60px);}
+  .tv-single-label{color:var(--tv-accent);font-weight:700;font-size:clamp(15px,1.7vw,32px);letter-spacing:.6px;display:inline-block;position:relative;padding-bottom:8px;}
   .tv-single-label::after{content:'';position:absolute;left:0;bottom:0;width:65%;height:3px;border-radius:2px;background:var(--tv-accent);}
-  .tv-single-cliente{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(30px,5vw,96px);line-height:1.08;color:#fff;text-transform:uppercase;margin:16px 0 10px;word-break:break-word;}
-  .tv-single-vehiculo{font-size:clamp(14px,1.7vw,30px);color:#c7cbd6;margin-bottom:26px;}
+  .tv-single-cliente{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:clamp(40px,7.5vw,150px);line-height:1.04;color:#fff;text-transform:uppercase;margin:18px 0 14px;word-break:break-word;}
+  .tv-single-vehiculo{font-size:clamp(18px,2.6vw,48px);color:#c7cbd6;margin-bottom:clamp(26px,3vw,52px);}
   .tv-single-vehiculo b{color:var(--tv-accent);}
-  .tv-single-meta{display:flex;gap:34px;flex-wrap:wrap;}
-  .tv-single-meta-item{display:flex;align-items:center;gap:10px;}
-  .tv-single-meta-item .material-symbols-outlined{color:var(--tv-accent);font-size:clamp(16px,1.6vw,28px);}
-  .tv-single-meta-item .lbl{display:block;font-size:clamp(10px,.9vw,15px);color:#8890a0;}
-  .tv-single-meta-item b{display:block;font-size:clamp(13px,1.3vw,22px);color:#fff;}
+  .tv-single-meta{display:flex;gap:clamp(28px,4.5vw,90px);flex-wrap:wrap;}
+  .tv-single-meta-item{display:flex;align-items:center;gap:clamp(10px,1vw,18px);}
+  .tv-single-meta-item .material-symbols-outlined{color:var(--tv-accent);font-size:clamp(24px,2.8vw,52px);}
+  .tv-single-meta-item .lbl{display:block;font-size:clamp(12px,1.25vw,22px);color:#8890a0;}
+  .tv-single-meta-item b{display:block;font-size:clamp(20px,2.4vw,44px);color:#fff;line-height:1.15;}
   .tv-single-checklist{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:22px;align-self:start;}
   .tv-single-checklist h4{font-family:'Space Grotesk',sans-serif;color:#fff;font-size:clamp(12px,1.1vw,20px);letter-spacing:.6px;margin:0 0 16px;}
   .tv-check-item{display:flex;align-items:center;gap:12px;padding:8px 0;color:#dfe2ea;font-size:14.5px;}
@@ -1017,18 +1046,18 @@
   .tv-check-item.pend .tv-check-dot .material-symbols-outlined{color:#6b7385;}
   .tv-single-footer{margin:0 40px 34px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px 26px;display:flex;align-items:center;justify-content:space-between;gap:22px;}
   .tv-single-footer-left{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
-  .tv-single-footer-tag{display:flex;align-items:center;gap:8px;color:var(--tv-accent);font-weight:700;font-size:clamp(11px,1vw,16px);letter-spacing:.6px;white-space:nowrap;}
+  .tv-single-footer-tag{display:flex;align-items:center;gap:8px;color:var(--tv-accent);font-weight:700;font-size:clamp(13px,1.3vw,22px);letter-spacing:.6px;white-space:nowrap;}
   .tv-single-footer-tag .material-symbols-outlined{font-size:18px;}
-  .tv-single-footer-time{font-family:'IBM Plex Mono',monospace;font-weight:800;font-size:clamp(17px,1.8vw,34px);color:#fff;}
-  .tv-single-footer-cli{font-weight:700;color:#fff;font-size:clamp(13px,1.2vw,20px);}
-  .tv-single-footer-veh{color:var(--tv-accent);font-size:clamp(11px,1vw,16px);font-weight:700;}
-  .tv-single-footer-logo{height:24px;width:auto;object-fit:contain;background:#fff;border-radius:6px;padding:2px 5px;}
+  .tv-single-footer-time{font-family:'IBM Plex Mono',monospace;font-weight:800;font-size:clamp(22px,2.4vw,44px);color:#fff;}
+  .tv-single-footer-cli{font-weight:700;color:#fff;font-size:clamp(16px,1.6vw,28px);}
+  .tv-single-footer-veh{color:var(--tv-accent);font-size:clamp(13px,1.3vw,22px);font-weight:700;}
+  .tv-single-footer-logo{height:clamp(24px,2.4vw,40px);width:auto;object-fit:contain;background:#fff;border-radius:6px;padding:2px 5px;}
   .tv-single-empty{display:flex;align-items:center;justify-content:center;min-height:60vh;color:#5a6172;font-size:19px;text-align:center;}
   .tv-filtros-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
   .tv-filtros-row select{background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:7px 10px;font-size:12px;}
   @media(max-width:1100px){
     .tv-single-body{grid-template-columns:1fr;}
-    .tv-single-cliente{font-size:40px;}
+    .tv-single-cliente{font-size:clamp(36px,8vw,64px);}
     .tv-single-footer{flex-direction:column;align-items:flex-start;}
   }
   .tv-single-body > div{min-width:0;}
@@ -4414,6 +4443,8 @@ function setTvMode(modo){
   if(grid) grid.style.display = modo==='lista' ? 'grid' : 'none';
   if(btnSingle) btnSingle.classList.toggle('active', modo==='single');
   if(btnLista) btnLista.classList.toggle('active', modo==='lista');
+  var vtv = document.getElementById('viewTv');
+  if(vtv) vtv.classList.toggle('tv-claro', modo==='single'); // vista individual en modo claro (fondo blanco)
 }
 function actualizarRelojTV(){
   var d = new Date();
@@ -4453,6 +4484,7 @@ function tvChecklistItems_(r){
 }
 function tvRenderSingleCard(){
   var wrap = document.getElementById('tvSingleWrap');
+  var vtvC = document.getElementById('viewTv'); if(vtvC && tvMode==='single') vtvC.classList.add('tv-claro');
   if(!wrap) return;
   if(!tvHoyRows.length){
     wrap.innerHTML = '<div class="tv-single-empty">No hay entregas programadas para hoy 🎉</div>';
@@ -4465,11 +4497,10 @@ function tvRenderSingleCard(){
   var nextB = next ? tvBrandInfo_(next.marca) : null;
   var d = new Date();
   var fechaTxt = d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
-  var checklist = tvChecklistItems_(r);
 
   var html =
     '<div class="tv-single-top">'+
-      '<div class="tv-single-brand"><img src="'+b.logo+'" alt="'+b.label+'"><span class="tv-single-brand-name">GRUPO PARÍS</span></div>'+
+      '<div class="tv-single-brand"><img class="tv-gp-logo" src="assets/logos/logo-grupoparis-wordmark.png" alt="Grupo París"><span class="tv-brand-sep"></span><img class="tv-marca-logo" src="'+b.logo+'" alt="'+b.label+'"></div>'+
       '<div class="tv-single-time"><div class="h" id="tvSingleReloj">'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+'</div><div class="d">'+fechaTxt+'</div></div>'+
     '</div>'+
     '<div class="tv-single-body" style="--tv-accent:var('+b.color+')">'+
@@ -4481,13 +4512,9 @@ function tvRenderSingleCard(){
           '<div class="tv-single-meta-item"><span class="material-symbols-outlined">schedule</span><div><span class="lbl">Hora</span><b>'+r.hora+' hs</b></div></div>'+
           '<div class="tv-single-meta-item"><span class="material-symbols-outlined">location_on</span><div><span class="lbl">Sucursal</span><b>'+(r.sucursal&&r.sucursal!=='default'?r.sucursal:'—')+'</b></div></div>'+
           '<div class="tv-single-meta-item"><span class="material-symbols-outlined">person</span><div><span class="lbl">Asesor</span><b>'+(r.vendedor||'—')+'</b></div></div>'+
+          '<div class="tv-single-meta-item"><span class="material-symbols-outlined">badge</span><div><span class="lbl">Administrativo</span><b>'+(r.administrativo||'—')+'</b></div></div>'+
+          '<div class="tv-single-meta-item"><span class="material-symbols-outlined">palette</span><div><span class="lbl">Color</span><b>'+(r.color||'—')+'</b></div></div>'+
         '</div>'+
-      '</div>'+
-      '<div class="tv-single-checklist">'+
-        '<h4>CHECKLIST DE ENTREGA</h4>'+
-        checklist.map(function(it){
-          return '<div class="tv-check-item'+(it.ok?'':' pend')+'"><span class="tv-check-dot"><span class="material-symbols-outlined">'+(it.ok?'check':'close')+'</span></span>'+it.label+'</div>';
-        }).join('')+
       '</div>'+
     '</div>';
 
