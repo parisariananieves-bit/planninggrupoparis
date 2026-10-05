@@ -1017,6 +1017,13 @@
   .tv-single-brand .tv-marca-logo{height:clamp(28px,2.6vw,48px);}
   #viewTv.tv-claro .tv-single-brand .tv-marca-logo{border:1px solid #E1E3E8;}
   #viewTv.tv-claro .tv-single-footer-logo{border:1px solid #E1E3E8;}
+  .tv-single-frase{margin:0 clamp(18px,3.4vw,60px) clamp(22px,3vw,48px);padding:clamp(16px,2vw,34px) clamp(20px,2.6vw,44px);border-radius:16px;background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.1);border-left:6px solid var(--tv-accent);text-align:center;}
+  .tv-single-frase span{display:inline-block;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(22px,3vw,56px);color:#fff;transition:opacity .45s ease;}
+  #viewTv.tv-claro .tv-single-frase{background:#F7F8FA;border-color:#E6E8EC;border-left-color:var(--tv-accent);}
+  #viewTv.tv-claro .tv-single-frase span{color:#11141A;}
+  .tv-vin-ojo{background:none;border:0;cursor:pointer;color:#8890a0;opacity:.35;vertical-align:middle;padding:0 4px;transition:opacity .2s;}
+  .tv-vin-ojo:hover{opacity:1;}
+  .tv-vin-ojo .material-symbols-outlined{font-size:clamp(16px,1.6vw,28px);}
   .tv-single-wrap{background:#05070C;border:1px solid #12161f;border-radius:18px;overflow:hidden;width:100%;box-sizing:border-box;}
   .tv-single-top{display:flex;justify-content:space-between;align-items:center;padding:clamp(14px,2.2vw,40px) clamp(18px,3.4vw,60px);border-bottom:1px solid rgba(255,255,255,.08);}
   .tv-single-brand{display:flex;align-items:center;gap:14px;}
@@ -4482,6 +4489,24 @@ function tvChecklistItems_(r){
     {label:'Llaves entregadas', ok: !!r.entregada}
   ];
 }
+// ---- Frases para el cliente en la vista individual ----
+var tvFraseIdx = 0, _tvFraseTimer = null;
+function tvFrases_(marcaLabel){
+  return ['¡Gracias por confiar en Grupo París!', 'Hoy comienza una nueva etapa.', '¡Felicitaciones por tu nuevo '+(marcaLabel||'vehículo')+'!'];
+}
+function tvRotarFrase_(){
+  var el = document.getElementById('tvFraseTxt');
+  if(!el || tvMode!=='single' || !tvHoyRows.length) return;
+  var r = tvHoyRows[tvSingleIdx] || tvHoyRows[0];
+  var frases = tvFrases_(tvBrandInfo_(r.marca).label);
+  tvFraseIdx = (tvFraseIdx + 1) % frases.length;
+  el.style.opacity = 0;
+  setTimeout(function(){ el.textContent = frases[tvFraseIdx]; el.style.opacity = 1; }, 450);
+}
+if(!_tvFraseTimer) _tvFraseTimer = setInterval(tvRotarFrase_, 8000);
+// ---- VIN visible u oculto (se guarda en esta pantalla) ----
+function tvOcultarVin_(){ try{ return localStorage.getItem('tvOcultarVin')==='1'; }catch(e){ return false; } }
+function toggleTvVin_(){ try{ localStorage.setItem('tvOcultarVin', tvOcultarVin_()?'0':'1'); }catch(e){} tvRenderSingleCard(); }
 function tvRenderSingleCard(){
   var wrap = document.getElementById('tvSingleWrap');
   var vtvC = document.getElementById('viewTv'); if(vtvC && tvMode==='single') vtvC.classList.add('tv-claro');
@@ -4507,7 +4532,10 @@ function tvRenderSingleCard(){
       '<div>'+
         '<div class="tv-single-label">'+(r.entregada?'ENTREGA REALIZADA':'ENTREGA EN CURSO')+'</div>'+
         '<div class="tv-single-cliente">'+r.cliente+'</div>'+
-        '<div class="tv-single-vehiculo"><b>'+b.label+'</b> '+r.modelo+(r.chasis?' <span style="color:#8890a0;">· VIN '+r.chasis+'</span>':'')+'</div>'+
+        '<div class="tv-single-vehiculo"><b>'+b.label+'</b> '+r.modelo+
+          (r.chasis ? (tvOcultarVin_() ? '' : ' <span style="color:#8890a0;">· VIN '+r.chasis+'</span>') +
+            ' <button class="tv-vin-ojo" onclick="toggleTvVin_()" title="'+(tvOcultarVin_()?'Mostrar VIN':'Ocultar VIN')+'"><span class="material-symbols-outlined">'+(tvOcultarVin_()?'visibility':'visibility_off')+'</span></button>' : '')+
+        '</div>'+
         '<div class="tv-single-meta">'+
           '<div class="tv-single-meta-item"><span class="material-symbols-outlined">schedule</span><div><span class="lbl">Hora</span><b>'+r.hora+' hs</b></div></div>'+
           '<div class="tv-single-meta-item"><span class="material-symbols-outlined">location_on</span><div><span class="lbl">Sucursal</span><b>'+(r.sucursal&&r.sucursal!=='default'?r.sucursal:'—')+'</b></div></div>'+
@@ -4518,16 +4546,9 @@ function tvRenderSingleCard(){
       '</div>'+
     '</div>';
 
-  if(next){
-    html += '<div class="tv-single-footer" style="--tv-accent:var('+nextB.color+')">'+
-      '<div class="tv-single-footer-left">'+
-        '<div class="tv-single-footer-tag"><span class="material-symbols-outlined">event</span>PRÓXIMA ENTREGA</div>'+
-        '<div class="tv-single-footer-time">'+next.hora+'</div>'+
-        '<div><div class="tv-single-footer-cli">'+next.cliente+'</div><div class="tv-single-footer-veh">'+nextB.label+' '+next.modelo+'</div></div>'+
-      '</div>'+
-      '<img class="tv-single-footer-logo" src="'+nextB.logo+'" alt="'+nextB.label+'">'+
-    '</div>';
-  }
+  // Frase para el cliente (reemplaza a "Próxima entrega"): va alternando sola.
+  var frases = tvFrases_(b.label);
+  html += '<div class="tv-single-frase" style="--tv-accent:var('+b.color+')"><span id="tvFraseTxt">'+frases[tvFraseIdx % frases.length]+'</span></div>';
 
   wrap.innerHTML = html;
 }
@@ -9101,7 +9122,20 @@ function renderColorVehiculoHeader_(r){
   wrap.style.display='inline-flex';
 }
 
+// Si alguna parte del detalle falla con un dato raro (ej. una hora cargada como número
+// en la planilla de una marca), antes NO se abría el detalle. Ahora se abre igual y avisa.
 function openDetail(marca, id){
+  try{
+    openDetailCore_(marca, id);
+  }catch(err){
+    console.error('Error al abrir el detalle', marca, id, err);
+    showToast('El detalle se abrió con un dato que no se pudo mostrar ('+(err && err.message || err)+')');
+    try{ aplicarSoloLecturaDrawer_(); }catch(e){}
+    document.getElementById('overlay').classList.add('show');
+    document.getElementById('drawer').classList.add('show');
+  }
+}
+function openDetailCore_(marca, id){
   detailId=id; detailMarca=marca;
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   document.getElementById('dHeadName').textContent=r.cliente;
@@ -10165,7 +10199,7 @@ function agregarComentarioUI(){
 function faltanMenosDe24hs_(r){
   var fechaObj = parsearFecha_(r.fecha);
   if(!fechaObj || !r.hora) return true; // sin fecha clara, no bloqueamos
-  var partesHora = r.hora.split(':');
+  var partesHora = String(r.hora).split(':');
   fechaObj.setHours(Number(partesHora[0])||0, Number(partesHora[1])||0, 0, 0);
   var horasFaltantes = (fechaObj.getTime() - Date.now()) / (1000*60*60);
   return horasFaltantes <= 24;

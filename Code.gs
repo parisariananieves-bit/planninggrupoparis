@@ -698,7 +698,13 @@ function formatFecha_(v){
 }
 function formatHora_(v){
   if(v instanceof Date) return Utilities.formatDate(v, Session.getScriptTimeZone(), 'HH:mm');
-  return v;
+  // Hora guardada como número en la planilla (fracción del día, ej. 0.6667 = 16:00, o 16 = 16:00):
+  // antes llegaba como número y el detalle de la entrega fallaba al abrirse.
+  if(typeof v === 'number' && !isNaN(v)){
+    var mins = v < 1 ? Math.round(v*1440) : Math.round(v)*60;
+    return ('0'+Math.floor(mins/60)%24).slice(-2)+':'+('0'+(mins%60)).slice(-2);
+  }
+  return v==null ? '' : String(v);
 }
 
 function getSheetPorMarca_(marca){
