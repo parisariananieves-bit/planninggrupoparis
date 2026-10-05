@@ -717,6 +717,12 @@ function rowToObj_(row, marca){
   CAMPOS.forEach(function(c){ if(c.bool) obj[c.k]=(obj[c.k]===true||obj[c.k]==='true'); });
   obj.fecha = formatFecha_(obj.fecha);
   obj.hora = formatHora_(obj.hora);
+  // Campos de texto que en la planilla quedaron como número (ej. Observaciones = 123): se mandan como texto.
+  ['cliente','telefono','email','dni','modelo','color','dominio','chasis','accesorios','campanaTexto','vendedor','administrativo','responsableEntrega',
+   'observaciones','regaloItems','regaloObservaciones','trasladoObs','npsComentario','alertaTempranaComentario','npsFabricaComentario','entregaFallidaMotivo',
+   'responsablePreparacion','sucursal','tipoVenta','lugar','usado','estado'].forEach(function(k){
+    if(typeof obj[k] === 'number') obj[k] = String(obj[k]);
+  });
   try{ obj.comentarios = obj.comentarios? JSON.parse(obj.comentarios):[]; }catch(e){ obj.comentarios=[]; }
   try{ obj.historial = obj.historial? JSON.parse(obj.historial):[]; }catch(e){ obj.historial=[]; }
   try{ obj.trasladoChecklist = obj.trasladoChecklist? JSON.parse(obj.trasladoChecklist):{}; }catch(e){ obj.trasladoChecklist={}; }

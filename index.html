@@ -3432,6 +3432,23 @@ var BRANDS = [
 var MARCA_LABEL = {chevrolet:'Chevrolet', peugeot:'Peugeot', citroen:'Citroën', honda:'Honda', dfsk:'DFSK / Jetour', usados:'Usados'};
 
 var ENTREGAS = [];
+// Campos de texto: si en la planilla quedó un número o una fecha (ej. Observaciones = 123),
+// llegaba como número y fallaban cosas como .trim() al abrir el detalle. Se pasan todos a texto.
+var CAMPOS_TEXTO_ENTREGA_ = ['cliente','telefono','email','dni','modelo','color','dominio','chasis','accesorios','campanaTexto','vendedor','administrativo',
+  'responsableEntrega','observaciones','regaloItems','regaloObservaciones','trasladoObs','trasladoDestino','npsComentario','alertaTempranaComentario','npsFabricaComentario',
+  'entregaFallidaMotivo','accesoriosMotivo','kitSeguridadMotivo','manualMotivo','llaveDuplicadaMotivo','alfombrasMotivo','campanaMotivo','responsablePreparacion',
+  'sucursal','tipoVenta','lugar','usado','estado','recordatorio','onstar','contactoSofiNombre','contactoSofiComentario','contactoSofiMail','hora','fecha'];
+function normalizarTextosEntregas_(arr){
+  (arr||[]).forEach(function(r){
+    if(!r) return;
+    CAMPOS_TEXTO_ENTREGA_.forEach(function(k){
+      var v = r[k];
+      if(v===undefined || v===null){ if(k!=='hora' && k!=='fecha') r[k] = ''; return; }
+      if(typeof v !== 'string') r[k] = String(v);
+    });
+  });
+  return arr;
+}
 var COMUNICACIONES = [];
 var CASOS = [];
 var _casosCargadas_ = false;
@@ -4315,7 +4332,7 @@ function cargarTodo(omitirRefrescoInicial){
   if(cache && !pedidoManual){
     // Hay caché y es la carga inicial de la app: pintamos YA con lo último
     // guardado (0ms de espera) y refrescamos en segundo plano sin bloquear.
-    ENTREGAS = cache.entregas;
+    ENTREGAS = normalizarTextosEntregas_(cache.entregas);
     CONFIG = cache.config;
     pintarDatosCargados_(false);
     primeraCargaApp_ = false;
@@ -4323,7 +4340,7 @@ function cargarTodo(omitirRefrescoInicial){
     if(omitirRefrescoInicial) return; // el login combinado ya trajo datos frescos — no hace falta pedirlos de nuevo
 
     conReintentos_(function(){ return Promise.all([gasGet('entregas'), gasGet('config')]); }, 2, 1000).then(function(res){
-      ENTREGAS = res[0];
+      ENTREGAS = normalizarTextosEntregas_(res[0]);
       CONFIG = res[1];
       guardarDatosCache_(ENTREGAS, CONFIG);
       renderAll(); renderDatalists(); aplicarPermisosUI();
@@ -4339,7 +4356,7 @@ function cargarTodo(omitirRefrescoInicial){
   document.getElementById('loadingMsg').style.display='block';
   document.getElementById('mainShell').style.display= cache ? 'block' : 'none';
   conReintentos_(function(){ return Promise.all([gasGet('entregas'), gasGet('config')]); }, 2, 1000).then(function(res){
-    ENTREGAS = res[0];
+    ENTREGAS = normalizarTextosEntregas_(res[0]);
     CONFIG = res[1];
     guardarDatosCache_(ENTREGAS, CONFIG);
     pintarDatosCargados_(pedidoManual);
@@ -8141,7 +8158,7 @@ function hayModalAbierto(){
 function actualizacionSilenciosa(){
   if(!GAS_URL || hayModalAbierto()) return;
   gasGet('entregas').then(function(data){
-    ENTREGAS=data;
+    ENTREGAS=normalizarTextosEntregas_(data);
     renderAll();
     guardarDatosCache_(ENTREGAS, CONFIG); // mantiene la caché fresca para la próxima apertura
   }).catch(function(){});
@@ -13280,7 +13297,7 @@ function iniciarAutoRefrescoFabrica_(){
   _fabricaAutoRefrescoInterval_ = setInterval(function(){
     if(maestroTabActual!=='npsfabrica'){ clearInterval(_fabricaAutoRefrescoInterval_); return; }
     gasGet('entregas').then(function(res){
-      if(res) ENTREGAS = res;
+      if(res) ENTREGAS = normalizarTextosEntregas_(res);
       if(maestroTabActual==='npsfabrica') renderNpsFabricaPanel_();
     }).catch(function(){});
   }, 30000);
