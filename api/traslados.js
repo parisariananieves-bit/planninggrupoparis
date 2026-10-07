@@ -40,12 +40,29 @@ export default async function handler(req, res) {
       params: body.params || {}
     });
 
-    const upstream = await fetch(target.toString(), {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: payload,
-      redirect: 'follow'
-    });
+    // Apps Script suele responder al /exec con un 302 hacia
+    // script.googleusercontent.com. Un redirect=follow normal puede convertir
+    // ese POST en GET, por lo que terminamos recibiendo:
+    // 'Traslados: API activa' en vez del JSON del doPost.
+    // Seguimos los redirects manualmente conservando POST + body.
+    let upstream = null;
+    let currentUrl = target.toString();
+    for (let i = 0; i < 5; i++) {
+      upstream = await fetch(currentUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+          'Accept': 'application/json, text/plain, */*'
+        },
+        body: payload,
+        redirect: 'manual'
+      });
+
+      if (![301, 302, 303, 307, 308].includes(upstream.status)) break;
+      const location = upstream.headers.get('location');
+      if (!location) break;
+      currentUrl = new URL(location, currentUrl).toString();
+    }
 
     const text = await upstream.text();
     let parsed;
