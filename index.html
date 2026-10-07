@@ -3449,6 +3449,13 @@ function leerApiUrlCache_(){
 function guardarApiUrlCache_(apiUrl){
   try{ localStorage.setItem(API_URL_CACHE_KEY, JSON.stringify({apiUrl:apiUrl, guardadoEn:Date.now()})); }catch(e){}
 }
+// URL de Traslados (variable VITE_TRASLADOS_API_URL en Vercel). Se cachea aparte.
+var TRASLADOS_URL_CACHE_KEY = 'trasladosUrlCache_v1';
+var TRASLADOS_API_URL = (function(){ try{ return localStorage.getItem(TRASLADOS_URL_CACHE_KEY) || ''; }catch(e){ return ''; } })();
+function guardarTrasladosUrl_(u){
+  TRASLADOS_API_URL = u || '';
+  try{ if(u) localStorage.setItem(TRASLADOS_URL_CACHE_KEY, u); else localStorage.removeItem(TRASLADOS_URL_CACHE_KEY); }catch(e){}
+}
 function pedirApiUrlDeRed_(){
   return conReintentos_(function(){
     return fetch('/api/config').then(function(r){
@@ -3456,6 +3463,7 @@ function pedirApiUrlDeRed_(){
       return r.json();
     }).then(function(cfg){
       if(!cfg || !cfg.apiUrl) throw new Error('API_URL no configurada');
+      guardarTrasladosUrl_(cfg.trasladosApiUrl || '');
       return cfg.apiUrl;
     });
   });
@@ -3468,7 +3476,7 @@ function cargarConfigBackend(){
     // sirve mientras se revalida) para no bloquear el arranque nunca.
     API_URL = cache.apiUrl;
     GAS_URL = cache.apiUrl;
-    if(!cacheFresca){
+    if(!cacheFresca || !TRASLADOS_API_URL){
       // Revalidación silenciosa: si la URL cambió, se actualiza para la
       // próxima vez, pero no interrumpe la sesión actual.
       pedirApiUrlDeRed_().then(function(apiUrl){ guardarApiUrlCache_(apiUrl); }).catch(function(){});
@@ -5751,7 +5759,7 @@ function trasLugar_(x){
 function trasRuta_(v){ return trasLugar_(v.Origen)+' → '+trasLugar_(v.Destino); }
 function trasPuedeEditar_(){ return typeof puedeEditarModulo_==='function' ? puedeEditarModulo_('traslados') : true; }
 // Traslados tiene su propia planilla y su propio script: la URL se guarda una vez en la configuración del Planning.
-function trasApiUrl_(){ return (typeof CONFIG!=='undefined' && CONFIG && CONFIG.trasladosApiUrl) || ''; }
+function trasApiUrl_(){ return TRASLADOS_API_URL || (typeof CONFIG!=='undefined' && CONFIG && CONFIG.trasladosApiUrl) || ''; }
 function trasPost_(action, params){
   var s = sesionActual() || {};
   params = params || {};
@@ -5785,7 +5793,9 @@ function trasEntregaPlanning_(vin){
 
 function trasAbrir_(){
   trasRender_();
-  if(!TRAS.cargado && trasApiUrl_()) trasCargar_();
+  if(TRAS.cargado) return;
+  if(trasApiUrl_()){ trasCargar_(); return; }
+  pedirApiUrlDeRed_().then(function(){ if(trasApiUrl_()){ trasRender_(); trasCargar_(); } }).catch(function(){});
 }
 function trasConfigHTML_(){
   var maestro = typeof esCalidad==='function' && esCalidad();
