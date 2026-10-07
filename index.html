@@ -3184,7 +3184,7 @@
 </div>
 <div class="modal agrandado" id="auditoriaModal">
   <div class="modal-head">
-    <div><h3>Auditoría de entrega</h3><div class="sub" id="auditoriaModalSub">—</div></div>
+    <div><h3 id="auditoriaModalTit">Auditoría de entrega</h3><div class="sub" id="auditoriaModalSub">—</div></div>
     <div style="display:flex;gap:8px;align-items:center;">
       <button class="view-btn aud-ver" onclick="imprimirAuditoria_()">⬇ Descargar PDF</button>
       <button class="close aud-ver" onclick="cerrarAuditoriaModal_()">✕</button>
@@ -5847,7 +5847,53 @@ function trasAudBadge_(vin){
 }
 function trasLinkAuditar_(vin){ return AUDITORIA_APP_URL + '#auditoria=' + encodeURIComponent(String(vin).toUpperCase()+'-T'); }
 function trasLinkInformeAud_(vin){ return AUDITORIA_APP_URL + '#informe=' + encodeURIComponent(String(vin).toUpperCase()+'-T'); }
-function trasLinkPdfAud_(vin){ var a = trasAud_(vin); return a.estado!=='pendiente' ? ' <a href="'+trasLinkInformeAud_(vin)+'" target="_blank" rel="noopener" title="Control pre-traslado de la unidad (PDF)" style="font-size:11px;">'+trasIco_('picture_as_pdf',14)+' PDF</a>' : ''; }
+function trasLinkPdfAud_(vin){ var a = trasAud_(vin); return a.estado!=='pendiente' ? ' <a href="#" onclick="event.preventDefault();trasVerControlPdf_(\''+vin+'\')" title="Control pre-traslado de la unidad (PDF)" style="font-size:11px;">'+trasIco_('picture_as_pdf',14)+' PDF</a>' : ''; }
+// Control pre-traslado de una unidad: se ve DENTRO del Planning (mismo visor e impresión que el informe de auditoría de entregas).
+function trasVerControlPdf_(vin){
+  var clave = String(vin).toUpperCase()+'-T', c = AUD_CACHE[clave];
+  var mostrar = function(res){
+    if(!res || res.error || res.ok===false){ showToast('No se pudo leer la auditoría'+(res&&res.error?': '+res.error:'')); return; }
+    if(!res.encontrado){ showToast('Esta unidad todavía no tiene control pre-traslado.'); return; }
+    res.esTraslado = true;
+    var v = trasVeh_(vin) || {};
+    document.getElementById('auditoriaModalTit').textContent = 'Control pre-traslado';
+    document.getElementById('auditoriaModalSub').textContent = (v.Unidad||'')+' · '+vin;
+    document.getElementById('auditoriaModalBody').innerHTML = trasControlHTML_(vin, res);
+    document.getElementById('auditoriaModal').classList.add('show');
+    document.getElementById('auditoriaModal').scrollTop = 0;
+  };
+  if(c && Date.now()-c.t < 60000){ mostrar(c.res); return; }
+  showToast('Abriendo el control…');
+  gasGet('auditoriaEntrega', {vin: clave}).then(function(res){ if(res && res.ok!==false && !res.error) AUD_CACHE[clave] = {t: Date.now(), res: res}; mostrar(res); })
+    .catch(function(e){ showToast('No se pudo leer la auditoría: '+e); });
+}
+function trasControlHTML_(vin, res){
+  var e = trasEsc_, v = trasVeh_(vin) || {}, a = res.auditoria || {}, clave = String(vin).toUpperCase()+'-T';
+  var b = BRANDS.find(function(x){ return x.id===v.Marca; });
+  var qs = audPregActivas_(res), tot = audResultado_(res, [1]);
+  // El resultado oficial es el que guardó la app de Auditoría al cerrar el control.
+  if(a.resultado) tot.label = a.resultado;
+  var num = {}, cnt = {};
+  qs.forEach(function(q){ var sec = String(q.seccion).match(/^(\d+)/); var k = sec ? sec[1] : '0'; cnt[k] = (cnt[k]||0)+1; num[q.id] = k+'.'+cnt[k]; });
+  var td = function(x){ return '<td>'+(e(x)||'—')+'</td>'; };
+  var fotos = [];
+  qs.forEach(function(q){ var r = res.respuestas[q.id] || {}; (r.fotos||[]).forEach(function(f){ fotos.push(f); }); });
+  var h = '<div class="aud-rp"><div class="rp-h"><div><img class="gp" src="'+LOGO_GRUPOPARIS_WORDMARK+'" alt="Grupo París"><h1>Control de unidad pre-traslado</h1></div>'+
+    '<div class="no">'+(b&&b.logo?'<img src="'+b.logo+'" alt="">':'')+'<span>Resultado</span><b>'+e(tot.label)+'</b></div></div>';
+  h += '<h2>Unidad</h2><table class="g"><tr><th>VIN</th><td style="font-family:monospace;">'+e(vin)+'</td><th>Unidad</th>'+td(v.Unidad)+'</tr>'+
+    '<tr><th>Marca</th>'+td(b?b.label:v.Marca)+'<th>Cliente</th>'+td(v.Cliente||v.Tipo)+'</tr>'+
+    '<tr><th>Origen → destino</th>'+td(trasLugar_(v.Origen)+' → '+trasLugar_(v.Destino))+'<th>Canal / tipo</th>'+td([v.Canal, v.Tipo].filter(Boolean).join(' · '))+'</tr>'+
+    '<tr><th>Controlada el</th>'+td(trasFechaHora_(a.f1_fecha))+'<th>Controló</th>'+td(a.auditor)+'</tr>'+
+    (v.TrasladoID?'<tr><th>N° de traslado</th><td colspan="3">'+e(v.TrasladoID)+'</td></tr>':'')+'</table>';
+  h += '<h2>Control</h2><table><tr><th style="width:44px">N°</th><th>Punto</th><th style="width:74px">Resultado</th><th>Observación</th></tr>'+
+    qs.map(function(q){ var r = res.respuestas[q.id] || {}, val = r.r==='Si'?'Sí':r.r==='NA'?'N/A':(r.r||'—');
+      return '<tr><td>'+e(num[q.id])+'</td><td>'+e(q.texto)+(q.critica?' <b style="color:#A8261F">(crítico)</b>':'')+'</td><td class="r '+e(r.r||'')+'">'+val+'</td><td>'+e(r.obs||'')+'</td></tr>'; }).join('')+'</table>';
+  if(fotos.length) h += '<h2>Fotos de cómo sale la unidad</h2><div class="fotos">'+fotos.map(function(f){ return '<img src="'+audFotoSrc_(clave, f)+'" alt="">'; }).join('')+'</div>';
+  h += '<h2>Resultado</h2><table><tr><td><b>'+e(tot.label)+'</b>'+(tot.crit?' · tiene un punto crítico en "No": la unidad no puede viajar hasta resolverlo.':'')+(a.obs_gral?'<br>'+e(a.obs_gral):'')+'</td></tr></table>';
+  h += '<div class="firmas" style="grid-template-columns:1fr 1fr;"><div><span><b>Controló</b>'+e(a.auditor||'____________________')+'<br>Firma: ____________________</span></div><div><span><b>Recibe para trasladar</b>Nombre: ____________________<br>Firma: ____________________</span></div></div>';
+  h += '<div class="foot">Grupo París · Paris Autos S.A. · Control pre-traslado de la unidad '+e(vin)+'</div></div>';
+  return h;
+}
 function trasFechaHora_(iso){
   if(!iso) return '';
   var d = new Date(String(iso).length<=10 ? iso+'T12:00:00' : iso); if(isNaN(d)) return String(iso);
@@ -6007,7 +6053,7 @@ function trasFiltrosHTML_(){
   '</div>';
 }
 function trasPendientesHTML_(){
-  if(!TRAS.veh.length) return '<div class="report-wrap" style="padding:30px;text-align:center;color:var(--text-faint);font-size:13px;">Todavía no hay unidades. Cargalas en la <b>planilla de Traslados</b>, en la hoja de su ruta (columnas blancas: FECHA DE CARGA, FECHA PREVISTA, FECHA-ACT., ORIGEN, DESTINO, ESTADO, CANAL, VIN, UNIDAD, CLIENTE, LLEGADA) y tocá Actualizar, o subí un Excel con <b>'+trasIco_('upload',16)+' Importar base</b>.'+(trasPuedeEditar_()?'<div style="margin-top:12px;"><button class="save-btn" onclick="trasAbrirUnidad_()">'+trasIco_('add',16)+' Agregar unidad desde acá</button></div>':'')+'</div>';
+  if(!TRAS.veh.length) return '<div class="report-wrap" style="padding:30px;text-align:center;color:var(--text-faint);font-size:13px;">Todavía no hay unidades. Cargalas en la <b>planilla de Traslados</b>, en la hoja de su ruta (columnas blancas: FECHA DE CARGA, FECHA PREVISTA, ORIGEN, DESTINO, ESTADO, CANAL, VIN, UNIDAD, CLIENTE, LLEGADA) y tocá Actualizar, o subí un Excel con <b>'+trasIco_('upload',16)+' Importar base</b>.'+(trasPuedeEditar_()?'<div style="margin-top:12px;"><button class="save-btn" onclick="trasAbrirUnidad_()">'+trasIco_('add',16)+' Agregar unidad desde acá</button></div>':'')+'</div>';
   var lista = trasVehFiltrados_(), edit = trasPuedeEditar_();
   var prioOrd = {Alta:0, Media:1, Baja:2};
   var grupos = {};
@@ -6051,7 +6097,7 @@ function trasIsoADmy_(s){ var m = String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})/
 function trasAbrirUnidad_(vin){
   var v = vin ? trasVeh_(vin) : null, hoy = trasIsoADmy_(new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString());
   var enViaje = v && v.TrasladoID && ['Asignado','En traslado'].indexOf(v.Estado)>-1;
-  var d = v ? v : {FechaAct: hoy, Origen:'San Luis', Destino:'', EstadoBase:'STOCK', Canal:'VN'};
+  var d = v ? v : {Origen:'San Luis', Destino:'', EstadoBase:'STOCK', Canal:'VN'};
   var lugares = trasUnicos_(SUCURSALES.concat(TRAS.veh.map(function(x){ return trasLugar_(x.Origen); })).concat(TRAS.veh.map(function(x){ return trasLugar_(x.Destino); })));
   var inp = function(id, lab, val, extra){ return '<label class="tras-campo"><span>'+lab+'</span><input id="'+id+'" value="'+trasEsc_(val||'')+'" '+(extra||'')+'></label>'; };
   var h = (enViaje ? '<div class="tras-alerta">Está en el traslado '+trasEsc_(v.TrasladoID)+': se pueden corregir los datos, pero no el VIN, el origen ni el destino.</div>' : '')+
@@ -6060,7 +6106,6 @@ function trasAbrirUnidad_(vin){
     '<label class="tras-campo"><span>Fecha prevista</span><input id="trasUFPrev" type="date" value="'+trasDmyAIso_(d.FechaPrevista)+'"></label>'+
     inp('trasUVIN','VIN', d.VIN, 'style="text-transform:uppercase;font-family:monospace;"'+(enViaje?' disabled':''))+inp('trasUUnidad','Unidad / modelo', d.Unidad)+inp('trasUCliente','Cliente (vacío si es stock o salón)', d.Cliente)+
     inp('trasUCanal','Canal', d.Canal, 'list="trasDlCanal"')+inp('trasUEstado','Estado (base)', d.EstadoBase)+
-    '<label class="tras-campo"><span>Fecha act.</span><input id="trasUFAct" type="date" value="'+trasDmyAIso_(d.FechaAct)+'"></label>'+
     inp('trasULlegada','Llegada (base)', d.Llegada)+
     '</div><datalist id="trasDlLugU">'+lugares.map(function(x){ return '<option value="'+trasEsc_(x)+'">'; }).join('')+'</datalist>'+
     '<datalist id="trasDlCanal"><option value="VN"><option value="PDA"></datalist>'+
@@ -6073,7 +6118,7 @@ function trasAbrirUnidad_(vin){
 function trasGuardarUnidad_(vinOrig){
   var val = function(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; };
   var v = vinOrig ? trasVeh_(vinOrig) : null;
-  var datos = {Origen: val('trasUOrigen'), Destino: val('trasUDestino'), FechaPrevista: trasIsoADmy_(val('trasUFPrev')), FechaAct: trasIsoADmy_(val('trasUFAct')),
+  var datos = {Origen: val('trasUOrigen'), Destino: val('trasUDestino'), FechaPrevista: trasIsoADmy_(val('trasUFPrev')),
     VIN: val('trasUVIN').toUpperCase(), Unidad: val('trasUUnidad'), Cliente: val('trasUCliente'), Canal: val('trasUCanal'), EstadoBase: val('trasUEstado'), Llegada: val('trasULlegada'),
     FechaCarga: v ? v.FechaCarga : ''};
   if(!datos.VIN || datos.VIN.length<6){ showToast('Completá el VIN.'); return; }
@@ -6100,7 +6145,8 @@ function trasGrupoCeluHTML_(ruta, g, cuenta, edit){
       var sel = !!trasUI.sel[v.VIN];
       var chk = (edit && libre) ? (bloq ? '<span class="tc-lock" title="Auditoría no aprobada" style="color:var(--danger);">'+trasIco_('lock',20)+'</span>' : '<label class="tc-chk"><input type="checkbox" '+(sel?'checked':'')+' onchange="trasUI.sel[\''+v.VIN+'\']=this.checked;trasRender_()"></label>') : '';
       var accion = v.Estado==='Asignado' ? '<button class="view-btn" onclick="trasAbrirDetalle_(\''+v.TrasladoID+'\')">'+trasIco_('local_shipping')+' '+trasEsc_(v.TrasladoID)+'</button>'
-        : '<a class="view-btn" href="'+(a.estado==='pendiente'?trasLinkAuditar_(v.VIN):trasLinkInformeAud_(v.VIN))+'" target="_blank" rel="noopener">'+(a.estado==='pendiente'?trasIco_('fact_check')+' Auditar':trasIco_('picture_as_pdf')+' Control PDF')+'</a>';
+        : (a.estado==='pendiente' ? '<a class="view-btn" href="'+trasLinkAuditar_(v.VIN)+'" target="_blank" rel="noopener">'+trasIco_('fact_check')+' Auditar</a>'
+           : '<button class="view-btn" onclick="trasVerControlPdf_(\''+v.VIN+'\')">'+trasIco_('picture_as_pdf')+' Control PDF</button>');
       return '<div class="tc'+(sel?' sel':'')+'">'+
         '<div class="tc-top">'+chk+'<div class="tc-main"><b><span style="color:var('+(b?b.color:'--text')+')">'+trasEsc_(b?b.label:'')+'</span> '+trasEsc_(v.Unidad)+'</b>'+
           '<span>'+trasEsc_(v.Cliente||v.Tipo)+' · '+trasEsc_(v.Canal)+'</span><span class="mono">'+trasEsc_(v.VIN)+'</span></div>'+
@@ -6288,7 +6334,7 @@ function trasAbrirSalida_(id){
   var t = trasT_(id), vins = t.VINs||[];
   var sinAud = vins.filter(function(v){ var a = trasAud_(v).estado; return a==='pendiente' || a==='no_aprobada'; });
   if(sinAud.length){ showToast('No puede salir: hay '+sinAud.length+' unidad(es) sin auditoría aprobada.'); return; }
-  if(!t.Patente || !t.Camionero){ showToast('Antes de firmar completá patente y camionero ('+trasIco_('edit',16)+' Editar carga y datos).'); return; }
+  if(!t.Patente || !t.Camionero){ showToast('Antes de firmar completá patente y camionero (botón "Editar carga y datos").'); return; }
   var u = sesionActual()||{};
   var h = '<p class="tras-nota">Se entregan al camionero <b>'+vins.length+'</b> unidades para trasladar de <b>'+trasEsc_(trasLugar_(t.Origen))+'</b> a <b>'+trasEsc_(trasLugar_(t.Destino))+'</b>. Al confirmar se registra la fecha y hora y el traslado pasa a <b>En traslado</b>.</p>'+
     '<div class="tras-form-grid"><label class="tras-campo"><span>Responsable de logística</span><input id="trasSalNomLog" value="'+trasEsc_(t.Responsable||u.nombre||'')+'"></label>'+
@@ -6506,7 +6552,7 @@ function trasHistorialHTML_(){
     var bloque = function(tit, cuerpo){ return '<div class="tras-vin-b"><h4>'+tit+'</h4>'+cuerpo+'</div>'; };
     var kv = function(l, x){ return '<div><span>'+l+'</span><b>'+(trasEsc_(x)||'—')+'</b></div>'; };
     var hh = '<div class="tras-vin"><div class="tras-vin-h"><b>'+trasEsc_(v.VIN)+'</b><span>'+trasEsc_((b?b.label+' ':'')+v.Unidad)+'</span><span class="tras-pill">'+trasEsc_(v.Estado)+'</span></div>';
-    hh += bloque('Datos originales', '<div class="tras-det-grid">'+kv('Unidad', v.Unidad)+kv('Cliente', v.Cliente)+kv('Origen', trasLugar_(v.Origen))+kv('Destino', trasLugar_(v.Destino))+kv('Canal', v.Canal)+kv('Estado en la base', v.EstadoBase)+kv('Hoja', v.Hoja)+kv('Fecha de carga', v.FechaCarga)+kv('Fecha prevista', v.FechaPrevista)+kv('Fecha act.', v.FechaAct)+kv('Llegada (base)', v.Llegada)+kv('Tipo / prioridad', v.Tipo+' · '+v.Prioridad)+(en?kv('Entrega en el Planning', (en.fecha||'')+' · '+(en.dominio||'')+' · '+(en.color||'')):'')+'</div>');
+    hh += bloque('Datos originales', '<div class="tras-det-grid">'+kv('Unidad', v.Unidad)+kv('Cliente', v.Cliente)+kv('Origen', trasLugar_(v.Origen))+kv('Destino', trasLugar_(v.Destino))+kv('Canal', v.Canal)+kv('Estado en la base', v.EstadoBase)+kv('Hoja', v.Hoja)+kv('Fecha de carga', v.FechaCarga)+kv('Fecha prevista', v.FechaPrevista)+kv('Llegada (base)', v.Llegada)+kv('Tipo / prioridad', v.Tipo+' · '+v.Prioridad)+(en?kv('Entrega en el Planning', (en.fecha||'')+' · '+(en.dominio||'')+' · '+(en.color||'')):'')+'</div>');
     hh += bloque('Auditoría pre-traslado', '<p>'+trasAudBadge_(v.VIN)+(a.fecha?' · '+trasEsc_(trasFechaHora_(a.fecha)):'')+(a.auditor?' · '+trasEsc_(a.auditor):'')+' · '+(a.fotos||[]).length+' foto(s) · <a href="'+trasLinkAuditar_(v.VIN)+'" target="_blank" rel="noopener">'+trasIco_('open_in_new',14)+' abrir auditoría</a></p>'+
       ((a.obs||[]).length ? '<ul>'+a.obs.map(function(o){ return '<li>'+trasEsc_(o.pregunta)+(o.obs?': '+trasEsc_(o.obs):'')+'</li>'; }).join('')+'</ul>' : ''));
     hh += bloque('Traslados', ts.length ? ts.map(function(t){ var it = ((t.Recepcion||{}).items||{})[v.VIN];
@@ -6533,7 +6579,7 @@ function trasImportarArchivo_(ev){
       for(var i=0;i<Math.min(filas.length,15);i++){ var n = (filas[i]||[]).map(trasNormCol_); if(n.indexOf('VIN')>-1 && (n.indexOf('DESTINO')>-1 || n.indexOf('ORIGEN')>-1)){ ih = i; H = n; break; } }
       if(ih<0){ showToast('No encontré las columnas VIN / ORIGEN / DESTINO en el archivo.'); return; }
       var col = function(){ for(var a=0;a<arguments.length;a++){ var x = H.indexOf(arguments[a]); if(x>-1) return x; } for(var b=0;b<arguments.length;b++){ for(var j=0;j<H.length;j++){ if(H[j].indexOf(arguments[b])===0) return j; } } return -1; };
-      var C = {FechaCarga: col('FECHADECARGA'), FechaPrevista: col('FECHAPREVISTA'), FechaAct: col('FECHAACT','FECHA'), Origen: col('ORIGEN'), Destino: col('DESTINO'), EstadoBase: col('ESTADO'), Canal: col('CANAL'), VIN: col('VIN'), Unidad: col('UNIDAD','MODELO'), Cliente: col('CLIENTE'), Llegada: col('LLEGADA')};
+      var C = {FechaCarga: col('FECHADECARGA'), FechaPrevista: col('FECHAPREVISTA'), Origen: col('ORIGEN'), Destino: col('DESTINO'), EstadoBase: col('ESTADO'), Canal: col('CANAL'), VIN: col('VIN'), Unidad: col('UNIDAD','MODELO'), Cliente: col('CLIENTE'), Llegada: col('LLEGADA')};
       var fmt = function(x){ if(x instanceof Date && !isNaN(x)) return ('0'+x.getDate()).slice(-2)+'/'+('0'+(x.getMonth()+1)).slice(-2)+'/'+x.getFullYear(); return String(x==null?'':x).trim(); };
       var datos = [];
       for(var r=ih+1;r<filas.length;r++){
@@ -6572,14 +6618,14 @@ function trasExportar_(modo, id){
   else if(modo==='filtrado'){ vehs = trasVehFiltrados_(); nombre = 'Traslados_filtrado'; }
   else { vehs = TRAS.veh.slice(); nombre = 'Traslados_completo'; }
   if(!vehs.length){ showToast('No hay unidades para exportar.'); return; }
-  var H = ['ID de traslado','Hoja / ruta','Fecha de carga','Fecha prevista','Fecha de actualización','Origen','Destino','Estado (base)','Canal','VIN','Marca','Unidad / Modelo','Cliente','Tipo','Prioridad','Estado del vehículo','Estado de auditoría','Fecha de auditoría','Resultado de auditoría','Fotos de auditoría','Camión llega a cargar','Camión','Patente','Transportista','Camionero','Fecha prevista de salida','Fecha real de salida','Fecha prevista de llegada','Fecha real de llegada','Estado del traslado','Firma de salida','Estado de recepción','Recibido por','Firma de recepción','Fotos de recepción','Observaciones','Informe PDF'];
+  var H = ['ID de traslado','Hoja / ruta','Fecha de carga','Fecha prevista','Origen','Destino','Estado (base)','Canal','VIN','Marca','Unidad / Modelo','Cliente','Tipo','Prioridad','Estado del vehículo','Estado de auditoría','Fecha de auditoría','Resultado de auditoría','Fotos de auditoría','Camión llega a cargar','Camión','Patente','Transportista','Camionero','Fecha prevista de salida','Fecha real de salida','Fecha prevista de llegada','Fecha real de llegada','Estado del traslado','Firma de salida','Estado de recepción','Recibido por','Firma de recepción','Fotos de recepción','Observaciones','Informe PDF'];
   var filas = vehs.map(function(v){
     var t = v.TrasladoID ? trasT_(v.TrasladoID) : (modo==='detalle' ? trasT_(id) : null);
     if(!t){ t = TRAS.tras.filter(function(x){ return (x.VINs||[]).indexOf(v.VIN)>-1 && x.Estado!=='Cancelado'; }).sort(function(a,b){ return String(b.Creado).localeCompare(String(a.Creado)); })[0] || null; }
     t = t || {};
     var a = trasAud_(v.VIN), rec = t.Recepcion||{}, it = (rec.items||{})[v.VIN], sal = t.Salida||{};
     var obs = [v.Observaciones, t.Observaciones, it && it.obs ? 'Recepción: '+it.obs : '', rec.obs ? 'Recepción general: '+rec.obs : ''].filter(Boolean).join(' · ');
-    return [t.ID||'', v.Hoja||'', trasFecha_(v.FechaCarga), trasFecha_(v.FechaPrevista), trasFecha_(v.FechaAct), trasLugar_(v.Origen), trasLugar_(v.Destino), v.EstadoBase, v.Canal, v.VIN, (MARCA_LABEL&&MARCA_LABEL[v.Marca])||v.Marca, v.Unidad, v.Cliente, v.Tipo, v.Prioridad, v.Estado,
+    return [t.ID||'', v.Hoja||'', trasFecha_(v.FechaCarga), trasFecha_(v.FechaPrevista), trasLugar_(v.Origen), trasLugar_(v.Destino), v.EstadoBase, v.Canal, v.VIN, (MARCA_LABEL&&MARCA_LABEL[v.Marca])||v.Marca, v.Unidad, v.Cliente, v.Tipo, v.Prioridad, v.Estado,
       {aprobada:'Aprobada',observaciones:'Aprobada con observaciones',no_aprobada:'No aprobada',pendiente:'Pendiente'}[a.estado], trasFecha_(a.fecha), a.resultado||'', (a.fotos||[]).length,
       trasFecha_(t.CargaCamion), t.Camion||'', t.Patente||'', t.Transportista||'', t.Camionero||'', trasFecha_(t.SalidaPrevista), trasFecha_(t.SalidaReal), trasFecha_(t.LlegadaPrevista), trasFecha_(t.LlegadaReal), t.Estado||'',
       sal.logistica ? 'Sí' : 'No', it ? (it.estado==='ok'?'Recibido OK':(TRAS_PROBLEMAS.find(function(p){ return p[0]===it.estado; })||['',it.estado])[1]) : '', rec.nombre||'', rec.firma ? 'Sí' : 'No', it ? (it.fotos||[]).length : 0, obs, t.PDF_URL||''];
@@ -9303,8 +9349,11 @@ function audMarcaKey_(m){
 }
 function audPregActivas_(res){
   var mk = audMarcaKey_((res.auditoria && res.auditoria.marca) || '');
+  var tras = !!res.esTraslado, hayT = tras && res.preguntas.some(function(q){ return q.activo && q.aplica==='traslado'; });
   return res.preguntas.filter(function(q){
     if(!q.activo) return false;
+    if(tras){ if(hayT ? q.aplica!=='traslado' : (q.fase!==1 || q.aplica==='entrega')) return false; }
+    else if(q.aplica==='traslado') return false;
     var ms = (q.marcas||[]).map(audMarcaKey_);
     return !mk || !ms.length || ms.indexOf(mk)>-1;
   });
@@ -9476,6 +9525,7 @@ function verAuditoriaCompleta_(){
   var r = audEntregaActual_(); if(!r) return;
   var c = AUD_CACHE[audVin_(r)];
   if(!c || !c.res || !c.res.encontrado){ showToast('Todavía no hay una auditoría para mostrar.'); return; }
+  document.getElementById('auditoriaModalTit').textContent = 'Auditoría de entrega';
   document.getElementById('auditoriaModalSub').textContent = (r.cliente||'') + (r.modelo ? ' · '+r.modelo : '');
   document.getElementById('auditoriaModalBody').innerHTML = audInformeHTML_(r, c.res);
   document.getElementById('auditoriaModal').classList.add('show');

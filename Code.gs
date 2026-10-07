@@ -3556,7 +3556,8 @@ function obtenerAuditoriaEntrega_(vin){
       return {
         id: String(q.id_pregunta), seccion: String(q.seccion), texto: String(q.texto_pregunta),
         req_foto: audSi_(q.req_foto), fase: Number(q.fase) || 1, critica: audSi_(q.critica), activo: !audNo_(q.activo),
-        marcas: String(q.marcas || '').split(',').map(function(m){ return m.trim().toLowerCase(); }).filter(function(m){ return m; })
+        marcas: String(q.marcas || '').split(',').map(function(m){ return m.trim().toLowerCase(); }).filter(function(m){ return m; }),
+        aplica: String(q.aplica || '').trim().toLowerCase()
       };
     });
 
