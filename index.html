@@ -1048,6 +1048,9 @@
   .tras-mini{background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:3px 5px;font-size:11px;}
   .tras-mini.prio-Alta{color:var(--danger);font-weight:700;} .tras-mini.prio-Media{color:var(--warn);font-weight:700;} .tras-mini.prio-Baja{color:var(--ok);font-weight:700;}
   .tras-btn-sm{padding:4px 9px!important;font-size:11px!important;text-decoration:none;display:inline-block;}
+  .tras-edit{white-space:nowrap;}
+  .tras-click{cursor:pointer;}
+  .tras-click:hover{text-decoration:underline;}
   .tras-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;}
   .tras-card{background:linear-gradient(160deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid var(--hairline);border-radius:12px;padding:12px 14px;text-align:left;color:var(--text);cursor:pointer;}
   .tras-card:hover{border-color:var(--accent);}
@@ -6019,9 +6022,9 @@ function trasPendientesHTML_(){
           : (bloq ? '<a class="view-btn tras-btn-sm" href="'+trasLinkAuditar_(v.VIN)+'" target="_blank" rel="noopener">Ver auditoría ↗</a>'
           : '<a class="view-btn tras-btn-sm" href="'+trasLinkAuditar_(v.VIN)+'" target="_blank" rel="noopener">'+(a.estado==='pendiente'?'Auditar unidad ↗':'Auditoría ↗')+'</a>');
         var fpd = trasFecha_(v.FechaPrevista), atras = fpd && libre && fpd.getTime() < new Date().setHours(0,0,0,0);
-        return '<tr class="'+(trasUI.sel[v.VIN]?'sel':'')+'"><td>'+chk+'</td>'+(edit?'<td><button class="view-btn tras-btn-sm" title="Editar datos de la unidad" onclick="trasAbrirUnidad_(\''+v.VIN+'\')">✏</button></td>':'')+'<td>'+prio+'</td><td style="font-size:11.5px;">'+trasEsc_(trasRuta_(v))+'</td>'+
+        return '<tr class="'+(trasUI.sel[v.VIN]?'sel':'')+'"><td>'+chk+'</td>'+(edit?'<td><button class="view-btn tras-btn-sm tras-edit" title="Editar datos de la unidad" onclick="trasAbrirUnidad_(\''+v.VIN+'\')"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">edit</span> Editar</button></td>':'')+'<td>'+prio+'</td><td style="font-size:11.5px;">'+trasEsc_(trasRuta_(v))+'</td>'+
           '<td title="Cargado el '+trasEsc_(v.FechaCarga||'—')+'"'+(atras?' style="color:var(--danger);font-weight:700;"':'')+'>'+trasEsc_(v.FechaPrevista||'—')+(atras?' ⚠':'')+'</td><td>'+tipo+'</td>'+
-          '<td><span style="color:var('+(b?b.color:'--text')+');font-weight:700;">'+trasEsc_(b?b.label:'')+'</span> '+trasEsc_(v.Unidad)+'</td>'+
+          '<td'+(edit?' class="tras-click" title="Tocá para editar" onclick="trasAbrirUnidad_(\''+v.VIN+'\')"':'')+'><span style="color:var('+(b?b.color:'--text')+');font-weight:700;">'+trasEsc_(b?b.label:'')+'</span> '+trasEsc_(v.Unidad)+'</td>'+
           '<td class="mono"><a href="#" onclick="event.preventDefault();trasVerVin_(\''+v.VIN+'\')">'+trasEsc_(v.VIN)+'</a></td><td>'+trasEsc_(v.Cliente||'—')+'</td><td>'+trasEsc_(v.Canal)+'</td>'+
           '<td>'+trasAudBadge_(v.VIN)+trasLinkPdfAud_(v.VIN)+'</td><td>'+trasEsc_(v.Estado)+(v.Avisos?' <span title="'+trasEsc_(v.Avisos)+'" style="color:var(--warn);">⚠</span>':'')+'</td><td>'+accion+'</td></tr>';
       }).join('')+'</tbody></table></div></div>';
@@ -6090,13 +6093,15 @@ function trasGrupoCeluHTML_(ruta, g, cuenta, edit){
           '<span class="tras-pill prio-'+v.Prioridad+'">'+v.Prioridad+'</span></div>'+
         '<div class="tc-mid"><span>'+trasEsc_(trasRuta_(v))+'</span><span'+(atras?' style="color:var(--danger);font-weight:700;"':'')+'>📅 '+trasEsc_(v.FechaPrevista||'sin fecha')+(atras?' ⚠':'')+'</span></div>'+
         '<div class="tc-bot">'+trasAudBadge_(v.VIN)+'<span class="tc-est">'+trasEsc_(v.Estado)+'</span><span style="flex:1"></span>'+accion+
-          (edit?'<button class="view-btn" onclick="trasAbrirUnidad_(\''+v.VIN+'\')" aria-label="Editar">✏</button>':'')+'</div></div>';
+          (edit?'<button class="view-btn" onclick="trasAbrirUnidad_(\''+v.VIN+'\')" aria-label="Editar"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">edit</span> Editar</button>':'')+'</div></div>';
     }).join('')+'</div>';
 }
 function trasCambiarVeh_(vin, campo, valor){
   var v = trasVeh_(vin); if(!v) return;
-  var antes = v[campo]; v[campo] = valor; trasRender_();
+  var antes = v[campo]; v[campo] = valor;
   var c = {}; c[campo] = valor;
+  if(campo==='Tipo'){ var pr = valor==='Venta' ? 'Alta' : valor==='Salón' ? 'Media' : 'Baja'; if(v.Prioridad!==pr){ v.Prioridad = pr; c.Prioridad = pr; } }
+  trasRender_();
   trasPost_('trasVehiculo', {vin: vin, campos: c}).catch(function(e){ v[campo] = antes; trasRender_(); showToast(e.message); });
 }
 
