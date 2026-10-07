@@ -5773,7 +5773,13 @@ function trasPost_(action, params){
   params.actorUsuario = s.usuario; params.actorPassword = s.password;
   if(!trasApiUrl_()) return Promise.reject(new Error('Traslados todavía no está conectado a su planilla.'));
   return fetch(trasApiUrl_(), {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action:action, params:params})})
-    .then(function(r){ return r.json(); }).then(function(res){
+    .catch(function(){
+      // "Failed to fetch": Google no devolvió la respuesta del script (casi siempre es la implementación).
+      TRAS.errorConexion = true; trasRender_();
+      throw new Error('No se pudo conectar con el script de Traslados. Mirá el recuadro de ayuda en la pantalla.');
+    })
+    .then(function(r){ return r.json().catch(function(){ TRAS.errorConexion = true; throw new Error('El script de Traslados respondió algo que no es la API (¿URL equivocada?).'); }); }).then(function(res){
+      TRAS.errorConexion = false;
     if(!res || res.error || res.ok===false) throw new Error(String((res && (res.error||res.mensaje)) || 'Error del servidor').replace(/^Error:\s*/,''));
     return res;
   });
@@ -5820,6 +5826,18 @@ function trasSetTab_(t){ trasUI.tab = t; trasRender_(); }
 function trasRender_(){
   var cont = document.getElementById('trasApp'); if(!cont) return;
   if(!trasApiUrl_()){ cont.innerHTML = trasConfigHTML_(); document.getElementById('trasLegacy').style.display = 'none'; return; }
+  if(TRAS.errorConexion && !TRAS.cargado){
+    var u = trasApiUrl_();
+    cont.innerHTML = '<div class="report-wrap" style="padding:22px;max-height:none;font-size:12.5px;color:var(--text-dim);line-height:1.6;"><h3 style="margin:0 0 8px;color:var(--text);">No se pudo conectar con el script de Traslados</h3>'+
+      '<p style="margin:0 0 8px;">URL que está usando: <span class="mono" style="word-break:break-all;">'+trasEsc_(u)+'</span></p>'+
+      '<p style="margin:0 0 6px;"><b>1.</b> Tocá <a href="'+trasEsc_(u)+'" target="_blank" rel="noopener">abrir esta URL</a>. Tiene que mostrar <b>“Traslados: API activa”</b>. '+
+      'Si pide iniciar sesión o dice que no tenés permiso, la implementación no está en <b>Quién tiene acceso: Cualquier usuario</b>.</p>'+
+      '<p style="margin:0 0 6px;"><b>2.</b> La URL tiene que terminar en <b>/exec</b> (no /dev ni /edit) y ser la de <b>Implementar → Administrar implementaciones</b>.</p>'+
+      '<p style="margin:0 0 6px;"><b>3.</b> En el Apps Script de Traslados ejecutá <b>setup</b> una vez y aceptá todos los permisos.</p>'+
+      '<p style="margin:0 0 12px;"><b>4.</b> Si cambiaste la variable en Vercel, hacé <b>Redeploy</b>.</p>'+
+      '<button class="save-btn" onclick="TRAS.errorConexion=false;try{localStorage.removeItem(\'trasApiUrl_v1\')}catch(e){};TRAS_API_URL_ENV=null;trasAbrir_()">Reintentar</button></div>';
+    document.getElementById('trasLegacy').style.display = 'none'; return;
+  }
   var tabs = [['pendientes','Unidades'],['camiones','Traslados / camiones'],['calendario','Calendario'],['historial','Historial por VIN'],['entregas','Entregas marcadas']];
   var h = trasKpisHTML_();
   if(TRAS.filasConAviso) h += '<div class="tras-alerta">⚠ La planilla tiene '+TRAS.filasConAviso+' fila'+(TRAS.filasConAviso===1?'':'s')+' para revisar (VIN repetido, sin VIN o cargada en la hoja de otra ruta): mirá la columna AVISOS.</div>';

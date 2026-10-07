@@ -22,6 +22,6 @@ export default function handler(req, res) {
   // No cachear: si cambiás la variable en Vercel, se refleja al toque.
   res.setHeader('Cache-Control', 'no-store');
   // URL del script de TRASLADOS (planilla propia). Variable: VITE_TRASLADOS_API_URL
-  const trasladosApiUrl = process.env.VITE_TRASLADOS_API_URL || '';
+  const trasladosApiUrl = String(process.env.VITE_TRASLADOS_API_URL || '').trim().replace(/^['"]|['"]$/g, '');
   res.status(200).json({ apiUrl, trasladosApiUrl });
 }
