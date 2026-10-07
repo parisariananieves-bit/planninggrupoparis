@@ -5755,7 +5755,8 @@ function trasPuedeEditar_(){ return typeof puedeEditarModulo_==='function' ? pue
 // La URL del script de Traslados vive en Vercel (Environment Variables → VITE_TRASLADOS_API_URL)
 // y la entrega /api/config, igual que la del Planning.
 var TRAS_API_URL_ENV = null;
-function trasApiUrl_(){ return TRAS_API_URL_ENV || (typeof CONFIG!=='undefined' && CONFIG && CONFIG.trasladosApiUrl) || ''; }
+// Solo se usa la variable de Vercel (antes había una URL pegada a mano en la configuración: ya no se usa).
+function trasApiUrl_(){ return TRAS_API_URL_ENV || ''; }
 function trasResolverUrl_(){
   if(TRAS_API_URL_ENV) return Promise.resolve(TRAS_API_URL_ENV);
   try{ var c = localStorage.getItem('trasApiUrl_v1'); if(c){ TRAS_API_URL_ENV = c; } }catch(e){}
