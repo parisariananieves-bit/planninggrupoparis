@@ -40,28 +40,31 @@ export default async function handler(req, res) {
       params: body.params || {}
     });
 
-    // Apps Script suele responder al /exec con un 302 hacia
-    // script.googleusercontent.com. Un redirect=follow normal puede convertir
-    // ese POST en GET, por lo que terminamos recibiendo:
-    // 'Traslados: API activa' en vez del JSON del doPost.
-    // Seguimos los redirects manualmente conservando POST + body.
-    let upstream = null;
-    let currentUrl = target.toString();
-    for (let i = 0; i < 5; i++) {
-      upstream = await fetch(currentUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain;charset=utf-8',
-          'Accept': 'application/json, text/plain, */*'
-        },
-        body: payload,
-        redirect: 'manual'
-      });
+    // Apps Script / ContentService procesa el POST y luego puede responder
+    // con un 302 hacia una URL temporal de script.googleusercontent.com donde
+    // queda disponible el contenido generado. El redirect posterior debe ser
+    // un GET: no hay que reenviar el POST al endpoint de salida.
+    let upstream = await fetch(currentUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8',
+        'Accept': 'application/json, text/plain, */*'
+      },
+      body: payload,
+      redirect: 'manual'
+    });
 
-      if (![301, 302, 303, 307, 308].includes(upstream.status)) break;
+    for (let i = 0; i < 5 && [301, 302, 303, 307, 308].includes(upstream.status); i++) {
       const location = upstream.headers.get('location');
       if (!location) break;
       currentUrl = new URL(location, currentUrl).toString();
+      // El primer 302 de ContentService apunta al contenido generado.
+      // A partir de aquí se recupera con GET.
+      upstream = await fetch(currentUrl, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json, text/plain, */*' },
+        redirect: 'manual'
+      });
     }
 
     const text = await upstream.text();
