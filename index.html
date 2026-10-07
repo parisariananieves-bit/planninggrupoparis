@@ -5751,27 +5751,16 @@ function trasLugar_(x){
 function trasRuta_(v){ return trasLugar_(v.Origen)+' → '+trasLugar_(v.Destino); }
 function trasPuedeEditar_(){ return typeof puedeEditarModulo_==='function' ? puedeEditarModulo_('traslados') : true; }
 // Traslados tiene su propia planilla y su propio script: la URL se guarda una vez en la configuración del Planning.
-function trasApiUrl_(){ return '/api/traslados'; }
+function trasApiUrl_(){ return (typeof CONFIG!=='undefined' && CONFIG && CONFIG.trasladosApiUrl) || ''; }
 function trasPost_(action, params){
   var s = sesionActual() || {};
   params = params || {};
   params.actorUsuario = s.usuario; params.actorPassword = s.password;
-  // El navegador habla únicamente con el proxy same-origin de Vercel.
-  // La URL real de Apps Script vive en la variable de entorno
-  // TRASLADOS_API_URL y nunca se expone al cliente.
-  return fetch('/api/traslados', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({action:action, params:params})
-  }).then(function(r){
-    return r.text().then(function(txt){
-      var res;
-      try { res = txt ? JSON.parse(txt) : {}; }
-      catch(e){ throw new Error('Respuesta inválida del servidor de Traslados ('+r.status+').'); }
-      if(!r.ok) throw new Error(String((res && (res.error||res.mensaje)) || 'Error del servidor').replace(/^Error:\s*/,''));
-      if(!res || res.error || res.ok===false) throw new Error(String((res && (res.error||res.mensaje)) || 'Error del servidor').replace(/^Error:\s*/,''));
-      return res;
-    });
+  if(!trasApiUrl_()) return Promise.reject(new Error('Traslados todavía no está conectado a su planilla.'));
+  return fetch(trasApiUrl_(), {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action:action, params:params})})
+    .then(function(r){ return r.json(); }).then(function(res){
+    if(!res || res.error || res.ok===false) throw new Error(String((res && (res.error||res.mensaje)) || 'Error del servidor').replace(/^Error:\s*/,''));
+    return res;
   });
 }
 function trasAud_(vin){ return TRAS.aud[vin] || {estado:'pendiente', obs:[], fotos:[]}; }
@@ -5799,8 +5788,12 @@ function trasAbrir_(){
   if(!TRAS.cargado && trasApiUrl_()) trasCargar_();
 }
 function trasConfigHTML_(){
-  return '<div class="report-wrap" style="padding:22px;max-height:none;"><h3 style="margin:0 0 6px;">Conectar Traslados</h3>'+
-    '<p style="font-size:12.5px;color:var(--text-dim);margin:0;">Traslados utiliza una API configurada en Vercel mediante la variable de entorno <b>TRASLADOS_API_URL</b>. No hace falta pegar ninguna URL en este panel.</p></div>';
+  var maestro = typeof esCalidad==='function' && esCalidad();
+  return '<div class="report-wrap" style="padding:22px;max-height:none;"><h3 style="margin:0 0 6px;">Conectar Traslados con su planilla</h3>'+
+    (maestro ? '<p style="font-size:12.5px;color:var(--text-dim);margin:0 0 12px;">Traslados usa una planilla propia ("Traslados") con su script. Cuando lo publiques como aplicación web, pegá acá la URL que termina en <b>/exec</b>. Se hace una sola vez y queda para todos.</p>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;"><input id="trasUrlIn" placeholder="https://script.google.com/macros/s/…/exec" style="flex:1 1 420px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 11px;font-size:12.5px;">'+
+      '<button class="save-btn" onclick="trasGuardarUrl_()">Conectar</button></div>'
+    : '<p style="font-size:12.5px;color:var(--text-dim);margin:0;">Todavía no está conectado. Pedile al Maestro que lo configure.</p>')+'</div>';
 }
 function trasGuardarUrl_(){
   var u = (document.getElementById('trasUrlIn').value||'').trim();
