@@ -5756,11 +5756,23 @@ function trasPost_(action, params){
   var s = sesionActual() || {};
   params = params || {};
   params.actorUsuario = s.usuario; params.actorPassword = s.password;
-  if(!trasApiUrl_()) return Promise.reject(new Error('Traslados todavía no está conectado a su planilla.'));
-  return fetch(trasApiUrl_(), {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action:action, params:params})})
-    .then(function(r){ return r.json(); }).then(function(res){
-    if(!res || res.error || res.ok===false) throw new Error(String((res && (res.error||res.mensaje)) || 'Error del servidor').replace(/^Error:\s*/,''));
-    return res;
+  var target = trasApiUrl_();
+  if(!target) return Promise.reject(new Error('Traslados todavía no está conectado a su planilla.'));
+  // El navegador no llama directamente a Apps Script: pasa por el proxy
+  // same-origin de Vercel para evitar CORS/redirecciones de la Web App.
+  return fetch('/api/traslados', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({targetUrl: target, action:action, params:params})
+  }).then(function(r){
+    return r.text().then(function(txt){
+      var res;
+      try { res = txt ? JSON.parse(txt) : {}; }
+      catch(e){ throw new Error('Respuesta inválida del servidor de Traslados ('+r.status+').'); }
+      if(!r.ok) throw new Error(String((res && (res.error||res.mensaje)) || 'Error del servidor').replace(/^Error:\s*/,''));
+      if(!res || res.error || res.ok===false) throw new Error(String((res && (res.error||res.mensaje)) || 'Error del servidor').replace(/^Error:\s*/,''));
+      return res;
+    });
   });
 }
 function trasAud_(vin){ return TRAS.aud[vin] || {estado:'pendiente', obs:[], fotos:[]}; }
