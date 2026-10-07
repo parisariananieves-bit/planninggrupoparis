@@ -3449,11 +3449,6 @@ function leerApiUrlCache_(){
 function guardarApiUrlCache_(apiUrl){
   try{ localStorage.setItem(API_URL_CACHE_KEY, JSON.stringify({apiUrl:apiUrl, guardadoEn:Date.now()})); }catch(e){}
 }
-// URL de Traslados: sale SOLO de la variable VITE_TRASLADOS_API_URL de Vercel (vía /api/config).
-// No se guarda en el navegador ni se usa ninguna URL vieja.
-try{ localStorage.removeItem('trasladosUrlCache_v1'); }catch(e){}
-var TRASLADOS_API_URL = '';
-function guardarTrasladosUrl_(u){ TRASLADOS_API_URL = u || ''; }
 function pedirApiUrlDeRed_(){
   return conReintentos_(function(){
     return fetch('/api/config').then(function(r){
@@ -3461,7 +3456,6 @@ function pedirApiUrlDeRed_(){
       return r.json();
     }).then(function(cfg){
       if(!cfg || !cfg.apiUrl) throw new Error('API_URL no configurada');
-      guardarTrasladosUrl_(cfg.trasladosApiUrl || '');
       return cfg.apiUrl;
     });
   });
@@ -3474,7 +3468,7 @@ function cargarConfigBackend(){
     // sirve mientras se revalida) para no bloquear el arranque nunca.
     API_URL = cache.apiUrl;
     GAS_URL = cache.apiUrl;
-    if(true){ // siempre: también trae la URL de Traslados actual de Vercel
+    if(!cacheFresca){
       // Revalidación silenciosa: si la URL cambió, se actualiza para la
       // próxima vez, pero no interrumpe la sesión actual.
       pedirApiUrlDeRed_().then(function(apiUrl){ guardarApiUrlCache_(apiUrl); }).catch(function(){});
@@ -5755,9 +5749,24 @@ function trasLugar_(x){
   return k.toLowerCase().replace(/(^|\s)\S/g, function(c){ return c.toUpperCase(); });
 }
 function trasRuta_(v){ return trasLugar_(v.Origen)+' → '+trasLugar_(v.Destino); }
+function trasHojaDe_(v){ return v.Hoja || trasRuta_(v); }
 function trasPuedeEditar_(){ return typeof puedeEditarModulo_==='function' ? puedeEditarModulo_('traslados') : true; }
 // Traslados tiene su propia planilla y su propio script: la URL se guarda una vez en la configuración del Planning.
-function trasApiUrl_(){ return TRASLADOS_API_URL || ''; }
+// La URL del script de Traslados vive en Vercel (Environment Variables → VITE_TRASLADOS_API_URL)
+// y la entrega /api/config, igual que la del Planning.
+var TRAS_API_URL_ENV = null;
+function trasApiUrl_(){ return TRAS_API_URL_ENV || (typeof CONFIG!=='undefined' && CONFIG && CONFIG.trasladosApiUrl) || ''; }
+function trasResolverUrl_(){
+  if(TRAS_API_URL_ENV) return Promise.resolve(TRAS_API_URL_ENV);
+  try{ var c = localStorage.getItem('trasApiUrl_v1'); if(c){ TRAS_API_URL_ENV = c; } }catch(e){}
+  var red = fetch('/api/config', {cache:'no-store'}).then(function(r){ return r.ok ? r.json() : {}; }).then(function(cfg){
+    var u = (cfg && cfg.trasladosApiUrl) || '';
+    if(u){ TRAS_API_URL_ENV = u; try{ localStorage.setItem('trasApiUrl_v1', u); }catch(e){} }
+    else { TRAS_API_URL_ENV = null; try{ localStorage.removeItem('trasApiUrl_v1'); }catch(e){} }
+    return u;
+  }).catch(function(){ return TRAS_API_URL_ENV || ''; });
+  return TRAS_API_URL_ENV ? (red, Promise.resolve(TRAS_API_URL_ENV)) : red;
+}
 function trasPost_(action, params){
   var s = sesionActual() || {};
   params = params || {};
@@ -5791,13 +5800,11 @@ function trasEntregaPlanning_(vin){
 
 function trasAbrir_(){
   trasRender_();
-  if(TRAS.cargado) return;
-  if(trasApiUrl_()){ trasCargar_(); return; }
-  pedirApiUrlDeRed_().then(function(){ if(trasApiUrl_()){ trasRender_(); trasCargar_(); } }).catch(function(){});
+  trasResolverUrl_().then(function(){ trasRender_(); if(!TRAS.cargado && trasApiUrl_()) trasCargar_(); });
 }
 function trasConfigHTML_(){
   return '<div class="report-wrap" style="padding:22px;max-height:none;"><h3 style="margin:0 0 6px;">Traslados todavía no está conectado</h3>'+
-    '<p style="font-size:12.5px;color:var(--text-dim);margin:0;">Falta la variable <b>VITE_TRASLADOS_API_URL</b> en Vercel (Settings &gt; Environment Variables) y hacer Redeploy. Si ya la cargaste, recargá la página. Avisale al administrador del sistema.</p></div>';
+    '<p style="font-size:12.5px;color:var(--text-dim);margin:0;">En Vercel, en el proyecto del Planning: <b>Settings → Environment Variables</b>, agregá <b>VITE_TRASLADOS_API_URL</b> con la URL del script de Traslados (la que termina en <b>/exec</b>), marcá Production, Preview y Development, guardá y hacé <b>Redeploy</b>. Después refrescá esta pantalla.</p></div>';
 }
 function trasCargar_(){
   if(TRAS.cargando) return Promise.resolve();
@@ -5815,7 +5822,7 @@ function trasRender_(){
   if(!trasApiUrl_()){ cont.innerHTML = trasConfigHTML_(); document.getElementById('trasLegacy').style.display = 'none'; return; }
   var tabs = [['pendientes','Unidades'],['camiones','Traslados / camiones'],['calendario','Calendario'],['historial','Historial por VIN'],['entregas','Entregas marcadas']];
   var h = trasKpisHTML_();
-  if(TRAS.filasConAviso) h += '<div class="tras-alerta">⚠ La planilla tiene '+TRAS.filasConAviso+' fila'+(TRAS.filasConAviso===1?'':'s')+' con VIN repetido o sin VIN: revisá la columna AVISOS.</div>';
+  if(TRAS.filasConAviso) h += '<div class="tras-alerta">⚠ La planilla tiene '+TRAS.filasConAviso+' fila'+(TRAS.filasConAviso===1?'':'s')+' para revisar (VIN repetido, sin VIN o cargada en la hoja de otra ruta): mirá la columna AVISOS.</div>';
   h += '<div class="tras-tabs">'+tabs.map(function(t){ return '<button class="filter-pill'+(trasUI.tab===t[0]?' active':'')+'" onclick="trasSetTab_(\''+t[0]+'\')">'+t[1]+'</button>'; }).join('')+
     '<span style="flex:1"></span>'+
     (trasPuedeEditar_() ? '<label class="view-btn" style="cursor:pointer;">⬆ Importar base<input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="trasImportarArchivo_(event)"></label>' : '')+
@@ -5859,7 +5866,7 @@ function trasVehFiltrados_(){
     if(f.estado==='activos'){ if(v.Estado!=='Pendiente' && v.Estado!=='Asignado') return false; }
     else if(f.estado && v.Estado!==f.estado) return false;
     if(f.marca && v.Marca!==f.marca) return false;
-    if(f.ruta && trasRuta_(v)!==f.ruta) return false;
+    if(f.ruta && trasHojaDe_(v)!==f.ruta) return false;
     if(f.canal && v.Canal!==f.canal) return false;
     if(f.tipo && v.Tipo!==f.tipo) return false;
     if(f.prioridad && v.Prioridad!==f.prioridad) return false;
@@ -5878,7 +5885,7 @@ function trasFiltrosHTML_(){
   var sel = function(k, opts, todos){ return '<select onchange="trasSetF_(\''+k+'\',this.value)">'+trasOpciones_(opts, f[k], todos)+'</select>'; };
   return '<div class="filter-bar tras-filtros">'+
     '<input type="search" placeholder="Buscar VIN, unidad, cliente o TR-…" value="'+trasEsc_(f.q)+'" oninput="trasUI.f.q=this.value;clearTimeout(window._trasQ);window._trasQ=setTimeout(trasRender_,250)">'+
-    sel('ruta', trasUnicos_(V.map(trasRuta_)), 'Todas las rutas')+
+    sel('ruta', trasUnicos_(V.map(trasHojaDe_)), 'Todas las hojas / rutas')+
     sel('marca', trasUnicos_(V.map(function(v){ return v.Marca; })).map(function(m){ return {v:m, l:(MARCA_LABEL&&MARCA_LABEL[m])||m}; }), 'Todas las marcas')+
     sel('canal', trasUnicos_(V.map(function(v){ return v.Canal; })), 'Todos los canales')+
     sel('tipo', ['Venta','Salón','Stock'], 'Venta / Salón / Stock')+
@@ -5888,11 +5895,11 @@ function trasFiltrosHTML_(){
   '</div>';
 }
 function trasPendientesHTML_(){
-  if(!TRAS.veh.length) return '<div class="report-wrap" style="padding:30px;text-align:center;color:var(--text-faint);font-size:13px;">Todavía no hay unidades. Cargalas en la <b>planilla de Traslados</b> (columnas A a I: FECHA-ACT., ORIGEN, DESTINO, ESTADO, CANAL, VIN, UNIDAD, CLIENTE, LLEGADA) y tocá ⟳, o subí un Excel con <b>⬆ Importar base</b>.</div>';
+  if(!TRAS.veh.length) return '<div class="report-wrap" style="padding:30px;text-align:center;color:var(--text-faint);font-size:13px;">Todavía no hay unidades. Cargalas en la <b>planilla de Traslados</b>, en la hoja de su ruta (columnas blancas: FECHA DE CARGA, FECHA PREVISTA, FECHA-ACT., ORIGEN, DESTINO, ESTADO, CANAL, VIN, UNIDAD, CLIENTE, LLEGADA) y tocá ⟳, o subí un Excel con <b>⬆ Importar base</b>.</div>';
   var lista = trasVehFiltrados_(), edit = trasPuedeEditar_();
   var prioOrd = {Alta:0, Media:1, Baja:2};
   var grupos = {};
-  lista.forEach(function(v){ var r = trasRuta_(v); (grupos[r] = grupos[r] || []).push(v); });
+  lista.forEach(function(v){ var r = trasHojaDe_(v); (grupos[r] = grupos[r] || []).push(v); });
   var nSel = Object.keys(trasUI.sel).filter(function(k){ return trasUI.sel[k]; }).length;
   var h = trasFiltrosHTML_();
   h += '<div class="tras-selbar'+(nSel?' on':'')+'"><b>'+nSel+'</b> unidad'+(nSel===1?'':'es')+' seleccionada'+(nSel===1?'':'s')+
@@ -5901,10 +5908,11 @@ function trasPendientesHTML_(){
   if(!lista.length) return h+'<div class="report-wrap" style="padding:24px;text-align:center;color:var(--text-faint);">No hay unidades con estos filtros.</div>';
   Object.keys(grupos).sort().forEach(function(ruta){
     var po = function(p){ return prioOrd.hasOwnProperty(p) ? prioOrd[p] : 3; };
-    var g = grupos[ruta].sort(function(a,b){ return po(a.Prioridad)-po(b.Prioridad) || String(a.Unidad).localeCompare(String(b.Unidad)); });
+    var fp = function(v){ var d = trasFecha_(v.FechaPrevista); return d ? d.getTime() : 9e15; };
+    var g = grupos[ruta].sort(function(a,b){ return trasRuta_(a).localeCompare(trasRuta_(b)) || po(a.Prioridad)-po(b.Prioridad) || fp(a)-fp(b) || String(a.Unidad).localeCompare(String(b.Unidad)); });
     var cuenta = {}; g.forEach(function(v){ var k = ((MARCA_LABEL&&MARCA_LABEL[v.Marca])||v.Marca||'Otra')+' '+v.Tipo.toLowerCase(); cuenta[k] = (cuenta[k]||0)+1; });
-    h += '<div class="tras-grupo"><div class="tras-grupo-h"><b>'+trasEsc_(ruta)+'</b><span>'+g.length+' unidad'+(g.length===1?'':'es')+' · '+Object.keys(cuenta).map(function(k){ return cuenta[k]+' '+k; }).join(' · ')+'</span></div>'+
-      '<div class="report-wrap" style="max-height:none;"><table class="report-table tras-tabla"><thead><tr><th></th><th>Prioridad</th><th>Tipo</th><th>Unidad</th><th>VIN</th><th>Cliente</th><th>Canal</th><th>Auditoría</th><th>Estado</th><th>Acción</th></tr></thead><tbody>'+
+    h += '<div class="tras-grupo"><div class="tras-grupo-h"><b>📄 '+trasEsc_(ruta)+'</b><span>'+g.length+' unidad'+(g.length===1?'':'es')+' · '+Object.keys(cuenta).map(function(k){ return cuenta[k]+' '+k; }).join(' · ')+'</span></div>'+
+      '<div class="report-wrap" style="max-height:none;"><table class="report-table tras-tabla"><thead><tr><th></th><th>Prioridad</th><th>Sentido</th><th>Fecha prevista</th><th>Tipo</th><th>Unidad</th><th>VIN</th><th>Cliente</th><th>Canal</th><th>Auditoría</th><th>Estado</th><th>Acción</th></tr></thead><tbody>'+
       g.map(function(v){
         var a = trasAud_(v.VIN), bloq = a.estado==='no_aprobada', libre = v.Estado==='Pendiente';
         var b = BRANDS.find(function(x){ return x.id===v.Marca; });
@@ -5914,7 +5922,9 @@ function trasPendientesHTML_(){
         var accion = v.Estado==='Asignado' ? '<a href="#" onclick="event.preventDefault();trasAbrirDetalle_(\''+v.TrasladoID+'\')">'+trasEsc_(v.TrasladoID)+'</a>'
           : (bloq ? '<a class="view-btn tras-btn-sm" href="'+trasLinkAuditar_(v.VIN)+'" target="_blank" rel="noopener">Ver auditoría ↗</a>'
           : '<a class="view-btn tras-btn-sm" href="'+trasLinkAuditar_(v.VIN)+'" target="_blank" rel="noopener">'+(a.estado==='pendiente'?'Auditar unidad ↗':'Auditoría ↗')+'</a>');
-        return '<tr class="'+(trasUI.sel[v.VIN]?'sel':'')+'"><td>'+chk+'</td><td>'+prio+'</td><td>'+tipo+'</td>'+
+        var fpd = trasFecha_(v.FechaPrevista), atras = fpd && libre && fpd.getTime() < new Date().setHours(0,0,0,0);
+        return '<tr class="'+(trasUI.sel[v.VIN]?'sel':'')+'"><td>'+chk+'</td><td>'+prio+'</td><td style="font-size:11.5px;">'+trasEsc_(trasRuta_(v))+'</td>'+
+          '<td title="Cargado el '+trasEsc_(v.FechaCarga||'—')+'"'+(atras?' style="color:var(--danger);font-weight:700;"':'')+'>'+trasEsc_(v.FechaPrevista||'—')+(atras?' ⚠':'')+'</td><td>'+tipo+'</td>'+
           '<td><span style="color:var('+(b?b.color:'--text')+');font-weight:700;">'+trasEsc_(b?b.label:'')+'</span> '+trasEsc_(v.Unidad)+'</td>'+
           '<td class="mono"><a href="#" onclick="event.preventDefault();trasVerVin_(\''+v.VIN+'\')">'+trasEsc_(v.VIN)+'</a></td><td>'+trasEsc_(v.Cliente||'—')+'</td><td>'+trasEsc_(v.Canal)+'</td>'+
           '<td>'+trasAudBadge_(v.VIN)+'</td><td>'+trasEsc_(v.Estado)+(v.Avisos?' <span title="'+trasEsc_(v.Avisos)+'" style="color:var(--warn);">⚠</span>':'')+'</td><td>'+accion+'</td></tr>';
@@ -5946,6 +5956,7 @@ function trasCardHTML_(t){
   return '<button class="tras-card" onclick="trasAbrirDetalle_(\''+t.ID+'\')"><div class="tras-card-h"><b>'+trasEsc_(t.ID)+'</b><span class="tras-pill '+trasEstadoCls_(t.Estado)+'">'+trasEsc_(t.Estado)+'</span></div>'+
     '<div class="tras-card-ruta">'+trasEsc_(trasLugar_(t.Origen))+' → '+trasEsc_(trasLugar_(t.Destino))+'</div>'+
     '<div class="tras-card-m">🚚 '+trasEsc_(t.Camion||'Camión sin definir')+(t.Patente?' · '+trasEsc_(t.Patente):'')+(t.Camionero?' · '+trasEsc_(t.Camionero):'')+'</div>'+
+    (t.CargaCamion && TRAS_ACTIVO_(t) ? '<div class="tras-card-m">🚛 Llega a cargar '+trasEsc_(trasFechaHora_(t.CargaCamion))+'</div>' : '')+
     '<div class="tras-card-m">Salida '+trasEsc_(trasFechaHora_(t.SalidaReal||t.SalidaPrevista)||'a definir')+(t.LlegadaReal?' · llegó '+trasEsc_(trasFechaHora_(t.LlegadaReal)):(t.LlegadaPrevista?' · llegada prevista '+trasEsc_(trasFechaHora_(t.LlegadaPrevista)):''))+'</div>'+
     '<div class="tras-card-f"><span>'+n+(cap?' / '+cap:'')+' unidades</span>'+(conObs && TRAS_ACTIVO_(t) ? '<span style="color:var(--warn);">⚠ '+conObs+' sin auditoría aprobada</span>' : '')+(t.PDF_URL?'<span>📄 Informe</span>':'')+'</div></button>';
 }
@@ -5965,7 +5976,7 @@ function trasAbrirForm_(id){
     Origen: t?t.Origen:trasLugar_(vs[0].Origen), Destino: t?t.Destino:trasLugar_(vs[0].Destino),
     Camion: t?t.Camion:(ult.Camion||''), Patente: t?t.Patente:(ult.Patente||''), Capacidad: t?t.Capacidad:(ult.Capacidad||''),
     Transportista: t?t.Transportista:(ult.Transportista||''), Camionero: t?t.Camionero:(ult.Camionero||''), CamioneroDNI: t?t.CamioneroDNI:(ult.CamioneroDNI||''),
-    Responsable: t?t.Responsable:((sesionActual()||{}).nombre||''), SalidaPrevista: t?t.SalidaPrevista:'', LlegadaPrevista: t?t.LlegadaPrevista:'', Observaciones: t?t.Observaciones:''};
+    Responsable: t?t.Responsable:((sesionActual()||{}).nombre||''), CargaCamion: t?(t.CargaCamion||''):'', SalidaPrevista: t?t.SalidaPrevista:'', LlegadaPrevista: t?t.LlegadaPrevista:'', Observaciones: t?t.Observaciones:''};
   trasRenderForm_();
 }
 function trasDatalist_(id, campo){
@@ -5980,7 +5991,7 @@ function trasRenderForm_(){
     campo('Camion','Camión','text','list="trasDlCam" placeholder="Ej: Iveco 1"')+campo('Patente','Patente','text','list="trasDlPat"')+
     campo('Capacidad','Capacidad (unidades)','number','min="0"')+campo('Transportista','Transportista','text','list="trasDlTra"')+
     campo('Camionero','Camionero','text','list="trasDlCha"')+campo('CamioneroDNI','DNI del camionero')+
-    campo('Responsable','Responsable de logística')+campo('SalidaPrevista','Salida prevista','date')+campo('LlegadaPrevista','Llegada prevista','date')+
+    campo('Responsable','Responsable de logística')+campo('CargaCamion','El camión llega a cargar','datetime-local')+campo('SalidaPrevista','Salida prevista','date')+campo('LlegadaPrevista','Llegada prevista','date')+
     '</div><label class="tras-campo"><span>Observaciones</span><textarea rows="2" oninput="_trasForm.Observaciones=this.value">'+trasEsc_(d.Observaciones)+'</textarea></label>'+
     '<datalist id="trasDlLug">'+trasUnicos_(Object.keys(TRAS_LUGARES).map(function(k){ return TRAS_LUGARES[k]; }).concat(TRAS.veh.map(function(v){ return trasLugar_(v.Destino); }))).map(function(x){ return '<option value="'+trasEsc_(x)+'">'; }).join('')+'</datalist>'+
     trasDatalist_('trasDlCam','Camion')+trasDatalist_('trasDlPat','Patente')+trasDatalist_('trasDlTra','Transportista')+trasDatalist_('trasDlCha','Camionero')+
@@ -6028,7 +6039,7 @@ function trasAbrirDetalle_(id){
   var dato = function(l, v){ return '<div><span>'+l+'</span><b>'+(trasEsc_(v)||'—')+'</b></div>'; };
   var h = '<div class="tras-det-grid">'+dato('Estado', t.Estado)+dato('Origen → destino', trasLugar_(t.Origen)+' → '+trasLugar_(t.Destino))+dato('Camión', t.Camion)+dato('Patente', t.Patente)+
     dato('Transportista', t.Transportista)+dato('Camionero', (t.Camionero||'')+(t.CamioneroDNI?' · DNI '+t.CamioneroDNI:''))+dato('Responsable de logística', t.Responsable)+
-    dato('Unidades', vins.length+(cap?' / '+cap:''))+dato('Salida prevista / real', trasFechaHora_(t.SalidaPrevista)+(t.SalidaReal?' · real '+trasFechaHora_(t.SalidaReal):''))+
+    dato('Unidades', vins.length+(cap?' / '+cap:''))+dato('Camión llega a cargar', trasFechaHora_(t.CargaCamion))+dato('Salida prevista / real', trasFechaHora_(t.SalidaPrevista)+(t.SalidaReal?' · real '+trasFechaHora_(t.SalidaReal):''))+
     dato('Llegada prevista / real', trasFechaHora_(t.LlegadaPrevista)+(t.LlegadaReal?' · real '+trasFechaHora_(t.LlegadaReal):''))+'</div>';
   if(t.Observaciones) h += '<p class="tras-nota">'+trasEsc_(t.Observaciones)+'</p>';
   if(pre && sinAud.length) h += '<div class="tras-alerta">⚠ '+sinAud.length+' unidad'+(sinAud.length===1?'':'es')+' sin auditoría aprobada: no puede'+(sinAud.length===1?'':'n')+' salir hasta que se audite'+(sinAud.length===1?'':'n')+'.</div>';
@@ -6197,6 +6208,7 @@ function trasInformeHTML_(t, logos){
     '<tr><th>Camión</th>'+td(t.Camion)+'<th>Patente</th>'+td(t.Patente)+'</tr>'+
     '<tr><th>Transportista</th>'+td(t.Transportista)+'<th>Camionero</th>'+td((t.Camionero||'')+(t.CamioneroDNI?' · DNI '+t.CamioneroDNI:''))+'</tr>'+
     '<tr><th>Responsable de logística</th>'+td(t.Responsable)+'<th>Unidades</th>'+td(vins.length+(Number(t.Capacidad)?' de '+t.Capacidad+' de capacidad':''))+'</tr>'+
+    '<tr><th>Camión llega a cargar</th>'+td(trasFechaHora_(t.CargaCamion))+'<th>Ruta</th>'+td(trasUnicos_(vins.map(function(v){ return (trasVeh_(v)||{}).Hoja; })).join(' · '))+'</tr>'+
     '<tr><th>Salida</th>'+td(t.SalidaReal?trasFechaHora_(t.SalidaReal):'Prevista '+(trasFechaHora_(t.SalidaPrevista)||'—'))+'<th>Llegada</th>'+td(t.LlegadaReal?trasFechaHora_(t.LlegadaReal):'Prevista '+(trasFechaHora_(t.LlegadaPrevista)||'—'))+'</tr></table>';
   h += '<h2>Vehículos trasladados</h2><table><tr><th>N°</th><th>Marca</th><th>Modelo / unidad</th><th>VIN</th><th>Patente</th><th>Color</th><th>Cliente</th><th>Canal</th><th>Tipo</th></tr>'+
     vins.map(function(vin, i){ var v = trasVeh_(vin)||{}, en = trasEntregaPlanning_(vin)||{}; return '<tr><td>'+(i+1)+'</td>'+td((MARCA_LABEL&&MARCA_LABEL[v.Marca])||v.Marca)+td(v.Unidad)+'<td style="font-family:monospace;">'+e(vin)+'</td>'+td(en.dominio)+td(en.color)+td(v.Cliente)+td(v.Canal)+td(v.Tipo)+'</tr>'; }).join('')+'</table>';
@@ -6258,6 +6270,7 @@ function trasCalendarioHTML_(){
   var porDia = {};
   var push = function(k, x){ if(k) (porDia[k] = porDia[k] || []).push(x); };
   TRAS.tras.filter(function(t){ return t.Estado!=='Cancelado'; }).forEach(function(t){
+    if(t.CargaCamion && TRAS_ACTIVO_(t) && String(t.CargaCamion).slice(0,10)!==String(t.SalidaPrevista||'').slice(0,10)) push(String(t.CargaCamion).slice(0,10), {t:t, tipo:'carga'});
     push(String(t.SalidaReal||t.SalidaPrevista||'').slice(0,10), {t:t, tipo:'sale'});
     var lleg = String(t.LlegadaReal||t.LlegadaPrevista||'').slice(0,10);
     if(lleg && lleg !== String(t.SalidaReal||t.SalidaPrevista||'').slice(0,10)) push(lleg, {t:t, tipo:'llega'});
@@ -6269,11 +6282,11 @@ function trasCalendarioHTML_(){
     var k = y+'-'+('0'+(m+1)).slice(-2)+'-'+('0'+d).slice(-2), its = porDia[k]||[];
     g += '<div class="cal-day'+(k===hoyK?' today':'')+'"><div class="num">'+d+'</div>'+its.map(function(x){
       var t = x.t, cls = trasEstadoCls_(t.Estado);
-      return '<div class="cal-day-cliente tras-cal '+cls+'" title="'+trasEsc_(t.ID+' · '+t.Estado+' · '+(t.VINs||[]).length+' unidades · '+(t.Camion||'')+' '+(t.Patente||''))+'" onclick="event.stopPropagation();trasAbrirDetalle_(\''+t.ID+'\')">'+(x.tipo==='sale'?'🚚 ':'🏁 ')+trasEsc_(t.ID)+' → '+trasEsc_(trasLugar_(t.Destino))+' ('+(t.VINs||[]).length+')</div>';
+      return '<div class="cal-day-cliente tras-cal '+cls+'" title="'+trasEsc_(t.ID+' · '+t.Estado+' · '+(t.VINs||[]).length+' unidades · '+(t.Camion||'')+' '+(t.Patente||''))+'" onclick="event.stopPropagation();trasAbrirDetalle_(\''+t.ID+'\')">'+(x.tipo==='carga'?'🚛 Carga ':x.tipo==='sale'?'🚚 ':'🏁 ')+trasEsc_(t.ID)+' → '+trasEsc_(trasLugar_(t.Destino))+' ('+(t.VINs||[]).length+')</div>';
     }).join('')+'</div>';
   }
   return '<div class="cal-wrap" style="margin-top:12px;"><div class="cal-head"><div class="cal-nav"><button onclick="trasMesMover_(-1)">‹</button><div class="cal-title">'+meses[m]+' '+y+'</div><button onclick="trasMesMover_(1)">›</button>'+(mes!==hoyK.slice(0,7)?'<button style="width:auto;border-radius:20px;padding:0 12px;font-size:12px;" onclick="trasMesMover_(0)">Hoy</button>':'')+'</div>'+
-    '<div class="cal-legend"><span>🚚 Salida</span><span>🏁 Llegada</span><span><i class="sw" style="background:var(--text-faint)"></i>Planificado</span><span><i class="sw" style="background:#5B8DEF"></i>Listo para salir</span><span><i class="sw" style="background:var(--warn)"></i>En traslado</span><span><i class="sw" style="background:var(--ok)"></i>Recibido</span><span><i class="sw" style="background:var(--danger)"></i>Con observaciones</span></div></div>'+
+    '<div class="cal-legend"><span>🚛 Camión llega a cargar</span><span>🚚 Salida</span><span>🏁 Llegada</span><span><i class="sw" style="background:var(--text-faint)"></i>Planificado</span><span><i class="sw" style="background:#5B8DEF"></i>Listo para salir</span><span><i class="sw" style="background:var(--warn)"></i>En traslado</span><span><i class="sw" style="background:var(--ok)"></i>Recibido</span><span><i class="sw" style="background:var(--danger)"></i>Con observaciones</span></div></div>'+
     '<div class="cal-grid">'+g+'</div></div>';
 }
 
@@ -6291,7 +6304,7 @@ function trasHistorialHTML_(){
     var bloque = function(tit, cuerpo){ return '<div class="tras-vin-b"><h4>'+tit+'</h4>'+cuerpo+'</div>'; };
     var kv = function(l, x){ return '<div><span>'+l+'</span><b>'+(trasEsc_(x)||'—')+'</b></div>'; };
     var hh = '<div class="tras-vin"><div class="tras-vin-h"><b>'+trasEsc_(v.VIN)+'</b><span>'+trasEsc_((b?b.label+' ':'')+v.Unidad)+'</span><span class="tras-pill">'+trasEsc_(v.Estado)+'</span></div>';
-    hh += bloque('Datos originales', '<div class="tras-det-grid">'+kv('Unidad', v.Unidad)+kv('Cliente', v.Cliente)+kv('Origen', trasLugar_(v.Origen))+kv('Destino', trasLugar_(v.Destino))+kv('Canal', v.Canal)+kv('Estado en la base', v.EstadoBase)+kv('Fecha act.', v.FechaAct)+kv('Llegada (base)', v.Llegada)+kv('Tipo / prioridad', v.Tipo+' · '+v.Prioridad)+(en?kv('Entrega en el Planning', (en.fecha||'')+' · '+(en.dominio||'')+' · '+(en.color||'')):'')+'</div>');
+    hh += bloque('Datos originales', '<div class="tras-det-grid">'+kv('Unidad', v.Unidad)+kv('Cliente', v.Cliente)+kv('Origen', trasLugar_(v.Origen))+kv('Destino', trasLugar_(v.Destino))+kv('Canal', v.Canal)+kv('Estado en la base', v.EstadoBase)+kv('Hoja', v.Hoja)+kv('Fecha de carga', v.FechaCarga)+kv('Fecha prevista', v.FechaPrevista)+kv('Fecha act.', v.FechaAct)+kv('Llegada (base)', v.Llegada)+kv('Tipo / prioridad', v.Tipo+' · '+v.Prioridad)+(en?kv('Entrega en el Planning', (en.fecha||'')+' · '+(en.dominio||'')+' · '+(en.color||'')):'')+'</div>');
     hh += bloque('Auditoría pre-traslado', '<p>'+trasAudBadge_(v.VIN)+(a.fecha?' · '+trasEsc_(trasFechaHora_(a.fecha)):'')+(a.auditor?' · '+trasEsc_(a.auditor):'')+' · '+(a.fotos||[]).length+' foto(s) · <a href="'+trasLinkAuditar_(v.VIN)+'" target="_blank" rel="noopener">abrir auditoría ↗</a></p>'+
       ((a.obs||[]).length ? '<ul>'+a.obs.map(function(o){ return '<li>'+trasEsc_(o.pregunta)+(o.obs?': '+trasEsc_(o.obs):'')+'</li>'; }).join('')+'</ul>' : ''));
     hh += bloque('Traslados', ts.length ? ts.map(function(t){ var it = ((t.Recepcion||{}).items||{})[v.VIN];
@@ -6318,7 +6331,7 @@ function trasImportarArchivo_(ev){
       for(var i=0;i<Math.min(filas.length,15);i++){ var n = (filas[i]||[]).map(trasNormCol_); if(n.indexOf('VIN')>-1 && (n.indexOf('DESTINO')>-1 || n.indexOf('ORIGEN')>-1)){ ih = i; H = n; break; } }
       if(ih<0){ showToast('No encontré las columnas VIN / ORIGEN / DESTINO en el archivo.'); return; }
       var col = function(){ for(var a=0;a<arguments.length;a++){ var x = H.indexOf(arguments[a]); if(x>-1) return x; } for(var b=0;b<arguments.length;b++){ for(var j=0;j<H.length;j++){ if(H[j].indexOf(arguments[b])===0) return j; } } return -1; };
-      var C = {FechaAct: col('FECHAACT','FECHA'), Origen: col('ORIGEN'), Destino: col('DESTINO'), EstadoBase: col('ESTADO'), Canal: col('CANAL'), VIN: col('VIN'), Unidad: col('UNIDAD','MODELO'), Cliente: col('CLIENTE'), Llegada: col('LLEGADA')};
+      var C = {FechaCarga: col('FECHADECARGA'), FechaPrevista: col('FECHAPREVISTA'), FechaAct: col('FECHAACT','FECHA'), Origen: col('ORIGEN'), Destino: col('DESTINO'), EstadoBase: col('ESTADO'), Canal: col('CANAL'), VIN: col('VIN'), Unidad: col('UNIDAD','MODELO'), Cliente: col('CLIENTE'), Llegada: col('LLEGADA')};
       var fmt = function(x){ if(x instanceof Date && !isNaN(x)) return ('0'+x.getDate()).slice(-2)+'/'+('0'+(x.getMonth()+1)).slice(-2)+'/'+x.getFullYear(); return String(x==null?'':x).trim(); };
       var datos = [];
       for(var r=ih+1;r<filas.length;r++){
@@ -6357,20 +6370,20 @@ function trasExportar_(modo, id){
   else if(modo==='filtrado'){ vehs = trasVehFiltrados_(); nombre = 'Traslados_filtrado'; }
   else { vehs = TRAS.veh.slice(); nombre = 'Traslados_completo'; }
   if(!vehs.length){ showToast('No hay unidades para exportar.'); return; }
-  var H = ['ID de traslado','Fecha de actualización','Origen','Destino','Estado (base)','Canal','VIN','Marca','Unidad / Modelo','Cliente','Tipo','Prioridad','Estado del vehículo','Estado de auditoría','Fecha de auditoría','Resultado de auditoría','Fotos de auditoría','Camión','Patente','Transportista','Camionero','Fecha prevista de salida','Fecha real de salida','Fecha prevista de llegada','Fecha real de llegada','Estado del traslado','Firma de salida','Estado de recepción','Recibido por','Firma de recepción','Fotos de recepción','Observaciones','Informe PDF'];
+  var H = ['ID de traslado','Hoja / ruta','Fecha de carga','Fecha prevista','Fecha de actualización','Origen','Destino','Estado (base)','Canal','VIN','Marca','Unidad / Modelo','Cliente','Tipo','Prioridad','Estado del vehículo','Estado de auditoría','Fecha de auditoría','Resultado de auditoría','Fotos de auditoría','Camión llega a cargar','Camión','Patente','Transportista','Camionero','Fecha prevista de salida','Fecha real de salida','Fecha prevista de llegada','Fecha real de llegada','Estado del traslado','Firma de salida','Estado de recepción','Recibido por','Firma de recepción','Fotos de recepción','Observaciones','Informe PDF'];
   var filas = vehs.map(function(v){
     var t = v.TrasladoID ? trasT_(v.TrasladoID) : (modo==='detalle' ? trasT_(id) : null);
     if(!t){ t = TRAS.tras.filter(function(x){ return (x.VINs||[]).indexOf(v.VIN)>-1 && x.Estado!=='Cancelado'; }).sort(function(a,b){ return String(b.Creado).localeCompare(String(a.Creado)); })[0] || null; }
     t = t || {};
     var a = trasAud_(v.VIN), rec = t.Recepcion||{}, it = (rec.items||{})[v.VIN], sal = t.Salida||{};
     var obs = [v.Observaciones, t.Observaciones, it && it.obs ? 'Recepción: '+it.obs : '', rec.obs ? 'Recepción general: '+rec.obs : ''].filter(Boolean).join(' · ');
-    return [t.ID||'', trasFecha_(v.FechaAct), trasLugar_(v.Origen), trasLugar_(v.Destino), v.EstadoBase, v.Canal, v.VIN, (MARCA_LABEL&&MARCA_LABEL[v.Marca])||v.Marca, v.Unidad, v.Cliente, v.Tipo, v.Prioridad, v.Estado,
+    return [t.ID||'', v.Hoja||'', trasFecha_(v.FechaCarga), trasFecha_(v.FechaPrevista), trasFecha_(v.FechaAct), trasLugar_(v.Origen), trasLugar_(v.Destino), v.EstadoBase, v.Canal, v.VIN, (MARCA_LABEL&&MARCA_LABEL[v.Marca])||v.Marca, v.Unidad, v.Cliente, v.Tipo, v.Prioridad, v.Estado,
       {aprobada:'Aprobada',observaciones:'Aprobada con observaciones',no_aprobada:'No aprobada',pendiente:'Pendiente'}[a.estado], trasFecha_(a.fecha), a.resultado||'', (a.fotos||[]).length,
-      t.Camion||'', t.Patente||'', t.Transportista||'', t.Camionero||'', trasFecha_(t.SalidaPrevista), trasFecha_(t.SalidaReal), trasFecha_(t.LlegadaPrevista), trasFecha_(t.LlegadaReal), t.Estado||'',
+      trasFecha_(t.CargaCamion), t.Camion||'', t.Patente||'', t.Transportista||'', t.Camionero||'', trasFecha_(t.SalidaPrevista), trasFecha_(t.SalidaReal), trasFecha_(t.LlegadaPrevista), trasFecha_(t.LlegadaReal), t.Estado||'',
       sal.logistica ? 'Sí' : 'No', it ? (it.estado==='ok'?'Recibido OK':(TRAS_PROBLEMAS.find(function(p){ return p[0]===it.estado; })||['',it.estado])[1]) : '', rec.nombre||'', rec.firma ? 'Sí' : 'No', it ? (it.fotos||[]).length : 0, obs, t.PDF_URL||''];
   });
   var ws = XLSX.utils.aoa_to_sheet([H].concat(filas), {cellDates:true});
-  var conHora = {'Fecha de auditoría':1,'Fecha real de salida':1,'Fecha real de llegada':1};
+  var conHora = {'Fecha de auditoría':1,'Fecha real de salida':1,'Fecha real de llegada':1,'Camión llega a cargar':1};
   H.forEach(function(nom, c){
     for(var r=1; r<=filas.length; r++){
       var ref = XLSX.utils.encode_cell({r:r, c:c}), cell = ws[ref];
