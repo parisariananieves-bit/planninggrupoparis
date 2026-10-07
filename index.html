@@ -1044,6 +1044,12 @@
   .tras-pill.bad{background:var(--danger-soft);color:var(--danger);border-color:transparent;}
   .tras-pill.info{background:rgba(91,141,239,.15);color:#5B8DEF;border-color:transparent;}
   .tras-pill.muted{opacity:.6;}
+  .ti{vertical-align:-3px;line-height:1;}
+  .view-btn .ti,.save-btn .ti,.filter-pill .ti{margin-right:2px;}
+  .tras-kpi .ti{color:var(--accent);display:block;margin-bottom:4px;}
+  .tras-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--text-faint);margin-right:5px;vertical-align:1px;}
+  .tras-pill.ok .tras-dot{background:var(--ok);} .tras-pill.warn .tras-dot{background:var(--warn);} .tras-pill.bad .tras-dot{background:var(--danger);}
+  .tras-alerta .ti{margin-right:4px;}
   .tras-pill.prio-Alta{color:var(--danger);} .tras-pill.prio-Media{color:var(--warn);} .tras-pill.prio-Baja{color:var(--ok);}
   .tras-mini{background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:3px 5px;font-size:11px;}
   .tras-mini.prio-Alta{color:var(--danger);font-weight:700;} .tras-mini.prio-Media{color:var(--warn);font-weight:700;} .tras-mini.prio-Baja{color:var(--ok);font-weight:700;}
@@ -1093,6 +1099,9 @@
   .tras-vin-h b{font-family:'IBM Plex Mono',monospace;font-size:14px;}
   .tras-vin-b{border-top:1px solid var(--hairline);padding-top:8px;margin-top:8px;font-size:12.5px;color:var(--text-dim);}
   .tras-vin-b h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);}
+  .tras-cal.unid{border-left-color:var(--accent)!important;color:var(--accent)!important;background:var(--accent-soft)!important;}
+  .tras-chipfiltro{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border-radius:20px;padding:5px 6px 5px 12px;font-size:12px;margin-bottom:8px;}
+  .tras-chipfiltro button{background:none;border:0;color:inherit;cursor:pointer;display:inline-flex;}
   .tras-cal{background:var(--panel)!important;color:var(--text-dim)!important;border-left:3px solid var(--text-faint);}
   .tras-cal.info{border-left-color:#5B8DEF;color:#5B8DEF!important;}
   .tras-cal.warn{border-left-color:var(--warn);color:var(--warn)!important;background:var(--warn-soft)!important;}
@@ -5783,8 +5792,10 @@ var trasUI = {tab: 'pendientes', sel: {}, f: {q:'', marca:'', ruta:'', canal:'',
 var TRAS_LUGARES = {VM:'Villa Mercedes', 'V.MERCEDES':'Villa Mercedes', 'VILLA MERCEDES':'Villa Mercedes', MERCEDES:'Villa Mercedes', SL:'San Luis', 'SAN LUIS':'San Luis', SJ:'San Juan', 'SAN JUAN':'San Juan', MERLO:'Merlo'};
 var TRAS_EST_VEH = ['Pendiente','Asignado','En traslado','Recibido conforme','Recibido con observaciones','Cancelado'];
 var TRAS_EST_T = ['Planificado','Listo para salir','En traslado','Recibido conforme','Recibido con observaciones','Cancelado'];
-var TRAS_PROBLEMAS = [['ok','✓ Llegó OK'],['danio','Daño nuevo'],['falta_elemento','Falta un elemento'],['vin_distinto','VIN distinto'],['no_llego','No llegó'],['otro','Otro problema']];
-var TRAS_AUD_TXT = {aprobada:'🟢 Aprobada', observaciones:'🟡 Aprobada c/ obs.', no_aprobada:'🔴 No aprobada', pendiente:'⚪ Pendiente'};
+var TRAS_PROBLEMAS = [['ok','Llegó OK'],['danio','Daño nuevo'],['falta_elemento','Falta un elemento'],['vin_distinto','VIN distinto'],['no_llego','No llegó'],['otro','Otro problema']];
+var TRAS_AUD_TXT = {aprobada:'Aprobada', observaciones:'Aprobada c/ obs.', no_aprobada:'No aprobada', pendiente:'Pendiente'};
+// Íconos: los mismos (Material Symbols) que usa todo el Planning.
+function trasIco_(n, sz){ return '<span class="material-symbols-outlined ti" style="font-size:'+(sz||16)+'px;">'+n+'</span>'; }
 
 function trasEsc_(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function trasLugar_(x){
@@ -5832,11 +5843,11 @@ function trasPost_(action, params){
 function trasAud_(vin){ return TRAS.aud[vin] || {estado:'pendiente', obs:[], fotos:[]}; }
 function trasAudBadge_(vin){
   var a = trasAud_(vin), cls = a.estado==='aprobada'?'ok':a.estado==='observaciones'?'warn':a.estado==='no_aprobada'?'bad':'';
-  return '<span class="tras-pill '+cls+'" title="'+trasEsc_(a.resultado||'Sin auditar')+(a.fecha?' · '+trasEsc_(trasFechaHora_(a.fecha)):'')+'">'+TRAS_AUD_TXT[a.estado]+(a.enCurso && a.estado==='pendiente' && a.fotos.length?' (en curso)':'')+'</span>';
+  return '<span class="tras-pill aud '+cls+'" title="'+trasEsc_(a.resultado||'Sin auditar')+(a.fecha?' · '+trasEsc_(trasFechaHora_(a.fecha)):'')+'"><i class="tras-dot"></i>'+TRAS_AUD_TXT[a.estado]+(a.enCurso && a.estado==='pendiente' && a.fotos.length?' (en curso)':'')+'</span>';
 }
 function trasLinkAuditar_(vin){ return AUDITORIA_APP_URL + '#auditoria=' + encodeURIComponent(String(vin).toUpperCase()+'-T'); }
 function trasLinkInformeAud_(vin){ return AUDITORIA_APP_URL + '#informe=' + encodeURIComponent(String(vin).toUpperCase()+'-T'); }
-function trasLinkPdfAud_(vin){ var a = trasAud_(vin); return a.estado!=='pendiente' ? ' <a href="'+trasLinkInformeAud_(vin)+'" target="_blank" rel="noopener" title="Control pre-traslado de la unidad (PDF)" style="font-size:11px;">📄 PDF</a>' : ''; }
+function trasLinkPdfAud_(vin){ var a = trasAud_(vin); return a.estado!=='pendiente' ? ' <a href="'+trasLinkInformeAud_(vin)+'" target="_blank" rel="noopener" title="Control pre-traslado de la unidad (PDF)" style="font-size:11px;">'+trasIco_('picture_as_pdf',14)+' PDF</a>' : ''; }
 function trasFechaHora_(iso){
   if(!iso) return '';
   var d = new Date(String(iso).length<=10 ? iso+'T12:00:00' : iso); if(isNaN(d)) return String(iso);
@@ -5899,19 +5910,19 @@ function trasRender_(){
       '<button class="save-btn" onclick="TRAS.errorConexion=false;try{localStorage.removeItem(\'trasApiUrl_v1\')}catch(e){};TRAS_API_URL_ENV=null;trasAbrir_()">Reintentar</button></div>';
     document.getElementById('trasLegacy').style.display = 'none'; return;
   }
-  var tabs = [['pendientes','Unidades'],['camiones','Traslados / camiones'],['calendario','Calendario'],['historial','Historial por VIN'],['entregas','Entregas marcadas']];
+  var tabs = [['pendientes','Unidades','directions_car'],['camiones','Traslados / camiones','local_shipping'],['calendario','Calendario','calendar_month'],['historial','Historial por VIN','history'],['entregas','Entregas marcadas','assignment']];
   var h = trasKpisHTML_();
   var filtroTxt = [];
   if(typeof currentBrands!=='undefined' && currentBrands.length && currentBrands.length < BRANDS.length) filtroTxt.push(currentBrands.map(function(m){ return (MARCA_LABEL&&MARCA_LABEL[m])||m; }).join(', '));
   if(typeof currentBranches!=='undefined' && currentBranches.length) filtroTxt.push(currentBranches.join(', '));
   if(filtroTxt.length) h += '<p style="font-size:11.5px;color:var(--text-faint);margin:-6px 0 10px;">Mostrando según los filtros de arriba: <b>'+trasEsc_(filtroTxt.join(' · '))+'</b>.</p>';
-  if(TRAS.filasConAviso) h += '<div class="tras-alerta">⚠ La planilla tiene '+TRAS.filasConAviso+' fila'+(TRAS.filasConAviso===1?'':'s')+' para revisar (VIN repetido, sin VIN o cargada en la hoja de otra ruta): mirá la columna AVISOS.</div>';
-  h += '<div class="tras-tabs">'+tabs.map(function(t){ return '<button class="filter-pill'+(trasUI.tab===t[0]?' active':'')+'" onclick="trasSetTab_(\''+t[0]+'\')">'+t[1]+'</button>'; }).join('')+
+  if(TRAS.filasConAviso) h += '<div class="tras-alerta">'+trasIco_('warning')+' La planilla tiene '+TRAS.filasConAviso+' fila'+(TRAS.filasConAviso===1?'':'s')+' para revisar (VIN repetido, sin VIN o cargada en la hoja de otra ruta): mirá la columna AVISOS.</div>';
+  h += '<div class="tras-tabs">'+tabs.map(function(t){ return '<button class="filter-pill'+(trasUI.tab===t[0]?' active':'')+'" onclick="trasSetTab_(\''+t[0]+'\')">'+trasIco_(t[2],15)+' '+t[1]+'</button>'; }).join('')+
     '<span style="flex:1"></span>'+
-    (trasPuedeEditar_() ? '<label class="view-btn" style="cursor:pointer;">⬆ Importar base<input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="trasImportarArchivo_(event)"></label>' : '')+
-    (TRAS.planillaUrl ? '<a class="view-btn" href="'+trasEsc_(TRAS.planillaUrl)+'" target="_blank" rel="noopener" style="text-decoration:none;">📗 Abrir planilla</a>' : '')+
-    '<button class="view-btn" onclick="trasExportarMenu_(event)">⬇ Exportar Excel</button>'+
-    '<button class="view-btn'+(TRAS.cargando?' tras-girando':'')+'" onclick="trasCargar_(true)" title="Actualizar (trae también lo último de la Auditoría)">⟳</button>'+(TRAS.cargando && TRAS.cargado ? '<span class="tras-actualizando">Actualizando…</span>' : '')+'</div>';
+    (trasPuedeEditar_() ? '<label class="view-btn" style="cursor:pointer;">'+trasIco_('upload',16)+' Importar base<input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="trasImportarArchivo_(event)"></label>' : '')+
+    (TRAS.planillaUrl ? '<a class="view-btn" href="'+trasEsc_(TRAS.planillaUrl)+'" target="_blank" rel="noopener" style="text-decoration:none;">'+trasIco_('table_view',16)+' Abrir planilla</a>' : '')+
+    '<button class="view-btn" onclick="trasExportarMenu_(event)">'+trasIco_('download',16)+' Exportar Excel</button>'+
+    '<button class="view-btn'+(TRAS.cargando?' tras-girando':'')+'" onclick="trasCargar_(true)" title="Actualizar (trae también lo último de la Auditoría)">'+trasIco_('refresh',18)+'</button>'+(TRAS.cargando && TRAS.cargado ? '<span class="tras-actualizando">Actualizando…</span>' : '')+'</div>';
   if(TRAS.cargando && !TRAS.cargado) h += '<div class="report-wrap" style="padding:30px;text-align:center;color:var(--text-faint);">Cargando traslados…</div>';
   else if(trasUI.tab==='pendientes') h += trasPendientesHTML_();
   else if(trasUI.tab==='camiones') h += trasCamionesHTML_();
@@ -5935,7 +5946,8 @@ function trasKpisHTML_(){
     ['Recibidos', T.filter(function(t){ return t.Estado==='Recibido conforme'; }).length, "trasUI.fT='Recibido conforme';trasSetTab_('camiones')"],
     ['Con observaciones', T.filter(function(t){ return t.Estado==='Recibido con observaciones'; }).length, "trasUI.fT='Recibido con observaciones';trasSetTab_('camiones')"]
   ];
-  return '<div class="tras-kpis">'+k.map(function(x){ return '<button class="tras-kpi" onclick="'+x[2]+'"><b>'+x[1]+'</b><span>'+x[0]+'</span></button>'; }).join('')+'</div>';
+  var icos = ['inventory_2','sell','storefront','fact_check','verified','event_note','local_shipping','task_alt','report'];
+  return '<div class="tras-kpis">'+k.map(function(x, i){ return '<button class="tras-kpi" onclick="'+x[2]+'">'+trasIco_(icos[i], 18)+'<b>'+x[1]+'</b><span>'+x[0]+'</span></button>'; }).join('')+'</div>';
 }
 function trasFiltroRapido_(campo, valor){
   trasUI.f = {q:'', marca:'', ruta:'', canal:'', tipo:'', prioridad:'', estado:'activos', auditoria:''};
@@ -5961,6 +5973,7 @@ function trasVehFiltrados_(){
   var f = trasUI.f, q = (f.q||'').toLowerCase();
   return TRAS.veh.filter(function(v){
     if(!trasPasaGlobal_(v)) return false;
+    if(f.fecha){ var fd = trasFecha_(v.FechaPrevista); if(!fd || ('0'+fd.getDate()).slice(-2)+'/'+('0'+(fd.getMonth()+1)).slice(-2)+'/'+fd.getFullYear() !== f.fecha) return false; }
     if(f.estado==='activos'){ if(v.Estado!=='Pendiente' && v.Estado!=='Asignado') return false; }
     else if(f.estado && v.Estado!==f.estado) return false;
     if(f.marca && v.Marca!==f.marca) return false;
@@ -5981,7 +5994,8 @@ function trasUnicos_(arr){ return arr.filter(function(x, i, a){ return x && a.in
 function trasFiltrosHTML_(){
   var f = trasUI.f, V = TRAS.veh;
   var sel = function(k, opts, todos){ return '<select onchange="trasSetF_(\''+k+'\',this.value)">'+trasOpciones_(opts, f[k], todos)+'</select>'; };
-  return '<div class="filter-bar tras-filtros">'+
+  return (f.fecha ? '<div class="tras-chipfiltro">'+trasIco_('event',14)+' Fecha prevista: <b>'+trasEsc_(f.fecha)+'</b> <button onclick="trasSetF_(\'fecha\',\'\')" title="Quitar">'+trasIco_('close',14)+'</button></div>' : '')+
+    '<div class="filter-bar tras-filtros">'+
     '<input type="search" placeholder="Buscar VIN, unidad, cliente o TR-…" value="'+trasEsc_(f.q)+'" oninput="trasUI.f.q=this.value;clearTimeout(window._trasQ);window._trasQ=setTimeout(trasRender_,250)">'+
     sel('ruta', trasUnicos_(V.map(trasHojaDe_)), 'Todas las hojas / rutas')+
     sel('marca', trasUnicos_(V.map(function(v){ return v.Marca; })).map(function(m){ return {v:m, l:(MARCA_LABEL&&MARCA_LABEL[m])||m}; }), 'Todas las marcas')+
@@ -5989,19 +6003,19 @@ function trasFiltrosHTML_(){
     sel('tipo', ['Venta','Salón','Stock'], 'Venta / Salón / Stock')+
     sel('prioridad', ['Alta','Media','Baja'], 'Todas las prioridades')+
     '<select onchange="trasSetF_(\'estado\',this.value)">'+'<option value="activos"'+(f.estado==='activos'?' selected':'')+'>Por trasladar (pendientes + asignadas)</option>'+trasOpciones_(TRAS_EST_VEH, f.estado, 'Todos los estados').replace('<option value="">Todos los estados</option>','<option value=""'+(f.estado===''?' selected':'')+'>Todos los estados</option>')+'</select>'+
-    sel('auditoria', [{v:'pendiente',l:'⚪ Auditoría pendiente'},{v:'aprobadas',l:'🟢🟡 Aprobadas'},{v:'aprobada',l:'🟢 Aprobada'},{v:'observaciones',l:'🟡 Con observaciones'},{v:'no_aprobada',l:'🔴 No aprobada'}], 'Toda auditoría')+
+    sel('auditoria', [{v:'pendiente',l:'Auditoría pendiente'},{v:'aprobadas',l:'Aprobadas (con o sin obs.)'},{v:'aprobada',l:'Aprobada'},{v:'observaciones',l:'Con observaciones'},{v:'no_aprobada',l:'No aprobada'}], 'Toda auditoría')+
   '</div>';
 }
 function trasPendientesHTML_(){
-  if(!TRAS.veh.length) return '<div class="report-wrap" style="padding:30px;text-align:center;color:var(--text-faint);font-size:13px;">Todavía no hay unidades. Cargalas en la <b>planilla de Traslados</b>, en la hoja de su ruta (columnas blancas: FECHA DE CARGA, FECHA PREVISTA, FECHA-ACT., ORIGEN, DESTINO, ESTADO, CANAL, VIN, UNIDAD, CLIENTE, LLEGADA) y tocá ⟳, o subí un Excel con <b>⬆ Importar base</b>.'+(trasPuedeEditar_()?'<div style="margin-top:12px;"><button class="save-btn" onclick="trasAbrirUnidad_()">＋ Agregar unidad desde acá</button></div>':'')+'</div>';
+  if(!TRAS.veh.length) return '<div class="report-wrap" style="padding:30px;text-align:center;color:var(--text-faint);font-size:13px;">Todavía no hay unidades. Cargalas en la <b>planilla de Traslados</b>, en la hoja de su ruta (columnas blancas: FECHA DE CARGA, FECHA PREVISTA, FECHA-ACT., ORIGEN, DESTINO, ESTADO, CANAL, VIN, UNIDAD, CLIENTE, LLEGADA) y tocá Actualizar, o subí un Excel con <b>'+trasIco_('upload',16)+' Importar base</b>.'+(trasPuedeEditar_()?'<div style="margin-top:12px;"><button class="save-btn" onclick="trasAbrirUnidad_()">'+trasIco_('add',16)+' Agregar unidad desde acá</button></div>':'')+'</div>';
   var lista = trasVehFiltrados_(), edit = trasPuedeEditar_();
   var prioOrd = {Alta:0, Media:1, Baja:2};
   var grupos = {};
   lista.forEach(function(v){ var r = trasHojaDe_(v); (grupos[r] = grupos[r] || []).push(v); });
   var nSel = Object.keys(trasUI.sel).filter(function(k){ return trasUI.sel[k]; }).length;
   var h = trasFiltrosHTML_();
-  h += '<div class="tras-selbar'+(nSel?' on':'')+'">'+(edit?'<button class="view-btn" onclick="trasAbrirUnidad_()">＋ Agregar unidad</button>':'')+'<b>'+nSel+'</b> unidad'+(nSel===1?'':'es')+' seleccionada'+(nSel===1?'':'s')+
-    (edit ? ' <button class="save-btn" style="padding:7px 14px;" onclick="trasAbrirForm_()"'+(nSel?'':' disabled')+'>🚚 Crear traslado</button>' : '')+
+  h += '<div class="tras-selbar'+(nSel?' on':'')+'">'+(edit?'<button class="view-btn" onclick="trasAbrirUnidad_()">'+trasIco_('add',16)+' Agregar unidad</button>':'')+'<b>'+nSel+'</b> unidad'+(nSel===1?'':'es')+' seleccionada'+(nSel===1?'':'s')+
+    (edit ? ' <button class="save-btn" style="padding:7px 14px;" onclick="trasAbrirForm_()"'+(nSel?'':' disabled')+'>'+trasIco_('local_shipping',16)+' Crear traslado</button>' : '')+
     (nSel ? ' <button class="view-btn" onclick="trasUI.sel={};trasRender_()">Limpiar</button>' : '')+'</div>';
   if(!lista.length) return h+'<div class="report-wrap" style="padding:24px;text-align:center;color:var(--text-faint);">No hay unidades con estos filtros.</div>';
   Object.keys(grupos).sort().forEach(function(ruta){
@@ -6010,23 +6024,23 @@ function trasPendientesHTML_(){
     var g = grupos[ruta].sort(function(a,b){ return trasRuta_(a).localeCompare(trasRuta_(b)) || po(a.Prioridad)-po(b.Prioridad) || fp(a)-fp(b) || String(a.Unidad).localeCompare(String(b.Unidad)); });
     var cuenta = {}; g.forEach(function(v){ var k = ((MARCA_LABEL&&MARCA_LABEL[v.Marca])||v.Marca||'Otra')+' '+v.Tipo.toLowerCase(); cuenta[k] = (cuenta[k]||0)+1; });
     if(trasEsCelu_()){ h += trasGrupoCeluHTML_(ruta, g, cuenta, edit); return; }
-    h += '<div class="tras-grupo"><div class="tras-grupo-h"><b>📄 '+trasEsc_(ruta)+'</b><span>'+g.length+' unidad'+(g.length===1?'':'es')+' · '+Object.keys(cuenta).map(function(k){ return cuenta[k]+' '+k; }).join(' · ')+'</span></div>'+
+    h += '<div class="tras-grupo"><div class="tras-grupo-h"><b>'+trasIco_('route',18)+' '+trasEsc_(ruta)+'</b><span>'+g.length+' unidad'+(g.length===1?'':'es')+' · '+Object.keys(cuenta).map(function(k){ return cuenta[k]+' '+k; }).join(' · ')+'</span></div>'+
       '<div class="report-wrap" style="max-height:none;"><table class="report-table tras-tabla"><thead><tr><th></th>'+(edit?'<th></th>':'')+'<th>Prioridad</th><th>Sentido</th><th>Fecha prevista</th><th>Tipo</th><th>Unidad</th><th>VIN</th><th>Cliente</th><th>Canal</th><th>Auditoría</th><th>Estado</th><th>Acción</th></tr></thead><tbody>'+
       g.map(function(v){
         var a = trasAud_(v.VIN), bloq = a.estado==='no_aprobada', libre = v.Estado==='Pendiente';
         var b = BRANDS.find(function(x){ return x.id===v.Marca; });
-        var chk = (edit && libre) ? (bloq ? '<span title="Auditoría no aprobada: no puede viajar">🔒</span>' : '<input type="checkbox" '+(trasUI.sel[v.VIN]?'checked':'')+' onchange="trasUI.sel[\''+v.VIN+'\']=this.checked;trasRender_()">') : '';
+        var chk = (edit && libre) ? (bloq ? '<span title="Auditoría no aprobada: no puede viajar" style="color:var(--danger);">'+trasIco_('lock',18)+'</span>' : '<input type="checkbox" '+(trasUI.sel[v.VIN]?'checked':'')+' onchange="trasUI.sel[\''+v.VIN+'\']=this.checked;trasRender_()">') : '';
         var prio = edit ? '<select class="tras-mini prio-'+v.Prioridad+'" onchange="trasCambiarVeh_(\''+v.VIN+'\',\'Prioridad\',this.value)">'+['Alta','Media','Baja'].map(function(p){ return '<option'+(v.Prioridad===p?' selected':'')+'>'+p+'</option>'; }).join('')+'</select>' : '<span class="tras-pill prio-'+v.Prioridad+'">'+v.Prioridad+'</span>';
         var tipo = edit ? '<select class="tras-mini" onchange="trasCambiarVeh_(\''+v.VIN+'\',\'Tipo\',this.value)">'+['Venta','Salón','Stock'].map(function(p){ return '<option'+(v.Tipo===p?' selected':'')+'>'+p+'</option>'; }).join('')+'</select>' : trasEsc_(v.Tipo);
         var accion = v.Estado==='Asignado' ? '<a href="#" onclick="event.preventDefault();trasAbrirDetalle_(\''+v.TrasladoID+'\')">'+trasEsc_(v.TrasladoID)+'</a>'
-          : (bloq ? '<a class="view-btn tras-btn-sm" href="'+trasLinkAuditar_(v.VIN)+'" target="_blank" rel="noopener">Ver auditoría ↗</a>'
-          : '<a class="view-btn tras-btn-sm" href="'+trasLinkAuditar_(v.VIN)+'" target="_blank" rel="noopener">'+(a.estado==='pendiente'?'Auditar unidad ↗':'Auditoría ↗')+'</a>');
+          : (bloq ? '<a class="view-btn tras-btn-sm" href="'+trasLinkAuditar_(v.VIN)+'" target="_blank" rel="noopener">'+trasIco_('open_in_new',14)+' Ver auditoría</a>'
+          : '<a class="view-btn tras-btn-sm" href="'+trasLinkAuditar_(v.VIN)+'" target="_blank" rel="noopener">'+(a.estado==='pendiente'?trasIco_('fact_check',14)+' Auditar unidad':trasIco_('open_in_new',14)+' Auditoría')+'</a>');
         var fpd = trasFecha_(v.FechaPrevista), atras = fpd && libre && fpd.getTime() < new Date().setHours(0,0,0,0);
         return '<tr class="'+(trasUI.sel[v.VIN]?'sel':'')+'"><td>'+chk+'</td>'+(edit?'<td><button class="view-btn tras-btn-sm tras-edit" title="Editar datos de la unidad" onclick="trasAbrirUnidad_(\''+v.VIN+'\')"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">edit</span> Editar</button></td>':'')+'<td>'+prio+'</td><td style="font-size:11.5px;">'+trasEsc_(trasRuta_(v))+'</td>'+
-          '<td title="Cargado el '+trasEsc_(v.FechaCarga||'—')+'"'+(atras?' style="color:var(--danger);font-weight:700;"':'')+'>'+trasEsc_(v.FechaPrevista||'—')+(atras?' ⚠':'')+'</td><td>'+tipo+'</td>'+
+          '<td title="Cargado el '+trasEsc_(v.FechaCarga||'—')+'"'+(atras?' style="color:var(--danger);font-weight:700;"':'')+'>'+trasEsc_(v.FechaPrevista||'—')+(atras?' '+trasIco_('warning',14):'')+'</td><td>'+tipo+'</td>'+
           '<td'+(edit?' class="tras-click" title="Tocá para editar" onclick="trasAbrirUnidad_(\''+v.VIN+'\')"':'')+'><span style="color:var('+(b?b.color:'--text')+');font-weight:700;">'+trasEsc_(b?b.label:'')+'</span> '+trasEsc_(v.Unidad)+'</td>'+
           '<td class="mono"><a href="#" onclick="event.preventDefault();trasVerVin_(\''+v.VIN+'\')">'+trasEsc_(v.VIN)+'</a></td><td>'+trasEsc_(v.Cliente||'—')+'</td><td>'+trasEsc_(v.Canal)+'</td>'+
-          '<td>'+trasAudBadge_(v.VIN)+trasLinkPdfAud_(v.VIN)+'</td><td>'+trasEsc_(v.Estado)+(v.Avisos?' <span title="'+trasEsc_(v.Avisos)+'" style="color:var(--warn);">⚠</span>':'')+'</td><td>'+accion+'</td></tr>';
+          '<td>'+trasAudBadge_(v.VIN)+trasLinkPdfAud_(v.VIN)+'</td><td>'+trasEsc_(v.Estado)+(v.Avisos?' <span title="'+trasEsc_(v.Avisos)+'" style="color:var(--warn);">'+trasIco_('warning',15)+'</span>':'')+'</td><td>'+accion+'</td></tr>';
       }).join('')+'</tbody></table></div></div>';
   });
   return h;
@@ -6079,19 +6093,19 @@ function trasEliminarUnidad_(vin){
 // ---------- Vista para celular (modo app): tarjetas grandes en vez de tabla ----------
 function trasEsCelu_(){ return window.innerWidth <= 700; }
 function trasGrupoCeluHTML_(ruta, g, cuenta, edit){
-  return '<div class="tras-grupo"><div class="tras-grupo-h"><b>📄 '+trasEsc_(ruta)+'</b><span>'+g.length+' unidad'+(g.length===1?'':'es')+'</span></div>'+
+  return '<div class="tras-grupo"><div class="tras-grupo-h"><b>'+trasIco_('route',18)+' '+trasEsc_(ruta)+'</b><span>'+g.length+' unidad'+(g.length===1?'':'es')+'</span></div>'+
     g.map(function(v){
       var a = trasAud_(v.VIN), bloq = a.estado==='no_aprobada', libre = v.Estado==='Pendiente', b = BRANDS.find(function(x){ return x.id===v.Marca; });
       var fpd = trasFecha_(v.FechaPrevista), atras = fpd && libre && fpd.getTime() < new Date().setHours(0,0,0,0);
       var sel = !!trasUI.sel[v.VIN];
-      var chk = (edit && libre) ? (bloq ? '<span class="tc-lock" title="Auditoría no aprobada">🔒</span>' : '<label class="tc-chk"><input type="checkbox" '+(sel?'checked':'')+' onchange="trasUI.sel[\''+v.VIN+'\']=this.checked;trasRender_()"></label>') : '';
-      var accion = v.Estado==='Asignado' ? '<button class="view-btn" onclick="trasAbrirDetalle_(\''+v.TrasladoID+'\')">🚚 '+trasEsc_(v.TrasladoID)+'</button>'
-        : '<a class="view-btn" href="'+(a.estado==='pendiente'?trasLinkAuditar_(v.VIN):trasLinkInformeAud_(v.VIN))+'" target="_blank" rel="noopener">'+(a.estado==='pendiente'?'✔ Auditar':'📄 Control PDF')+'</a>';
+      var chk = (edit && libre) ? (bloq ? '<span class="tc-lock" title="Auditoría no aprobada" style="color:var(--danger);">'+trasIco_('lock',20)+'</span>' : '<label class="tc-chk"><input type="checkbox" '+(sel?'checked':'')+' onchange="trasUI.sel[\''+v.VIN+'\']=this.checked;trasRender_()"></label>') : '';
+      var accion = v.Estado==='Asignado' ? '<button class="view-btn" onclick="trasAbrirDetalle_(\''+v.TrasladoID+'\')">'+trasIco_('local_shipping')+' '+trasEsc_(v.TrasladoID)+'</button>'
+        : '<a class="view-btn" href="'+(a.estado==='pendiente'?trasLinkAuditar_(v.VIN):trasLinkInformeAud_(v.VIN))+'" target="_blank" rel="noopener">'+(a.estado==='pendiente'?trasIco_('fact_check')+' Auditar':trasIco_('picture_as_pdf')+' Control PDF')+'</a>';
       return '<div class="tc'+(sel?' sel':'')+'">'+
         '<div class="tc-top">'+chk+'<div class="tc-main"><b><span style="color:var('+(b?b.color:'--text')+')">'+trasEsc_(b?b.label:'')+'</span> '+trasEsc_(v.Unidad)+'</b>'+
           '<span>'+trasEsc_(v.Cliente||v.Tipo)+' · '+trasEsc_(v.Canal)+'</span><span class="mono">'+trasEsc_(v.VIN)+'</span></div>'+
           '<span class="tras-pill prio-'+v.Prioridad+'">'+v.Prioridad+'</span></div>'+
-        '<div class="tc-mid"><span>'+trasEsc_(trasRuta_(v))+'</span><span'+(atras?' style="color:var(--danger);font-weight:700;"':'')+'>📅 '+trasEsc_(v.FechaPrevista||'sin fecha')+(atras?' ⚠':'')+'</span></div>'+
+        '<div class="tc-mid"><span>'+trasEsc_(trasRuta_(v))+'</span><span'+(atras?' style="color:var(--danger);font-weight:700;"':'')+'>'+trasIco_('event',14)+' '+trasEsc_(v.FechaPrevista||'sin fecha')+(atras?' '+trasIco_('warning',14):'')+'</span></div>'+
         '<div class="tc-bot">'+trasAudBadge_(v.VIN)+'<span class="tc-est">'+trasEsc_(v.Estado)+'</span><span style="flex:1"></span>'+accion+
           (edit?'<button class="view-btn" onclick="trasAbrirUnidad_(\''+v.VIN+'\')" aria-label="Editar"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">edit</span> Editar</button>':'')+'</div></div>';
     }).join('')+'</div>';
@@ -6121,11 +6135,11 @@ function trasCardHTML_(t){
   var conObs = (t.VINs||[]).filter(function(v){ var a = trasAud_(v).estado; return a==='pendiente' || a==='no_aprobada'; }).length;
   return '<div class="tras-card-w"><button class="tras-card" onclick="trasAbrirDetalle_(\''+t.ID+'\')"><div class="tras-card-h"><b>'+trasEsc_(t.ID)+'</b><span class="tras-pill '+trasEstadoCls_(t.Estado)+'">'+trasEsc_(t.Estado)+'</span></div>'+
     '<div class="tras-card-ruta">'+trasEsc_(trasLugar_(t.Origen))+' → '+trasEsc_(trasLugar_(t.Destino))+'</div>'+
-    '<div class="tras-card-m">🚚 '+trasEsc_(t.Camion||'Camión sin definir')+(t.Patente?' · '+trasEsc_(t.Patente):'')+(t.Camionero?' · '+trasEsc_(t.Camionero):'')+'</div>'+
-    (t.CargaCamion && TRAS_ACTIVO_(t) ? '<div class="tras-card-m">🚛 Llega a cargar '+trasEsc_(trasFechaHora_(t.CargaCamion))+'</div>' : '')+
+    '<div class="tras-card-m">'+trasIco_('local_shipping',14)+' '+trasEsc_(t.Camion||'Camión sin definir')+(t.Patente?' · '+trasEsc_(t.Patente):'')+(t.Camionero?' · '+trasEsc_(t.Camionero):'')+'</div>'+
+    (t.CargaCamion && TRAS_ACTIVO_(t) ? '<div class="tras-card-m">'+trasIco_('schedule',14)+' Llega a cargar '+trasEsc_(trasFechaHora_(t.CargaCamion))+'</div>' : '')+
     '<div class="tras-card-m">Salida '+trasEsc_(trasFechaHora_(t.SalidaReal||t.SalidaPrevista)||'a definir')+(t.LlegadaReal?' · llegó '+trasEsc_(trasFechaHora_(t.LlegadaReal)):(t.LlegadaPrevista?' · llegada prevista '+trasEsc_(trasFechaHora_(t.LlegadaPrevista)):''))+'</div>'+
-    '<div class="tras-card-f"><span>'+n+(cap?' / '+cap:'')+' unidades</span>'+(conObs && TRAS_ACTIVO_(t) ? '<span style="color:var(--warn);">⚠ '+conObs+' sin auditoría aprobada</span>' : '')+'</div></button>'+
-    '<div class="tras-card-acc">'+(t.PDF_URL ? '<a class="view-btn tras-btn-sm" href="'+trasEsc_(t.PDF_URL)+'" target="_blank" rel="noopener">📄 Remito PDF</a>' : (trasPuedeEditar_() && t.Estado!=='Cancelado' ? '<button class="view-btn tras-btn-sm" onclick="trasGenerarPdf_(\''+t.ID+'\')">📄 Generar remito</button>' : ''))+'</div>';
+    '<div class="tras-card-f"><span>'+n+(cap?' / '+cap:'')+' unidades</span>'+(conObs && TRAS_ACTIVO_(t) ? '<span style="color:var(--warn);">'+trasIco_('warning',14)+' '+conObs+' sin auditoría aprobada</span>' : '')+'</div></button>'+
+    '<div class="tras-card-acc">'+(t.PDF_URL ? '<a class="view-btn tras-btn-sm" href="'+trasEsc_(t.PDF_URL)+'" target="_blank" rel="noopener">'+trasIco_('picture_as_pdf',14)+' Remito PDF</a>' : (trasPuedeEditar_() && t.Estado!=='Cancelado' ? '<button class="view-btn tras-btn-sm" onclick="trasGenerarPdf_(\''+t.ID+'\')">'+trasIco_('description',14)+' Generar remito</button>' : ''))+'</div>';
 }
 function TRAS_ACTIVO_(t){ return ['Planificado','Listo para salir'].indexOf(t.Estado)>-1; }
 
@@ -6210,26 +6224,26 @@ function trasAbrirDetalle_(id){
     dato('Unidades', vins.length+(cap?' / '+cap:''))+dato('Camión llega a cargar', trasFechaHora_(t.CargaCamion))+dato('Salida prevista / real', trasFechaHora_(t.SalidaPrevista)+(t.SalidaReal?' · real '+trasFechaHora_(t.SalidaReal):''))+
     dato('Llegada prevista / real', trasFechaHora_(t.LlegadaPrevista)+(t.LlegadaReal?' · real '+trasFechaHora_(t.LlegadaReal):''))+'</div>';
   if(t.Observaciones) h += '<p class="tras-nota">'+trasEsc_(t.Observaciones)+'</p>';
-  if(pre && sinAud.length) h += '<div class="tras-alerta">⚠ '+sinAud.length+' unidad'+(sinAud.length===1?'':'es')+' sin auditoría aprobada: no puede'+(sinAud.length===1?'':'n')+' salir hasta que se audite'+(sinAud.length===1?'':'n')+'.</div>';
+  if(pre && sinAud.length) h += '<div class="tras-alerta">'+trasIco_('warning')+' '+sinAud.length+' unidad'+(sinAud.length===1?'':'es')+' sin auditoría aprobada: no puede'+(sinAud.length===1?'':'n')+' salir hasta que se audite'+(sinAud.length===1?'':'n')+'.</div>';
   h += '<div class="report-wrap" style="max-height:none;"><table class="report-table"><thead><tr><th>#</th><th>Marca</th><th>Unidad</th><th>VIN</th><th>Cliente</th><th>Canal</th><th>Tipo</th><th>Auditoría</th>'+(rec.items?'<th>Recepción</th>':'')+'</tr></thead><tbody>'+
     vins.map(function(vin, i){
       var v = trasVeh_(vin)||{}, b = BRANDS.find(function(x){ return x.id===v.Marca; }), it = (rec.items||{})[vin];
       return '<tr><td>'+(i+1)+'</td><td>'+trasEsc_(b?b.label:v.Marca||'')+'</td><td>'+trasEsc_(v.Unidad)+'</td><td class="mono"><a href="#" onclick="event.preventDefault();trasVerVin_(\''+vin+'\')">'+trasEsc_(vin)+'</a></td><td>'+trasEsc_(v.Cliente||'—')+'</td><td>'+trasEsc_(v.Canal)+'</td><td>'+trasEsc_(v.Tipo)+'</td>'+
-        '<td>'+trasAudBadge_(vin)+(trasAud_(vin).estado==='pendiente' ? ' <a href="'+trasLinkAuditar_(vin)+'" target="_blank" rel="noopener" style="font-size:11px;">Auditar ↗</a>' : trasLinkPdfAud_(vin))+'</td>'+
-        (rec.items ? '<td>'+(it ? (it.estado==='ok'?'<span class="tras-pill ok">OK</span>':'<span class="tras-pill bad">'+trasEsc_((TRAS_PROBLEMAS.find(function(p){return p[0]===it.estado;})||['',''])[1])+'</span>'+(it.obs?' '+trasEsc_(it.obs):'')) : '—')+'</td>' : '')+'</tr>';
+        '<td>'+trasAudBadge_(vin)+(trasAud_(vin).estado==='pendiente' ? ' <a href="'+trasLinkAuditar_(vin)+'" target="_blank" rel="noopener" style="font-size:11px;">'+trasIco_('fact_check',14)+' Auditar</a>' : trasLinkPdfAud_(vin))+'</td>'+
+        (rec.items ? '<td>'+(it ? (it.estado==='ok'?'<span class="tras-pill ok">'+trasIco_('check',13)+' OK</span>':'<span class="tras-pill bad">'+trasEsc_((TRAS_PROBLEMAS.find(function(p){return p[0]===it.estado;})||['',''])[1])+'</span>'+(it.obs?' '+trasEsc_(it.obs):'')) : '—')+'</td>' : '')+'</tr>';
     }).join('')+'</tbody></table></div>';
-  if(sal.logistica) h += '<p class="tras-nota">🖊 Salida firmada por <b>'+trasEsc_(sal.logistica.nombre)+'</b> (logística) y <b>'+trasEsc_(sal.camionero.nombre)+'</b> (camionero'+(sal.camionero.dni?', DNI '+trasEsc_(sal.camionero.dni):'')+') el '+trasEsc_(trasFechaHora_(sal.logistica.fecha))+'.</p>';
-  if(rec.nombre) h += '<p class="tras-nota">📥 Recibido en '+trasEsc_(rec.sucursal)+' por <b>'+trasEsc_(rec.nombre)+'</b>'+(rec.dni?' (DNI '+trasEsc_(rec.dni)+')':'')+' el '+trasEsc_(trasFechaHora_(rec.fecha))+' — <b>'+(rec.resultado==='conforme'?'Recibido conforme':'Recibido con observaciones')+'</b>'+(rec.obs?': '+trasEsc_(rec.obs):'')+'</p>';
+  if(sal.logistica) h += '<p class="tras-nota">'+trasIco_('draw',15)+' Salida firmada por <b>'+trasEsc_(sal.logistica.nombre)+'</b> (logística) y <b>'+trasEsc_(sal.camionero.nombre)+'</b> (camionero'+(sal.camionero.dni?', DNI '+trasEsc_(sal.camionero.dni):'')+') el '+trasEsc_(trasFechaHora_(sal.logistica.fecha))+'.</p>';
+  if(rec.nombre) h += '<p class="tras-nota">'+trasIco_('move_to_inbox',15)+' Recibido en '+trasEsc_(rec.sucursal)+' por <b>'+trasEsc_(rec.nombre)+'</b>'+(rec.dni?' (DNI '+trasEsc_(rec.dni)+')':'')+' el '+trasEsc_(trasFechaHora_(rec.fecha))+' — <b>'+(rec.resultado==='conforme'?'Recibido conforme':'Recibido con observaciones')+'</b>'+(rec.obs?': '+trasEsc_(rec.obs):'')+'</p>';
   h += '<details class="tras-hist"><summary>Historial del traslado ('+(t.Historial||[]).length+')</summary>'+(t.Historial||[]).slice().reverse().map(function(x){ return '<div><b>'+trasEsc_(trasFechaHora_(x.f))+'</b> · '+trasEsc_(x.u)+' — '+trasEsc_(x.txt)+'</div>'; }).join('')+'</details>';
   var acc = '';
-  if(edit && pre) acc += '<button class="view-btn" onclick="trasAbrirForm_(\''+t.ID+'\')">✏ Editar carga y datos</button>';
-  if(edit && t.Estado==='Planificado') acc += '<button class="view-btn" onclick="trasMarcarListo_(\''+t.ID+'\',true)">✓ Listo para salir</button>';
-  if(edit && t.Estado==='Listo para salir') acc += '<button class="view-btn" onclick="trasMarcarListo_(\''+t.ID+'\',false)">↺ Volver a planificado</button>';
-  if(edit && pre) acc += '<button class="save-btn" onclick="trasAbrirSalida_(\''+t.ID+'\')">🖊 Firmar y confirmar salida</button>';
-  if(edit && t.Estado==='En traslado') acc += '<button class="save-btn" onclick="trasAbrirRecepcion_(\''+t.ID+'\')">📥 Registrar recepción</button>';
-  acc += t.PDF_URL ? '<a class="view-btn" href="'+trasEsc_(t.PDF_URL)+'" target="_blank" rel="noopener">📄 Ver remito PDF</a>' : '';
-  if(edit && t.Estado!=='Cancelado') acc += '<button class="view-btn" onclick="trasGenerarPdf_(\''+t.ID+'\')">'+(t.PDF_URL?'↻ Actualizar remito':'📄 Generar remito PDF')+'</button>';
-  acc += '<button class="view-btn" onclick="trasExportar_(\'detalle\',\''+t.ID+'\')">⬇ Exportar detalle</button>';
+  if(edit && pre) acc += '<button class="view-btn" onclick="trasAbrirForm_(\''+t.ID+'\')">'+trasIco_('edit',16)+' Editar carga y datos</button>';
+  if(edit && t.Estado==='Planificado') acc += '<button class="view-btn" onclick="trasMarcarListo_(\''+t.ID+'\',true)">'+trasIco_('check_circle',16)+' Listo para salir</button>';
+  if(edit && t.Estado==='Listo para salir') acc += '<button class="view-btn" onclick="trasMarcarListo_(\''+t.ID+'\',false)">'+trasIco_('undo',16)+' Volver a planificado</button>';
+  if(edit && pre) acc += '<button class="save-btn" onclick="trasAbrirSalida_(\''+t.ID+'\')">'+trasIco_('draw',16)+' Firmar y confirmar salida</button>';
+  if(edit && t.Estado==='En traslado') acc += '<button class="save-btn" onclick="trasAbrirRecepcion_(\''+t.ID+'\')">'+trasIco_('move_to_inbox',16)+' Registrar recepción</button>';
+  acc += t.PDF_URL ? '<a class="view-btn" href="'+trasEsc_(t.PDF_URL)+'" target="_blank" rel="noopener">'+trasIco_('picture_as_pdf',16)+' Ver remito PDF</a>' : '';
+  if(edit && t.Estado!=='Cancelado') acc += '<button class="view-btn" onclick="trasGenerarPdf_(\''+t.ID+'\')">'+(t.PDF_URL?trasIco_('sync')+' Actualizar remito':trasIco_('description')+' Generar remito PDF')+'</button>';
+  acc += '<button class="view-btn" onclick="trasExportar_(\'detalle\',\''+t.ID+'\')">'+trasIco_('download',16)+' Exportar detalle</button>';
   if(edit && pre) acc += '<button class="view-btn" style="color:var(--danger);" onclick="trasCancelarT_(\''+t.ID+'\')">Cancelar traslado</button>';
   trasModal_('Traslado '+t.ID, t.Estado+' · '+trasLugar_(t.Origen)+' → '+trasLugar_(t.Destino), h, acc);
 }
@@ -6274,7 +6288,7 @@ function trasAbrirSalida_(id){
   var t = trasT_(id), vins = t.VINs||[];
   var sinAud = vins.filter(function(v){ var a = trasAud_(v).estado; return a==='pendiente' || a==='no_aprobada'; });
   if(sinAud.length){ showToast('No puede salir: hay '+sinAud.length+' unidad(es) sin auditoría aprobada.'); return; }
-  if(!t.Patente || !t.Camionero){ showToast('Antes de firmar completá patente y camionero (✏ Editar carga y datos).'); return; }
+  if(!t.Patente || !t.Camionero){ showToast('Antes de firmar completá patente y camionero ('+trasIco_('edit',16)+' Editar carga y datos).'); return; }
   var u = sesionActual()||{};
   var h = '<p class="tras-nota">Se entregan al camionero <b>'+vins.length+'</b> unidades para trasladar de <b>'+trasEsc_(trasLugar_(t.Origen))+'</b> a <b>'+trasEsc_(trasLugar_(t.Destino))+'</b>. Al confirmar se registra la fecha y hora y el traslado pasa a <b>En traslado</b>.</p>'+
     '<div class="tras-form-grid"><label class="tras-campo"><span>Responsable de logística</span><input id="trasSalNomLog" value="'+trasEsc_(t.Responsable||u.nombre||'')+'"></label>'+
@@ -6308,7 +6322,7 @@ function trasAbrirRecepcion_(id){
       return '<div class="tras-rec-item" id="trasRec_'+vin+'"><div><b>'+trasEsc_(v.Unidad)+'</b> · <span class="mono">'+trasEsc_(vin)+'</span><br><small>'+trasEsc_(v.Cliente||v.Tipo||'')+' · salió '+TRAS_AUD_TXT[trasAud_(vin).estado]+'</small></div>'+
         '<select onchange="_trasRec.items[\''+vin+'\'].estado=this.value;document.getElementById(\'trasRec_'+vin+'\').classList.toggle(\'mal\',this.value!==\'ok\')">'+TRAS_PROBLEMAS.map(function(p){ return '<option value="'+p[0]+'">'+p[1]+'</option>'; }).join('')+'</select>'+
         '<input placeholder="Observación (obligatoria si hay problema)" oninput="_trasRec.items[\''+vin+'\'].obs=this.value">'+
-        '<label class="view-btn tras-btn-sm" style="cursor:pointer;">📷 Foto<input type="file" accept="image/*" multiple style="display:none" onchange="trasRecFotos_(\''+vin+'\',this)"></label><span class="tras-rec-n" id="trasRecN_'+vin+'"></span></div>';
+        '<label class="view-btn tras-btn-sm" style="cursor:pointer;">'+trasIco_('photo_camera',14)+' Foto<input type="file" accept="image/*" multiple style="display:none" onchange="trasRecFotos_(\''+vin+'\',this)"></label><span class="tras-rec-n" id="trasRecN_'+vin+'"></span></div>';
     }).join('')+'</div>'+
     '<label class="tras-campo"><span>Observación general</span><textarea id="trasRecObs" rows="2"></textarea></label>'+
     '<label class="tras-check"><input type="checkbox" id="trasRecConObs"> Recibir con observaciones aunque todas las unidades estén OK</label>'+
@@ -6443,19 +6457,39 @@ function trasCalendarioHTML_(){
     var lleg = String(t.LlegadaReal||t.LlegadaPrevista||'').slice(0,10);
     if(lleg && lleg !== String(t.SalidaReal||t.SalidaPrevista||'').slice(0,10)) push(lleg, {t:t, tipo:'llega'});
   });
+  // Unidades que todavía no viajan, en su FECHA PREVISTA, agrupadas por ruta.
+  var unidadesDia = {};
+  TRAS.veh.filter(function(v){ return (v.Estado==='Pendiente' || v.Estado==='Asignado') && trasPasaGlobal_(v); }).forEach(function(v){
+    var fd = trasFecha_(v.FechaPrevista); if(!fd) return;
+    var k = fd.getFullYear()+'-'+('0'+(fd.getMonth()+1)).slice(-2)+'-'+('0'+fd.getDate()).slice(-2), r = trasRuta_(v);
+    var dia = unidadesDia[k] = unidadesDia[k] || {};
+    (dia[r] = dia[r] || {n:0, pend:0, ruta:r}); dia[r].n++; if(v.Estado==='Pendiente') dia[r].pend++;
+  });
+  var sinFecha = TRAS.veh.filter(function(v){ return v.Estado==='Pendiente' && trasPasaGlobal_(v) && !trasFecha_(v.FechaPrevista); }).length;
   var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   var g = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(function(d){ return '<div class="cal-dow">'+d+'</div>'; }).join('');
   for(var i=0;i<offset;i++) g += '<div class="cal-day empty"></div>';
   for(var d=1; d<=last; d++){
     var k = y+'-'+('0'+(m+1)).slice(-2)+'-'+('0'+d).slice(-2), its = porDia[k]||[];
-    g += '<div class="cal-day'+(k===hoyK?' today':'')+'"><div class="num">'+d+'</div>'+its.map(function(x){
+    var ud = unidadesDia[k] || {};
+    var chipsU = Object.keys(ud).map(function(r){ var x = ud[r];
+      return '<div class="cal-day-cliente tras-cal unid" title="'+trasEsc_(x.n+' unidad(es) con fecha prevista · '+x.ruta+(x.pend?' · '+x.pend+' sin camión':''))+'" onclick="event.stopPropagation();trasVerDia_(\''+k+'\')">'+trasIco_('directions_car',11)+' '+x.n+' → '+trasEsc_(x.ruta.split(' → ')[1]||'')+'</div>'; }).join('');
+    g += '<div class="cal-day'+(k===hoyK?' today':'')+'" onclick="trasVerDia_(\''+k+'\')"><div class="num">'+d+'</div>'+chipsU+its.map(function(x){
       var t = x.t, cls = trasEstadoCls_(t.Estado);
-      return '<div class="cal-day-cliente tras-cal '+cls+'" title="'+trasEsc_(t.ID+' · '+t.Estado+' · '+(t.VINs||[]).length+' unidades · '+(t.Camion||'')+' '+(t.Patente||''))+'" onclick="event.stopPropagation();trasAbrirDetalle_(\''+t.ID+'\')">'+(x.tipo==='carga'?'🚛 Carga ':x.tipo==='sale'?'🚚 ':'🏁 ')+trasEsc_(t.ID)+' → '+trasEsc_(trasLugar_(t.Destino))+' ('+(t.VINs||[]).length+')</div>';
+      return '<div class="cal-day-cliente tras-cal '+cls+'" title="'+trasEsc_(t.ID+' · '+t.Estado+' · '+(t.VINs||[]).length+' unidades · '+(t.Camion||'')+' '+(t.Patente||''))+'" onclick="event.stopPropagation();trasAbrirDetalle_(\''+t.ID+'\')">'+(x.tipo==='carga'?trasIco_('schedule',11)+' Carga ':x.tipo==='sale'?trasIco_('local_shipping',11)+' ':trasIco_('flag',11)+' ')+trasEsc_(t.ID)+' → '+trasEsc_(trasLugar_(t.Destino))+' ('+(t.VINs||[]).length+')</div>';
     }).join('')+'</div>';
   }
   return '<div class="cal-wrap" style="margin-top:12px;"><div class="cal-head"><div class="cal-nav"><button onclick="trasMesMover_(-1)">‹</button><div class="cal-title">'+meses[m]+' '+y+'</div><button onclick="trasMesMover_(1)">›</button>'+(mes!==hoyK.slice(0,7)?'<button style="width:auto;border-radius:20px;padding:0 12px;font-size:12px;" onclick="trasMesMover_(0)">Hoy</button>':'')+'</div>'+
-    '<div class="cal-legend"><span>🚛 Camión llega a cargar</span><span>🚚 Salida</span><span>🏁 Llegada</span><span><i class="sw" style="background:var(--text-faint)"></i>Planificado</span><span><i class="sw" style="background:#5B8DEF"></i>Listo para salir</span><span><i class="sw" style="background:var(--warn)"></i>En traslado</span><span><i class="sw" style="background:var(--ok)"></i>Recibido</span><span><i class="sw" style="background:var(--danger)"></i>Con observaciones</span></div></div>'+
-    '<div class="cal-grid">'+g+'</div></div>';
+    '<div class="cal-legend"><span>'+trasIco_('directions_car',13)+' Unidades a trasladar (fecha prevista)</span><span>'+trasIco_('schedule',13)+' Camión llega a cargar</span><span>'+trasIco_('local_shipping',13)+' Salida</span><span>'+trasIco_('flag',13)+' Llegada</span><span><i class="sw" style="background:var(--text-faint)"></i>Planificado</span><span><i class="sw" style="background:#5B8DEF"></i>Listo para salir</span><span><i class="sw" style="background:var(--warn)"></i>En traslado</span><span><i class="sw" style="background:var(--ok)"></i>Recibido</span><span><i class="sw" style="background:var(--danger)"></i>Con observaciones</span></div></div>'+
+    '<div class="cal-grid">'+g+'</div>'+
+    (sinFecha ? '<p style="font-size:12px;color:var(--text-faint);margin:10px 0 0;">'+trasIco_('info',14)+' '+sinFecha+' unidad'+(sinFecha===1?'':'es')+' pendiente'+(sinFecha===1?'':'s')+' sin fecha prevista no aparece'+(sinFecha===1?'':'n')+' en el calendario. <a href="#" onclick="event.preventDefault();trasFiltroRapido_(\'estado\',\'Pendiente\')">Verlas</a></p>' : '')+
+    (!TRAS.tras.length && !Object.keys(unidadesDia).length ? '<p style="font-size:12px;color:var(--text-faint);margin:10px 0 0;">Todavía no hay unidades con fecha prevista ni camiones armados.</p>' : '')+'</div>';
+}
+// Tocar un día del calendario: muestra las unidades con esa fecha prevista.
+function trasVerDia_(k){
+  var m = String(k).match(/^(\d{4})-(\d{2})-(\d{2})$/); if(!m) return;
+  trasUI.f = {q:'', marca:'', ruta:'', canal:'', tipo:'', prioridad:'', estado:'activos', auditoria:'', fecha: m[3]+'/'+m[2]+'/'+m[1]};
+  trasUI.tab = 'pendientes'; trasRender_();
 }
 
 // ------------------------------- historial por VIN -------------------------------
@@ -6473,13 +6507,13 @@ function trasHistorialHTML_(){
     var kv = function(l, x){ return '<div><span>'+l+'</span><b>'+(trasEsc_(x)||'—')+'</b></div>'; };
     var hh = '<div class="tras-vin"><div class="tras-vin-h"><b>'+trasEsc_(v.VIN)+'</b><span>'+trasEsc_((b?b.label+' ':'')+v.Unidad)+'</span><span class="tras-pill">'+trasEsc_(v.Estado)+'</span></div>';
     hh += bloque('Datos originales', '<div class="tras-det-grid">'+kv('Unidad', v.Unidad)+kv('Cliente', v.Cliente)+kv('Origen', trasLugar_(v.Origen))+kv('Destino', trasLugar_(v.Destino))+kv('Canal', v.Canal)+kv('Estado en la base', v.EstadoBase)+kv('Hoja', v.Hoja)+kv('Fecha de carga', v.FechaCarga)+kv('Fecha prevista', v.FechaPrevista)+kv('Fecha act.', v.FechaAct)+kv('Llegada (base)', v.Llegada)+kv('Tipo / prioridad', v.Tipo+' · '+v.Prioridad)+(en?kv('Entrega en el Planning', (en.fecha||'')+' · '+(en.dominio||'')+' · '+(en.color||'')):'')+'</div>');
-    hh += bloque('Auditoría pre-traslado', '<p>'+trasAudBadge_(v.VIN)+(a.fecha?' · '+trasEsc_(trasFechaHora_(a.fecha)):'')+(a.auditor?' · '+trasEsc_(a.auditor):'')+' · '+(a.fotos||[]).length+' foto(s) · <a href="'+trasLinkAuditar_(v.VIN)+'" target="_blank" rel="noopener">abrir auditoría ↗</a></p>'+
+    hh += bloque('Auditoría pre-traslado', '<p>'+trasAudBadge_(v.VIN)+(a.fecha?' · '+trasEsc_(trasFechaHora_(a.fecha)):'')+(a.auditor?' · '+trasEsc_(a.auditor):'')+' · '+(a.fotos||[]).length+' foto(s) · <a href="'+trasLinkAuditar_(v.VIN)+'" target="_blank" rel="noopener">'+trasIco_('open_in_new',14)+' abrir auditoría</a></p>'+
       ((a.obs||[]).length ? '<ul>'+a.obs.map(function(o){ return '<li>'+trasEsc_(o.pregunta)+(o.obs?': '+trasEsc_(o.obs):'')+'</li>'; }).join('')+'</ul>' : ''));
     hh += bloque('Traslados', ts.length ? ts.map(function(t){ var it = ((t.Recepcion||{}).items||{})[v.VIN];
-      return '<p><a href="#" onclick="event.preventDefault();trasAbrirDetalle_(\''+t.ID+'\')"><b>'+trasEsc_(t.ID)+'</b></a> · '+trasEsc_(t.Estado)+' · '+trasEsc_(trasLugar_(t.Origen)+' → '+trasLugar_(t.Destino))+' · 🚚 '+trasEsc_((t.Camion||'')+' '+(t.Patente||''))+' · '+trasEsc_(t.Camionero||'')+
+      return '<p><a href="#" onclick="event.preventDefault();trasAbrirDetalle_(\''+t.ID+'\')"><b>'+trasEsc_(t.ID)+'</b></a> · '+trasEsc_(t.Estado)+' · '+trasEsc_(trasLugar_(t.Origen)+' → '+trasLugar_(t.Destino))+' · '+trasIco_('local_shipping',14)+' '+trasEsc_((t.Camion||'')+' '+(t.Patente||''))+' · '+trasEsc_(t.Camionero||'')+
         (t.SalidaReal?' · salió '+trasEsc_(trasFechaHora_(t.SalidaReal)):'')+(t.LlegadaReal?' · llegó '+trasEsc_(trasFechaHora_(t.LlegadaReal)):'')+
-        ((t.Recepcion||{}).nombre?' · recibió '+trasEsc_(t.Recepcion.nombre):'')+(it?' · '+(it.estado==='ok'?'✓ OK':'⚠ '+trasEsc_(it.estado)+(it.obs?': '+trasEsc_(it.obs):'')):'')+
-        (t.PDF_URL?' · <a href="'+trasEsc_(t.PDF_URL)+'" target="_blank" rel="noopener">📄 informe</a>':'')+'</p>'; }).join('') : '<p>Todavía no viajó.</p>');
+        ((t.Recepcion||{}).nombre?' · recibió '+trasEsc_(t.Recepcion.nombre):'')+(it?' · '+(it.estado==='ok'?trasIco_('check',13)+' OK':trasIco_('warning',13)+' '+trasEsc_(it.estado)+(it.obs?': '+trasEsc_(it.obs):'')):'')+
+        (t.PDF_URL?' · <a href="'+trasEsc_(t.PDF_URL)+'" target="_blank" rel="noopener">'+trasIco_('picture_as_pdf',14)+' remito</a>':'')+'</p>'; }).join('') : '<p>Todavía no viajó.</p>');
     hh += bloque('Cambios registrados', '<div class="tras-hist-l">'+(v.Cambios||[]).slice().reverse().map(function(x){ return '<div><b>'+trasEsc_(trasFechaHora_(x.f))+'</b> · '+trasEsc_(x.u)+' — '+trasEsc_(x.txt)+'</div>'; }).join('')+'</div>');
     return hh+'</div>';
   }).join('');
