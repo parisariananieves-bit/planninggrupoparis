@@ -1019,6 +1019,10 @@
   #viewTv.tv-claro .tv-single-footer-logo{border:1px solid #E1E3E8;}
 
   /* ============ TRASLADOS (logística) ============ */
+  .camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+  .camp-chips:empty{display:none;}
+  .camp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 6px 3px 10px;font-size:11.5px;font-weight:700;}
+  .camp-chip button{background:none;border:0;color:inherit;cursor:pointer;font-size:11px;padding:0 2px;}
   .tras-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:8px;margin:6px 0 14px;}
   .tras-kpi{background:linear-gradient(160deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid var(--hairline);border-radius:12px;padding:10px 12px;text-align:left;cursor:pointer;color:var(--text);}
   .tras-kpi:hover{border-color:var(--accent);}
@@ -1589,7 +1593,12 @@
       </div>
       <div class="form-field full">
         <label>Campaña (vacío si no aplica)</label>
-        <input id="nCampana" placeholder="Ej: Campaña de bomba de combustible">
+        <div id="nCampanasChips" class="camp-chips"></div>
+        <div style="display:flex;gap:6px;">
+          <input id="nCampana" placeholder="Ej: Campaña de bomba de combustible" onkeydown="if(event.key==='Enter'){event.preventDefault();agregarCampanaNueva_();}" style="flex:1;">
+          <button type="button" class="view-btn" onclick="agregarCampanaNueva_()" title="Agregar otra campaña">+ Agregar</button>
+        </div>
+        <div style="font-size:10.5px;color:var(--text-faint);margin-top:3px;">Si tiene más de una, escribí cada una y tocá “+ Agregar”.</div>
         <button type="button" class="toggle-btn pending" id="nCampanaToggleBtn" onclick="toggleNCampana()">⚠ Pendiente de controlar</button>
       </div>
       <div class="form-field"><label>Vendedor</label><input class="combo-input" id="nVendedor" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('nVendedor','nVendedor_lista')" onfocus="comboAbrir('nVendedor','nVendedor_lista')" onkeydown="comboTeclado(event,'nVendedor','nVendedor_lista')"><div class="combo-lista" id="nVendedor_lista"></div></div>
@@ -2903,6 +2912,7 @@
     <div id="dObservacionesAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionObservaciones_()"><span class="material-symbols-outlined" style="font-size:15px;">sticky_note_2</span>Esta entrega tiene observaciones cargadas</div>
     <div id="dConfirmacionAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionConfirmacion_()"><span class="material-symbols-outlined" style="font-size:15px;">mail</span>Falta enviar la confirmación de esta entrega</div>
     <div id="dAccesorioAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionAccesorio_()"><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
+    <div id="dCampanaAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="var x=document.getElementById('dCampanaSection'); if(x) x.scrollIntoView({behavior:'smooth',block:'start'});"><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
     <div id="dOnstarAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionOnstar_()"><span class="material-symbols-outlined" style="font-size:15px;">directions_car</span></div>
     <div id="dTrasladoAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">local_shipping</span></div>
     <div id="dComentariosAlerta" style="display:none;margin-top:8px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionComentarios_()"><span class="material-symbols-outlined" style="font-size:15px;">chat</span></div>
@@ -3030,7 +3040,8 @@
 
     <div class="section" id="dCampanaSection" style="display:none;">
       <div class="section-title">Campaña</div>
-      <input id="dCampanaInput" placeholder="Ej: Campaña de bomba de combustible (vacío si no aplica)" onchange="guardarCampanaTexto(this.value)" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;">
+      <div id="dCampanasChips" class="camp-chips"></div>
+      <input id="dCampanaInput" placeholder="Escribí una campaña y tocá Enter para agregarla" onkeydown="if(event.key==='Enter'){event.preventDefault();agregarCampanaDetalle_();}" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;">
       <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-dim);cursor:pointer;margin-top:6px;">
         <input type="checkbox" id="dCampanaNoAplica" onchange="guardarCampanaNoAplica_(this.checked)"> No corresponde (unidad verificada - no tiene campañas pendientes)
       </label>
@@ -9969,6 +9980,7 @@ function guardarMotivoChecklistTraslado_(marca, id, itemKey, motivo){
   if(!r.trasladoChecklist[itemKey]) r.trasladoChecklist[itemKey] = {estado:'pendiente', motivo:''};
   r.trasladoChecklist[itemKey].motivo = motivo.trim();
   gasPost('updateEntregaFields', {marca:marca, id:id, fields:{trasladoChecklist: r.trasladoChecklist}});
+  if(motivo.trim()) logHistorialDiferido_(marca, id, 'trasmotivo:'+itemKey, '📦 Traslado — '+itemKey+': '+motivo.trim(), 4000);
 }
 function toggleTraslado(){
   if(!puedeEditarModulo_('traslados')){ showToast('Tenés acceso de solo lectura a Traslados.'); return; }
@@ -10206,7 +10218,8 @@ function openDetailCore_(marca, id){
   renderAccesoriosItemsUI_(r);
   var campanaSection=document.getElementById('dCampanaSection');
   campanaSection.style.display='block';
-  document.getElementById('dCampanaInput').value = r.campanaTexto || '';
+  document.getElementById('dCampanaInput').value = '';
+  renderCampanasDetalle_(r);
   document.getElementById('dCampanaNoAplica').checked = !!r.campanaNoAplica;
   renderCampanaDualUI_(r);
   document.getElementById('dVendedor').value = r.vendedor || '';
@@ -10252,6 +10265,7 @@ function openDetailCore_(marca, id){
       alertaAcc.style.display = 'none';
     }
   }
+  renderAlertaCampana_(r);
   renderAlertaOnstar_(r);
   renderAlertaCasoAbierto_(r);
   document.getElementById('dGarantiaFecha').value = soloFechaISO_(r.garantiaFecha);
@@ -10497,10 +10511,22 @@ function renderAlertaOnstar_(r){
     alertaOnstar.style.display = 'none';
   }
 }
+var ETIQUETAS_CAMPO_HIST_ = {cliente:'Cliente', dni:'DNI / CUIT', telefono:'Teléfono', email:'E-mail', modelo:'Modelo', color:'Color', dominio:'Dominio', chasis:'VIN',
+  observaciones:'Observaciones', vendedor:'Vendedor', administrativo:'Administrativo', responsableEntrega:'Responsable de entrega', tipoVenta:'Tipo de venta', lugar:'Lugar de entrega',
+  usado:'Entrega usado', duracionMinutos:'Duración', onstar:'OnStar', npsFabricaComentario:'Comentario NPS de Fábrica'};
 function guardarCampo(campo, valor, refrescarHead){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  var anterior = r[campo];
   r[campo]=valor;
+  // Historial: cada cambio de un dato queda registrado (las garantías y NPS tienen su propio registro).
+  if(campo!=='garantiaFecha' && String(anterior==null?'':anterior) !== String(valor==null?'':valor)){
+    var etq = ETIQUETAS_CAMPO_HIST_[campo] || campo;
+    var corto = function(v){ v = String(v==null?'':v); return v.length>80 ? v.slice(0,80)+'…' : v; };
+    logHistorialDiferido_(detailMarca, detailId, 'campo:'+campo, campo==='observaciones'
+      ? (valor ? '📝 Observaciones actualizadas: “'+corto(valor)+'”' : '📝 Se borraron las observaciones')
+      : '✏️ '+etq+': “'+corto(anterior||'—')+'” → “'+corto(valor||'—')+'”');
+  }
   var fields={}; fields[campo]=valor;
   gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:fields});
   if(refrescarHead) document.getElementById('dHeadName').textContent=r.cliente;
@@ -10630,6 +10656,7 @@ function guardarMotivoAccesorioItem_(idx, motivo){
   if(r.accesoriosItems[idx].motivo === motivo.trim()) return; // ya estaba guardado, no repetir el POST
   r.accesoriosItems[idx].motivo = motivo.trim();
   gasPost('updateEntregaFields', {marca:detailMarca, id:detailId, fields:{accesoriosItems: r.accesoriosItems}});
+  if(motivo.trim()) logHistorialDiferido_(detailMarca, detailId, 'accmotivo:'+idx, '🔧 Accesorio “'+(r.accesoriosItems[idx].nombre||'')+'” — motivo: '+motivo.trim(), 4000);
 }
 // Guarda mientras el usuario escribe (no solo al salir del campo), para que
 // cerrar la ficha sin haber hecho click afuera del textarea no pierda el
@@ -10833,14 +10860,60 @@ function cerrarModalMotivo_(valor){
     cb(texto || '(sin motivo especificado)');
   }
 }
-function guardarCampanaTexto(valor){
+// ---- Varias campañas: se guardan juntas en campanaTexto, separadas por " | " ----
+function campEsc_(x){ return String(x==null?'':x).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function campanasLista_(texto){ return String(texto||'').split(/\s*\|\s*|\n/).map(function(x){ return x.trim(); }).filter(Boolean); }
+function campanasTexto_(arr){ var vistas={}; return (arr||[]).map(function(x){ return String(x||'').trim(); }).filter(function(x){ var k=x.toLowerCase(); if(!x||vistas[k]) return false; vistas[k]=1; return true; }).join(' | '); }
+function renderCampanasNueva_(){
+  var el = document.getElementById('nCampanasChips'); if(!el) return;
+  el.innerHTML = (window.nCampanas||[]).map(function(c, i){ return '<span class="camp-chip">'+campEsc_(c)+'<button type="button" onclick="window.nCampanas.splice('+i+',1);renderCampanasNueva_()" title="Quitar">✕</button></span>'; }).join('');
+}
+function agregarCampanaNueva_(){
+  var inp = document.getElementById('nCampana'), v = inp.value.trim(); if(!v) return;
+  window.nCampanas = campanasLista_(campanasTexto_((window.nCampanas||[]).concat([v]))); inp.value=''; renderCampanasNueva_();
+}
+function renderCampanasDetalle_(r){
+  var el = document.getElementById('dCampanasChips'); if(!el) return;
+  el.innerHTML = campanasLista_(r.campanaTexto).map(function(c, i){ return '<span class="camp-chip">'+campEsc_(c)+'<button type="button" onclick="quitarCampanaDetalle_('+i+')" title="Quitar">✕</button></span>'; }).join('');
+}
+function agregarCampanaDetalle_(){
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}); if(!r) return;
+  var inp = document.getElementById('dCampanaInput'), v = inp.value.trim(); if(!v) return;
+  var lista = campanasLista_(r.campanaTexto);
+  if(lista.map(function(x){return x.toLowerCase();}).indexOf(v.toLowerCase())>-1){ showToast('Esa campaña ya está cargada'); return; }
+  inp.value='';
+  guardarCampanaTexto(campanasTexto_(lista.concat([v])), 'Campaña agregada: '+v);
+}
+function quitarCampanaDetalle_(i){
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}); if(!r) return;
+  var lista = campanasLista_(r.campanaTexto), quitada = lista[i];
+  if(!confirm('¿Quitar la campaña "'+quitada+'"?')) return;
+  lista.splice(i,1);
+  guardarCampanaTexto(campanasTexto_(lista), 'Campaña quitada: '+quitada);
+}
+// Aviso de campaña en el encabezado del detalle (rojo si falta controlar, verde si está controlada)
+function renderAlertaCampana_(r){
+  var el = document.getElementById('dCampanaAlerta'); if(!el) return;
+  var lista = campanasLista_(r.campanaTexto);
+  if(!lista.length || r.campanaNoAplica){ el.style.display='none'; return; }
+  var ok = !!r.campanaControlada;
+  el.style.display='flex';
+  el.style.background = ok ? 'var(--ok-soft)' : 'var(--danger-soft)';
+  el.style.color = ok ? 'var(--ok)' : 'var(--danger)';
+  el.style.borderColor = ok ? 'var(--ok)' : 'var(--danger)';
+  el.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">campaign</span>'+
+    (ok ? (lista.length>1?'Campañas controladas: ':'Campaña controlada: ') : (lista.length>1?lista.length+' campañas pendientes de controlar: ':'Campaña pendiente de controlar: '))+campEsc_(lista.join(' · '));
+}
+function guardarCampanaTexto(valor, textoHistorial){
   if(!detailId) return;
   if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); openDetail(detailMarca, detailId); return; }
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
   r.campanaTexto = valor.trim();
   if(!r.campanaTexto){ r.campanaControlada=false; r.campanaControladaFecha=''; r.campanaMotivo=''; r.campanaPendienteStock=false; }
   gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{campanaTexto:r.campanaTexto, campanaControlada:r.campanaControlada, campanaControladaFecha:r.campanaControladaFecha||'', campanaMotivo:r.campanaMotivo||'', campanaPendienteStock:r.campanaPendienteStock||false}});
-  logHistorial_(detailMarca, detailId, r.campanaTexto ? ('Campaña cargada: '+r.campanaTexto) : 'Se quitó la campaña cargada');
+  logHistorial_(detailMarca, detailId, textoHistorial || (r.campanaTexto ? ('Campaña cargada: '+r.campanaTexto) : 'Se quitó la campaña cargada'));
   openDetail(detailMarca, detailId);
   renderAll();
   showToast('Campaña actualizada');
@@ -10898,8 +10971,10 @@ function guardarRegaloItems(){
   document.querySelectorAll('.regalo-item-chk:checked').forEach(function(chk){ marcados.push(chk.value); });
   var otro=document.getElementById('dRegaloOtro').value.trim();
   if(otro) marcados.push(otro);
+  var regaloAntes = r.regaloItems || '';
   r.regaloItems = marcados.join(', ');
   gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{regaloItems:r.regaloItems}});
+  if(regaloAntes !== r.regaloItems) logHistorialDiferido_(detailMarca, detailId, 'regalo', '🎁 Regalo: '+(r.regaloItems||'sin ítems'));
   renderAll();
   showToast('Regalo actualizado');
 }
@@ -11141,10 +11216,40 @@ function togglePaso(key){
 // de fuentes distintas (la entrega y su unidad de Centro de Preparación).
 function parsearFechaHistorial_(str){
   if(!str) return 0;
+  var iso = String(str).match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
+  if(iso) return new Date(+iso[1], +iso[2]-1, +iso[3], +(iso[4]||12), +(iso[5]||0)).getTime();
   var m = String(str).match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?,?\s*(\d{1,2}):(\d{2})/);
-  if(!m) return 0;
+  if(!m){ var d = String(str).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); return d ? new Date(+d[3], +d[2]-1, +d[1], 12, 0).getTime() : 0; }
   var dia=+m[1], mes=+m[2], anio=m[3]?+m[3]:new Date().getFullYear(), hora=+m[4], min=+m[5];
   return new Date(anio, mes-1, dia, hora, min).getTime();
+}
+// Movimientos que quedan guardados en otros campos de la entrega (y no siempre en el historial):
+// se suman a la lista para que el historial muestre TODO lo que pasó. No se duplican: si ya hay
+// un registro de ese tipo, no se agrega.
+function historialDerivado_(r, propios){
+  var out = [], txt = propios.map(function(h){ return String(h.texto||''); }).join('\n');
+  var tiene = function(re){ return re.test(txt); };
+  (r.comentarios||[]).forEach(function(c){
+    var t = String(c.texto||''); if(!t) return;
+    if(txt.indexOf(t.slice(0,40))>-1) return;
+    out.push({fecha: c.fecha && c.fecha!=='ahora' ? c.fecha : '', texto:'💬 Comentario de '+(c.autor||'—')+': “'+(t.length>100?t.slice(0,100)+'…':t)+'”', derivado:true});
+  });
+  if(typeof r.npsScore==='number' && !tiene(/Alerta Temprana respondida|Encuesta NPS/i))
+    out.push({fecha: r.alertaTempranaFechaRespuesta || r.npsFecha || '', texto:'⭐ Encuesta al entregar respondida — NPS '+r.npsScore+'/10', derivado:true});
+  var cp = (typeof contactoPosteriorInfo_==='function') ? contactoPosteriorInfo_(r) : null;
+  if(cp && !tiene(/Contacto Posterior/i))
+    out.push({fecha: cp.fecha || '', texto:'📋 Contacto Posterior respondido — NPS '+(cp.recomienda!=null?cp.recomienda:'—')+'/10'+(cp.comentario?' — “'+String(cp.comentario).slice(0,80)+'”':''), derivado:true});
+  if(r.npsFabricaScore!==undefined && r.npsFabricaScore!==null && r.npsFabricaScore!=='' && !tiene(/NPS de Fábrica/i))
+    out.push({fecha: r.npsFabricaFecha || '', texto:'🏭 NPS de Fábrica — '+r.npsFabricaScore+'/10', derivado:true});
+  if(r.garantiaFecha && !tiene(/Garantía cargada/i))
+    out.push({fecha: r.garantiaFecha, texto:'🛡️ Garantía cargada — '+r.garantiaFecha, derivado:true});
+  if(r.confirmadoFecha && !tiene(/Confirmación enviada/i))
+    out.push({fecha: r.confirmadoFecha, texto:'✅ Confirmación enviada'+(r.confirmadoPor?' (por '+r.confirmadoPor+')':''), derivado:true});
+  if(r.recordatorioFecha && !tiene(/Recordatorio/i))
+    out.push({fecha: r.recordatorioFecha, texto:'📩 Recordatorio enviado'+(r.recordatorioEnviadoPor?' (por '+r.recordatorioEnviadoPor+')':''), derivado:true});
+  if(r.observaciones && !tiene(/Observaciones/i))
+    out.push({fecha: '', texto:'📝 Observaciones cargadas: “'+String(r.observaciones).slice(0,100)+'”', derivado:true});
+  return out;
 }
 function renderHistorialUI(r){
   var propios = (r.historial||[]).map(function(h){ return {fecha:h.fecha, texto:h.texto, dePrep:false}; });
@@ -11157,7 +11262,7 @@ function renderHistorialUI(r){
     var texto = h.texto + (h.autor && h.texto.indexOf('(por '+h.autor+')')===-1 ? ' (por '+h.autor+')' : '');
     return {fecha:h.fecha, texto:texto, dePrep:true};
   }) : [];
-  var lista = propios.concat(dePrep).sort(function(a,b){ return parsearFechaHistorial_(b.fecha) - parsearFechaHistorial_(a.fecha); });
+  var lista = propios.concat(dePrep).concat(historialDerivado_(r, propios)).sort(function(a,b){ return parsearFechaHistorial_(b.fecha) - parsearFechaHistorial_(a.fecha); });
   document.getElementById('dHistorial').innerHTML = lista.length===0
     ? '<div style="color:var(--text-faint);font-size:11.5px;">Todavía no hay movimientos registrados.</div>'
     : lista.map(function(h){
@@ -11168,6 +11273,12 @@ function renderHistorialUI(r){
 }
 // Registra un movimiento en el historial de UNA entrega puntual: lo guarda en la planilla
 // y, si es la entrega que está abierta en el drawer, refresca la lista al toque.
+var _histDiferido_ = {};
+function logHistorialDiferido_(marca, id, clave, texto, ms){
+  var k = marca+'|'+id+'|'+clave;
+  clearTimeout(_histDiferido_[k]);
+  _histDiferido_[k] = setTimeout(function(){ delete _histDiferido_[k]; logHistorial_(marca, id, texto); }, ms || 2500);
+}
 function logHistorial_(marca, id, texto){
   var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   if(!r) return;
@@ -11230,9 +11341,11 @@ function agregarComentarioUI(){
   var texto=document.getElementById('cNuevo').value.trim();
   if(!texto) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
-  gasPost('agregarComentario',{marca:detailMarca,id:detailId,autor:'Vos',texto:texto});
+  var autorCom = usuarioActual() || 'Sin identificar';
+  gasPost('agregarComentario',{marca:detailMarca,id:detailId,autor:autorCom,texto:texto});
   gasPost('notificarComentarioEntrega', {marca:detailMarca, id:detailId, autor:usuarioActual(), texto:texto});
-  r.comentarios=r.comentarios||[]; r.comentarios.push({autor:'Vos',fecha:'ahora',texto:texto});
+  r.comentarios=r.comentarios||[]; r.comentarios.push({autor:autorCom,fecha:fechaHoraAhora_(),texto:texto});
+  logHistorial_(detailMarca, detailId, '💬 Comentario: “'+(texto.length>100?texto.slice(0,100)+'…':texto)+'”');
   document.getElementById('cNuevo').value='';
   renderComentariosUI(r);
   showToast('Comentario agregado');
@@ -11374,6 +11487,7 @@ function openNewDelivery(){
   window._nuevaEntregaAccesorios = [];
   renderNAccesoriosLista_();
   document.getElementById('nCampana').value='';
+  window.nCampanas=[]; if(typeof renderCampanasNueva_==='function') renderCampanasNueva_();
   document.getElementById('nCampanaToggleBtn').textContent='⚠ Pendiente de controlar'; document.getElementById('nCampanaToggleBtn').className='toggle-btn pending'; window.nCampanaState=false;
   document.getElementById('nVendedor').value = nombreDeMaestro_(CONFIG.maestros.vendedores[0]) || '';
   document.getElementById('nAdministrativo').value = (CONFIG.maestros.administrativos[0] && CONFIG.maestros.administrativos[0].nombre) || '';
@@ -11581,7 +11695,7 @@ function submitNewDelivery(){
   saveBtn.disabled = true; saveBtn.textContent = 'Guardando...';
 
   var tipoVenta=document.getElementById('nTipoVenta').value;
-  var campana=document.getElementById('nCampana').value.trim();
+  var campana=campanasTexto_((window.nCampanas||[]).concat([document.getElementById('nCampana').value.trim()]));
   var nueva={
     fecha:fecha, hora:horaVal, sucursal: sucursalElegida, tipoVenta:tipoVenta, cliente:cliente.toUpperCase(),
     dni:document.getElementById('nDni').value.trim(),
