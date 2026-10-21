@@ -1019,6 +1019,7 @@
   #viewTv.tv-claro .tv-single-footer-logo{border:1px solid #E1E3E8;}
 
   /* ============ TRASLADOS (logística) ============ */
+  .tras-agenda{font-size:11px;color:var(--accent);font-weight:600;margin-top:3px;white-space:nowrap;}
   .camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
   .camp-chips:empty{display:none;}
   .camp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 6px 3px 10px;font-size:11.5px;font-weight:700;}
@@ -5933,6 +5934,12 @@ function trasAplicarRes_(res){
   TRAS.veh = res.vehiculos || []; TRAS.tras = res.traslados || []; TRAS.aud = res.auditorias || {};
   TRAS.planillaUrl = res.planillaUrl || ''; TRAS.filasConAviso = res.filasConAviso || 0;
 }
+// Si la unidad tiene una entrega agendada en el Planning, se avisa en el traslado (día y hora).
+function trasAgendaTxt_(vin){
+  var en = trasEntregaPlanning_(vin);
+  if(!en || !en.fecha) return '';
+  return '<div class="tras-agenda">'+trasIco_('event',13)+' Entrega agendada: <b>'+trasEsc_(trasFechaHora_(en.fecha))+(en.hora?' '+trasEsc_(String(en.hora)):'')+'</b>'+(en.sucursal?' · '+trasEsc_(en.sucursal):'')+'</div>';
+}
 function trasAbrir_(){
   trasLeerCache_();
   trasRender_();
@@ -6096,7 +6103,7 @@ function trasPendientesHTML_(){
         return '<tr class="'+(trasUI.sel[v.VIN]?'sel':'')+'"><td>'+chk+'</td>'+(edit?'<td><button class="view-btn tras-btn-sm tras-edit" title="Editar datos de la unidad" onclick="trasAbrirUnidad_(\''+v.VIN+'\')"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">edit</span> Editar</button></td>':'')+'<td>'+prio+'</td><td style="font-size:11.5px;">'+trasEsc_(trasRuta_(v))+'</td>'+
           '<td title="Cargado el '+trasEsc_(v.FechaCarga||'—')+'"'+(atras?' style="color:var(--danger);font-weight:700;"':'')+'>'+trasEsc_(v.FechaPrevista||'—')+(atras?' '+trasIco_('warning',14):'')+'</td><td>'+tipo+'</td>'+
           '<td'+(edit?' class="tras-click" title="Tocá para editar" onclick="trasAbrirUnidad_(\''+v.VIN+'\')"':'')+'><span style="color:var('+(b?b.color:'--text')+');font-weight:700;">'+trasEsc_(b?b.label:'')+'</span> '+trasEsc_(v.Unidad)+'</td>'+
-          '<td class="mono"><a href="#" onclick="event.preventDefault();trasVerVin_(\''+v.VIN+'\')">'+trasEsc_(v.VIN)+'</a></td><td>'+trasEsc_(v.Cliente||'—')+'</td><td>'+trasEsc_(v.Canal)+'</td>'+
+          '<td class="mono"><a href="#" onclick="event.preventDefault();trasVerVin_(\''+v.VIN+'\')">'+trasEsc_(v.VIN)+'</a></td><td>'+trasEsc_(v.Cliente||'—')+trasAgendaTxt_(v.VIN)+'</td><td>'+trasEsc_(v.Canal)+'</td>'+
           '<td>'+trasAudBadge_(v.VIN)+trasLinkPdfAud_(v.VIN)+'</td><td>'+trasEsc_(v.Estado)+(v.Avisos?' <span title="'+trasEsc_(v.Avisos)+'" style="color:var(--warn);">'+trasIco_('warning',15)+'</span>':'')+'</td><td>'+accion+'</td></tr>';
       }).join('')+'</tbody></table></div></div>';
   });
@@ -6162,7 +6169,7 @@ function trasGrupoCeluHTML_(ruta, g, cuenta, edit){
         '<div class="tc-top">'+chk+'<div class="tc-main"><b><span style="color:var('+(b?b.color:'--text')+')">'+trasEsc_(b?b.label:'')+'</span> '+trasEsc_(v.Unidad)+'</b>'+
           '<span>'+trasEsc_(v.Cliente||v.Tipo)+' · '+trasEsc_(v.Canal)+'</span><span class="mono">'+trasEsc_(v.VIN)+'</span></div>'+
           '<span class="tras-pill prio-'+v.Prioridad+'">'+v.Prioridad+'</span></div>'+
-        '<div class="tc-mid"><span>'+trasEsc_(trasRuta_(v))+'</span><span'+(atras?' style="color:var(--danger);font-weight:700;"':'')+'>'+trasIco_('event',14)+' '+trasEsc_(v.FechaPrevista||'sin fecha')+(atras?' '+trasIco_('warning',14):'')+'</span></div>'+
+        trasAgendaTxt_(v.VIN)+'<div class="tc-mid"><span>'+trasEsc_(trasRuta_(v))+'</span><span'+(atras?' style="color:var(--danger);font-weight:700;"':'')+'>'+trasIco_('event',14)+' '+trasEsc_(v.FechaPrevista||'sin fecha')+(atras?' '+trasIco_('warning',14):'')+'</span></div>'+
         '<div class="tc-bot">'+trasAudBadge_(v.VIN)+'<span class="tc-est">'+trasEsc_(v.Estado)+'</span><span style="flex:1"></span>'+accion+
           (edit?'<button class="view-btn" onclick="trasAbrirUnidad_(\''+v.VIN+'\')" aria-label="Editar"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">edit</span> Editar</button>':'')+'</div></div>';
     }).join('')+'</div>';
@@ -6285,7 +6292,7 @@ function trasAbrirDetalle_(id){
   h += '<div class="report-wrap" style="max-height:none;"><table class="report-table"><thead><tr><th>#</th><th>Marca</th><th>Unidad</th><th>VIN</th><th>Cliente</th><th>Canal</th><th>Tipo</th><th>Auditoría</th>'+(rec.items?'<th>Recepción</th>':'')+'</tr></thead><tbody>'+
     vins.map(function(vin, i){
       var v = trasVeh_(vin)||{}, b = BRANDS.find(function(x){ return x.id===v.Marca; }), it = (rec.items||{})[vin];
-      return '<tr><td>'+(i+1)+'</td><td>'+trasEsc_(b?b.label:v.Marca||'')+'</td><td>'+trasEsc_(v.Unidad)+'</td><td class="mono"><a href="#" onclick="event.preventDefault();trasVerVin_(\''+vin+'\')">'+trasEsc_(vin)+'</a></td><td>'+trasEsc_(v.Cliente||'—')+'</td><td>'+trasEsc_(v.Canal)+'</td><td>'+trasEsc_(v.Tipo)+'</td>'+
+      return '<tr><td>'+(i+1)+'</td><td>'+trasEsc_(b?b.label:v.Marca||'')+'</td><td>'+trasEsc_(v.Unidad)+'</td><td class="mono"><a href="#" onclick="event.preventDefault();trasVerVin_(\''+vin+'\')">'+trasEsc_(vin)+'</a></td><td>'+trasEsc_(v.Cliente||'—')+trasAgendaTxt_(vin)+'</td><td>'+trasEsc_(v.Canal)+'</td><td>'+trasEsc_(v.Tipo)+'</td>'+
         '<td>'+trasAudBadge_(vin)+(trasAud_(vin).estado==='pendiente' ? ' <a href="'+trasLinkAuditar_(vin)+'" target="_blank" rel="noopener" style="font-size:11px;">'+trasIco_('fact_check',14)+' Auditar</a>' : trasLinkPdfAud_(vin))+'</td>'+
         (rec.items ? '<td>'+(it ? (it.estado==='ok'?'<span class="tras-pill ok">'+trasIco_('check',13)+' OK</span>':'<span class="tras-pill bad">'+trasEsc_((TRAS_PROBLEMAS.find(function(p){return p[0]===it.estado;})||['',''])[1])+'</span>'+(it.obs?' '+trasEsc_(it.obs):'')) : '—')+'</td>' : '')+'</tr>';
     }).join('')+'</tbody></table></div>';
@@ -11247,8 +11254,10 @@ function historialDerivado_(r, propios){
     out.push({fecha: r.confirmadoFecha, texto:'✅ Confirmación enviada'+(r.confirmadoPor?' (por '+r.confirmadoPor+')':''), derivado:true});
   if(r.recordatorioFecha && !tiene(/Recordatorio/i))
     out.push({fecha: r.recordatorioFecha, texto:'📩 Recordatorio enviado'+(r.recordatorioEnviadoPor?' (por '+r.recordatorioEnviadoPor+')':''), derivado:true});
-  if(r.observaciones && !tiene(/Observaciones/i))
-    out.push({fecha: '', texto:'📝 Observaciones cargadas: “'+String(r.observaciones).slice(0,100)+'”', derivado:true});
+  if(r.observaciones && !tiene(/Observaciones/i)){
+    var primera = propios.map(function(h){ return h.fecha; }).filter(Boolean).sort(function(a,b){ return parsearFechaHistorial_(a)-parsearFechaHistorial_(b); })[0];
+    out.push({fecha: primera || r.creadoFecha || r.fecha || '', texto:'📝 Observaciones cargadas al agendar: “'+String(r.observaciones).slice(0,100)+'”', derivado:true});
+  }
   return out;
 }
 function renderHistorialUI(r){
