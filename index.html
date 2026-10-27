@@ -854,15 +854,14 @@
   .sidebar-brand{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:0 14px 20px;white-space:nowrap;}
   .sidebar-brand img{width:34px;height:auto;flex-shrink:0;}
   .sidebar-brand .name{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:17px;line-height:1.15;color:#fff;letter-spacing:.01em;}
-  .sidebar-brand .tag{font-size:7.5px;font-weight:800;letter-spacing:.06em;color:#C9CFDA;text-transform:uppercase;white-space:normal;line-height:1.25;max-width:40px;transition:max-width .16s ease;}
-  .sidebar:hover .sidebar-brand .tag,.sidebar.pinned .sidebar-brand .tag,.sidebar.abierto .sidebar-brand .tag{max-width:190px;font-size:11.5px;font-weight:800;color:#E4E8EF;letter-spacing:.08em;}
+  .sidebar-brand .tag{display:none;font-size:11.5px;font-weight:800;letter-spacing:.08em;color:#E4E8EF;text-transform:uppercase;white-space:nowrap;line-height:1.25;}
+  .sidebar:hover .sidebar-brand .tag,.sidebar.pinned .sidebar-brand .tag{display:block;}
+  body.menu-tactil .sidebar:hover:not(.pinned) .sidebar-brand .tag{display:none;}
   /* En celulares, tablets y la app (pantallas táctiles): el menú no queda fijo.
      Se abre al tocarlo y se cierra al tocar cualquier otra parte de la pantalla o al elegir una opción. */
-  .sidebar.abierto{width:216px;overflow:visible;box-shadow:6px 0 24px rgba(0,0,0,.5);}
   body.menu-tactil .sidebar-pin{display:none !important;}
-  body.menu-tactil .sidebar:hover:not(.abierto){width:64px;overflow:hidden;box-shadow:none;}
-  body.menu-tactil .sidebar:hover:not(.abierto) .sidebar-brand .tag{max-width:40px;font-size:7.5px;}
-  @media(max-width:640px){ body.menu-tactil .sidebar:hover:not(.abierto){width:0;} body.menu-tactil .sidebar.abierto{width:216px;border-right:1px solid var(--hairline);z-index:80;} }
+  body.menu-tactil .sidebar:hover:not(.pinned){width:64px;overflow:hidden;box-shadow:none;}
+  @media(max-width:640px){ body.menu-tactil .sidebar:hover:not(.pinned){width:0;} }
   .sidebar-logo-full{height:auto;width:34px;background:#fff;border-radius:6px;padding:3px 5px;object-fit:contain;transition:width .16s ease;flex-shrink:0;}
   .sidebar:hover .sidebar-logo-full,.sidebar.pinned .sidebar-logo-full{width:150px;}
   .nav-label,.sidebar-user-toggle .info{opacity:0;max-width:0;overflow:hidden;transition:opacity .08s ease,max-width .16s ease;}
@@ -1048,7 +1047,23 @@
   .drawer .block-title{font-size:15px;color:color-mix(in srgb, var(--drb) 85%, var(--text));border-bottom:2px solid color-mix(in srgb, var(--drb) 45%, transparent);}
   .drawer .section label{font-size:11.5px;}
   .drawer .section input,.drawer .section select,.drawer .section textarea{font-size:13.5px !important;}
-  .drawer .dual-toggle-btn{font-size:12.5px;border-radius:10px;}
+  .drawer .dual-toggle-btn{font-size:12.5px;border-radius:10px;flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  @media (max-width:640px){
+    .drawer .dual-toggle-wrap{gap:5px;}
+    .drawer .dual-toggle-btn{font-size:11.5px;padding:9px 3px;gap:3px;}
+    .drawer .dual-toggle-btn .material-symbols-outlined{font-size:14px;}
+  }
+  @media (max-width:420px){ .drawer .dual-toggle-btn .material-symbols-outlined{display:none;} .drawer .dual-toggle-btn{font-size:12px;} }
+  /* Ventana de contraseña propia */
+  .pw-modal-fondo{position:fixed;inset:0;background:rgba(5,8,15,.55);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .pw-modal{width:min(380px,100%);background:#141A26;border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:24px 22px 18px;box-shadow:0 30px 70px rgba(0,0,0,.5);color:#EAEDF3;}
+  .pw-modal h3{margin:0 0 4px;font-family:'Space Grotesk',sans-serif;font-size:19px;}
+  .pw-modal p{margin:0 0 14px;color:#A3ABBD;font-size:13px;}
+  .pw-modal input{width:100%;box-sizing:border-box;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:12px 44px 12px 14px;color:#fff;font-size:15px;}
+  .pw-modal .pw-ojo{bottom:7px;}
+  .pw-modal-acc{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;}
+  .pw-modal-acc button{border-radius:10px;padding:10px 18px;font-weight:700;font-size:13.5px;cursor:pointer;border:1px solid rgba(255,255,255,.18);background:none;color:#C9CFDA;}
+  .pw-modal-acc .pw-aceptar{background:linear-gradient(135deg,#E8A33D,#C98F2E);border:none;color:#1A1206;}
   .drawer .dual-toggle-btn.si.active{background:color-mix(in srgb, var(--ok) 16%, transparent);}
   .drawer .dual-toggle-fecha{font-size:11.5px;}
   /* Alertas: más grandes y las rojas se destacan para que no se pasen */
@@ -1475,7 +1490,7 @@
         <div class="topbar-row">
           <div class="topbar-search" style="flex:1;width:100%;max-width:none;">
             <span class="material-symbols-outlined">search</span>
-            <input id="searchGlobalInput" type="text" placeholder="Buscar por nombre, VIN o dominio..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            <input id="searchGlobalInput" type="text" placeholder="Buscar por nombre, teléfono, VIN (o últimos 8) o dominio..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
               oninput="debounce_('busquedaGlobal', renderBusquedaGlobal, 150)" onfocus="renderBusquedaGlobal()">
             <div id="searchGlobalResults" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--panel);border:1px solid var(--hairline);border-radius:10px;max-height:340px;overflow-y:auto;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,0.4);"></div>
           </div>
@@ -4004,13 +4019,33 @@ function entrarComoVendedorLibre(){
       entrar(); // sin contraseña configurada: entra directo, sin preguntar nada
       return;
     }
-    var pass = prompt('Ingresá la contraseña de acceso libre:');
-    if(pass===null) return;
-    if(pass !== cfg.accesoLibrePassword){ showToast('Contraseña incorrecta'); return; }
-    entrar();
+    pedirPassword_('Acceso libre', 'Ingresá la contraseña de acceso libre').then(function(pass){
+      if(pass===null) return;
+      if(pass !== cfg.accesoLibrePassword){ showToast('Contraseña incorrecta'); return; }
+      entrar();
+    });
   });
 }
 
+// Ventana propia para pedir una contraseña (con ojito), en lugar del cuadro gris del navegador.
+function pedirPassword_(titulo, texto){
+  return new Promise(function(resolve){
+    var fondo = document.createElement('div');
+    fondo.className = 'pw-modal-fondo';
+    fondo.innerHTML = '<div class="pw-modal" role="dialog" aria-modal="true"><h3>'+titulo+'</h3><p>'+texto+'</p>'+
+      '<div class="login-field"><input id="pwModalInput" type="password" autocomplete="off" placeholder="Contraseña">'+
+      '<button type="button" class="pw-ojo" onclick="toggleVerPassword_(\'pwModalInput\', this)" aria-label="Mostrar u ocultar la contraseña"><span class="material-symbols-outlined">visibility</span></button></div>'+
+      '<div class="pw-modal-acc"><button type="button" class="pw-cancelar">Cancelar</button><button type="button" class="pw-aceptar">Ingresar</button></div></div>';
+    document.body.appendChild(fondo);
+    var inp = fondo.querySelector('#pwModalInput');
+    var fin = function(v){ fondo.remove(); resolve(v); };
+    fondo.querySelector('.pw-aceptar').onclick = function(){ fin(inp.value); };
+    fondo.querySelector('.pw-cancelar').onclick = function(){ fin(null); };
+    fondo.addEventListener('click', function(e){ if(e.target===fondo) fin(null); });
+    inp.addEventListener('keydown', function(e){ if(e.key==='Enter') fin(inp.value); if(e.key==='Escape') fin(null); });
+    setTimeout(function(){ inp.focus(); }, 30);
+  });
+}
 function esMaestro(){ return esCalidad(); } // compat con código viejo que consultaba esto
 
 // ============================================================
@@ -4840,7 +4875,7 @@ function esPantallaTactil_(){
 }
 function toggleSidebarPin(){
   var el = document.getElementById('sidebarEl');
-  if(document.body.classList.contains('menu-tactil')){ el.classList.toggle('abierto'); return; }
+  if(document.body.classList.contains('menu-tactil')){ el.classList.toggle('pinned'); return; }
   var pinned = el.classList.toggle('pinned');
   localStorage.setItem('sidebarPinned', pinned ? '1' : '0');
 }
@@ -4852,22 +4887,22 @@ document.addEventListener('DOMContentLoaded', function(){
   sb.classList.remove('pinned');
   sb.addEventListener('click', function(ev){
     var item = ev.target.closest('.nav-item, .nav-subitem, a, button');
-    if(!sb.classList.contains('abierto')){
-      // primer toque: solo abre (salvo que sea un acceso directo que no necesita el menú abierto)
+    if(!sb.classList.contains('pinned')){
+      // primer toque: solo abre el menú
       ev.preventDefault(); ev.stopPropagation();
-      sb.classList.add('abierto');
+      sb.classList.add('pinned');
       return;
     }
     // con el menú abierto: si tocó una opción que navega, se cierra después de ir
     if(item && !item.classList.contains('nav-group-toggle') && !item.hasAttribute('data-no-cerrar') && !/toggle|grupo|group/i.test(item.getAttribute('onclick')||'')){
-      setTimeout(function(){ sb.classList.remove('abierto'); }, 120);
+      setTimeout(function(){ sb.classList.remove('pinned'); }, 120);
     }
   }, true);
   document.addEventListener('click', function(ev){
-    if(!sb.classList.contains('abierto')) return;
+    if(!sb.classList.contains('pinned')) return;
     if(sb.contains(ev.target)) return;
     var bm = document.getElementById('bnMas'); if(bm && bm.contains(ev.target)) return;
-    sb.classList.remove('abierto');
+    sb.classList.remove('pinned');
   }, true);
 });
 (function(){
@@ -5117,12 +5152,20 @@ function renderBusquedaGlobal(){
   var box=document.getElementById('searchGlobalResults');
   var q=document.getElementById('searchGlobalInput').value.trim().toLowerCase();
   if(q.length<2){ box.style.display='none'; box.innerHTML=''; return; }
-  var qUpper=q.toUpperCase();
+  var sinTildes = function(x){ return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); };
+  var alnum = function(x){ return String(x||'').toUpperCase().replace(/[^A-Z0-9]/g,''); };
+  var qTxt = sinTildes(q), qAl = alnum(q), qDig = q.replace(/\D/g,'');
   var res=ENTREGAS.filter(function(r){
-    var cliente = String(r.cliente||'').toLowerCase();
-    var chasis = String(r.chasis||'').toUpperCase();
-    var dominio = String(r.dominio||'').toUpperCase();
-    return cliente.indexOf(q)>-1 || chasis.indexOf(qUpper)>-1 || dominio.indexOf(qUpper)>-1;
+    if(sinTildes(r.cliente).indexOf(qTxt)>-1) return true;                       // nombre (con o sin tildes)
+    var vin = alnum(r.chasis), dom = alnum(r.dominio);
+    if(qAl.length>=3 && dom && dom.indexOf(qAl)>-1) return true;               // dominio, con o sin espacios
+    if(qAl.length>=5 && vin && (vin.indexOf(qAl)>-1 || vin.slice(-8)===qAl.slice(-8) && qAl.length>=8)) return true; // VIN completo o últimos 8
+    if(qDig.length>=6 && qDig.length===q.replace(/[\s\-()+.]/g,'').length){     // teléfono (solo números)
+      var tel = String(r.telefono||'').replace(/\D/g,'');
+      if(tel && (tel.indexOf(qDig)>-1 || qDig.indexOf(tel.slice(-8))>-1 && tel.length>=8)) return true;
+    }
+    if(r.dni && qDig.length>=6 && String(r.dni).replace(/\D/g,'').indexOf(qDig)>-1) return true; // DNI
+    return false;
   }).slice(0,25);
   if(res.length===0){
     box.innerHTML='<div style="padding:14px;color:var(--text-faint);font-size:13px;">Sin resultados para "'+q+'"</div>';
