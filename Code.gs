@@ -358,7 +358,10 @@ var CAMPOS = [
   {k:'campanaNoAplica', h:'Campaña No Aplica', bool:true},
   {k:'enSalon', h:'Unidad en el Salón', bool:true},
   {k:'enSalonFecha', h:'Unidad en el Salón — Fecha y hora'},
-  {k:'bienvenidaMailFecha', h:'Bienvenida por mail — Fecha'}
+  {k:'bienvenidaMailFecha', h:'Bienvenida por mail — Fecha'},
+  {k:'fechaSinConfirmar', h:'Fecha de entrega sin confirmar (en preparación)', bool:true},
+  {k:'fechaSinConfirmarUsuario', h:'Fecha sin confirmar — Usuario'},
+  {k:'fechaSinConfirmarFecha', h:'Fecha sin confirmar — Fecha'}
 ];
 
 // ============================================================

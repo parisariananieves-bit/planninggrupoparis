@@ -1083,12 +1083,21 @@
   .pw-ojo .material-symbols-outlined{font-size:20px;}
 
   /* ===== Detalle: menos rectángulos (los datos van sin cajita, con una línea suave) ===== */
-  .drawer .field{background:transparent;border:none;border-bottom:1px solid color-mix(in srgb, var(--drb) 22%, var(--hairline));border-radius:0;padding:6px 2px 8px;}
+  .drawer .field{background:transparent;border:none;border-radius:0;padding:4px 0 6px;}
   .drawer .field .l{font-size:10.5px;letter-spacing:.04em;color:color-mix(in srgb, var(--drb) 55%, var(--text-dim));font-weight:700;margin-bottom:2px;}
-  .drawer .field input,.drawer .field select{background:transparent;border:1px solid transparent;border-radius:8px;padding:5px 6px;margin-left:-6px;width:calc(100% + 6px);font-family:'Inter',sans-serif;font-size:14px !important;font-weight:600;color:var(--text);}
+  /* Donde se puede escribir tiene que verse: campo blanco con borde suave (y el color de la marca al tocarlo) */
+  .drawer .field input,.drawer .field select{background:var(--panel);border:1px solid color-mix(in srgb, var(--drb) 25%, var(--hairline));border-radius:9px;padding:8px 10px;margin:2px 0 0;width:100%;box-sizing:border-box;font-family:'Inter',sans-serif;font-size:14px !important;font-weight:600;color:var(--text);}
+  body.light-mode .drawer .field input,body.light-mode .drawer .field select{background:#FFFFFF;}
   .drawer .field input.mono{font-family:'IBM Plex Mono',monospace;font-weight:500;}
-  .drawer .field input:hover,.drawer .field select:hover{background:color-mix(in srgb, var(--drb) 7%, transparent);}
-  .drawer .field input:focus,.drawer .field select:focus{background:var(--panel);border-color:var(--drb);}
+  .drawer .field input:hover,.drawer .field select:hover{border-color:color-mix(in srgb, var(--drb) 55%, var(--hairline));}
+  .drawer .field input:focus,.drawer .field select:focus{border-color:var(--drb);box-shadow:0 0 0 3px color-mix(in srgb, var(--drb) 18%, transparent);outline:none;}
+  .drawer .field input::placeholder,.drawer .section textarea::placeholder,.drawer .section input::placeholder{color:var(--text-faint);font-weight:400;}
+  /* Resto de campos del detalle (Calidad, garantía, NPS, comentarios, observaciones, motivos…) */
+  .drawer .section input:not([type=checkbox]):not([type=radio]):not([type=file]):not(.combo-input),.drawer .section select,.drawer .section textarea{
+    background:var(--panel);border:1px solid color-mix(in srgb, var(--drb) 25%, var(--hairline)) !important;border-radius:9px !important;color:var(--text);font-size:13.5px !important;box-sizing:border-box;}
+  body.light-mode .drawer .section input:not([type=checkbox]):not([type=radio]):not([type=file]),body.light-mode .drawer .section select,body.light-mode .drawer .section textarea{background:#FFFFFF !important;}
+  .drawer .section input:not([type=checkbox]):not([type=radio]):focus,.drawer .section select:focus,.drawer .section textarea:focus{border-color:var(--drb) !important;box-shadow:0 0 0 3px color-mix(in srgb, var(--drb) 18%, transparent);outline:none;}
+  .drawer .section textarea{padding:9px 11px !important;min-height:64px;line-height:1.45;}
   .drawer .field-grid{gap:2px 18px;}
   /* Modo ancho: dos columnas que se acomodan solas (sin huecos) */
   .drawer.ancho .drawer-body{display:block;column-count:2;column-gap:16px;}
@@ -1098,9 +1107,9 @@
   @media (max-width:900px){ .drawer.ancho .drawer-body{column-count:1;} }
   /* TV: la tarjeta de la entrega con el color de la marca en transparencia */
   #tvSingleWrap{--tvb:var(--accent);}
-  #viewTv.tv-claro #tvSingleWrap{background:linear-gradient(160deg, color-mix(in srgb, var(--tvb) 12%, #ffffff) 0%, color-mix(in srgb, var(--tvb) 5%, #ffffff) 60%, #ffffff 100%) !important;border:1px solid color-mix(in srgb, var(--tvb) 28%, #E1E3E8) !important;box-shadow:0 10px 40px -18px color-mix(in srgb, var(--tvb) 45%, transparent);}
-  #viewTv.tv-claro #tvSingleWrap .tv-single-footer,#viewTv.tv-claro #tvSingleWrap .tv-single-frase{background:color-mix(in srgb, var(--tvb) 10%, #ffffff) !important;border-color:color-mix(in srgb, var(--tvb) 25%, #E1E3E8) !important;}
-  #viewTv.tv-claro #tvSingleWrap .tv-single-top{border-bottom-color:color-mix(in srgb, var(--tvb) 25%, #E8EAEE) !important;background:transparent !important;}
+  #viewTv.tv-claro #tvSingleWrap{background:color-mix(in srgb, var(--tvb) 9%, #ffffff) !important;border:1px solid color-mix(in srgb, var(--tvb) 28%, #E1E3E8) !important;box-shadow:0 10px 40px -18px color-mix(in srgb, var(--tvb) 45%, transparent);}
+  #viewTv.tv-claro #tvSingleWrap .tv-single-footer,#viewTv.tv-claro #tvSingleWrap .tv-single-frase{background:#ffffff !important;border-color:color-mix(in srgb, var(--tvb) 25%, #E1E3E8) !important;}
+  #viewTv.tv-claro #tvSingleWrap .tv-single-top{border-bottom-color:color-mix(in srgb, var(--tvb) 25%, #E8EAEE) !important;background:#ffffff !important;}
 
   /* Accesorios: el nombre se destaca y los botones de estado son más chicos */
   .acc-nombre{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0;}
@@ -1110,6 +1119,11 @@
   .drawer .acc-toggle{gap:5px;margin-top:4px;}
   .drawer .acc-toggle .dual-toggle-btn{padding:5px 4px;font-size:11.5px;border-radius:8px;border-width:1px;}
   .drawer .acc-toggle .dual-toggle-btn .material-symbols-outlined{font-size:14px;}
+  .combo-wrap{position:relative;display:block;width:100%;}
+  .combo-wrap .combo-input{background-image:none !important;padding-right:40px !important;width:100%;}
+  .combo-flecha{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:none;background:none;border-radius:8px;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .combo-flecha:hover{background:var(--accent-soft);color:var(--accent);}
+  .combo-flecha .material-symbols-outlined{font-size:22px;}
   .camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
   .camp-chips:empty{display:none;}
   .camp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 6px 3px 10px;font-size:11.5px;font-weight:700;}
@@ -1466,6 +1480,7 @@
           <button class="nav-subitem" id="subMaestroCargas" onclick="setMaestroTab('cargas')">Cargas masivas</button>
         </div>
         <button class="nav-item" id="navTv" title="TV Entregas" onclick="abrirModoTV()"><span class="material-symbols-outlined">tv</span><span class="nav-label">TV Entregas</span></button>
+        <button class="nav-item" id="navManual" title="Manual de uso" onclick="abrirManualUso_()"><span class="material-symbols-outlined">menu_book</span><span class="nav-label">Manual de uso</span></button>
       </nav>
       <div class="sidebar-user">
         <button class="sidebar-user-toggle" onclick="toggleMenuUsuario()">
@@ -3008,6 +3023,7 @@
     <div id="dCampanaAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="var x=document.getElementById('dCampanaSection'); if(x) x.scrollIntoView({behavior:'smooth',block:'start'});"><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
     <div id="dOnstarAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionOnstar_()"><span class="material-symbols-outlined" style="font-size:15px;">directions_car</span></div>
     <div id="dTrasladoAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">local_shipping</span></div>
+    <div id="dSinConfirmarAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">local_shipping</span></div>
     <div id="dComentariosAlerta" style="display:none;margin-top:8px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionComentarios_()"><span class="material-symbols-outlined" style="font-size:15px;">chat</span></div>
     <div id="dNpsAlerta" style="display:none;margin-top:8px;border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">star</span></div>
     <div id="dNpsContactoPosteriorAlerta" style="display:none;margin-top:8px;border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;"><span class="material-symbols-outlined" style="font-size:15px;">forum</span></div>
@@ -3021,6 +3037,7 @@
     <button class="view-btn" id="dEntregaFallidaBtn" style="width:100%;margin-top:8px;font-size:11.5px;" onclick="marcarEntregaFallida_()">✕ No se pudo entregar — registrar motivo</button>
     <div id="dTrasladoBadge" style="display:none;margin-top:8px;background:var(--invertido-soft);border:1px solid var(--invertido);border-radius:8px;padding:9px 11px;font-size:12px;color:var(--invertido);"></div>
     <button class="toggle-btn" id="dTrasladoBtn" style="margin-top:8px;width:100%;" onclick="toggleTraslado()">📦 Marcar unidad para traslado a otra sucursal</button>
+    <button class="toggle-btn" id="dSinConfirmarBtn" style="margin-top:8px;width:100%;" onclick="toggleFechaSinConfirmar_()">🛠 Necesita preparación — fecha de entrega sin confirmar</button>
 
     <button onclick="toggleTodasLasSecciones()" id="dToggleTodasBtn" style="width:100%;margin-top:12px;background:transparent;border:1px dashed var(--hairline);border-radius:8px;padding:7px;font-size:11px;color:var(--text-dim);cursor:pointer;font-weight:700;">Expandir todo ▾</button>
 
@@ -5355,6 +5372,10 @@ function checkBloqueado(){
 }
 
 function estadoTag(r){
+  var pre = (r.fechaSinConfirmar && !r.entregada) ? '<span class="tag" style="background:var(--warn-soft);color:var(--warn);" title="Necesita preparación — la fecha todavía no está confirmada">⏳ Fecha a confirmar</span> ' : '';
+  return pre + estadoTagBase_(r);
+}
+function estadoTagBase_(r){
   if(r.traslado && !r.trasladoCompletado) return '<span class="tag" style="background:var(--invertido-soft);color:var(--invertido);" title="'+(r.trasladoObs||'')+'">📦 Traslado a '+(r.trasladoDestino||'')+'</span>';
   if(r.traslado && r.trasladoCompletado) return '<span class="tag ok" title="'+(r.trasladoObs||'')+'">✓ Trasladada a '+(r.trasladoDestino||'')+'</span>';
   if(r.entregada) return '<span class="tag ok">Entregada</span>';
@@ -5858,7 +5879,7 @@ function renderCalendar(){
     var entregasAMostrar = esVistaCompacta ? entregasDia.slice(0, MAX_CHIPS_POR_DIA_) : entregasDia;
     var clientesHtml = entregasAMostrar.map(function(r){
       var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
-      return '<div class="cal-day-cliente" onclick="event.stopPropagation();openDetail(\''+r.marca+'\',\''+r.id+'\')" title="'+r.hora+' hs · '+r.cliente+' · '+b.label+'" style="background:var('+b.soft+');color:var('+b.color+');border-left:3px solid var('+b.color+');">'+r.hora+' '+r.cliente+'</div>';
+      return '<div class="cal-day-cliente" onclick="event.stopPropagation();openDetail(\''+r.marca+'\',\''+r.id+'\')" title="'+r.hora+' hs · '+r.cliente+' · '+b.label+'" style="background:var('+b.soft+');color:var('+b.color+');border-left:3px solid var('+b.color+');'+(r.fechaSinConfirmar && !r.entregada?'border-style:dashed;opacity:.85;':'')+'">'+(r.fechaSinConfirmar && !r.entregada?'⏳ ':'')+r.hora+' '+r.cliente+'</div>';
     }).join('');
     if(esVistaCompacta && entregasDia.length > MAX_CHIPS_POR_DIA_){
       clientesHtml += '<div class="cal-day-cliente mas">+'+(entregasDia.length-MAX_CHIPS_POR_DIA_)+' más</div>';
@@ -10243,6 +10264,38 @@ function guardarMotivoChecklistTraslado_(marca, id, itemKey, motivo){
   gasPost('updateEntregaFields', {marca:marca, id:id, fields:{trasladoChecklist: r.trasladoChecklist}});
   if(motivo.trim()) logHistorialDiferido_(marca, id, 'trasmotivo:'+itemKey, '📦 Traslado — '+itemKey+': '+motivo.trim(), 4000);
 }
+// Unidad que necesita preparación y todavía no tiene la fecha de entrega confirmada.
+// La entrega queda en el Planning como cualquier otra (con su día tentativo), pero marcada
+// "Fecha a confirmar" en el calendario, la lista y el detalle.
+// Manual de uso: link visible para todos los usuarios (la dirección se puede cambiar en la configuración).
+var MANUAL_USO_URL_ = 'https://claude.ai/artifact/CBFFUYZaJExgCadUvyzHvH';
+function abrirManualUso_(){ window.open((typeof CONFIG!=='undefined' && CONFIG && CONFIG.manualUrl) || MANUAL_USO_URL_, '_blank', 'noopener'); }
+function toggleFechaSinConfirmar_(){
+  if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
+  if(!detailId) return;
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}); if(!r) return;
+  var marcar = !r.fechaSinConfirmar;
+  if(!marcar && !confirm('¿La fecha de entrega ya está confirmada con el cliente?')) return;
+  r.fechaSinConfirmar = marcar;
+  r.fechaSinConfirmarUsuario = usuarioActual(); r.fechaSinConfirmarFecha = fechaHoraAhora_();
+  gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{fechaSinConfirmar:marcar, fechaSinConfirmarUsuario:r.fechaSinConfirmarUsuario, fechaSinConfirmarFecha:r.fechaSinConfirmarFecha}});
+  logHistorial_(detailMarca, detailId, marcar ? '🛠 Marcada: necesita preparación — fecha de entrega sin confirmar' : '✓ Fecha de entrega confirmada');
+  showToast(marcar ? 'Marcada: fecha de entrega sin confirmar' : 'Fecha de entrega confirmada');
+  renderFechaSinConfirmarUI_(r);
+  renderAll();
+}
+function renderFechaSinConfirmarUI_(r){
+  var btn = document.getElementById('dSinConfirmarBtn'), al = document.getElementById('dSinConfirmarAlerta');
+  var on = !!(r && r.fechaSinConfirmar && !r.entregada);
+  if(btn){
+    btn.classList.toggle('pending', on);
+    btn.innerHTML = on ? '✓ Fecha a confirmar — tocá cuando la fecha esté confirmada' : '🛠 Necesita preparación — fecha de entrega sin confirmar';
+  }
+  if(al){
+    al.style.display = on ? 'flex' : 'none';
+    al.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">event_busy</span>Fecha de entrega SIN CONFIRMAR — la unidad necesita preparación';
+  }
+}
 function toggleTraslado(){
   if(!puedeEditarModulo_('traslados')){ showToast('Tenés acceso de solo lectura a Traslados.'); return; }
   if(!detailId) return;
@@ -10354,6 +10407,25 @@ function comboRenderLista(inputId, listaId, filtro){
   }).join('');
   listaEl.style.display='block';
 }
+// Flechita para desplegar la lista completa en los campos con búsqueda (vendedor, administrativo, responsable…)
+function comboToggle_(inputId){
+  var listaId = inputId+'_lista', lista = document.getElementById(listaId); if(!lista) return;
+  if(lista.style.display==='block'){ lista.style.display='none'; return; }
+  comboRenderLista(inputId, listaId, '');
+  document.getElementById(inputId).focus();
+}
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('input.combo-input').forEach(function(inp){
+    if(!inp.id || inp.parentNode.classList.contains('combo-wrap')) return;
+    var w = document.createElement('span'); w.className = 'combo-wrap';
+    inp.parentNode.insertBefore(w, inp); w.appendChild(inp);
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'combo-flecha'; b.tabIndex = -1;
+    b.setAttribute('aria-label','Ver la lista'); b.innerHTML = '<span class="material-symbols-outlined">expand_more</span>';
+    b.addEventListener('mousedown', function(e){ e.preventDefault(); });
+    b.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); comboToggle_(inp.id); });
+    w.appendChild(b);
+  });
+});
 function comboAbrir(inputId, listaId){ comboRenderLista(inputId, listaId, document.getElementById(inputId).value); }
 function comboFiltrar(inputId, listaId){ comboRenderLista(inputId, listaId, document.getElementById(inputId).value); }
 function comboElegir(inputId, listaId, valor){
@@ -10530,6 +10602,7 @@ function openDetailCore_(marca, id){
     }
   }
   renderAlertaCampana_(r);
+  renderFechaSinConfirmarUI_(r);
   setTimeout(destacarAlertasDetalle_, 0);
   renderAlertaOnstar_(r);
   renderAlertaCasoAbierto_(r);
@@ -11759,8 +11832,9 @@ function openNewDelivery(){
   document.getElementById('nCampana').value='';
   window.nCampanas=[]; if(typeof renderCampanasNueva_==='function') renderCampanasNueva_();
   document.getElementById('nCampanaToggleBtn').textContent='⚠ Pendiente de controlar'; document.getElementById('nCampanaToggleBtn').className='toggle-btn pending'; window.nCampanaState=false;
-  document.getElementById('nVendedor').value = nombreDeMaestro_(CONFIG.maestros.vendedores[0]) || '';
-  document.getElementById('nAdministrativo').value = (CONFIG.maestros.administrativos[0] && CONFIG.maestros.administrativos[0].nombre) || '';
+  // Vendedor y administrativo arrancan EN BLANCO: se escribe o se elige de la lista con la flechita.
+  document.getElementById('nVendedor').value = '';
+  document.getElementById('nAdministrativo').value = '';
   document.getElementById('nResponsable').value = responsableAutomatico_(brand.id, brand.branches ? (currentBranches[0]||SUCURSALES[0]) : '');
   checkNewDeliveryDate();
   var saveBtn=document.getElementById('nSaveBtn'); saveBtn.disabled=false; saveBtn.textContent='Guardar entrega';
