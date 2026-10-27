@@ -1101,6 +1101,15 @@
   #viewTv.tv-claro #tvSingleWrap{background:linear-gradient(160deg, color-mix(in srgb, var(--tvb) 12%, #ffffff) 0%, color-mix(in srgb, var(--tvb) 5%, #ffffff) 60%, #ffffff 100%) !important;border:1px solid color-mix(in srgb, var(--tvb) 28%, #E1E3E8) !important;box-shadow:0 10px 40px -18px color-mix(in srgb, var(--tvb) 45%, transparent);}
   #viewTv.tv-claro #tvSingleWrap .tv-single-footer,#viewTv.tv-claro #tvSingleWrap .tv-single-frase{background:color-mix(in srgb, var(--tvb) 10%, #ffffff) !important;border-color:color-mix(in srgb, var(--tvb) 25%, #E1E3E8) !important;}
   #viewTv.tv-claro #tvSingleWrap .tv-single-top{border-bottom-color:color-mix(in srgb, var(--tvb) 25%, #E8EAEE) !important;background:transparent !important;}
+
+  /* Accesorios: el nombre se destaca y los botones de estado son más chicos */
+  .acc-nombre{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0;}
+  .acc-nombre b{font-size:16px;font-weight:800;color:var(--text);line-height:1.25;}
+  .acc-nombre .material-symbols-outlined{font-size:19px;color:var(--drb, var(--accent));}
+  .acc-nombre .acc-precio{font-size:12px;color:var(--text-faint);font-weight:500;}
+  .drawer .acc-toggle{gap:5px;margin-top:4px;}
+  .drawer .acc-toggle .dual-toggle-btn{padding:5px 4px;font-size:11.5px;border-radius:8px;border-width:1px;}
+  .drawer .acc-toggle .dual-toggle-btn .material-symbols-outlined{font-size:14px;}
   .camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
   .camp-chips:empty{display:none;}
   .camp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 6px 3px 10px;font-size:11.5px;font-weight:700;}
@@ -4910,8 +4919,16 @@ function renderCalMiniTV_(cont, rows){
     }
     bar.classList.toggle('topbar-flotando', y > 10 && !bar.classList.contains('topbar-oculta'));
   }
+  var alMover = function(){
+    if(pendiente) return; pendiente = true;
+    requestAnimationFrame(function(){ pendiente = false; aplicar(window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0); });
+  };
+  window.addEventListener('scroll', alMover, {passive:true});
+  window.addEventListener('touchmove', alMover, {passive:true});
+  window.addEventListener('touchend', function(){ setTimeout(alMover, 120); setTimeout(alMover, 400); }, {passive:true});
   document.addEventListener('scroll', function(ev){
     var t = ev.target;
+    if(t === document || t === document.documentElement || t === document.body) return; // ya lo atiende la ventana
     // solo cuenta el desplazamiento de la página (no el del detalle, ventanas o listas internas)
     if(t && t !== document && t !== document.documentElement && t !== document.body && !(t.classList && (t.classList.contains('main-shell') || t.id==='mainShell'))) return;
     var y = posicion(t);
@@ -10927,10 +10944,10 @@ function renderAccesoriosItemsUI_(r){
       var precioTxt = it.precio ? ' — $'+it.precio.toLocaleString('es-AR')+(it.formaPago?' ('+it.formaPago+')':'') : '';
       return '<div style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;padding:9px 11px;margin-bottom:7px;">'+
         '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px;">'+
-          '<b style="font-size:12px;">'+it.nombre+'<span style="color:var(--text-faint);font-weight:500;">'+precioTxt+'</span></b>'+
+          '<div class="acc-nombre"><span class="material-symbols-outlined">build</span><b>'+it.nombre+'</b>'+'</div>'+
           '<button class="acc-item-editable" onclick="eliminarAccesorioDeEntrega_('+idx+')" title="Sacar" style="background:none;border:none;color:var(--text-faint);cursor:pointer;padding:2px;"><span class="material-symbols-outlined" style="font-size:15px;">close</span></button>'+
         '</div>'+
-        '<div class="dual-toggle-wrap">'+
+        '<div class="dual-toggle-wrap acc-toggle">'+
           '<button class="dual-toggle-btn pend acc-item-editable'+(it.estado==='pendiente'?' active':'')+'" onclick="marcarEstadoAccesorioItem_('+idx+',\'pendiente\')"><span class="material-symbols-outlined">schedule</span>Pendiente</button>'+
           '<button class="dual-toggle-btn no acc-item-editable'+(it.estado==='no_colocado'?' active':'')+'" onclick="marcarEstadoAccesorioItem_('+idx+',\'no_colocado\')"><span class="material-symbols-outlined">cancel</span>No colocado</button>'+
           '<button class="dual-toggle-btn si acc-item-editable'+(it.estado==='colocado'?' active':'')+'" onclick="marcarEstadoAccesorioItem_('+idx+',\'colocado\')"><span class="material-symbols-outlined">check_circle</span>Colocado</button>'+
@@ -10941,7 +10958,9 @@ function renderAccesoriosItemsUI_(r){
   }
   var total = items.filter(function(it){return it.estado==='colocado';}).reduce(function(sum,it){return sum+(Number(it.precio)||0);}, 0);
   var totalEl = document.getElementById('dAccesoriosTotal');
-  totalEl.textContent = items.length>0 ? 'Total accesorios colocados: $'+total.toLocaleString('es-AR') : '';
+  // Sin precios en el detalle: se muestra cuántos están colocados.
+  var nCol = items.filter(function(it){return it.estado==='colocado';}).length;
+  totalEl.textContent = items.length>0 ? 'Colocados: '+nCol+' de '+items.length : '';
 }
 
 // Configuración genérica de los 5 ítems "pendiente / no colocado / colocado" con 3 botones lado a lado.
