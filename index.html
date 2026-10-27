@@ -1133,6 +1133,7 @@
   /* TV · Vista individual a pantalla completa en cualquier dispositivo */
   #tvSingleWrap{display:flex;flex-direction:column;min-height:var(--tv-alto, calc(100dvh - 140px));}
   #tvSingleWrap .tv-single-body{flex:1;align-content:center;}
+  #tvSingleWrap .tv-single-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(22px, min(4vw, 6vh), 56px);color:#11141A;padding:30px;}
   #tvSingleWrap .tv-single-frase{margin-top:auto;}
   #tvSingleWrap .tv-single-cliente{font-size:clamp(30px, min(8.5vw, 12vh), 160px);}
   #tvSingleWrap .tv-single-meta-item b{font-size:clamp(17px, min(2.6vw, 4vh), 48px);}
@@ -4863,7 +4864,9 @@ function tvRenderSingleCard(){
   var vtvC = document.getElementById('viewTv'); if(vtvC && tvMode==='single') vtvC.classList.add('tv-claro');
   if(!wrap) return;
   if(!tvHoyRows.length){
-    wrap.innerHTML = '<div class="tv-single-empty">No hay entregas programadas para hoy 🎉</div>';
+    wrap.style.setProperty('--tvb', 'var(--accent)');
+    wrap.innerHTML = '<div class="tv-single-empty"><img src="'+LOGO_GRUPOPARIS_WORDMARK+'" alt="Grupo París" style="height:clamp(40px,7vh,80px);width:auto;margin-bottom:18px;"><br>'+(window._tvHayEntregadasHoy ? '¡Todas las entregas de hoy ya se realizaron! 🎉' : 'No hay entregas programadas para hoy')+'</div>';
+    setTimeout(tvAjustarAlto_, 0);
     return;
   }
   if(tvSingleIdx>=tvHoyRows.length) tvSingleIdx=0;
@@ -4916,7 +4919,10 @@ function renderModoTV(){
   var hoyStr = fmtFecha(new Date());
   var deHoy = rows.filter(function(r){ return r.fecha===hoyStr; });
 
-  tvHoyRows = deHoy;
+  // En la Vista individual solo quedan las que todavía no se entregaron: al marcarla como
+  // entregada, sale de la pantalla (en la Vista lista sigue figurando como "✓ Entregada").
+  tvHoyRows = deHoy.filter(function(r){ return !r.entregada; });
+  window._tvHayEntregadasHoy = deHoy.some(function(r){ return r.entregada; });
   tvSingleIdx = tvIdxSegunHoraReal_();
   tvRenderSingleCard();
 
@@ -10319,7 +10325,7 @@ function guardarMotivoChecklistTraslado_(marca, id, itemKey, motivo){
 // La entrega queda en el Planning como cualquier otra (con su día tentativo), pero marcada
 // "Fecha a confirmar" en el calendario, la lista y el detalle.
 // Manual de uso: link visible para todos los usuarios (la dirección se puede cambiar en la configuración).
-var MANUAL_USO_URL_ = 'https://claude.ai/artifact/CBFFUYZaJExgCadUvyzHvH';
+var MANUAL_USO_URL_ = '/manual/'; // manual público, publicado junto con el Planning (no hace falta cuenta de Claude)
 function abrirManualUso_(){ window.open((typeof CONFIG!=='undefined' && CONFIG && CONFIG.manualUrl) || MANUAL_USO_URL_, '_blank', 'noopener'); }
 function toggleFechaSinConfirmar_(){
   if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
