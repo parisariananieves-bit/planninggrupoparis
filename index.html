@@ -913,7 +913,10 @@
     .main-shell{margin-left:48px;}
     .sidebar:hover ~ .main-shell,.sidebar.pinned ~ .main-shell{margin-left:48px;}
   }
-  .topbar{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--hairline);z-index:50;padding:10px 20px;display:flex;flex-direction:column;gap:0;}
+  .topbar{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--hairline);z-index:50;padding:10px 20px;display:flex;flex-direction:column;gap:0;transition:transform .22s ease, box-shadow .22s ease;will-change:transform;}
+  /* En el celular / la app: los filtros se esconden al bajar y vuelven al subir */
+  .topbar.topbar-oculta{transform:translateY(-110%);box-shadow:none;}
+  .topbar.topbar-flotando{box-shadow:0 8px 20px -12px rgba(0,0,0,.35);}
   #topbarBrandsRow{margin-bottom:8px;}
   .topbar-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .topbar-row-brands{flex-wrap:wrap;row-gap:8px;padding-bottom:2px;}
@@ -1030,8 +1033,6 @@
   /* ===== Detalle de la entrega: color de la marca en tonos transparentes, letra más grande ===== */
   .drawer{--drb:var(--accent);transition:transform .25s ease,width .25s ease;}
   .drawer.ancho{width:min(1120px,96vw);}
-  .drawer.ancho .drawer-body{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;align-items:start;}
-  .drawer.ancho .drawer-body > *:not(.section){grid-column:1/-1;}
   .drawer-head::before{background:var(--drb);width:5px;}
   .drawer-head{background:color-mix(in srgb, var(--drb) 16%, rgba(20,32,64,.6));}
   body.light-mode .drawer-head{background:color-mix(in srgb, var(--drb) 10%, #ffffff);border-bottom:1px solid color-mix(in srgb, var(--drb) 30%, transparent);}
@@ -1080,6 +1081,26 @@
   .pw-ojo{position:absolute;right:8px;bottom:6px;background:none;border:none;color:#9AA3B5;cursor:pointer;padding:6px;border-radius:8px;line-height:0;}
   .pw-ojo:hover{color:#fff;background:rgba(255,255,255,.08);}
   .pw-ojo .material-symbols-outlined{font-size:20px;}
+
+  /* ===== Detalle: menos rectángulos (los datos van sin cajita, con una línea suave) ===== */
+  .drawer .field{background:transparent;border:none;border-bottom:1px solid color-mix(in srgb, var(--drb) 22%, var(--hairline));border-radius:0;padding:6px 2px 8px;}
+  .drawer .field .l{font-size:10.5px;letter-spacing:.04em;color:color-mix(in srgb, var(--drb) 55%, var(--text-dim));font-weight:700;margin-bottom:2px;}
+  .drawer .field input,.drawer .field select{background:transparent;border:1px solid transparent;border-radius:8px;padding:5px 6px;margin-left:-6px;width:calc(100% + 6px);font-family:'Inter',sans-serif;font-size:14px !important;font-weight:600;color:var(--text);}
+  .drawer .field input.mono{font-family:'IBM Plex Mono',monospace;font-weight:500;}
+  .drawer .field input:hover,.drawer .field select:hover{background:color-mix(in srgb, var(--drb) 7%, transparent);}
+  .drawer .field input:focus,.drawer .field select:focus{background:var(--panel);border-color:var(--drb);}
+  .drawer .field-grid{gap:2px 18px;}
+  /* Modo ancho: dos columnas que se acomodan solas (sin huecos) */
+  .drawer.ancho .drawer-body{display:block;column-count:2;column-gap:16px;}
+  .drawer.ancho .drawer-body > *{break-inside:avoid;}
+  .drawer.ancho .drawer-body > .section{display:inline-block;width:100%;margin-bottom:14px;vertical-align:top;}
+  .drawer.ancho .drawer-body > *:not(.section){column-span:all;}
+  @media (max-width:900px){ .drawer.ancho .drawer-body{column-count:1;} }
+  /* TV: la tarjeta de la entrega con el color de la marca en transparencia */
+  #tvSingleWrap{--tvb:var(--accent);}
+  #viewTv.tv-claro #tvSingleWrap{background:linear-gradient(160deg, color-mix(in srgb, var(--tvb) 12%, #ffffff) 0%, color-mix(in srgb, var(--tvb) 5%, #ffffff) 60%, #ffffff 100%) !important;border:1px solid color-mix(in srgb, var(--tvb) 28%, #E1E3E8) !important;box-shadow:0 10px 40px -18px color-mix(in srgb, var(--tvb) 45%, transparent);}
+  #viewTv.tv-claro #tvSingleWrap .tv-single-footer,#viewTv.tv-claro #tvSingleWrap .tv-single-frase{background:color-mix(in srgb, var(--tvb) 10%, #ffffff) !important;border-color:color-mix(in srgb, var(--tvb) 25%, #E1E3E8) !important;}
+  #viewTv.tv-claro #tvSingleWrap .tv-single-top{border-bottom-color:color-mix(in srgb, var(--tvb) 25%, #E8EAEE) !important;background:transparent !important;}
   .camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
   .camp-chips:empty{display:none;}
   .camp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 6px 3px 10px;font-size:11.5px;font-weight:700;}
@@ -4772,6 +4793,7 @@ function tvRenderSingleCard(){
   if(tvSingleIdx>=tvHoyRows.length) tvSingleIdx=0;
   var r = tvHoyRows[tvSingleIdx];
   var b = tvBrandInfo_(r.marca);
+  wrap.style.setProperty('--tvb', 'var('+b.color+')');
   var next = tvHoyRows.length>1 ? tvHoyRows[(tvSingleIdx+1)%tvHoyRows.length] : null;
   var nextB = next ? tvBrandInfo_(next.marca) : null;
   var d = new Date();
@@ -4869,6 +4891,34 @@ function renderCalMiniTV_(cont, rows){
   cont.innerHTML = html;
 }
 
+// Filtros de arriba que se esconden al bajar y aparecen al subir (solo en celular, tablet y app).
+(function(){
+  var ultimo = 0, acumulado = 0, pendiente = false;
+  function posicion(t){ return (t && t !== document && t.scrollTop !== undefined && t !== document.documentElement && t !== document.body) ? t.scrollTop : (window.pageYOffset || document.documentElement.scrollTop || 0); }
+  function aplicar(y){
+    var bar = document.querySelector('header.topbar'); if(!bar) return;
+    var movil = window.innerWidth <= 900 || (typeof esPantallaTactil_==='function' && esPantallaTactil_());
+    if(!movil){ bar.classList.remove('topbar-oculta','topbar-flotando'); ultimo = y; return; }
+    var buscando = document.activeElement && bar.contains(document.activeElement);
+    var abierto = document.getElementById('searchGlobalResults'); abierto = abierto && abierto.style.display === 'block';
+    var d = y - ultimo; ultimo = y;
+    if(y < 60 || buscando || abierto){ bar.classList.remove('topbar-oculta'); acumulado = 0; }
+    else {
+      acumulado = (d > 0) === (acumulado > 0) ? acumulado + d : d;   // suma en la misma dirección
+      if(acumulado > 24) bar.classList.add('topbar-oculta');          // bajando: se esconde
+      else if(acumulado < -12) bar.classList.remove('topbar-oculta'); // subiendo: aparece
+    }
+    bar.classList.toggle('topbar-flotando', y > 10 && !bar.classList.contains('topbar-oculta'));
+  }
+  document.addEventListener('scroll', function(ev){
+    var t = ev.target;
+    // solo cuenta el desplazamiento de la página (no el del detalle, ventanas o listas internas)
+    if(t && t !== document && t !== document.documentElement && t !== document.body && !(t.classList && (t.classList.contains('main-shell') || t.id==='mainShell'))) return;
+    var y = posicion(t);
+    if(pendiente) return; pendiente = true;
+    requestAnimationFrame(function(){ pendiente = false; aplicar(y); });
+  }, true);
+})();
 function esPantallaTactil_(){
   return (window.matchMedia && (matchMedia('(hover: none)').matches || matchMedia('(pointer: coarse)').matches)) ||
     (window.navigator && navigator.standalone) || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
@@ -9353,8 +9403,10 @@ function cerrarPendientesEntrega_(){
   document.getElementById('pendientesOverlay').classList.remove('show');
   document.getElementById('pendientesModal').classList.remove('show');
 }
+var MOSTRAR_ENTREGA_FUTURA = false; // por ahora no se usa: el "+" abre directo Nueva Entrega
 function abrirElegirTipoEntrega_(){
   if(!puedeEditar()){ showToast('Tu usuario no tiene permiso para agendar entregas.'); return; }
+  if(!MOSTRAR_ENTREGA_FUTURA){ openNewDelivery(); return; }
   document.getElementById('tipoEntregaOverlay').classList.add('show');
   document.getElementById('tipoEntregaModal').classList.add('show');
 }
