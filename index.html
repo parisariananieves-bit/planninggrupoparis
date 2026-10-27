@@ -854,8 +854,15 @@
   .sidebar-brand{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:0 14px 20px;white-space:nowrap;}
   .sidebar-brand img{width:34px;height:auto;flex-shrink:0;}
   .sidebar-brand .name{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:17px;line-height:1.15;color:#fff;letter-spacing:.01em;}
-  .sidebar-brand .tag{font-size:6.5px;letter-spacing:.05em;color:var(--text-faint);text-transform:uppercase;white-space:normal;line-height:1.3;max-width:36px;transition:max-width .16s ease;}
-  .sidebar:hover .sidebar-brand .tag,.sidebar.pinned .sidebar-brand .tag{max-width:150px;font-size:8px;}
+  .sidebar-brand .tag{font-size:7.5px;font-weight:800;letter-spacing:.06em;color:#C9CFDA;text-transform:uppercase;white-space:normal;line-height:1.25;max-width:40px;transition:max-width .16s ease;}
+  .sidebar:hover .sidebar-brand .tag,.sidebar.pinned .sidebar-brand .tag,.sidebar.abierto .sidebar-brand .tag{max-width:190px;font-size:11.5px;font-weight:800;color:#E4E8EF;letter-spacing:.08em;}
+  /* En celulares, tablets y la app (pantallas táctiles): el menú no queda fijo.
+     Se abre al tocarlo y se cierra al tocar cualquier otra parte de la pantalla o al elegir una opción. */
+  .sidebar.abierto{width:216px;overflow:visible;box-shadow:6px 0 24px rgba(0,0,0,.5);}
+  body.menu-tactil .sidebar-pin{display:none !important;}
+  body.menu-tactil .sidebar:hover:not(.abierto){width:64px;overflow:hidden;box-shadow:none;}
+  body.menu-tactil .sidebar:hover:not(.abierto) .sidebar-brand .tag{max-width:40px;font-size:7.5px;}
+  @media(max-width:640px){ body.menu-tactil .sidebar:hover:not(.abierto){width:0;} body.menu-tactil .sidebar.abierto{width:216px;border-right:1px solid var(--hairline);z-index:80;} }
   .sidebar-logo-full{height:auto;width:34px;background:#fff;border-radius:6px;padding:3px 5px;object-fit:contain;transition:width .16s ease;flex-shrink:0;}
   .sidebar:hover .sidebar-logo-full,.sidebar.pinned .sidebar-logo-full{width:150px;}
   .nav-label,.sidebar-user-toggle .info{opacity:0;max-width:0;overflow:hidden;transition:opacity .08s ease,max-width .16s ease;}
@@ -1020,6 +1027,44 @@
 
   /* ============ TRASLADOS (logística) ============ */
   .tras-agenda{font-size:11px;color:var(--accent);font-weight:600;margin-top:3px;white-space:nowrap;}
+
+  /* ===== Detalle de la entrega: color de la marca en tonos transparentes, letra más grande ===== */
+  .drawer{--drb:var(--accent);transition:transform .25s ease,width .25s ease;}
+  .drawer.ancho{width:min(1120px,96vw);}
+  .drawer.ancho .drawer-body{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;align-items:start;}
+  .drawer.ancho .drawer-body > *:not(.section){grid-column:1/-1;}
+  .drawer-head::before{background:var(--drb);width:5px;}
+  .drawer-head{background:color-mix(in srgb, var(--drb) 16%, rgba(20,32,64,.6));}
+  body.light-mode .drawer-head{background:color-mix(in srgb, var(--drb) 10%, #ffffff);border-bottom:1px solid color-mix(in srgb, var(--drb) 30%, transparent);}
+  .drawer-head h3{font-size:20px;padding-right:80px;}
+  .drawer-head .sub{font-size:13px;line-height:1.45;}
+  .drawer-head .vehicle-color{font-size:13px;}
+  .drawer-head .d-ancho{position:absolute;top:13px;right:46px;background:none;border:none;color:var(--text-dim);cursor:pointer;padding:4px;border-radius:8px;}
+  .drawer-head .d-ancho:hover,.drawer-head .close:hover{background:color-mix(in srgb, var(--drb) 15%, transparent);color:var(--text);}
+  .drawer-head .d-ancho .material-symbols-outlined{font-size:20px;}
+  .drawer .section{background:color-mix(in srgb, var(--drb) 5%, var(--panel));border:1px solid color-mix(in srgb, var(--drb) 20%, var(--hairline));border-radius:14px;padding:16px 18px;font-size:13.5px;}
+  body.light-mode .drawer .section{background:color-mix(in srgb, var(--drb) 4%, #ffffff);box-shadow:0 1px 2px rgba(24,27,32,.04);}
+  .drawer .section-title{font-size:12px;border-left:4px solid var(--drb);color:color-mix(in srgb, var(--drb) 60%, var(--text));}
+  .drawer .block-title{font-size:15px;color:color-mix(in srgb, var(--drb) 85%, var(--text));border-bottom:2px solid color-mix(in srgb, var(--drb) 45%, transparent);}
+  .drawer .section label{font-size:11.5px;}
+  .drawer .section input,.drawer .section select,.drawer .section textarea{font-size:13.5px !important;}
+  .drawer .dual-toggle-btn{font-size:12.5px;border-radius:10px;}
+  .drawer .dual-toggle-btn.si.active{background:color-mix(in srgb, var(--ok) 16%, transparent);}
+  .drawer .dual-toggle-fecha{font-size:11.5px;}
+  /* Alertas: más grandes y las rojas se destacan para que no se pasen */
+  #drawer .drawer-head [id$="Alerta"]{font-size:12.5px !important;padding:9px 12px !important;border-radius:10px !important;gap:8px !important;}
+  #drawer .drawer-head [id$="Alerta"] .material-symbols-outlined{font-size:18px !important;}
+  #drawer .drawer-head .d-alerta-roja{border-left:5px solid var(--danger) !important;animation:alertaPulso 2.2s ease-in-out infinite;}
+  #drawer .drawer-head .d-alerta-roja::after{content:'Pendiente';margin-left:auto;font-size:10px;font-weight:800;background:var(--danger);color:#fff;border-radius:10px;padding:2px 8px;text-transform:uppercase;letter-spacing:.5px;flex:none;}
+  @keyframes alertaPulso{0%,100%{box-shadow:0 0 0 0 rgba(214,48,74,0);}50%{box-shadow:0 0 0 4px rgba(214,48,74,.18);}}
+  .d-pend-badge{align-items:center;gap:4px;margin:4px 0 2px;background:var(--danger);color:#fff;font-size:11.5px;font-weight:800;border-radius:20px;padding:3px 10px 3px 6px;animation:alertaPulso 2.2s ease-in-out infinite;cursor:help;}
+  .d-pend-badge .material-symbols-outlined{font-size:16px;}
+  @media (prefers-reduced-motion: reduce){ #drawer .drawer-head .d-alerta-roja,.d-pend-badge{animation:none;} }
+  /* Ojito para ver la contraseña */
+  .login-field{position:relative;}
+  .pw-ojo{position:absolute;right:8px;bottom:6px;background:none;border:none;color:#9AA3B5;cursor:pointer;padding:6px;border-radius:8px;line-height:0;}
+  .pw-ojo:hover{color:#fff;background:rgba(255,255,255,.08);}
+  .pw-ojo .material-symbols-outlined{font-size:20px;}
   .camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
   .camp-chips:empty{display:none;}
   .camp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 6px 3px 10px;font-size:11.5px;font-weight:700;}
@@ -1293,7 +1338,7 @@
         </div>
         <div class="login-field">
           <label>Contraseña</label>
-          <input id="loginPassword" type="password" placeholder="Tu contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter'){intentarLogin();}">
+          <input id="loginPassword" type="password" placeholder="Tu contraseña" style="padding-right:44px;" autocomplete="current-password" onkeydown="if(event.key==='Enter'){intentarLogin();}"><button type="button" class="pw-ojo" onclick="toggleVerPassword_('loginPassword', this)" title="Mostrar u ocultar la contraseña" aria-label="Mostrar u ocultar la contraseña"><span class="material-symbols-outlined">visibility</span></button>
         </div>
         <div class="login-remember">
           <label><input type="checkbox" id="loginRecordar" checked> Recordarme en este navegador</label>
@@ -1315,11 +1360,11 @@
         <div class="sub">Usuario: <b id="elegirPasswordUsuarioTexto">—</b></div>
         <div class="login-field">
           <label>Nueva contraseña</label>
-          <input id="elegirPassword1" type="password" placeholder="Mínimo 4 caracteres" autocomplete="new-password">
+          <input id="elegirPassword1" type="password" placeholder="Mínimo 4 caracteres" autocomplete="new-password"><button type="button" class="pw-ojo" onclick="toggleVerPassword_('elegirPassword1', this)" title="Mostrar u ocultar la contraseña" aria-label="Mostrar u ocultar la contraseña"><span class="material-symbols-outlined">visibility</span></button>
         </div>
         <div class="login-field">
           <label>Repetí la contraseña</label>
-          <input id="elegirPassword2" type="password" placeholder="Repetila" autocomplete="new-password" onkeydown="if(event.key==='Enter'){confirmarElegirPassword();}">
+          <input id="elegirPassword2" type="password" placeholder="Repetila" autocomplete="new-password" onkeydown="if(event.key==='Enter'){confirmarElegirPassword();}"><button type="button" class="pw-ojo" onclick="toggleVerPassword_('elegirPassword2', this)" title="Mostrar u ocultar la contraseña" aria-label="Mostrar u ocultar la contraseña"><span class="material-symbols-outlined">visibility</span></button>
         </div>
         <button class="login-submit" onclick="confirmarElegirPassword()">Guardar contraseña</button>
         <div id="elegirPasswordMsg" class="login-error" style="display:none;"></div>
@@ -2907,7 +2952,9 @@
 <div class="drawer" id="drawer">
   <div class="drawer-head">
     <button class="close" onclick="closeDetail()">✕</button>
+    <button class="d-ancho" id="dAnchoBtn" onclick="toggleDrawerAncho_()" title="Ver el detalle más ancho"><span class="material-symbols-outlined">open_in_full</span></button>
     <h3 id="dHeadName">—</h3>
+    <div id="dPendientesBadge" class="d-pend-badge" style="display:none;"></div>
     <div class="sub" id="dHeadSub">—</div>
     <div class="vehicle-color" id="dHeadColor" style="display:none;"><span class="dot" id="dHeadColorDot"></span><span id="dHeadColorText">Color: —</span></div>
     <div id="dObservacionesAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionObservaciones_()"><span class="material-symbols-outlined" style="font-size:15px;">sticky_note_2</span>Esta entrega tiene observaciones cargadas</div>
@@ -2993,8 +3040,8 @@
       </select>
       <div class="dual-toggle-wrap" id="dLlaveDuplicadaToggleWrap" style="display:none;">
         <button class="dual-toggle-btn pend" id="dLlaveDuplicadaBtnPend" onclick="marcarEstadoItem_('llaveDuplicada', 'pendiente')"><span class="material-symbols-outlined">schedule</span>Pendiente</button>
-        <button class="dual-toggle-btn no" id="dLlaveDuplicadaBtnNo" onclick="marcarEstadoItem_('llaveDuplicada', 'no_colocado')"><span class="material-symbols-outlined">cancel</span>No colocado</button>
-        <button class="dual-toggle-btn si" id="dLlaveDuplicadaBtnSi" onclick="marcarEstadoItem_('llaveDuplicada', 'colocado')"><span class="material-symbols-outlined">check_circle</span>Colocado</button>
+        <button class="dual-toggle-btn no" id="dLlaveDuplicadaBtnNo" onclick="marcarEstadoItem_('llaveDuplicada', 'no_colocado')"><span class="material-symbols-outlined">cancel</span>No entregado</button>
+        <button class="dual-toggle-btn si" id="dLlaveDuplicadaBtnSi" onclick="marcarEstadoItem_('llaveDuplicada', 'colocado')"><span class="material-symbols-outlined">check_circle</span>Entregado</button>
       </div>
       <div class="dual-toggle-fecha"></div>
       <div class="obs-wrap" id="dLlaveDuplicadaObsWrap" style="display:none;margin-top:8px;">
@@ -3223,6 +3270,8 @@
   </div>
   <div class="modal-body">
     <div class="whatsapp-preview" id="bienvenidaPreviewContent"></div>
+    <div id="bienvenidaFicha" style="font-size:12.5px;margin-top:10px;"></div>
+    <button class="save-btn" id="bienvenidaMailBtn" style="width:100%;margin-top:10px;" onclick="enviarBienvenidaMailManual_()">Enviar por mail (con ficha técnica)</button>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
       <button class="email-action-btn" style="flex:1;min-width:160px;" onclick="copiarMensajeBienvenida()"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">content_copy</span> Copiar mensaje</button>
       <a class="email-action-btn" id="bienvenidaWhatsappLink" style="flex:1;min-width:160px;text-align:center;text-decoration:none;display:none;align-items:center;justify-content:center;gap:6px;" href="#" target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" style="vertical-align:-3px;"><path fill="#25D366" d="M12 0C5.373 0 0 5.373 0 12c0 2.121.554 4.113 1.523 5.842L0 24l6.335-1.492A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg> Abrir WhatsApp</a>
@@ -4785,13 +4834,44 @@ function renderCalMiniTV_(cont, rows){
   cont.innerHTML = html;
 }
 
+function esPantallaTactil_(){
+  return (window.matchMedia && (matchMedia('(hover: none)').matches || matchMedia('(pointer: coarse)').matches)) ||
+    (window.navigator && navigator.standalone) || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+}
 function toggleSidebarPin(){
   var el = document.getElementById('sidebarEl');
+  if(document.body.classList.contains('menu-tactil')){ el.classList.toggle('abierto'); return; }
   var pinned = el.classList.toggle('pinned');
   localStorage.setItem('sidebarPinned', pinned ? '1' : '0');
 }
+// Menú táctil: tocar el menú lo abre; tocar afuera o elegir una opción lo cierra. Nunca queda fijo.
+document.addEventListener('DOMContentLoaded', function(){
+  if(!esPantallaTactil_()) return;
+  document.body.classList.add('menu-tactil');
+  var sb = document.getElementById('sidebarEl'); if(!sb) return;
+  sb.classList.remove('pinned');
+  sb.addEventListener('click', function(ev){
+    var item = ev.target.closest('.nav-item, .nav-subitem, a, button');
+    if(!sb.classList.contains('abierto')){
+      // primer toque: solo abre (salvo que sea un acceso directo que no necesita el menú abierto)
+      ev.preventDefault(); ev.stopPropagation();
+      sb.classList.add('abierto');
+      return;
+    }
+    // con el menú abierto: si tocó una opción que navega, se cierra después de ir
+    if(item && !item.classList.contains('nav-group-toggle') && !item.hasAttribute('data-no-cerrar') && !/toggle|grupo|group/i.test(item.getAttribute('onclick')||'')){
+      setTimeout(function(){ sb.classList.remove('abierto'); }, 120);
+    }
+  }, true);
+  document.addEventListener('click', function(ev){
+    if(!sb.classList.contains('abierto')) return;
+    if(sb.contains(ev.target)) return;
+    var bm = document.getElementById('bnMas'); if(bm && bm.contains(ev.target)) return;
+    sb.classList.remove('abierto');
+  }, true);
+});
 (function(){
-  if(localStorage.getItem('sidebarPinned')==='1'){
+  if(localStorage.getItem('sidebarPinned')==='1' && !esPantallaTactil_()){
     document.addEventListener('DOMContentLoaded', function(){
       var el=document.getElementById('sidebarEl');
       if(el) el.classList.add('pinned');
@@ -7684,10 +7764,10 @@ function guardarContactoPosteriorCache_(marca, id, datos){
   gasPost('updateEntregaFields',{marca:marca, id:id, fields:{contactoPosteriorData: JSON.stringify(datos)}});
 }
 // Si la última vez no se encontró nada, no lo dejamos así para siempre —
-// cada 3 días se reintenta solo (por si el cliente respondió la encuesta
+// cada 30 minutos se reintenta solo (por si el cliente respondió la encuesta
 // más tarde). Una vez que se encuentra, ahí sí queda fijo y no se vuelve
 // a tocar (eso lo pediste explícitamente).
-var CONTACTO_POSTERIOR_REINTENTO_MS_ = 3*24*60*60*1000;
+var CONTACTO_POSTERIOR_REINTENTO_MS_ = 30*60*1000; // cada 30 minutos
 function debeReintentarContactoPosterior_(cache){
   if(!cache.fechaUltimoIntento) return true; // caché vieja, de antes de este cambio — probamos una vez más
   return (Date.now() - cache.fechaUltimoIntento) > CONTACTO_POSTERIOR_REINTENTO_MS_;
@@ -7696,7 +7776,7 @@ function pintarBodyContactoPosterior_(cache){
   var body = document.getElementById('contactoPosteriorBody');
   var linkReintentar = '<div onclick="var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}); if(r) buscarContactoPosteriorAhora_(r);" style="text-align:center;font-size:11px;color:var(--text-faint);cursor:pointer;margin-top:10px;text-decoration:underline;">Buscar de nuevo ahora</div>';
   if(!cache || !cache.encontrado){
-    body.innerHTML = '<div style="padding:18px;color:var(--text-faint);font-size:12.5px;">Todavía no hay ninguna respuesta en la encuesta de satisfacción para este VIN o esta patente. Se reintenta solo cada 3 días.</div>'+linkReintentar;
+    body.innerHTML = '<div style="padding:18px;color:var(--text-faint);font-size:12.5px;">Todavía no hay ninguna respuesta en la encuesta de satisfacción para este VIN o esta patente. Se vuelve a buscar sola cada 30 minutos.</div>'+linkReintentar;
     return;
   }
   var e = cache.respuesta;
@@ -9302,6 +9382,51 @@ function toggleEntregadaId(marca,id){
   }
   marcarEntregadaEfectiva_(marca, id, r);
 }
+function toggleDrawerAncho_(forzar){
+  var d = document.getElementById('drawer'); if(!d) return;
+  var ancho = forzar !== undefined ? forzar : !d.classList.contains('ancho');
+  d.classList.toggle('ancho', ancho);
+  try{ localStorage.setItem('drawerAncho', ancho ? '1' : '0'); }catch(e){}
+  var ic = document.querySelector('#dAnchoBtn .material-symbols-outlined'); if(ic) ic.textContent = ancho ? 'close_fullscreen' : 'open_in_full';
+  var b = document.getElementById('dAnchoBtn'); if(b) b.title = ancho ? 'Volver al ancho normal' : 'Ver el detalle más ancho';
+}
+// Alertas del encabezado: las rojas se destacan (borde, pulso y etiqueta "Pendiente") y arriba se cuenta cuántas hay.
+function destacarAlertasDetalle_(){
+  var head = document.querySelector('#drawer .drawer-head'); if(!head) return;
+  var n = 0, nombres = [];
+  head.querySelectorAll('[id$="Alerta"]').forEach(function(el){
+    var visible = el.style.display !== 'none' && el.offsetParent !== null || el.style.display === 'flex';
+    var st = (el.getAttribute('style')||'');
+    var roja = visible && /--danger\)/.test(st.replace(/background:var\(--danger-soft\)/g,'')) && !/color:var\(--ok\)/.test(st);
+    el.classList.toggle('d-alerta-roja', !!roja);
+    if(roja){ n++; nombres.push((el.textContent||'').trim()); }
+  });
+  var badge = document.getElementById('dPendientesBadge');
+  if(badge){
+    badge.style.display = n ? 'inline-flex' : 'none';
+    badge.innerHTML = '<span class="material-symbols-outlined">priority_high</span>'+n+(n===1?' cosa pendiente':' cosas pendientes');
+    badge.title = nombres.join('\n');
+  }
+}
+// Si una alerta cambia mientras el detalle está abierto (ej: se envió la confirmación), se recalcula el destacado.
+(function(){
+  var obs = null, t = null;
+  document.addEventListener('DOMContentLoaded', function(){
+    var head = document.querySelector('#drawer .drawer-head'); if(!head || !window.MutationObserver) return;
+    obs = new MutationObserver(function(muts){
+      if(muts.every(function(m){ return m.target && m.target.id==='dPendientesBadge'; })) return;
+      clearTimeout(t); t = setTimeout(destacarAlertasDetalle_, 60);
+    });
+    obs.observe(head, {attributes:true, attributeFilter:['style'], subtree:true});
+  });
+})();
+function toggleVerPassword_(id, btn){
+  var el = document.getElementById(id); if(!el) return;
+  var ver = el.type === 'password';
+  el.type = ver ? 'text' : 'password';
+  var ic = btn && btn.querySelector('.material-symbols-outlined'); if(ic) ic.textContent = ver ? 'visibility_off' : 'visibility';
+  el.focus();
+}
 function marcarEntregadaEfectiva_(marca, id, r){
   if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
   r.entregada=!r.entregada;
@@ -9310,12 +9435,29 @@ function marcarEntregadaEfectiva_(marca, id, r){
   if(r.entregada){
     var extra = (typeof r.npsScore==='number') ? 'Encuesta respondida: NPS '+r.npsScore+'/10' : '';
     gasPost('notificarEntregaCompletada', {marca:marca, id:id, autor:usuarioActual(), extra:extra});
+    enviarBienvenidaMailAuto_(marca, id, r);
   }
   if(detailId===id) updateEntregaToggleUI(r);
   renderAll();
   showToast(r.entregada?'Unidad entregada a '+r.cliente:'Se desmarcó como entregada');
 }
 function toggleEntregada(){ if(detailId) toggleEntregadaId(detailMarca, detailId); }
+// Bienvenida de postventa por mail, con la ficha técnica del modelo adjunta (sale una sola vez).
+// Ficha técnica en la bienvenida: QUEDA EN PAUSA hasta revisar la carpeta de fichas (poner en true para activarlo).
+var FICHA_BIENVENIDA_ACTIVA = false;
+function enviarBienvenidaMailAuto_(marca, id, r){
+  if(!FICHA_BIENVENIDA_ACTIVA) return;
+  if(!r || !r.email || r.bienvenidaMailFecha) return;
+  gasPost('enviarBienvenidaMail', {marca:marca, id:id, usuario:usuarioActual()}).then(function(res){
+    if(!res || res.ok===false){ showToast('No se pudo enviar el mail de bienvenida'+(res&&res.error?': '+res.error:'')); return; }
+    if(res.yaEnviado) return;
+    r.bienvenidaMailFecha = fechaHoraAhora_(); r.bienvenidaEnviada = true; r.bienvenidaFecha = r.bienvenidaFecha || r.bienvenidaMailFecha;
+    r.historial = r.historial || [];
+    r.historial.push({fecha: fechaHoraAhora_(), texto:'✉️ Bienvenida de postventa enviada por mail'+(res.ficha?' con la ficha técnica ('+res.ficha.nombre+')':' (sin ficha técnica para este modelo)'), autor: usuarioActual()});
+    showToast(res.ficha ? '✉️ Se envió la bienvenida con la ficha técnica a '+r.email : '✉️ Se envió la bienvenida a '+r.email+' (no hay ficha técnica para este modelo)');
+    if(detailId===id && typeof renderEstadoBienvenida_==='function') renderEstadoBienvenida_(r);
+  }).catch(function(){ showToast('No se pudo enviar el mail de bienvenida'); });
+}
 
 // ============================================================
 // AUDITORÍA DE ENTREGA en el detalle del cliente
@@ -10200,6 +10342,9 @@ function openDetailCore_(marca, id){
   detailId=id; detailMarca=marca;
   var r=ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
   document.getElementById('dHeadName').textContent=r.cliente;
+  (function(){ var bm = BRANDS.find(function(x){ return x.id===r.marca; }); var dr = document.getElementById('drawer');
+    if(dr && bm){ dr.style.setProperty('--drb', 'var('+bm.color+')'); }
+    try{ toggleDrawerAncho_(localStorage.getItem('drawerAncho')==='1'); }catch(e){} })();
   document.getElementById('dHeadSub').textContent=r.fecha+' · '+r.hora+' · '+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+(r.sucursal?' · '+r.sucursal:'')+(r.vendedor?' · Vend: '+r.vendedor:'')+(r.administrativo?' · Adm: '+r.administrativo:'');
   renderColorVehiculoHeader_(r);
   updateEntregaToggleUI(r);
@@ -10273,6 +10418,7 @@ function openDetailCore_(marca, id){
     }
   }
   renderAlertaCampana_(r);
+  setTimeout(destacarAlertasDetalle_, 0);
   renderAlertaOnstar_(r);
   renderAlertaCasoAbierto_(r);
   document.getElementById('dGarantiaFecha').value = soloFechaISO_(r.garantiaFecha);
@@ -10766,8 +10912,9 @@ function renderDualToggleUI_(itemKey, r){
   btnPend.classList.toggle('active', estado==='pendiente');
   var fechaEl = wrap.parentElement.querySelector('.dual-toggle-fecha');
   if(fechaEl){
-    if(estado==='colocado' && r[cfg.fecha]) fechaEl.textContent = 'Colocado — '+r[cfg.fecha];
-    else if(estado==='no_colocado' && r[cfg.motivo]) fechaEl.textContent = 'No colocado — Observación: '+r[cfg.motivo];
+    var verbo = (itemKey==='manual' || itemKey==='llaveDuplicada') ? 'Entregado' : 'Colocado';
+    if(estado==='colocado' && r[cfg.fecha]) fechaEl.textContent = verbo+' — '+r[cfg.fecha];
+    else if(estado==='no_colocado' && r[cfg.motivo]) fechaEl.textContent = 'No '+verbo.toLowerCase()+' — Observación: '+r[cfg.motivo];
     else if(estado==='pendiente' && r[cfg.motivo]) fechaEl.textContent = 'Pendiente — Observación: '+r[cfg.motivo];
     else fechaEl.textContent = '';
   }
@@ -11795,7 +11942,8 @@ function construirMensajeBienvenida_(r){
     '🔩 Repuestos y Servicio: '+(repuestosServicio||'—')+'\n'+
     '🔧 Postventa: '+(postventa||'—')+'\n'+
     '⭐ Calidad: '+(calidad||'—')+'\n\n'+
-    'Gracias por confiar en Grupo París. Esperamos seguir acompañándote en cada etapa para que disfrutes tu vehículo con la tranquilidad de contar siempre con nuestro equipo.';
+    'Gracias por confiar en Grupo París. Esperamos seguir acompañándote en cada etapa para que disfrutes tu vehículo con la tranquilidad de contar siempre con nuestro equipo.'+
+    (r._fichaTecnica && r._fichaTecnica.url ? '\n\n📄 Ficha técnica de tu '+(r.modelo||'vehículo')+': '+r._fichaTecnica.url : '');
 }
 
 function abrirModalBienvenida(){
@@ -11817,8 +11965,43 @@ function abrirModalBienvenida(){
     linkBtn.style.display = 'none';
   }
   document.getElementById('bienvenidaMarcarBtn').textContent = r.bienvenidaEnviada ? '✓ Ya marcado como enviado' : '✓ Marcar como enviado';
+  pintarFichaBienvenida_(r);
+  if(FICHA_BIENVENIDA_ACTIVA && r._fichaTecnica === undefined){
+    var fEl = document.getElementById('bienvenidaFicha'); if(fEl) fEl.innerHTML = '<span style="color:var(--text-faint);">Buscando la ficha técnica…</span>';
+    gasPost('fichaTecnicaEntrega', {marca:r.marca, id:r.id}).then(function(res){
+      r._fichaTecnica = (res && res.ficha) || null;
+      pintarFichaBienvenida_(r);
+      var m2 = construirMensajeBienvenida_(r); window._bienvenidaTextoActual = m2;
+      document.getElementById('bienvenidaPreviewContent').innerHTML = '<div class="bubble">'+m2.replace(/\n/g,'<br>')+'</div>';
+      if(r.telefono){ document.getElementById('bienvenidaWhatsappLink').href = 'https://wa.me/'+String(r.telefono).replace(/[^0-9]/g,'')+'?text='+encodeURIComponent(m2); }
+    }).catch(function(){ r._fichaTecnica = null; pintarFichaBienvenida_(r); });
+  }
   document.getElementById('overlay').classList.add('show');
   document.getElementById('bienvenidaModal').classList.add('show');
+}
+function pintarFichaBienvenida_(r){
+  var el = document.getElementById('bienvenidaFicha'); if(!el) return;
+  var btnMail = document.getElementById('bienvenidaMailBtn');
+  if(!FICHA_BIENVENIDA_ACTIVA){ el.innerHTML=''; if(btnMail) btnMail.style.display='none'; return; }
+  if(btnMail) btnMail.style.display='';
+  var f = r._fichaTecnica;
+  var estadoMail = r.bienvenidaMailFecha ? '<div style="color:var(--ok);font-weight:700;margin-top:6px;">✓ Mail de bienvenida enviado el '+r.bienvenidaMailFecha+'</div>' : '';
+  el.innerHTML = (f === undefined ? '' : f ? '📄 Ficha técnica: <a href="'+f.url+'" target="_blank" rel="noopener"><b>'+campEsc_(f.nombre)+'</b></a>' : '<span style="color:var(--danger);font-weight:700;">⚠ No hay ficha técnica para este modelo en la carpeta.</span>')+estadoMail;
+  var b = document.getElementById('bienvenidaMailBtn');
+  if(b){ b.disabled = !r.email; b.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">mail</span> '+(!r.email ? 'Falta el mail del cliente' : r.bienvenidaMailFecha ? 'Volver a enviar por mail' : 'Enviar por mail (con ficha técnica)'); }
+}
+function enviarBienvenidaMailManual_(){
+  var r = ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}); if(!r || !r.email) return;
+  if(!confirm('¿Enviar el mail de bienvenida'+(r._fichaTecnica?' con la ficha técnica':'')+' a '+r.email+'?')) return;
+  var b = document.getElementById('bienvenidaMailBtn'); if(b){ b.disabled = true; b.textContent = 'Enviando…'; }
+  gasPost('enviarBienvenidaMail', {marca:r.marca, id:r.id, usuario:usuarioActual(), forzar:true}).then(function(res){
+    if(!res || res.ok===false){ showToast('No se pudo enviar: '+((res&&res.error)||'error')); pintarFichaBienvenida_(r); return; }
+    r.bienvenidaMailFecha = fechaHoraAhora_(); r.bienvenidaEnviada = true; r.bienvenidaFecha = r.bienvenidaFecha || r.bienvenidaMailFecha;
+    if(res.ficha) r._fichaTecnica = res.ficha;
+    r.historial = r.historial || []; r.historial.push({fecha: fechaHoraAhora_(), texto:'✉️ Bienvenida de postventa enviada por mail'+(res.ficha?' con la ficha técnica ('+res.ficha.nombre+')':''), autor: usuarioActual()});
+    showToast('✉️ Bienvenida enviada a '+r.email);
+    pintarFichaBienvenida_(r); renderEstadoBienvenida_(r);
+  }).catch(function(){ showToast('No se pudo enviar el mail'); pintarFichaBienvenida_(r); });
 }
 function cerrarModalBienvenida(){
   document.getElementById('overlay').classList.remove('show');

@@ -50,6 +50,9 @@ function doPost(e){
     else if(action==='agregarComentario') result = {ok: agregarComentario(p.marca, p.id, p.autor, p.texto)};
     else if(action==='agregarHistorial') result = {ok: agregarHistorial(p.marca, p.id, p.texto)};
     else if(action==='enviarConfirmacion') result = enviarConfirmacion(p.marca, p.id, p.usuario);
+    else if(action==='enviarBienvenidaMail') result = enviarBienvenidaMail(p.marca, p.id, p.usuario, p.forzar);
+    else if(action==='fichaTecnicaEntrega') result = fichaTecnicaEntrega(p.marca, p.id);
+    else if(action==='listarFichasTecnicas') result = listarFichasTecnicas();
     else if(action==='enviarRecordatorio') result = enviarRecordatorio(p.marca, p.id, p.usuario);
     else if(action==='guardarPlantilla') result = {ok: guardarPlantilla(p.marca, p.tipo, p.asunto, p.cuerpo)};
     else if(action==='guardarConfig') result = {ok: guardarConfig(p.config)};
@@ -354,7 +357,8 @@ var CAMPOS = [
   {k:'dni', h:'DNI / CUIT'},
   {k:'campanaNoAplica', h:'Campaña No Aplica', bool:true},
   {k:'enSalon', h:'Unidad en el Salón', bool:true},
-  {k:'enSalonFecha', h:'Unidad en el Salón — Fecha y hora'}
+  {k:'enSalonFecha', h:'Unidad en el Salón — Fecha y hora'},
+  {k:'bienvenidaMailFecha', h:'Bienvenida por mail — Fecha'}
 ];
 
 // ============================================================
@@ -3648,7 +3652,7 @@ function cruzarContactoPosteriorMasivo_(){
 
   var todas = getEntregas();
   var ahora = Date.now();
-  var TRES_DIAS_MS = 3*24*60*60*1000;
+  var TRES_DIAS_MS = 30*60*1000; // se reintenta cada 30 minutos (antes era cada 3 días)
   var revisados = 0, encontrados = 0;
 
   todas.forEach(function(r){
@@ -3692,7 +3696,7 @@ function instalarTriggerCruceContactoPosterior(){
   ScriptApp.getProjectTriggers().forEach(function(t){
     if(t.getHandlerFunction()==='cruzarContactoPosteriorMasivo_') ScriptApp.deleteTrigger(t);
   });
-  ScriptApp.newTrigger('cruzarContactoPosteriorMasivo_').timeBased().everyHours(12).create();
+  ScriptApp.newTrigger('cruzarContactoPosteriorMasivo_').timeBased().everyMinutes(30).create();
 }
  // Junta login + carga inicial de datos en un solo viaje de red, para
   // que entrar a la app sea más rápido (antes eran 2 pedidos seguidos).
@@ -3705,3 +3709,157 @@ function instalarTriggerCruceContactoPosterior(){
     res.config = getConfig();
     return res;
   }
+
+// =====================================================================
+// BIENVENIDA DE POSTVENTA + FICHA TÉCNICA
+// Al marcar la unidad como entregada se le manda al cliente un mail de bienvenida de
+// postventa con la ficha técnica de su modelo adjunta (PDF de la carpeta de Drive).
+// La ficha se elige por el modelo de la entrega; en Configuración se puede forzar a mano
+// (config.fichasTecnicas = { "ONIX PLUS LTZ": "<idArchivo>" }).
+// =====================================================================
+var CARPETA_FICHAS_TECNICAS = '1VSZ3Kyx5E5hZ6mCu-2T3xQVlu7kq_sCR';
+
+function normFicha_(s){
+  return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase()
+    .replace(/\.PDF$/,'').replace(/[^A-Z0-9]+/g,' ').trim();
+}
+var MARCA_CARPETA_FICHAS_ = {chevrolet:'CHEVROLET', peugeot:'PEUGEOT', citroen:'CITROEN', honda:'HONDA', dfsk:'DFSK'};
+// Recorre la carpeta (y subcarpetas) y devuelve [{id, nombre, url, ruta}] — con caché de 10 minutos.
+function listarFichasTecnicas_(){
+  var cache = CacheService.getScriptCache(), c = cache.get('fichasTecnicas_v1');
+  if(c){ try{ return JSON.parse(c); }catch(e){} }
+  var out = [];
+  var recorrer = function(carpeta, ruta, nivel){
+    var fs = carpeta.getFiles();
+    while(fs.hasNext()){
+      var f = fs.next(), tipo = f.getMimeType();
+      if(tipo === 'application/pdf' || /\.pdf$/i.test(f.getName()) || /image\//.test(tipo))
+        out.push({id:f.getId(), nombre:f.getName(), url:f.getUrl(), ruta:ruta});
+    }
+    if(nivel < 3){ var ds = carpeta.getFolders(); while(ds.hasNext()){ var d = ds.next(); recorrer(d, (ruta?ruta+' / ':'')+d.getName(), nivel+1); } }
+  };
+  try{ recorrer(DriveApp.getFolderById(CARPETA_FICHAS_TECNICAS), '', 0); }catch(e){ return []; }
+  try{ cache.put('fichasTecnicas_v1', JSON.stringify(out), 600); }catch(e){}
+  return out;
+}
+// Elige la ficha que mejor coincide con el modelo (y la marca) de la entrega.
+function fichaTecnicaPara_(r, config){
+  var modelo = normFicha_(r.modelo);
+  if(!modelo) return null;
+  config = config || getConfig();
+  var fichas = listarFichasTecnicas_();
+  var manual = config.fichasTecnicas || {};
+  var claveManual = Object.keys(manual).filter(function(k){ return modelo.indexOf(normFicha_(k))===0 || normFicha_(k)===modelo; })
+    .sort(function(a,b){ return normFicha_(b).length - normFicha_(a).length; })[0];
+  if(claveManual){ var fm = fichas.filter(function(f){ return f.id===manual[claveManual]; })[0]; if(fm) return fm; }
+  var tokM = modelo.split(' ').filter(function(t){ return t.length>1 || /\d/.test(t); });
+  var marcaC = MARCA_CARPETA_FICHAS_[r.marca] || '';
+  var mejor = null, mejorPts = 0;
+  fichas.forEach(function(f){
+    var STOP = ['FICHA','FICHAS','TECNICA','TECNICAS','CHEVROLET','PEUGEOT','CITROEN','HONDA','DFSK','JETOUR','NUEVO','NUEVA','MODELO','MY','DE','LA','EL'];
+    var nf = normFicha_(f.nombre), tokF = nf.split(' ').filter(function(t){ return t && STOP.indexOf(t)<0 && !/^20[1-3]\d$/.test(t); });
+    if(!tokF.length) return;
+    var pts = 0;
+    tokF.forEach(function(t){ if(tokM.indexOf(t)>-1) pts += /\d/.test(t) ? 3 : 2; else pts -= 2; }); // palabras de la ficha que el modelo no tiene restan (ej. PLUS, AIRCROSS)
+    if(tokM.length && tokF.indexOf(tokM[0])>-1) pts += 3;          // el nombre del modelo (ONIX, 208, C3…) pesa más
+    if(marcaC && normFicha_(f.ruta).indexOf(marcaC)>-1) pts += 2;  // está en la carpeta de su marca
+    if(marcaC && normFicha_(f.ruta) && normFicha_(f.ruta).indexOf(marcaC)<0 && /CHEVROLET|PEUGEOT|CITROEN|HONDA|DFSK/.test(normFicha_(f.ruta))) pts -= 5;
+    if(pts > mejorPts){ mejorPts = pts; mejor = f; }
+  });
+  return mejorPts >= 3 ? mejor : null;
+}
+function fichaTecnicaEntrega(marca, id){
+  var rowIdx = findRowIndexById_(marca, id);
+  if(rowIdx===-1) return {ok:false, error:'No se encontró la entrega.'};
+  var r = rowToObj_(getSheetPorMarca_(marca).getRange(rowIdx,1,1,CAMPOS.length).getValues()[0], marca);
+  var f = fichaTecnicaPara_(r);
+  if(!f) return {ok:true, ficha:null};
+  try{ DriveApp.getFileById(f.id).setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); }catch(e){}
+  return {ok:true, ficha:{nombre:f.nombre, url:f.url}};
+}
+function listarFichasTecnicas(){ return {ok:true, fichas: listarFichasTecnicas_()}; }
+
+function escHtmlMail_(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function bienvenidaHtml_(r, config, ficha){
+  var marcaTxt = {chevrolet:'Chevrolet', peugeot:'Peugeot', citroen:'Citroën', honda:'Honda', dfsk:'DFSK / Jetour', usados:'Usados'}[r.marca] || '';
+  var postventa = (config.postventaWhatsapp && config.postventaWhatsapp[r.marca]) || '';
+  var repuestos = (config.repuestosServicio && config.repuestosServicio[r.marca]) || '';
+  var telWa = String(postventa).replace(/[^0-9]/g,'');
+  var nombre = String(r.cliente||'').split(/\s+/).slice(-1)[0] ? r.cliente : '';
+  var logoMarcaUrl = MARCA_LOGO[r.marca] || '';
+  var logoHeader = logoMarcaUrl
+    ? '<div style="width:64px;height:64px;border-radius:50%;background:#ffffff;margin:0 auto;display:table;"><div style="display:table-cell;vertical-align:middle;text-align:center;"><img src="'+logoMarcaUrl+'" alt="'+marcaTxt+'" style="max-width:46px;max-height:30px;"></div></div>'
+    : '';
+  var item = function(t){ return '<tr><td style="padding:5px 0;font-family:Arial,sans-serif;font-size:13.5px;color:#374151;line-height:1.5;"><span style="color:#16a34a;font-weight:bold;">✓</span>&nbsp; '+t+'</td></tr>'; };
+  var cuerpo = ''+
+  '<div style="background:#000000;padding:0;font-family:Arial,sans-serif;">'+
+    '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:28px 20px 18px;">'+logoHeader+
+      '<div style="color:#ffffff;font-size:12px;letter-spacing:2px;margin-top:12px;font-weight:bold;">'+escHtmlMail_(nombreEntidadPorMarca_(r.marca)).toUpperCase()+' · POSTVENTA '+escHtmlMail_(marcaTxt).toUpperCase()+'</div>'+
+    '</td></tr></table>'+
+    '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:0 16px 40px;">'+
+      '<table width="480" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;">'+
+        '<tr><td style="padding:34px 32px 8px;font-family:Arial,sans-serif;" align="center">'+
+          '<div style="font-size:30px;line-height:1;">🚗</div>'+
+          '<h2 style="margin:12px 0 6px;color:#111827;font-size:21px;">¡Bienvenido/a a Grupo París!</h2>'+
+          '<p style="margin:0 0 4px;color:#1d4ed8;font-size:14px;">Hola '+escHtmlMail_(nombre)+',</p>'+
+          '<p style="margin:0;color:#374151;font-size:13.5px;line-height:1.6;">La entrega de tu <b>'+escHtmlMail_(r.modelo)+'</b> es solo el comienzo. Desde hoy contás con un equipo preparado para acompañarte cada vez que lo necesites.</p>'+
+        '</td></tr>'+
+        (postventa ? '<tr><td style="padding:22px 32px 6px;" align="center">'+
+          '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;"><tr><td align="center" style="padding:18px 16px;font-family:Arial,sans-serif;">'+
+            '<div style="color:#166534;font-size:11.5px;font-weight:bold;letter-spacing:1px;">WHATSAPP DE POSTVENTA '+escHtmlMail_(marcaTxt).toUpperCase()+'</div>'+
+            '<div style="color:#111827;font-size:22px;font-weight:bold;margin:6px 0 12px;">'+escHtmlMail_(postventa)+'</div>'+
+            (telWa ? '<a href="https://wa.me/'+telWa+'" style="display:inline-block;background:#16a34a;color:#ffffff;text-decoration:none;font-weight:bold;font-size:13.5px;padding:11px 24px;border-radius:8px;">Escribinos por WhatsApp</a>' : '')+
+            '<div style="color:#4b5563;font-size:12px;margin-top:10px;line-height:1.5;">Guardá este número: es nuestro principal canal para acompañarte durante toda la vida útil de tu vehículo.</div>'+
+          '</td></tr></table></td></tr>' : '')+
+        '<tr><td style="padding:20px 32px 4px;font-family:Arial,sans-serif;">'+
+          '<div style="color:#111827;font-size:14px;font-weight:bold;margin-bottom:6px;">Con nuestro equipo de Postventa podés:</div>'+
+          '<table width="100%" cellpadding="0" cellspacing="0">'+item('Pedir turnos para los services de mantenimiento.')+item('Consultar sobre mantenimientos y garantía.')+item('Recibir asesoramiento y resolver dudas sobre tu vehículo.')+item('Coordinar revisiones y asistencia cuando lo necesites.')+'</table>'+
+        '</td></tr>'+
+        (ficha ? '<tr><td style="padding:20px 32px 6px;" align="center">'+
+          '<table width="100%" cellpadding="0" cellspacing="0" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;"><tr><td style="padding:16px 18px;font-family:Arial,sans-serif;">'+
+            '<table width="100%" cellpadding="0" cellspacing="0"><tr><td width="44" valign="middle" style="font-size:28px;">📄</td><td valign="middle" style="font-family:Arial,sans-serif;">'+
+              '<div style="color:#1e3a8a;font-size:14px;font-weight:bold;">Ficha técnica de tu '+escHtmlMail_(r.modelo)+'</div>'+
+              '<div style="color:#475569;font-size:12.5px;margin-top:2px;">Te la adjuntamos en este mail para que la tengas siempre a mano.</div>'+
+            '</td></tr></table>'+
+            (ficha.url ? '<div style="text-align:center;margin-top:12px;"><a href="'+ficha.url+'" style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;font-weight:bold;font-size:13px;padding:10px 22px;border-radius:8px;">Ver ficha técnica</a></div>' : '')+
+          '</td></tr></table></td></tr>' : '')+
+        '<tr><td style="padding:22px 32px 30px;font-family:Arial,sans-serif;">'+
+          '<div style="border-top:1px solid #e5e7eb;padding-top:16px;color:#111827;font-size:13.5px;font-weight:bold;margin-bottom:6px;">Tus contactos</div>'+
+          '<div style="color:#374151;font-size:13px;line-height:1.7;">'+
+            '👤 Asesor comercial: <b>'+escHtmlMail_(r.vendedor||'—')+'</b><br>'+
+            (repuestos ? '🔧 Repuestos y servicio: <b>'+escHtmlMail_(repuestos)+'</b><br>' : '')+
+            (config.telefonoContacto ? '📞 Recepción: <b>'+escHtmlMail_(config.telefonoContacto)+'</b><br>' : '')+
+            (config.telefonoCalidad ? '⭐ Calidad: <b>'+escHtmlMail_(config.telefonoCalidad)+'</b>' : '')+
+          '</div>'+
+          '<p style="margin:16px 0 0;color:#111827;font-size:13.5px;">¡Gracias por elegirnos y que disfrutes tu '+escHtmlMail_(marcaTxt||'vehículo')+'!</p>'+
+        '</td></tr>'+
+      '</table>'+
+    '</td></tr></table>'+
+    '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="background:#f3f4f6;padding:16px;font-family:Arial,sans-serif;color:#6b7280;font-size:11px;">'+
+      '<b>'+escHtmlMail_(nombreEntidadPorMarca_(r.marca))+'</b><br>Recepción: '+escHtmlMail_(config.telefonoContacto||'')+' | Calidad: '+escHtmlMail_(config.telefonoCalidad||'')+'<br>'+escHtmlMail_(config.copiaSiempreA||'')+
+    '</td></tr></table>'+
+  '</div>';
+  return cuerpo;
+}
+function enviarBienvenidaMail(marca, id, usuario, forzar){
+  var config = getConfig();
+  var rowIdx = findRowIndexById_(marca, id);
+  if(rowIdx===-1) return {ok:false, error:'No se encontró la entrega.'};
+  var r = rowToObj_(getSheetPorMarca_(marca).getRange(rowIdx,1,1,CAMPOS.length).getValues()[0], marca);
+  if(!r.email) return {ok:false, error:'La entrega no tiene e-mail del cliente.'};
+  if(r.bienvenidaMailFecha && !forzar) return {ok:true, yaEnviado:true};
+  var ficha = fichaTecnicaPara_(r, config), adjuntos = [];
+  if(ficha){
+    try{
+      var file = DriveApp.getFileById(ficha.id);
+      try{ file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); }catch(e){}
+      adjuntos.push(file.getBlob().setName('Ficha técnica - '+String(r.modelo||'vehículo').replace(/[\\/:*?"<>|]/g,'')+'.pdf'));
+    }catch(e){ ficha = null; }
+  }
+  var asunto = '¡Bienvenido/a a '+nombreEntidadPorMarca_(marca)+'! Tu '+(r.modelo||'vehículo')+' y tu equipo de Postventa';
+  MailApp.sendEmail({to:r.email, cc:armarCC_(r, config), subject:asunto, htmlBody:bienvenidaHtml_(r, config, ficha), name:nombreEntidadPorMarca_(marca), attachments:adjuntos});
+  var ahora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
+  updateEntregaFields(marca, id, {bienvenidaEnviada:true, bienvenidaFecha:ahora, bienvenidaMailFecha:ahora});
+  agregarHistorialInterno_(marca, id, '✉️ Bienvenida de postventa enviada por mail'+(ficha ? ' con la ficha técnica ('+ficha.nombre+')' : ' (sin ficha técnica: no se encontró una para este modelo)')+(usuario ? ' — '+usuario : '')+'.');
+  return {ok:true, ficha: ficha ? {nombre:ficha.nombre, url:ficha.url} : null};
+}
