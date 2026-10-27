@@ -1124,6 +1124,36 @@
   .combo-flecha{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:none;background:none;border-radius:8px;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;}
   .combo-flecha:hover{background:var(--accent-soft);color:var(--accent);}
   .combo-flecha .material-symbols-outlined{font-size:22px;}
+  /* Acciones del detalle, una al lado de la otra */
+  .d-acciones-fila{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+  .d-acciones-fila .d-accion{margin:0 !important;width:100%;min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 6px;font-size:12px;font-weight:700;line-height:1.2;text-align:center;border-radius:12px;white-space:normal;}
+  .d-acciones-fila .d-acc-ic{font-size:17px;line-height:1;}
+  @media (max-width:380px){ .d-acciones-fila{grid-template-columns:1fr;} .d-acciones-fila .d-accion{flex-direction:row;min-height:44px;} }
+
+  /* TV · Vista individual a pantalla completa en cualquier dispositivo */
+  #tvSingleWrap{display:flex;flex-direction:column;min-height:var(--tv-alto, calc(100dvh - 140px));}
+  #tvSingleWrap .tv-single-body{flex:1;align-content:center;}
+  #tvSingleWrap .tv-single-frase{margin-top:auto;}
+  #tvSingleWrap .tv-single-cliente{font-size:clamp(30px, min(8.5vw, 12vh), 160px);}
+  #tvSingleWrap .tv-single-meta-item b{font-size:clamp(17px, min(2.6vw, 4vh), 48px);}
+  #tvSingleWrap .tv-single-meta-item .lbl{font-size:clamp(11px, min(1.3vw, 2vh), 22px);}
+  #tvSingleWrap .tv-single-frase span{font-size:clamp(18px, min(3vw, 5vh), 56px);}
+  @media (max-width:820px){
+    body.tv-mode #viewTv,body.role-tv #viewTv{padding:10px 10px 8px !important;}
+    #viewTv .tv-clock-bar{flex-wrap:wrap;gap:8px;margin-bottom:8px;padding-bottom:8px;}
+    #viewTv .tv-clock-bar .tv-brand span{display:none;}
+    #viewTv .tv-filtros-row{margin-bottom:8px;}
+    #viewTv .tv-filtros-row > span:last-child{display:none;}
+    #tvSingleWrap{border-radius:14px;}
+    #tvSingleWrap .tv-single-meta{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:14px 18px;}
+    #tvSingleWrap .tv-single-meta-item b{font-size:clamp(16px, 4.6vw, 26px);}
+    #tvSingleWrap .tv-single-cliente{font-size:clamp(30px, 10vw, 64px);}
+  }
+  @media (max-height:500px) and (orientation:landscape){
+    #viewTv .tv-filtros-row{display:none;}
+    #tvSingleWrap .tv-single-body{padding-top:12px;padding-bottom:12px;}
+    #tvSingleWrap .tv-single-cliente{margin:6px 0;}
+  }
   .camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
   .camp-chips:empty{display:none;}
   .camp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 6px 3px 10px;font-size:11.5px;font-weight:700;}
@@ -2895,6 +2925,7 @@
               <button class="tv-mode-toggle" id="tvModeBtnLista" onclick="setTvMode('lista')">Vista lista</button>
             </div>
             <div class="tv-clock" id="tvReloj">—</div>
+            <button class="view-btn" onclick="tvPantallaCompleta_()" id="tvFullBtn" style="display:none;" title="Pantalla completa"><span class="material-symbols-outlined" style="font-size:18px;vertical-align:-4px;">fullscreen</span></button>
             <button class="view-btn" onclick="cerrarModoTV()" id="tvSalirBtn">✕ Salir del modo TV</button>
           </div>
 
@@ -3034,10 +3065,13 @@
   <div class="drawer-body">
     <button class="entrega-toggle pending" id="dEntregaToggle" onclick="toggleEntregada()">🚗 Marcar unidad como entregada</button>
     <div id="dEntregaFallidaBadge" style="display:none;margin-top:8px;background:var(--danger-soft);border:1px solid var(--danger);border-radius:8px;padding:9px 11px;font-size:12px;color:var(--danger);"></div>
-    <button class="view-btn" id="dEntregaFallidaBtn" style="width:100%;margin-top:8px;font-size:11.5px;" onclick="marcarEntregaFallida_()">✕ No se pudo entregar — registrar motivo</button>
     <div id="dTrasladoBadge" style="display:none;margin-top:8px;background:var(--invertido-soft);border:1px solid var(--invertido);border-radius:8px;padding:9px 11px;font-size:12px;color:var(--invertido);"></div>
-    <button class="toggle-btn" id="dTrasladoBtn" style="margin-top:8px;width:100%;" onclick="toggleTraslado()">📦 Marcar unidad para traslado a otra sucursal</button>
-    <button class="toggle-btn" id="dSinConfirmarBtn" style="margin-top:8px;width:100%;" onclick="toggleFechaSinConfirmar_()">🛠 Necesita preparación — fecha de entrega sin confirmar</button>
+    <!-- Tres acciones, una al lado de la otra -->
+    <div class="d-acciones-fila">
+      <button class="view-btn d-accion" id="dEntregaFallidaBtn" title="No se pudo entregar — registrar el motivo" onclick="marcarEntregaFallida_()"><span class="d-acc-ic">✕</span><span>No se pudo entregar</span></button>
+      <button class="toggle-btn d-accion" id="dTrasladoBtn" title="Marcar la unidad para traslado a otra sucursal" onclick="toggleTraslado()"><span class="d-acc-ic">📦</span><span>Traslado a otra sucursal</span></button>
+      <button class="toggle-btn d-accion" id="dSinConfirmarBtn" title="La unidad necesita preparación y la fecha de entrega todavía no está confirmada" onclick="toggleFechaSinConfirmar_()"><span class="d-acc-ic">🛠</span><span>Necesita preparación</span></button>
+    </div>
 
     <button onclick="toggleTodasLasSecciones()" id="dToggleTodasBtn" style="width:100%;margin-top:12px;background:transparent;border:1px dashed var(--hairline);border-radius:8px;padding:7px;font-size:11px;color:var(--text-dim);cursor:pointer;font-weight:700;">Expandir todo ▾</button>
 
@@ -4704,7 +4738,23 @@ function ajustarEscalaTV_(){
   el.style.width = (100/escala)+'%';
   el.style.height = (100/escala)+'%';
 }
+// TV: la vista individual ocupa todo el alto disponible de la pantalla (TV, compu, tablet o celular).
+function tvAjustarAlto_(){
+  var w = document.getElementById('tvSingleWrap'); if(!w || !w.offsetParent) return;
+  var top = w.getBoundingClientRect().top + (window.pageYOffset||0);
+  var alto = (window.visualViewport ? window.visualViewport.height : window.innerHeight) - top - 12;
+  document.documentElement.style.setProperty('--tv-alto', Math.max(320, Math.round(alto))+'px');
+}
+window.addEventListener('resize', function(){ setTimeout(tvAjustarAlto_, 60); });
+window.addEventListener('orientationchange', function(){ setTimeout(tvAjustarAlto_, 300); });
+function tvPantallaCompleta_(){
+  var el = document.documentElement;
+  if(document.fullscreenElement || document.webkitFullscreenElement){ (document.exitFullscreen||document.webkitExitFullscreen).call(document); return; }
+  var f = el.requestFullscreen || el.webkitRequestFullscreen; if(f) f.call(el);
+  setTimeout(tvAjustarAlto_, 400);
+}
 function abrirModoTV(){
+  setTimeout(function(){ var fb = document.getElementById('tvFullBtn'); if(fb) fb.style.display = (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen) ? '' : 'none'; tvAjustarAlto_(); }, 50);
   setAppView('tv');
   document.body.classList.add('tv-mode');
   var logoImg = document.querySelector('.sidebar-brand img');
@@ -4820,6 +4870,7 @@ function tvRenderSingleCard(){
   var r = tvHoyRows[tvSingleIdx];
   var b = tvBrandInfo_(r.marca);
   wrap.style.setProperty('--tvb', 'var('+b.color+')');
+  setTimeout(tvAjustarAlto_, 0);
   var next = tvHoyRows.length>1 ? tvHoyRows[(tvSingleIdx+1)%tvHoyRows.length] : null;
   var nextB = next ? tvBrandInfo_(next.marca) : null;
   var d = new Date();
@@ -10289,7 +10340,8 @@ function renderFechaSinConfirmarUI_(r){
   var on = !!(r && r.fechaSinConfirmar && !r.entregada);
   if(btn){
     btn.classList.toggle('pending', on);
-    btn.innerHTML = on ? '✓ Fecha a confirmar — tocá cuando la fecha esté confirmada' : '🛠 Necesita preparación — fecha de entrega sin confirmar';
+    btn.innerHTML = on ? '<span class="d-acc-ic">✓</span><span>Fecha confirmada</span>' : '<span class="d-acc-ic">🛠</span><span>Necesita preparación</span>';
+    btn.title = on ? 'Tocá cuando la fecha de entrega esté confirmada con el cliente' : 'La unidad necesita preparación y la fecha de entrega todavía no está confirmada';
   }
   if(al){
     al.style.display = on ? 'flex' : 'none';
@@ -10338,8 +10390,8 @@ function updateTrasladoUI(r){
   var btn=document.getElementById('dTrasladoBtn');
   var badge=document.getElementById('dTrasladoBadge');
   if(r.traslado){
-    btn.textContent = r.trasladoCompletado ? '↺ Reabrir como pendiente' : '✓ Marcar traslado como completado';
-    btn.className='toggle-btn '+(r.trasladoCompletado?'':'done');
+    btn.innerHTML = r.trasladoCompletado ? '<span class="d-acc-ic">↺</span><span>Reabrir traslado</span>' : '<span class="d-acc-ic">✓</span><span>Traslado completado</span>';
+    btn.className='toggle-btn d-accion '+(r.trasladoCompletado?'':'done');
     badge.style.display='block';
     badge.style.background = r.trasladoCompletado ? 'var(--ok-soft)' : 'var(--invertido-soft)';
     badge.style.borderColor = r.trasladoCompletado ? 'var(--ok)' : 'var(--invertido)';
@@ -10356,8 +10408,8 @@ function updateTrasladoUI(r){
     }
     badge.innerHTML='<b>'+(r.trasladoCompletado?'✓ Trasladada a ':'📦 Trasladar a ')+(r.trasladoDestino||'')+'</b>'+(r.trasladoObs?'<br>'+r.trasladoObs:'')+'<br><span style="opacity:.75;font-size:11px;">'+(r.trasladoFecha||'')+(r.trasladoUsuario?' · '+r.trasladoUsuario:'')+'</span>'+checklistHtml;
   } else {
-    btn.textContent='📦 Marcar unidad para traslado a otra sucursal';
-    btn.className='toggle-btn';
+    btn.innerHTML='<span class="d-acc-ic">📦</span><span>Traslado a otra sucursal</span>';
+    btn.className='toggle-btn d-accion';
     badge.style.display='none';
     badge.innerHTML='';
   }
@@ -11835,7 +11887,7 @@ function openNewDelivery(){
   // Vendedor y administrativo arrancan EN BLANCO: se escribe o se elige de la lista con la flechita.
   document.getElementById('nVendedor').value = '';
   document.getElementById('nAdministrativo').value = '';
-  document.getElementById('nResponsable').value = responsableAutomatico_(brand.id, brand.branches ? (currentBranches[0]||SUCURSALES[0]) : '');
+  document.getElementById('nResponsable').value = ''; // arranca en blanco, como vendedor y administrativo
   checkNewDeliveryDate();
   var saveBtn=document.getElementById('nSaveBtn'); saveBtn.disabled=false; saveBtn.textContent='Guardar entrega';
   submittingEntrega=false;
@@ -11860,7 +11912,6 @@ function actualizarSucursalYContextoNuevaEntrega_(brand){
 function cambiarMarcaNuevaEntrega(){
   var brand = BRANDS.find(function(x){return x.id===document.getElementById('nMarca').value;});
   actualizarSucursalYContextoNuevaEntrega_(brand);
-  document.getElementById('nResponsable').value = responsableAutomatico_(brand.id, brand.branches ? document.getElementById('nSucursal').value : '');
   checkNewDeliveryDate();
 }
 // Cada marca tiene su propia agenda de entregas — una entrega de Peugeot ya no
@@ -11926,8 +11977,6 @@ function closeNewDelivery(){ _prepOrigenParaNuevaEntrega_ = null; setAppView('ca
 function cambiarSucursalNuevaEntrega(){
   var sucursal = document.getElementById('nSucursal').value;
   document.getElementById('nLugar').value = BRANCH_ABBR[sucursal] || '';
-  var marcaSel = document.getElementById('nMarca').value;
-  document.getElementById('nResponsable').value = responsableAutomatico_(marcaSel, sucursal);
   checkNewDeliveryDate();
   renderDisponibilidadNuevaEntrega();
 }
