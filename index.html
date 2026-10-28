@@ -1155,6 +1155,22 @@
     #tvSingleWrap .tv-single-body{padding-top:12px;padding-bottom:12px;}
     #tvSingleWrap .tv-single-cliente{margin:6px 0;}
   }
+  /* Campos obligatorios que faltan: en rojo */
+  #viewNuevaentrega .campo-error{border:2px solid var(--danger) !important;background:var(--danger-soft) !important;}
+  #viewNuevaentrega .campo-error-wrap label{color:var(--danger) !important;}
+  #viewNuevaentrega .campo-error-wrap label::after{content:' · falta completar';font-weight:700;}
+  .d-acciones-fila .d-acc-sub{display:block;font-size:10.5px;font-weight:600;opacity:.75;}
+  /* Ventana de traslado */
+  .tr-modal{width:min(440px,100%);background:var(--panel);border:1px solid var(--hairline);border-radius:18px;padding:24px 22px 18px;box-shadow:0 30px 70px rgba(0,0,0,.4);color:var(--text);}
+  .tr-modal h3{margin:0 0 4px;font-family:'Space Grotesk',sans-serif;font-size:19px;}
+  .tr-modal p{margin:0 0 14px;color:var(--text-dim);font-size:13.5px;}
+  .tr-opc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+  .tr-opc button{padding:12px;border-radius:12px;border:1px solid var(--hairline);background:var(--panel-2);color:var(--text);font-weight:700;font-size:14px;cursor:pointer;}
+  .tr-opc button.on{border:2px solid var(--accent);background:var(--accent-soft);color:var(--accent);}
+  .tr-modal label{display:block;font-size:11.5px;font-weight:700;color:var(--text-dim);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;}
+  .tr-modal textarea{width:100%;box-sizing:border-box;border:1px solid var(--hairline);border-radius:10px;padding:10px 12px;background:var(--panel);color:var(--text);font-family:inherit;font-size:13.5px;resize:vertical;}
+  .tr-modal .pw-modal-acc button{color:var(--text-dim);border-color:var(--hairline);}
+  .tr-modal .pw-aceptar:disabled{opacity:.45;cursor:not-allowed;}
   .camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
   .camp-chips:empty{display:none;}
   .camp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 6px 3px 10px;font-size:11.5px;font-weight:700;}
@@ -3071,7 +3087,7 @@
     <div class="d-acciones-fila">
       <button class="view-btn d-accion" id="dEntregaFallidaBtn" title="No se pudo entregar — registrar el motivo" onclick="marcarEntregaFallida_()"><span class="d-acc-ic">✕</span><span>No se pudo entregar</span></button>
       <button class="toggle-btn d-accion" id="dTrasladoBtn" title="Marcar la unidad para traslado a otra sucursal" onclick="toggleTraslado()"><span class="d-acc-ic">📦</span><span>Traslado a otra sucursal</span></button>
-      <button class="toggle-btn d-accion" id="dSinConfirmarBtn" title="La unidad necesita preparación y la fecha de entrega todavía no está confirmada" onclick="toggleFechaSinConfirmar_()"><span class="d-acc-ic">🛠</span><span>Necesita preparación</span></button>
+      <button class="toggle-btn d-accion" id="dSinConfirmarBtn" title="Usalo cuando la unidad está en preparación y todavía NO hay fecha de entrega confirmada con el cliente" onclick="toggleFechaSinConfirmar_()"><span class="d-acc-ic">⏳</span><span>Sin fecha confirmada</span><small class="d-acc-sub">unidad en preparación</small></button>
     </div>
 
     <button onclick="toggleTodasLasSecciones()" id="dToggleTodasBtn" style="width:100%;margin-top:12px;background:transparent;border:1px dashed var(--hairline);border-radius:8px;padding:7px;font-size:11px;color:var(--text-dim);cursor:pointer;font-weight:700;">Expandir todo ▾</button>
@@ -5429,7 +5445,7 @@ function checkBloqueado(){
 }
 
 function estadoTag(r){
-  var pre = (r.fechaSinConfirmar && !r.entregada) ? '<span class="tag" style="background:var(--warn-soft);color:var(--warn);" title="Necesita preparación — la fecha todavía no está confirmada">⏳ Fecha a confirmar</span> ' : '';
+  var pre = (r.fechaSinConfirmar && !r.entregada) ? '<span class="tag" style="background:var(--warn-soft);color:var(--warn);" title="Unidad en preparación — la fecha todavía no está confirmada">⏳ Fecha a confirmar</span> ' : '';
   return pre + estadoTagBase_(r);
 }
 function estadoTagBase_(r){
@@ -10362,8 +10378,8 @@ function toggleFechaSinConfirmar_(){
   r.fechaSinConfirmar = marcar;
   r.fechaSinConfirmarUsuario = usuarioActual(); r.fechaSinConfirmarFecha = fechaHoraAhora_();
   gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{fechaSinConfirmar:marcar, fechaSinConfirmarUsuario:r.fechaSinConfirmarUsuario, fechaSinConfirmarFecha:r.fechaSinConfirmarFecha}});
-  logHistorial_(detailMarca, detailId, marcar ? '🛠 Marcada: necesita preparación — fecha de entrega sin confirmar' : '✓ Fecha de entrega confirmada');
-  showToast(marcar ? 'Marcada: fecha de entrega sin confirmar' : 'Fecha de entrega confirmada');
+  logHistorial_(detailMarca, detailId, marcar ? '⏳ Marcada: sin fecha confirmada (unidad en preparación)' : '✓ Fecha de entrega confirmada');
+  showToast(marcar ? 'Marcada: sin fecha confirmada' : 'Fecha de entrega confirmada');
   renderFechaSinConfirmarUI_(r);
   renderAll();
 }
@@ -10372,13 +10388,13 @@ function renderFechaSinConfirmarUI_(r){
   var on = !!(r && r.fechaSinConfirmar && !r.entregada);
   if(btn){
     btn.classList.toggle('pending', on);
-    btn.innerHTML = on ? '<span class="d-acc-ic">📅</span><span>Confirmar fecha</span>' : '<span class="d-acc-ic">🛠</span><span>Necesita preparación</span>';
-    btn.title = on ? 'La fecha todavía NO está confirmada. Tocá acá cuando la confirmes con el cliente.' : 'La unidad necesita preparación y la fecha de entrega todavía no está confirmada';
+    btn.innerHTML = on ? '<span class="d-acc-ic">📅</span><span>Confirmar fecha</span><small class="d-acc-sub">todavía sin confirmar</small>' : '<span class="d-acc-ic">⏳</span><span>Sin fecha confirmada</span><small class="d-acc-sub">unidad en preparación</small>';
+    btn.title = on ? 'La fecha todavía NO está confirmada. Tocá acá cuando la confirmes con el cliente.' : 'Usalo cuando la unidad está en preparación y todavía NO hay fecha de entrega confirmada con el cliente';
     btn.classList.toggle('d-accion-alerta', on);
   }
   if(al){
     al.style.display = on ? 'flex' : 'none';
-    al.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">event_busy</span>Fecha de entrega SIN CONFIRMAR — la unidad necesita preparación';
+    al.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">event_busy</span>Fecha de entrega SIN CONFIRMAR — unidad en preparación';
   }
 }
 function toggleTraslado(){
@@ -10392,19 +10408,43 @@ function toggleTraslado(){
     gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{trasladoCompletado:true}});
     logHistorial_(detailMarca, detailId, '✓ Traslado completado — a "'+(r.trasladoDestino||'sin especificar')+'"');
     showToast('Traslado marcado como completado');
+    updateTrasladoUI(r); renderAll();
   } else if(r.traslado && r.trasladoCompletado){
     if(!confirm('¿Reabrir este traslado como pendiente de nuevo?')) return;
     r.trasladoCompletado=false;
     gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{trasladoCompletado:false}});
     logHistorial_(detailMarca, detailId, '↺ Traslado reabierto — a "'+(r.trasladoDestino||'sin especificar')+'"');
     showToast('Traslado reabierto');
+    updateTrasladoUI(r); renderAll();
   } else {
     var opciones = ['San Juan','San Luis','Villa Mercedes','Merlo'].filter(function(s){return s!==r.sucursal;});
-    var destino = prompt('¿A qué sucursal hay que trasladar esta unidad?\n\nOpciones: '+opciones.join(', '));
-    if(destino===null) return;
-    destino = destino.trim();
-    if(!destino){ showToast('Necesitás indicar a qué sucursal se traslada'); return; }
-    var obs = prompt('¿Alguna observación para Logística? (opcional)') || '';
+    pedirDestinoTraslado_(opciones).then(function(res){
+      if(!res) return;
+      var destino = res.destino, obs = res.obs || '';
+      marcarTrasladoCon_(r, destino, obs);
+    });
+    return;
+  }
+}
+// Ventana para elegir la sucursal destino del traslado y una observación para Logística.
+function pedirDestinoTraslado_(opciones){
+  return new Promise(function(resolve){
+    var fondo = document.createElement('div'); fondo.className = 'pw-modal-fondo';
+    fondo.innerHTML = '<div class="tr-modal" role="dialog" aria-modal="true"><h3>📦 Traslado a otra sucursal</h3><p>¿A qué sucursal hay que trasladar esta unidad?</p>'+
+      '<div class="tr-opc">'+opciones.map(function(o){ return '<button type="button" data-v="'+o+'">'+o+'</button>'; }).join('')+'</div>'+
+      '<label>Observación para Logística (opcional)</label><textarea rows="3" placeholder="Ej: viaja con el kit y el manual"></textarea>'+
+      '<div class="pw-modal-acc"><button type="button" class="pw-cancelar">Cancelar</button><button type="button" class="pw-aceptar" disabled>Marcar para traslado</button></div></div>';
+    document.body.appendChild(fondo);
+    var elegido = '', ok = fondo.querySelector('.pw-aceptar');
+    fondo.querySelectorAll('.tr-opc button').forEach(function(b){ b.onclick = function(){ fondo.querySelectorAll('.tr-opc button').forEach(function(x){ x.classList.remove('on'); }); b.classList.add('on'); elegido = b.dataset.v; ok.disabled = false; }; });
+    var fin = function(v){ fondo.remove(); resolve(v); };
+    ok.onclick = function(){ if(elegido) fin({destino: elegido, obs: fondo.querySelector('textarea').value.trim()}); };
+    fondo.querySelector('.pw-cancelar').onclick = function(){ fin(null); };
+    fondo.addEventListener('click', function(e){ if(e.target===fondo) fin(null); });
+  });
+}
+function marcarTrasladoCon_(r, destino, obs){
+  {
     r.traslado=true; r.trasladoCompletado=false; r.trasladoDestino=destino; r.trasladoObs=obs.trim(); r.trasladoFecha=fechaHoraAhora_(); r.trasladoUsuario=usuarioActual()||'Sin identificar';
     gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{traslado:true, trasladoCompletado:false, trasladoDestino:destino, trasladoObs:r.trasladoObs, trasladoFecha:r.trasladoFecha, trasladoUsuario:r.trasladoUsuario}});
     logHistorial_(detailMarca, detailId, '📦 Marcada para traslado a "'+destino+'"'+(r.trasladoObs?' — '+r.trasladoObs:''));
@@ -12075,13 +12115,38 @@ function checkNewDeliveryDate(){
 }
 
 // --- Nueva entrega con protección anti-duplicados y anti-choque de horario ---
+// Campos obligatorios vacíos: se marcan en rojo y se desmarcan solos al completarlos.
+function marcarErrorCampo_(id){
+  var el = document.getElementById(id); if(!el) return;
+  el.classList.add('campo-error');
+  var ff = el.closest('.form-field'); if(ff) ff.classList.add('campo-error-wrap');
+  var quitar = function(){ if(String(el.value||'').trim()){ el.classList.remove('campo-error'); if(ff) ff.classList.remove('campo-error-wrap'); } };
+  el.addEventListener('input', quitar); el.addEventListener('change', quitar);
+}
+function limpiarErroresNueva_(){
+  document.querySelectorAll('#viewNuevaentrega .campo-error').forEach(function(e){ e.classList.remove('campo-error'); });
+  document.querySelectorAll('#viewNuevaentrega .campo-error-wrap').forEach(function(e){ e.classList.remove('campo-error-wrap'); });
+}
 function submitNewDelivery(){
   if(submittingEntrega) return; // evita doble click / doble submit
   var cliente=document.getElementById('nCliente').value.trim();
   var modelo=document.getElementById('nModelo').value.trim();
   var dominio=document.getElementById('nDominio').value.trim();
   var fechaVal=document.getElementById('nFecha').value, horaVal=document.getElementById('nHora').value;
-  if(!cliente||!modelo||!dominio||!fechaVal||!horaVal){ showToast('Completá cliente, modelo, dominio, fecha y hora'); return; }
+  limpiarErroresNueva_();
+  var faltan = [];
+  if(!cliente) faltan.push(['nCliente','Cliente']);
+  if(!modelo) faltan.push(['nModelo','Modelo']);
+  if(!dominio) faltan.push(['nDominio','Dominio']);
+  if(!fechaVal) faltan.push(['nFecha','Fecha']);
+  if(!horaVal) faltan.push(['nHora','Hora (elegila en Disponibilidad)']);
+  if(faltan.length){
+    faltan.forEach(function(f){ marcarErrorCampo_(f[0]); });
+    var primero = document.getElementById(faltan[0][0]);
+    if(primero){ primero.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(function(){ try{ primero.focus(); }catch(e){} }, 350); }
+    showToast('Falta completar: '+faltan.map(function(f){ return f[1]; }).join(', '));
+    return;
+  }
 
   var parts=fechaVal.split('-'); var fecha=parts[2]+'/'+parts[1]+'/'+parts[0];
   var marcaElegida = document.getElementById('nMarca').value;
