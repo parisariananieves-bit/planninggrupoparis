@@ -1100,11 +1100,10 @@
   .drawer .section textarea{padding:9px 11px !important;min-height:64px;line-height:1.45;}
   .drawer .field-grid{gap:2px 18px;}
   /* Modo ancho: dos columnas que se acomodan solas (sin huecos) */
-  .drawer.ancho .drawer-body{display:block;column-count:2;column-gap:16px;}
-  .drawer.ancho .drawer-body > *{break-inside:avoid;}
-  .drawer.ancho .drawer-body > .section{display:inline-block;width:100%;margin-bottom:14px;vertical-align:top;}
-  .drawer.ancho .drawer-body > *:not(.section){column-span:all;}
-  @media (max-width:900px){ .drawer.ancho .drawer-body{column-count:1;} }
+  .d-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;align-items:start;}
+  .d-cols > .d-col{display:flex;flex-direction:column;min-width:0;}
+  .d-cols > .d-col > .section{margin-top:0;margin-bottom:14px;}
+  @media (max-width:900px){ .d-cols{grid-template-columns:1fr;} }
   /* TV: la tarjeta de la entrega con el color de la marca en transparencia */
   #tvSingleWrap{--tvb:var(--accent);}
   #viewTv.tv-claro #tvSingleWrap{background:color-mix(in srgb, var(--tvb) 9%, #ffffff) !important;border:1px solid color-mix(in srgb, var(--tvb) 28%, #E1E3E8) !important;box-shadow:0 10px 40px -18px color-mix(in srgb, var(--tvb) 45%, transparent);}
@@ -1128,6 +1127,7 @@
   .d-acciones-fila{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
   .d-acciones-fila .d-accion{margin:0 !important;width:100%;min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 6px;font-size:12px;font-weight:700;line-height:1.2;text-align:center;border-radius:12px;white-space:normal;}
   .d-acciones-fila .d-acc-ic{font-size:17px;line-height:1;}
+  .d-acciones-fila .d-accion.d-accion-alerta{background:var(--warn-soft) !important;border:2px solid var(--warn) !important;color:var(--warn) !important;animation:alertaPulso 2.2s ease-in-out infinite;}
   @media (max-width:380px){ .d-acciones-fila{grid-template-columns:1fr;} .d-acciones-fila .d-accion{flex-direction:row;min-height:44px;} }
 
   /* TV · Vista individual a pantalla completa en cualquier dispositivo */
@@ -9572,10 +9572,36 @@ function toggleEntregadaId(marca,id){
   }
   marcarEntregadaEfectiva_(marca, id, r);
 }
+// Modo ancho: las secciones se reparten en dos columnas parejas, alineadas arriba.
+// Se mueven los mismos elementos (no se copian) y al volver se restituye el orden original.
+function armarColumnasDetalle_(activar){
+  var body = document.querySelector('#drawer .drawer-body'); if(!body) return;
+  var cols = body.querySelector(':scope > .d-cols');
+  if(cols){ // desarmar: devolver cada sección a su lugar original
+    var marcas = body.querySelectorAll('.d-col-marca');
+    marcas.forEach(function(mk){ var sec = mk._sec; if(sec){ mk.parentNode.insertBefore(sec, mk); } mk.remove(); });
+    cols.remove();
+  }
+  if(!activar) return;
+  var secs = Array.prototype.filter.call(body.children, function(el){ return el.classList.contains('section') && el.style.display!=='none'; });
+  if(secs.length < 2) return;
+  cols = document.createElement('div'); cols.className = 'd-cols';
+  var a = document.createElement('div'), b = document.createElement('div'); a.className = b.className = 'd-col';
+  cols.appendChild(a); cols.appendChild(b);
+  body.insertBefore(cols, secs[0]);
+  var hA = 0, hB = 0;
+  secs.forEach(function(sec){
+    var mk = document.createElement('span'); mk.className = 'd-col-marca'; mk.style.display = 'none'; mk._sec = sec;
+    sec.parentNode.insertBefore(mk, sec);
+    var h = sec.offsetHeight || 200;
+    if(hA <= hB){ a.appendChild(sec); hA += h + 14; } else { b.appendChild(sec); hB += h + 14; }
+  });
+}
 function toggleDrawerAncho_(forzar){
   var d = document.getElementById('drawer'); if(!d) return;
   var ancho = forzar !== undefined ? forzar : !d.classList.contains('ancho');
   d.classList.toggle('ancho', ancho);
+  setTimeout(function(){ armarColumnasDetalle_(ancho); }, 30);
   try{ localStorage.setItem('drawerAncho', ancho ? '1' : '0'); }catch(e){}
   var ic = document.querySelector('#dAnchoBtn .material-symbols-outlined'); if(ic) ic.textContent = ancho ? 'close_fullscreen' : 'open_in_full';
   var b = document.getElementById('dAnchoBtn'); if(b) b.title = ancho ? 'Volver al ancho normal' : 'Ver el detalle más ancho';
@@ -10346,8 +10372,9 @@ function renderFechaSinConfirmarUI_(r){
   var on = !!(r && r.fechaSinConfirmar && !r.entregada);
   if(btn){
     btn.classList.toggle('pending', on);
-    btn.innerHTML = on ? '<span class="d-acc-ic">✓</span><span>Fecha confirmada</span>' : '<span class="d-acc-ic">🛠</span><span>Necesita preparación</span>';
-    btn.title = on ? 'Tocá cuando la fecha de entrega esté confirmada con el cliente' : 'La unidad necesita preparación y la fecha de entrega todavía no está confirmada';
+    btn.innerHTML = on ? '<span class="d-acc-ic">📅</span><span>Confirmar fecha</span>' : '<span class="d-acc-ic">🛠</span><span>Necesita preparación</span>';
+    btn.title = on ? 'La fecha todavía NO está confirmada. Tocá acá cuando la confirmes con el cliente.' : 'La unidad necesita preparación y la fecha de entrega todavía no está confirmada';
+    btn.classList.toggle('d-accion-alerta', on);
   }
   if(al){
     al.style.display = on ? 'flex' : 'none';
@@ -10396,7 +10423,7 @@ function updateTrasladoUI(r){
   var btn=document.getElementById('dTrasladoBtn');
   var badge=document.getElementById('dTrasladoBadge');
   if(r.traslado){
-    btn.innerHTML = r.trasladoCompletado ? '<span class="d-acc-ic">↺</span><span>Reabrir traslado</span>' : '<span class="d-acc-ic">✓</span><span>Traslado completado</span>';
+    btn.innerHTML = r.trasladoCompletado ? '<span class="d-acc-ic">↺</span><span>Reabrir traslado</span>' : '<span class="d-acc-ic">✓</span><span>Marcar traslado completado</span>';
     btn.className='toggle-btn d-accion '+(r.trasladoCompletado?'':'done');
     badge.style.display='block';
     badge.style.background = r.trasladoCompletado ? 'var(--ok-soft)' : 'var(--invertido-soft)';
