@@ -1171,6 +1171,17 @@
   .tr-modal textarea{width:100%;box-sizing:border-box;border:1px solid var(--hairline);border-radius:10px;padding:10px 12px;background:var(--panel);color:var(--text);font-family:inherit;font-size:13.5px;resize:vertical;}
   .tr-modal .pw-modal-acc button{color:var(--text-dim);border-color:var(--hairline);}
   .tr-modal .pw-aceptar:disabled{opacity:.45;cursor:not-allowed;}
+  .acc-agregar-btn{white-space:nowrap;font-weight:700;padding:0 14px !important;}
+  .acc-coord{display:flex !important;align-items:center;gap:8px;margin-top:8px;font-size:12.5px !important;font-weight:600 !important;color:var(--text-dim);text-transform:none !important;letter-spacing:0 !important;cursor:pointer;}
+  .acc-coord input{width:16px;height:16px;accent-color:var(--accent);}
+  .d-acciones-fila .d-acc-sub{font-size:9.5px !important;line-height:1.2;font-weight:500;}
+  .history-dia{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--drb, var(--accent));margin:12px 0 4px;padding-top:8px;border-top:1px dashed var(--hairline);}
+  .history-dia:first-child{margin-top:0;padding-top:0;border-top:none;}
+  /* Ayuda: "?" que abre el manual en la diapositiva que explica esa función */
+  .ayuda-manual{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);font-size:11px;font-weight:800;text-decoration:none;cursor:pointer;margin-left:6px;vertical-align:1px;flex:none;line-height:1;}
+  .ayuda-manual:hover{background:var(--accent);color:#fff;}
+  .d-acciones-fila .d-accion{position:relative;}
+  .d-acciones-fila .ayuda-manual{position:absolute;top:5px;right:5px;margin:0;}
   .camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
   .camp-chips:empty{display:none;}
   .camp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 6px 3px 10px;font-size:11.5px;font-weight:700;}
@@ -1740,9 +1751,14 @@
         <label>Accesorios (vacío si no lleva)</label>
         <div id="nAccesoriosLista"></div>
         <div class="acc-buscador-wrap" style="position:relative;margin-top:6px;">
-          <input id="nAccesoriosBuscador" placeholder="+ Buscar y agregar un accesorio..." autocomplete="off" oninput="filtrarBuscadorAccesoriosNueva_(this.value)" onfocus="filtrarBuscadorAccesoriosNueva_(this.value)" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'Inter',sans-serif;font-size:12.5px;">
+          <div style="display:flex;gap:6px;align-items:stretch;"><input id="nAccesoriosBuscador" placeholder="Escribí el accesorio (ej: polarizado)" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();agregarAccesorioEscrito_();}" oninput="filtrarBuscadorAccesoriosNueva_(this.value)" onfocus="filtrarBuscadorAccesoriosNueva_(this.value)" style="flex:1;min-width:0;width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'Inter',sans-serif;font-size:12.5px;"><button type="button" class="view-btn acc-agregar-btn" onclick="agregarAccesorioEscrito_()">+ Agregar</button></div>
           <div id="nAccesoriosBuscadorLista" class="combo-lista" style="display:none;"></div>
         </div>
+        <label class="acc-coord"><input type="checkbox" id="nAccCoordinando"> Todavía se están coordinando los accesorios</label>
+      </div>
+      <div class="form-field full">
+        <label>Observación de accesorios (opcional)</label>
+        <textarea id="nAccObs" rows="2" placeholder="Ej: el cliente confirma el polarizado el lunes"></textarea>
       </div>
       <div class="form-field full">
         <label>Campaña (vacío si no aplica)</label>
@@ -3069,6 +3085,7 @@
     <div id="dConfirmacionAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionConfirmacion_()"><span class="material-symbols-outlined" style="font-size:15px;">mail</span>Falta enviar la confirmación de esta entrega</div>
     <div id="dAccesorioAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionAccesorio_()"><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
     <div id="dCampanaAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="var x=document.getElementById('dCampanaSection'); if(x) x.scrollIntoView({behavior:'smooth',block:'start'});"><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
+    <div id="dAccCoordAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" ><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
     <div id="dOnstarAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionOnstar_()"><span class="material-symbols-outlined" style="font-size:15px;">directions_car</span></div>
     <div id="dTrasladoAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">local_shipping</span></div>
     <div id="dSinConfirmarAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">local_shipping</span></div>
@@ -3087,7 +3104,7 @@
     <div class="d-acciones-fila">
       <button class="view-btn d-accion" id="dEntregaFallidaBtn" title="No se pudo entregar — registrar el motivo" onclick="marcarEntregaFallida_()"><span class="d-acc-ic">✕</span><span>No se pudo entregar</span></button>
       <button class="toggle-btn d-accion" id="dTrasladoBtn" title="Marcar la unidad para traslado a otra sucursal" onclick="toggleTraslado()"><span class="d-acc-ic">📦</span><span>Traslado a otra sucursal</span></button>
-      <button class="toggle-btn d-accion" id="dSinConfirmarBtn" title="Usalo cuando la unidad está en preparación y todavía NO hay fecha de entrega confirmada con el cliente" onclick="toggleFechaSinConfirmar_()"><span class="d-acc-ic">⏳</span><span>Sin fecha confirmada</span><small class="d-acc-sub">unidad en preparación</small></button>
+      <button class="toggle-btn d-accion" id="dSinConfirmarBtn" title="Usalo cuando la unidad está en preparación y todavía NO hay fecha de entrega confirmada con el cliente" onclick="toggleFechaSinConfirmar_()"><span class="d-acc-ic">⏳</span><span>Sin fecha confirmada</span><small class="d-acc-sub">(tocá si la fecha todavía no está confirmada pero querés que preparen la unidad)</small></button>
     </div>
 
     <button onclick="toggleTodasLasSecciones()" id="dToggleTodasBtn" style="width:100%;margin-top:12px;background:transparent;border:1px dashed var(--hairline);border-radius:8px;padding:7px;font-size:11px;color:var(--text-dim);cursor:pointer;font-weight:700;">Expandir todo ▾</button>
@@ -3137,11 +3154,13 @@
 
     <div class="section">
       <div class="section-title">Accesorios</div>
+      <label class="acc-coord"><input type="checkbox" id="dAccCoordinando" onchange="guardarAccCoordinando_(this.checked)"> Todavía se están coordinando los accesorios</label>
       <div id="dAccesoriosLista"></div>
       <div class="acc-buscador-wrap" style="position:relative;margin-top:6px;">
         <input id="dAccesoriosBuscador" placeholder="+ Buscar y agregar un accesorio (ej: Cubrecárter)..." autocomplete="off" oninput="filtrarBuscadorAccesorios_(this.value)" onfocus="filtrarBuscadorAccesorios_(this.value)" style="width:100%;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:9px 10px;font-family:'Inter',sans-serif;font-size:12.5px;">
         <div id="dAccesoriosBuscadorLista" class="combo-lista" style="display:none;"></div>
       </div>
+      <textarea id="dAccObs" rows="2" placeholder="Observación de accesorios (opcional)" style="width:100%;margin-top:8px;" onchange="guardarAccObs_(this.value.trim())"></textarea>
       <div id="dAccesoriosTotal" style="margin-top:8px;font-size:11px;color:var(--text-faint);text-align:right;"></div>
     </div>
 
@@ -9592,25 +9611,33 @@ function toggleEntregadaId(marca,id){
 // Se mueven los mismos elementos (no se copian) y al volver se restituye el orden original.
 function armarColumnasDetalle_(activar){
   var body = document.querySelector('#drawer .drawer-body'); if(!body) return;
-  var cols = body.querySelector(':scope > .d-cols');
-  if(cols){ // desarmar: devolver cada sección a su lugar original
-    var marcas = body.querySelectorAll('.d-col-marca');
-    marcas.forEach(function(mk){ var sec = mk._sec; if(sec){ mk.parentNode.insertBefore(sec, mk); } mk.remove(); });
-    cols.remove();
-  }
+  // desarmar: cada sección vuelve a su lugar original
+  body.querySelectorAll('.d-col-marca').forEach(function(mk){ var sec = mk._sec; if(sec) mk.parentNode.insertBefore(sec, mk); mk.remove(); });
+  body.querySelectorAll('.d-cols').forEach(function(c){ c.remove(); });
   if(!activar) return;
-  var secs = Array.prototype.filter.call(body.children, function(el){ return el.classList.contains('section') && el.style.display!=='none'; });
-  if(secs.length < 2) return;
-  cols = document.createElement('div'); cols.className = 'd-cols';
-  var a = document.createElement('div'), b = document.createElement('div'); a.className = b.className = 'd-col';
-  cols.appendChild(a); cols.appendChild(b);
-  body.insertBefore(cols, secs[0]);
-  var hA = 0, hB = 0;
-  secs.forEach(function(sec){
-    var mk = document.createElement('span'); mk.className = 'd-col-marca'; mk.style.display = 'none'; mk._sec = sec;
-    sec.parentNode.insertBefore(mk, sec);
-    var h = sec.offsetHeight || 200;
-    if(hA <= hB){ a.appendChild(sec); hA += h + 14; } else { b.appendChild(sec); hB += h + 14; }
+  // Grupos: cada título de bloque ("Datos de la entrega", "Responsable de Entrega / Logística"…) con
+  // las secciones que le siguen. Cada grupo arma sus propias dos columnas, debajo de su título.
+  var grupos = [], actual = null;
+  Array.prototype.forEach.call(body.children, function(el){
+    if(el.classList.contains('block-title')){ actual = {titulo: el, secs: []}; grupos.push(actual); }
+    else if(el.classList.contains('section') && el.style.display !== 'none'){
+      if(!actual){ actual = {titulo: null, secs: []}; grupos.push(actual); }
+      actual.secs.push(el);
+    }
+  });
+  grupos.forEach(function(g){
+    if(g.secs.length < 2) return;
+    var cols = document.createElement('div'); cols.className = 'd-cols';
+    var a = document.createElement('div'), b = document.createElement('div'); a.className = b.className = 'd-col';
+    cols.appendChild(a); cols.appendChild(b);
+    body.insertBefore(cols, g.secs[0]);
+    var hA = 0, hB = 0;
+    g.secs.forEach(function(sec){
+      var mk = document.createElement('span'); mk.className = 'd-col-marca'; mk.style.display = 'none'; mk._sec = sec;
+      sec.parentNode.insertBefore(mk, sec);
+      var h = sec.offsetHeight || 200;
+      if(hA <= hB){ a.appendChild(sec); hA += h + 14; } else { b.appendChild(sec); hB += h + 14; }
+    });
   });
 }
 function toggleDrawerAncho_(forzar){
@@ -10368,6 +10395,32 @@ function guardarMotivoChecklistTraslado_(marca, id, itemKey, motivo){
 // "Fecha a confirmar" en el calendario, la lista y el detalle.
 // Manual de uso: link visible para todos los usuarios (la dirección se puede cambiar en la configuración).
 var MANUAL_USO_URL_ = '/manual/'; // manual público, publicado junto con el Planning (no hace falta cuenta de Claude)
+function ayudaManual_(slideId, ev){
+  if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+  var base = (typeof CONFIG!=='undefined' && CONFIG && CONFIG.manualUrl) || MANUAL_USO_URL_;
+  window.open(base + '#' + slideId, '_blank', 'noopener');
+}
+function ayudaHTML_(slideId, tip){ return '<a class="ayuda-manual" href="#" title="'+(tip||'Ver cómo se hace en el manual')+'" onclick="ayudaManual_(\''+slideId+'\', event)">?</a>'; }
+// Pone el "?" en las funciones nuevas (se llama una vez al cargar).
+document.addEventListener('DOMContentLoaded', function(){
+  var poner = function(sel, slide, tip, modo){
+    var el = document.querySelector(sel); if(!el || el.querySelector('.ayuda-manual')) return;
+    el.insertAdjacentHTML(modo||'beforeend', ayudaHTML_(slide, tip));
+  };
+  poner('#dSinConfirmarBtn', 'preparacion2', 'Cómo funciona “Sin fecha confirmada”');
+  poner('#dTrasladoBtn', 'traslado', 'Cómo marcar una unidad para traslado');
+  poner('#dEntregaFallidaBtn', 'dia', 'Qué hacer si no se pudo entregar');
+  poner('#loginUI .login-libre', 'libre', 'Qué es el acceso libre');
+  var lbl = function(inputId, slide, tip){ var el=document.getElementById(inputId); if(!el) return; var ff=el.closest('.form-field'); var l=ff&&ff.querySelector('label'); if(l && !l.querySelector('.ayuda-manual')) l.insertAdjacentHTML('beforeend', ayudaHTML_(slide, tip)); };
+  lbl('nAccesoriosBuscador','acc1','Cómo cargar accesorios');
+  lbl('nCampana','campanas','Cómo cargar una o varias campañas');
+  lbl('nVendedor','guardar','Cómo completar vendedor, administrativo y responsable');
+  var sec = function(sectionTitleText, slide, tip){ document.querySelectorAll('#drawer .section-title').forEach(function(t){ if(t.textContent.trim().toLowerCase().indexOf(sectionTitleText)===0 && !t.querySelector('.ayuda-manual')) t.insertAdjacentHTML('beforeend', ayudaHTML_(slide, tip)); }); };
+  sec('accesorios','acc3','Cómo marcar los accesorios');
+  sec('historial','historial','Qué muestra el historial');
+  sec('confirmación','confirmar','Cómo confirmar el turno');
+  var dA = document.getElementById('dAnchoBtn'); if(dA) dA.title = 'Ver el detalle más ancho';
+});
 function abrirManualUso_(){ window.open((typeof CONFIG!=='undefined' && CONFIG && CONFIG.manualUrl) || MANUAL_USO_URL_, '_blank', 'noopener'); }
 function toggleFechaSinConfirmar_(){
   if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
@@ -10388,9 +10441,10 @@ function renderFechaSinConfirmarUI_(r){
   var on = !!(r && r.fechaSinConfirmar && !r.entregada);
   if(btn){
     btn.classList.toggle('pending', on);
-    btn.innerHTML = on ? '<span class="d-acc-ic">📅</span><span>Confirmar fecha</span><small class="d-acc-sub">todavía sin confirmar</small>' : '<span class="d-acc-ic">⏳</span><span>Sin fecha confirmada</span><small class="d-acc-sub">unidad en preparación</small>';
+    btn.innerHTML = on ? '<span class="d-acc-ic">📅</span><span>Confirmar fecha</span><small class="d-acc-sub">todavía sin confirmar</small>' : '<span class="d-acc-ic">⏳</span><span>Sin fecha confirmada</span><small class="d-acc-sub">(tocá si la fecha todavía no está confirmada pero querés que preparen la unidad)</small>';
     btn.title = on ? 'La fecha todavía NO está confirmada. Tocá acá cuando la confirmes con el cliente.' : 'Usalo cuando la unidad está en preparación y todavía NO hay fecha de entrega confirmada con el cliente';
     btn.classList.toggle('d-accion-alerta', on);
+    btn.insertAdjacentHTML('beforeend', ayudaHTML_('preparacion2','Cómo funciona “Sin fecha confirmada”'));
   }
   if(al){
     al.style.display = on ? 'flex' : 'none';
@@ -10463,7 +10517,7 @@ function updateTrasladoUI(r){
   var btn=document.getElementById('dTrasladoBtn');
   var badge=document.getElementById('dTrasladoBadge');
   if(r.traslado){
-    btn.innerHTML = r.trasladoCompletado ? '<span class="d-acc-ic">↺</span><span>Reabrir traslado</span>' : '<span class="d-acc-ic">✓</span><span>Marcar traslado completado</span>';
+    btn.innerHTML = r.trasladoCompletado ? '<span class="d-acc-ic">↺</span><span>Reabrir traslado</span>'+ayudaHTML_('traslado') : '<span class="d-acc-ic">✓</span><span>Marcar traslado completado</span>'+ayudaHTML_('traslado');
     btn.className='toggle-btn d-accion '+(r.trasladoCompletado?'':'done');
     badge.style.display='block';
     badge.style.background = r.trasladoCompletado ? 'var(--ok-soft)' : 'var(--invertido-soft)';
@@ -10481,7 +10535,7 @@ function updateTrasladoUI(r){
     }
     badge.innerHTML='<b>'+(r.trasladoCompletado?'✓ Trasladada a ':'📦 Trasladar a ')+(r.trasladoDestino||'')+'</b>'+(r.trasladoObs?'<br>'+r.trasladoObs:'')+'<br><span style="opacity:.75;font-size:11px;">'+(r.trasladoFecha||'')+(r.trasladoUsuario?' · '+r.trasladoUsuario:'')+'</span>'+checklistHtml;
   } else {
-    btn.innerHTML='<span class="d-acc-ic">📦</span><span>Traslado a otra sucursal</span>';
+    btn.innerHTML='<span class="d-acc-ic">📦</span><span>Traslado a otra sucursal</span>'+ayudaHTML_('traslado');
     btn.className='toggle-btn d-accion';
     badge.style.display='none';
     badge.innerHTML='';
@@ -10727,6 +10781,7 @@ function openDetailCore_(marca, id){
     }
   }
   renderAlertaCampana_(r);
+  renderAlertaAccesoriosCoord_(r);
   renderFechaSinConfirmarUI_(r);
   setTimeout(destacarAlertasDetalle_, 0);
   renderAlertaOnstar_(r);
@@ -11684,10 +11739,15 @@ function parsearFechaHistorial_(str){
   if(!str) return 0;
   var iso = String(str).match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
   if(iso) return new Date(+iso[1], +iso[2]-1, +iso[3], +(iso[4]||12), +(iso[5]||0)).getTime();
-  var m = String(str).match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?,?\s*(\d{1,2}):(\d{2})/);
-  if(!m){ var d = String(str).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); return d ? new Date(+d[3], +d[2]-1, +d[1], 12, 0).getTime() : 0; }
-  var dia=+m[1], mes=+m[2], anio=m[3]?+m[3]:new Date().getFullYear(), hora=+m[4], min=+m[5];
-  return new Date(anio, mes-1, dia, hora, min).getTime();
+  var txt = String(str);
+  var m = txt.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?,?\s*(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([ap])?/i);
+  if(!m){ var d = txt.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/); if(d){ var ad=+d[3]; if(ad<100) ad+=2000; return new Date(ad, +d[2]-1, +d[1], 0, 0).getTime(); } var t=Date.parse(txt); return isNaN(t)?0:t; }
+  var dia=+m[1], mes=+m[2], anio=m[3]?+m[3]:new Date().getFullYear(), hora=+m[4], min=+m[5], seg=+(m[6]||0);
+  if(anio<100) anio+=2000;
+  var ampm = (m[7]||'').toLowerCase() || (/p\.?\s*m\.?/i.test(txt.slice(m.index+m[0].length-1, m.index+m[0].length+8)) ? 'p' : (/a\.?\s*m\.?/i.test(txt.slice(m.index+m[0].length-1, m.index+m[0].length+8)) ? 'a' : ''));
+  if(ampm==='p' && hora<12) hora+=12;
+  if(ampm==='a' && hora===12) hora=0;
+  return new Date(anio, mes-1, dia, hora, min, seg).getTime();
 }
 // Movimientos que quedan guardados en otros campos de la entrega (y no siempre en el historial):
 // se suman a la lista para que el historial muestre TODO lo que pasó. No se duplican: si ya hay
@@ -11730,11 +11790,22 @@ function renderHistorialUI(r){
     var texto = h.texto + (h.autor && h.texto.indexOf('(por '+h.autor+')')===-1 ? ' (por '+h.autor+')' : '');
     return {fecha:h.fecha, texto:texto, dePrep:true};
   }) : [];
-  var lista = propios.concat(dePrep).concat(historialDerivado_(r, propios)).sort(function(a,b){ return parsearFechaHistorial_(b.fecha) - parsearFechaHistorial_(a.fecha); });
+  // Orden cronológico: del más viejo al más nuevo (los que no tienen fecha van primero).
+  var lista = propios.concat(dePrep).concat(historialDerivado_(r, propios))
+    .map(function(h, i){ h._t = parsearFechaHistorial_(h.fecha); h._i = i; return h; })
+    .sort(function(a,b){ return (a._t - b._t) || (a._i - b._i); });
+  var diaAnt = null, DIAS_H = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
   document.getElementById('dHistorial').innerHTML = lista.length===0
     ? '<div style="color:var(--text-faint);font-size:11.5px;">Todavía no hay movimientos registrados.</div>'
     : lista.map(function(h){
-        return '<div class="history-item">'+
+        var sep = '';
+        var dKey = h._t ? new Date(h._t).toDateString() : 'sin';
+        if(dKey !== diaAnt){
+          diaAnt = dKey;
+          var dd = h._t ? new Date(h._t) : null;
+          sep = '<div class="history-dia">'+(dd ? DIAS_H[dd.getDay()]+' '+String(dd.getDate()).padStart(2,'0')+'/'+String(dd.getMonth()+1).padStart(2,'0')+'/'+dd.getFullYear() : 'Sin fecha registrada')+'</div>';
+        }
+        return sep+'<div class="history-item">'+
           (h.dePrep ? '<span style="font-size:8.5px;font-weight:800;letter-spacing:.03em;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:1px 5px;margin-right:5px;vertical-align:1px;">PREPARACIÓN</span>' : '')+
           '<span class="history-fecha">'+h.fecha+'</span><span class="history-texto">'+h.texto+'</span></div>';
       }).join('');
@@ -11956,6 +12027,8 @@ function openNewDelivery(){
   renderNAccesoriosLista_();
   document.getElementById('nCampana').value='';
   window.nCampanas=[]; if(typeof renderCampanasNueva_==='function') renderCampanasNueva_();
+  var _ac=document.getElementById('nAccCoordinando'); if(_ac) _ac.checked=false;
+  var _ao=document.getElementById('nAccObs'); if(_ao) _ao.value='';
   document.getElementById('nCampanaToggleBtn').textContent='⚠ Pendiente de controlar'; document.getElementById('nCampanaToggleBtn').className='toggle-btn pending'; window.nCampanaState=false;
   // Vendedor y administrativo arrancan EN BLANCO: se escribe o se elige de la lista con la flechita.
   document.getElementById('nVendedor').value = '';
@@ -12073,6 +12146,34 @@ function filtrarBuscadorAccesoriosNueva_(q){
   }
   lista.innerHTML = opciones.join('') || '<div class="combo-item" style="color:var(--text-faint);">Sin resultados</div>';
   lista.style.display = 'block';
+}
+// Botón "+ Agregar": agrega lo que está escrito (sin precio), sin tener que elegir de la lista.
+function guardarAccCoordinando_(on){
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}); if(!r) return;
+  r.accesoriosCoordinando = !!on;
+  gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{accesoriosCoordinando:!!on}});
+  logHistorial_(detailMarca, detailId, on ? '🔧 Accesorios: todavía se están coordinando' : '🔧 Accesorios: coordinación terminada');
+  renderAlertaAccesoriosCoord_(r);
+}
+function guardarAccObs_(v){
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}); if(!r) return;
+  if(String(r.accesoriosObs||'')===String(v||'')) return;
+  r.accesoriosObs = v;
+  gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{accesoriosObs:v}});
+  logHistorialDiferido_(detailMarca, detailId, 'accobs', '🔧 Observación de accesorios: '+(v||'(vacía)'));
+}
+function renderAlertaAccesoriosCoord_(r){
+  var cb=document.getElementById('dAccCoordinando'); if(cb) cb.checked=!!r.accesoriosCoordinando;
+  var ob=document.getElementById('dAccObs'); if(ob && document.activeElement!==ob) ob.value=r.accesoriosObs||'';
+  var al=document.getElementById('dAccCoordAlerta'); if(!al) return;
+  al.style.display = r.accesoriosCoordinando && !r.entregada ? 'flex' : 'none';
+  al.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">build</span>Accesorios: todavía se están coordinando';
+}
+function agregarAccesorioEscrito_(){
+  var inp = document.getElementById('nAccesoriosBuscador'), v = (inp.value||'').trim();
+  if(!v){ showToast('Escribí el accesorio y tocá Agregar'); inp.focus(); return; }
+  agregarAccesorioNueva_(v, 0, '');
+  inp.focus();
 }
 function agregarAccesorioNueva_(nombre, precio, formaPago){
   window._nuevaEntregaAccesorios.push({nombre:nombre, precio:Number(precio)||0, formaPago:formaPago||'', estado:'pendiente', motivo:''});
@@ -12206,6 +12307,8 @@ function submitNewDelivery(){
     alfombras: document.getElementById('nAlfombras').value==='Sí',
     alfombrasColocadas:false, alfombrasColocadasFecha:'',
     accesoriosItems: window._nuevaEntregaAccesorios || [],
+    accesoriosCoordinando: !!(document.getElementById('nAccCoordinando')||{}).checked,
+    accesoriosObs: ((document.getElementById('nAccObs')||{}).value||'').trim(),
     campanaTexto:campana, campanaControlada: campana?window.nCampanaState:false, campanaControladaFecha: (campana&&window.nCampanaState)?fechaHoraAhora_():'',
     lugar:document.getElementById('nLugar').value.trim(), observaciones:document.getElementById('nObservaciones').value.trim(),
     vendedor:document.getElementById('nVendedor').value, administrativo:document.getElementById('nAdministrativo').value,

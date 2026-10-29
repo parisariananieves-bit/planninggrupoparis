@@ -361,7 +361,9 @@ var CAMPOS = [
   {k:'bienvenidaMailFecha', h:'Bienvenida por mail — Fecha'},
   {k:'fechaSinConfirmar', h:'Fecha de entrega sin confirmar (en preparación)', bool:true},
   {k:'fechaSinConfirmarUsuario', h:'Fecha sin confirmar — Usuario'},
-  {k:'fechaSinConfirmarFecha', h:'Fecha sin confirmar — Fecha'}
+  {k:'fechaSinConfirmarFecha', h:'Fecha sin confirmar — Fecha'},
+  {k:'accesoriosCoordinando', h:'Accesorios — Todavía se coordinan', bool:true},
+  {k:'accesoriosObs', h:'Accesorios — Observación'}
 ];
 
 // ============================================================
