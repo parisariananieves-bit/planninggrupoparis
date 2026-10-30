@@ -2486,21 +2486,25 @@
       <div class="maestro-add"><input id="inUsuarioAutorizado" placeholder="Nombre exacto..." onkeydown="if(event.key==='Enter'){addUsuarioAutorizado();}"><button onclick="addUsuarioAutorizado()">Agregar</button></div>
     </div>
     <div class="maestro-block">
-      <div class="section-title">Bloqueos semanales</div>
+      <div class="section-title">Bloqueos semanales <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Se repiten todas las semanas. Podés aplicarlos a todas las marcas y sucursales, o solo a una marca y/o una sucursal.</span></span></div>
       <div class="maestro-tags" id="tagsBloqueosSemana"></div>
       <div class="maestro-add">
         <select id="inDiaSemana"><option>Lunes</option><option>Martes</option><option>Miércoles</option><option>Jueves</option><option>Viernes</option><option selected>Sábado</option><option>Domingo</option></select>
         <select id="inDesdeHora"><option value="00:00">Todo el día</option><option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option><option selected>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option></select>
         <select id="inHastaHora"><option value="18:00">18:00</option><option>13:00</option><option>14:00</option><option selected>15:00</option><option>16:00</option><option>17:00</option><option>19:00</option><option>20:00</option></select>
+        <select id="inBloqSemMarca" title="Marca"><option value="">Todas las marcas</option><option value="chevrolet">Chevrolet</option><option value="peugeot">Peugeot</option><option value="citroen">Citroën</option><option value="honda">Honda</option><option value="dfsk">DFSK / Jetour</option><option value="usados">Usados</option></select><select id="inBloqSemSucursal" title="Sucursal"><option value="">Todas las sucursales</option><option>San Juan</option><option>San Luis</option><option>Villa Mercedes</option><option>Merlo</option></select>
         <button onclick="addBloqueoSemanal()">Agregar</button>
       </div>
     </div>
     <div class="maestro-block">
-      <div class="section-title">Feriados (fecha puntual)</div>
+      <div class="section-title">Días u horarios bloqueados (fecha puntual) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Feriados, inventario, capacitaciones… Elegí la fecha, si es todo el día o un horario, y a qué marca y sucursal se aplica (o todas).</span></span></div>
       <div class="maestro-tags" id="tagsFeriados"></div>
-      <div class="maestro-add">
+      <div class="maestro-add" style="flex-wrap:wrap;">
         <input type="date" id="inFechaFeriado">
-        <input id="inMotivoFeriado" placeholder="Motivo">
+        <select id="inFerDesde" onchange="document.getElementById('inFerHasta').style.display=this.value==='00:00'?'none':''"><option value="00:00">Todo el día</option><option>09:00</option><option>09:30</option><option>10:00</option><option>10:30</option><option>11:00</option><option>11:30</option><option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option></select>
+        <select id="inFerHasta" style="display:none;"><option>10:00</option><option>10:30</option><option>11:00</option><option>11:30</option><option selected>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option><option>18:00</option></select>
+        <select id="inFerMarca" title="Marca"><option value="">Todas las marcas</option><option value="chevrolet">Chevrolet</option><option value="peugeot">Peugeot</option><option value="citroen">Citroën</option><option value="honda">Honda</option><option value="dfsk">DFSK / Jetour</option><option value="usados">Usados</option></select><select id="inFerSucursal" title="Sucursal"><option value="">Todas las sucursales</option><option>San Juan</option><option>San Luis</option><option>Villa Mercedes</option><option>Merlo</option></select>
+        <input id="inMotivoFeriado" placeholder="Motivo (ej: Feriado, Inventario)">
         <button onclick="addFeriado()">Agregar</button>
       </div>
     </div>
@@ -5451,16 +5455,47 @@ function updateDayLabel(){
   }
   document.getElementById('dayLabel').textContent = texto;
 }
-function esFeriado(f){ return CONFIG.bloqueos.feriados.find(function(x){return x.fecha===f;}); }
-function reglaDia(d){ return CONFIG.bloqueos.semanales.find(function(x){return x.dia===d;}); }
+// ===== Bloqueos por marca y sucursal =====
+// Cada bloqueo puede tener marca y/o sucursal (vacío = todas). Los puntuales (fecha) pueden ser
+// de todo el día o de un horario. ctx = {marcas:[...], sucursales:[...]} = lo que se está mirando o agendando.
+function bloqAplica_(b, ctx){
+  ctx = ctx || {};
+  var ms = ctx.marcas || [], ss = (ctx.sucursales || []).filter(Boolean);
+  if(b.marca){ if(!ms.length || ms.some(function(m){ return m!==b.marca; })) return false; }
+  if(b.sucursal){ if(!ss.length || ss.some(function(x){ return x!==b.sucursal; })) return false; }
+  return true;
+}
+function ctxActual_(){ return {marcas:(currentBrands||[]).slice(), sucursales:(currentBranches||[]).slice()}; }
+function alcanceBloq_(b){ var a=[]; if(b.marca){ var bm=BRANDS.find(function(x){return x.id===b.marca;}); a.push(bm?bm.label:b.marca); } if(b.sucursal) a.push(b.sucursal); return a.length ? ' ('+a.join(' · ')+')' : ''; }
+// Día bloqueado completo → {motivo} o null
+function bloqueoDiaCompleto_(fechaStr, diaSemana, ctx){
+  var f = (CONFIG.bloqueos.feriados||[]).find(function(x){ return x.fecha===fechaStr && (!x.desde || x.desde==='00:00') && bloqAplica_(x, ctx); });
+  if(f) return {motivo: (f.motivo||'Bloqueado')+alcanceBloq_(f), tipo:'fecha'};
+  var w = (CONFIG.bloqueos.semanales||[]).find(function(x){ return x.dia===diaSemana && x.desde==='00:00' && bloqAplica_(x, ctx); });
+  if(w) return {motivo: diaSemana+' bloqueado todo el día'+alcanceBloq_(w), tipo:'semanal'};
+  return null;
+}
+// Horarios bloqueados (rangos) → [{desde,hasta,motivo}]
+function rangosBloqueo_(fechaStr, diaSemana, ctx){
+  var out = [];
+  (CONFIG.bloqueos.semanales||[]).forEach(function(x){ if(x.dia===diaSemana && x.desde!=='00:00' && bloqAplica_(x, ctx)) out.push({desde:x.desde, hasta:x.hasta||'18:00', motivo:'Bloqueo semanal'+alcanceBloq_(x)}); });
+  (CONFIG.bloqueos.feriados||[]).forEach(function(x){ if(x.fecha===fechaStr && x.desde && x.desde!=='00:00' && bloqAplica_(x, ctx)) out.push({desde:x.desde, hasta:x.hasta||'18:00', motivo:(x.motivo||'Bloqueado')+alcanceBloq_(x)}); });
+  return out;
+}
+function minutoBloqueado_(min, rangos){
+  return (rangos||[]).find(function(g){ return min>=horaAMinutos_(g.desde) && min<horaAMinutos_(g.hasta); }) || null;
+}
+function esFeriado(f, ctx){ var d = bloqueoDiaCompleto_(f, DIAS[(function(p){ return new Date(+p[2], +p[1]-1, +p[0]); })(f.split('/')).getDay()], ctx || ctxActual_()); return d ? {motivo:d.motivo} : null; }
+function reglaDia(d, ctx){ var w=(CONFIG.bloqueos.semanales||[]).find(function(x){ return x.dia===d && bloqAplica_(x, ctx || ctxActual_()); }); return w || null; }
 function checkBloqueado(){
   var banner=document.getElementById('blockedBanner');
   var addBtn=document.getElementById('navNuevaentrega');
-  var f=esFeriado(fmtFecha(currentDate)), r=reglaDia(DIAS[currentDate.getDay()]);
-  if(f){ banner.style.display='block'; banner.textContent='🚫 Feriado — '+f.motivo+'.'; if(addBtn) addBtn.disabled=true; }
-  else if(r && r.desde==='00:00'){ banner.style.display='block'; banner.textContent='🚫 '+DIAS[currentDate.getDay()]+' bloqueado todo el día.'; if(addBtn) addBtn.disabled=true; }
-  else if(r){ banner.style.display='block'; banner.textContent='⚠ No se agenda de '+r.desde+' a '+(r.hasta||'18:00')+'.'; if(addBtn) addBtn.disabled=false; }
-  else { banner.style.display='none'; if(addBtn) addBtn.disabled=false; }
+  var fs_=fmtFecha(currentDate), ds_=DIAS[currentDate.getDay()], cx_=ctxActual_();
+  var f=bloqueoDiaCompleto_(fs_, ds_, cx_), rg=rangosBloqueo_(fs_, ds_, cx_);
+  if(f){ banner.style.display='block'; banner.textContent='🚫 '+f.motivo+'.'; }
+  else if(rg.length){ banner.style.display='block'; banner.textContent='⚠ No se agenda: '+rg.map(function(g){ return g.desde+' a '+g.hasta+' — '+g.motivo; }).join(' · '); }
+  else { banner.style.display='none'; }
+  if(addBtn) addBtn.disabled=false;
 }
 
 function estadoTag(r){
@@ -5960,12 +5995,12 @@ function renderCalendar(){
     var date=new Date(y,m,d);
     var fechaStr=fmtFecha(date);
     var diaSemana=DIAS[date.getDay()];
-    var feriado=esFeriado(fechaStr);
-    var regla=reglaDia(diaSemana);
+    var feriado=bloqueoDiaCompleto_(fechaStr, diaSemana, ctxActual_());
+    var regla=null;
     var entregasDia=rows.filter(function(r){return r.fecha===fechaStr;}).sort(function(a,b){return horaAMinutos_(a.hora)-horaAMinutos_(b.hora);});
     var cls='cal-day';
     if(fechaStr===hoyStr) cls+=' today';
-    if(feriado || (regla && regla.desde==='00:00')) cls+=' blocked';
+    if(feriado) cls+=' blocked';
     var esVistaCompacta = window.innerWidth <= 640; // modo app / celular — en escritorio se sigue viendo todo, sin tope
     var MAX_CHIPS_POR_DIA_ = 3;
     var entregasAMostrar = esVistaCompacta ? entregasDia.slice(0, MAX_CHIPS_POR_DIA_) : entregasDia;
@@ -8973,8 +9008,8 @@ function renderHorariosDia_(){
   var fecha = new Date(sel.y, sel.m, sel.d);
   var fechaStr = fmtFecha(fecha);
   var diaSemana = DIAS[fecha.getDay()];
-  var feriado = esFeriado(fechaStr);
-  var regla = reglaDia(diaSemana);
+  var feriado = bloqueoDiaCompleto_(fechaStr, diaSemana, ctxActual_());
+  var rangosB = rangosBloqueo_(fechaStr, diaSemana, ctxActual_());
   document.getElementById('horariosDiaTitulo').textContent = diaSemana.charAt(0).toUpperCase()+diaSemana.slice(1)+' · '+fechaStr;
 
   var toggleEl = document.getElementById('horariosDiaVistaToggle');
@@ -8982,7 +9017,8 @@ function renderHorariosDia_(){
   var esLogisticaSinAgenda = rolActual()==='logistica' || rolActual()==='supervisor_logistica';
   if(toggleEl) toggleEl.style.display = (esRecepcion || esLogisticaSinAgenda) ? 'none' : 'flex';
 
-  if(feriado || (regla && regla.desde==='00:00')){
+  if(feriado){
+    document.getElementById('horariosDiaGrilla').innerHTML = '<div style="color:var(--danger);font-size:12.5px;padding:14px;text-align:center;background:var(--danger-soft);border-radius:9px;">🚫 '+feriado.motivo+'</div>'; return;
     document.getElementById('horariosDiaGrilla').innerHTML = '<div style="color:var(--danger);font-size:12.5px;padding:14px;text-align:center;background:var(--danger-soft);border-radius:9px;">🚫 '+(feriado?('Feriado — '+feriado.motivo):'Día bloqueado, no se agenda.')+'</div>';
     return;
   }
@@ -9005,9 +9041,10 @@ function renderHorariosDia_(){
   var html = '';
   for(var min=desdeMin; min<hastaMin; ){
     var horaSlot = minutosAHora_(min);
-    if(minutoBloqueadoPorRegla_(min, regla)){
+    var bq = minutoBloqueado_(min, rangosB);
+    if(bq){
       html += '<div class="horario-slot bloqueado" style="opacity:.5;cursor:not-allowed;">'+
-        '<span class="hora">'+horaSlot+'</span><span class="info">🚫 Bloqueado ('+regla.desde+' a '+(regla.hasta||'18:00')+')</span></div>';
+        '<span class="hora">'+horaSlot+'</span><span class="info">🚫 Bloqueado ('+bq.desde+' a '+bq.hasta+' — '+bq.motivo+')</span></div>';
       min += PASO;
       continue;
     }
@@ -12076,8 +12113,13 @@ function renderDisponibilidadNuevaEntrega(){
   var fechaObj = new Date(Number(parts[0]), Number(parts[1])-1, Number(parts[2]));
   var diaSemana = DIAS[fechaObj.getDay()];
   tituloEl.textContent = diaSemana.charAt(0).toUpperCase()+diaSemana.slice(1)+' · '+fechaStr;
-  var feriado = esFeriado(fechaStr), regla = reglaDia(diaSemana);
-  if(feriado || (regla && regla.desde==='00:00')){
+  var _mSel = document.getElementById('nMarca').value || currentBrand;
+  var _bSel = BRANDS.find(function(x){return x.id===_mSel;});
+  var _sSel = (_bSel && _bSel.branches) ? document.getElementById('nSucursal').value : '';
+  var ctxNE = {marcas:[_mSel], sucursales:_sSel?[_sSel]:[]};
+  var feriado = bloqueoDiaCompleto_(fechaStr, diaSemana, ctxNE), rangosNE = rangosBloqueo_(fechaStr, diaSemana, ctxNE);
+  if(feriado){
+    grilla.innerHTML = '<div style="color:var(--danger);font-size:12.5px;padding:14px;text-align:center;background:var(--danger-soft);border-radius:9px;">🚫 '+feriado.motivo+'</div>'; return;
     grilla.innerHTML = '<div style="color:var(--danger);font-size:12.5px;padding:14px;text-align:center;background:var(--danger-soft);border-radius:9px;">🚫 '+(feriado?('Feriado — '+feriado.motivo):'Día bloqueado, no se agenda.')+'</div>';
     return;
   }
@@ -12091,8 +12133,9 @@ function renderDisponibilidadNuevaEntrega(){
   var html='';
   for(var min=desdeMin; min<hastaMin; ){
     var horaSlot = minutosAHora_(min);
-    if(minutoBloqueadoPorRegla_(min, regla)){
-      html += '<div class="horario-slot bloqueado" style="opacity:.5;cursor:not-allowed;"><span class="hora">'+horaSlot+'</span><span class="info">🚫 Bloqueado</span></div>';
+    var bqNE = minutoBloqueado_(min, rangosNE);
+    if(bqNE){
+      html += '<div class="horario-slot bloqueado" style="opacity:.5;cursor:not-allowed;"><span class="hora">'+horaSlot+'</span><span class="info">🚫 Bloqueado — '+bqNE.motivo+'</span></div>';
       min += 15;
       continue;
     }
@@ -12208,10 +12251,12 @@ function checkNewDeliveryDate(){
   if(!val){ warning.style.display='none'; saveBtn.disabled=false; return; }
   var parts=val.split('-'); var fechaStr=parts[2]+'/'+parts[1]+'/'+parts[0];
   var dia=DIAS[new Date(val+'T00:00:00').getDay()];
-  var f=esFeriado(fechaStr), r=reglaDia(dia);
-  if(f){ warning.style.display='block'; warning.textContent='🚫 Feriado ('+f.motivo+').'; saveBtn.disabled=true; }
-  else if(r&&r.desde==='00:00'){ warning.style.display='block'; warning.textContent='🚫 '+dia+' bloqueado todo el día.'; saveBtn.disabled=true; }
-  else if(r){ warning.style.display='block'; warning.textContent='⚠ '+dia+' sin agenda de '+r.desde+' a '+(r.hasta||'18:00')+'.'; saveBtn.disabled=false; }
+  var _m=document.getElementById('nMarca').value||currentBrand, _b=BRANDS.find(function(x){return x.id===_m;});
+  var _s=(_b&&_b.branches)?document.getElementById('nSucursal').value:'';
+  var cx={marcas:[_m], sucursales:_s?[_s]:[]};
+  var f=bloqueoDiaCompleto_(fechaStr, dia, cx), rg=rangosBloqueo_(fechaStr, dia, cx);
+  if(f){ warning.style.display='block'; warning.textContent='🚫 '+f.motivo+'. Elegí otra fecha.'; saveBtn.disabled=true; }
+  else if(rg.length){ warning.style.display='block'; warning.textContent='⚠ Horarios bloqueados: '+rg.map(function(g){ return g.desde+' a '+g.hasta+' ('+g.motivo+')'; }).join(' · '); saveBtn.disabled=false; }
   else { warning.style.display='none'; saveBtn.disabled=false; }
 }
 
@@ -12235,6 +12280,16 @@ function submitNewDelivery(){
   var dominio=document.getElementById('nDominio').value.trim();
   var fechaVal=document.getElementById('nFecha').value, horaVal=document.getElementById('nHora').value;
   limpiarErroresNueva_();
+  if(fechaVal && horaVal){
+    var _p=fechaVal.split('-'), _fs=_p[2]+'/'+_p[1]+'/'+_p[0], _ds=DIAS[new Date(+_p[0], +_p[1]-1, +_p[2]).getDay()];
+    var _mm=document.getElementById('nMarca').value||currentBrand, _bb=BRANDS.find(function(x){return x.id===_mm;});
+    var _ss=(_bb&&_bb.branches)?document.getElementById('nSucursal').value:'';
+    var _cx={marcas:[_mm], sucursales:_ss?[_ss]:[]};
+    var _dc=bloqueoDiaCompleto_(_fs, _ds, _cx);
+    if(_dc){ showToast('🚫 Ese día está bloqueado: '+_dc.motivo); return; }
+    var _bq=minutoBloqueado_(horaAMinutos_(horaVal), rangosBloqueo_(_fs, _ds, _cx));
+    if(_bq){ showToast('🚫 Ese horario está bloqueado ('+_bq.desde+' a '+_bq.hasta+' — '+_bq.motivo+')'); marcarErrorCampo_('nHora'); return; }
+  }
   var faltan = [];
   if(!cliente) faltan.push(['nCliente','Cliente']);
   if(!modelo) faltan.push(['nModelo','Modelo']);
@@ -12874,10 +12929,11 @@ function removeUsuarioAutorizado(i){
 function renderBloqueoTags(){
   document.getElementById('tagsBloqueosSemana').innerHTML = CONFIG.bloqueos.semanales.map(function(b,i){
     var texto = b.desde==='00:00' ? ' · todo el día' : ' · '+b.desde+' a '+(b.hasta||'18:00');
-    return '<span class="maestro-tag block">'+b.dia+texto+'<button onclick="removeBloqueoSemanal('+i+')">✕</button></span>';
+    return '<span class="maestro-tag block">'+b.dia+texto+(alcanceBloq_(b)||' (todas)')+'<button onclick="removeBloqueoSemanal('+i+')">✕</button></span>';
   }).join('') || '<span style="color:var(--text-faint);font-size:12px;">Sin bloqueos.</span>';
   document.getElementById('tagsFeriados').innerHTML = CONFIG.bloqueos.feriados.map(function(f,i){
-    return '<span class="maestro-tag block">'+f.fecha+' · '+f.motivo+'<button onclick="removeFeriado('+i+')">✕</button></span>';
+    var hor = (f.desde && f.desde!=='00:00') ? ' · '+f.desde+' a '+(f.hasta||'18:00') : ' · todo el día';
+    return '<span class="maestro-tag block">'+f.fecha+hor+' · '+f.motivo+(alcanceBloq_(f)||' (todas)')+'<button onclick="removeFeriado('+i+')">✕</button></span>';
   }).join('') || '<span style="color:var(--text-faint);font-size:12px;">Sin feriados.</span>';
 }
 function renderDireccionesUI(){
@@ -12944,8 +13000,9 @@ function addBloqueoSemanal(){
   var desde=document.getElementById('inDesdeHora').value;
   var hasta = desde==='00:00' ? '23:59' : document.getElementById('inHastaHora').value;
   if(desde!=='00:00' && horaAMinutos_(hasta)<=horaAMinutos_(desde)){ showToast('El horario "hasta" tiene que ser después del "desde"'); return; }
-  if(CONFIG.bloqueos.semanales.some(function(b){return b.dia===dia && b.desde===desde && b.hasta===hasta;})){ showToast('Esa regla ya existe'); return; }
-  CONFIG.bloqueos.semanales.push({dia:dia, desde:desde, hasta:hasta});
+  var marcaB=(document.getElementById('inBloqSemMarca')||{}).value||'', sucB=(document.getElementById('inBloqSemSucursal')||{}).value||'';
+  if(CONFIG.bloqueos.semanales.some(function(b){return b.dia===dia && b.desde===desde && b.hasta===hasta && (b.marca||'')===marcaB && (b.sucursal||'')===sucB;})){ showToast('Esa regla ya existe'); return; }
+  CONFIG.bloqueos.semanales.push({dia:dia, desde:desde, hasta:hasta, marca:marcaB, sucursal:sucB});
   renderBloqueoTags();
   checkBloqueado();
   persistirConfig('Bloqueo agregado');
@@ -12956,7 +13013,10 @@ function addFeriado(){
   var motivo=document.getElementById('inMotivoFeriado').value.trim();
   if(!fechaInput||!motivo){ showToast('Completá fecha y motivo'); return; }
   var p=fechaInput.split('-');
-  CONFIG.bloqueos.feriados.push({fecha:p[2]+'/'+p[1]+'/'+p[0], motivo:motivo});
+  var desdeF=(document.getElementById('inFerDesde')||{}).value||'00:00', hastaF=(document.getElementById('inFerHasta')||{}).value||'18:00';
+  if(desdeF!=='00:00' && horaAMinutos_(hastaF)<=horaAMinutos_(desdeF)){ showToast('El horario "hasta" tiene que ser después del "desde"'); return; }
+  CONFIG.bloqueos.feriados.push({fecha:p[2]+'/'+p[1]+'/'+p[0], motivo:motivo, desde:desdeF==='00:00'?'':desdeF, hasta:desdeF==='00:00'?'':hastaF,
+    marca:(document.getElementById('inFerMarca')||{}).value||'', sucursal:(document.getElementById('inFerSucursal')||{}).value||''});
   document.getElementById('inFechaFeriado').value=''; document.getElementById('inMotivoFeriado').value='';
   renderBloqueoTags();
   checkBloqueado();
