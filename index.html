@@ -1208,6 +1208,8 @@
   .us-venc{color:var(--danger);font-weight:700;}
   .us-obs{max-width:260px;color:var(--text-dim);}
   .us-anul{font-size:11px;color:var(--danger);font-weight:700;}
+  .sin-conf-nueva{background:var(--warn-soft);border:1px solid var(--warn);border-radius:12px;padding:10px 12px;color:var(--text)!important;line-height:1.4;}
+  .sin-conf-nueva span{color:var(--text-dim);font-weight:500;}
   .camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
   .camp-chips:empty{display:none;}
   .camp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 6px 3px 10px;font-size:11.5px;font-weight:700;}
@@ -1745,11 +1747,12 @@
     <div class="form-grid">
       <div class="form-field"><label>Fecha</label><input type="date" id="nFecha" oninput="checkNewDeliveryDate();renderDisponibilidadNuevaEntrega();"></div>
       <div class="form-field"><label>Hora</label><input type="text" id="nHora" value="" readonly placeholder="Elegí un horario en Disponibilidad →" style="cursor:not-allowed;background:var(--panel-2);color:var(--text-dim);"></div>
+      <div class="form-field full"><label class="acc-coord sin-conf-nueva"><input type="checkbox" id="nSinConfirmar"> ⏳ La fecha todavía <b>no está confirmada</b> con el cliente <span>— se guarda igual, queda marcada “Fecha a confirmar” y <b>el horario sigue libre</b> para otra entrega.</span></label></div>
       <div class="form-field"><label>Tipo de venta</label><select id="nTipoVenta" onchange="toggleUsadoNueva_()"><option value="OKM">0KM</option><option value="USADO">Usado</option></select></div>
       <div class="form-field"><label>¿Entrega usado (parte de pago)?</label><select id="nUsado"><option value="No">No</option><option value="Sí">Sí</option></select></div>
       <div class="form-field"><label>Lugar de entrega</label><input id="nLugar"></div>
       <div class="form-field full us-block" id="nUsadoBlock" style="display:none;">
-        <div class="us-block-t"><span class="material-symbols-outlined">car_repair</span> Usado — Alistamiento <small>Lo completa el equipo de usados. Logística lo usa para preparar el auto.</small></div>
+        <div class="us-block-t"><span class="material-symbols-outlined">car_repair</span> Usado — Alistamiento <small>Lo completa el administrativo, para que Logística tenga la información y prepare el auto.</small></div>
         <div class="us-grid">
           <div class="form-field"><label>Fecha de oferta</label><input type="date" id="nUsFechaOferta"></div>
           <div class="form-field"><label>Fecha compromiso de taller</label><input type="date" id="nUsFechaCompromiso"></div>
@@ -1927,7 +1930,7 @@
         </div>
 
         <div class="app-view" id="viewAlistamiento">
-          <div class="view-header"><h2>Alistamiento usados</h2><p>Usados vendidos que hay que preparar. Lo carga el equipo de usados al programar la entrega (<b>Tipo de venta: Usado</b>); acá Logística ve qué alistar y qué está trabado. Tocá una fila para abrir la entrega.</p></div>
+          <div class="view-header"><h2>Alistamiento usados</h2><p>Usados vendidos que hay que preparar. Lo carga el <b>administrativo</b> al programar la entrega (<b>Tipo de venta: Usado</b>); acá Logística ve qué alistar y qué está trabado. Tocá una fila para abrir la entrega.</p></div>
           <div id="alistKpis" class="alist-kpis"></div>
           <div class="filter-bar" style="flex-wrap:wrap;gap:10px;">
             <select id="alistFiltro" onchange="renderAlistamiento()"><option value="activas" selected>En proceso</option><option value="falta">Con algo pendiente</option><option value="listo">Listos para alistar</option><option value="entregada">Entregados</option><option value="anulada">Anuladas</option><option value="todas">Todas</option></select>
@@ -9056,6 +9059,10 @@ function minutoBloqueadoPorRegla_(min, regla){
 function minutosAHora_(min){ var h=Math.floor(min/60), m=min%60; return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'); }
 // Dos entregas "se pisan" si sus rangos [hora, hora+duración) se superponen en algún punto,
 // no solo si empiezan exactamente a la misma hora.
+// Una entrega con la fecha SIN CONFIRMAR no ocupa el horario: queda libre para otra entrega.
+function x_hora_(x){ return x && x.hora ? x.hora : ''; }
+function ocupaHorario_(r){ return !(r && r.fechaSinConfirmar && !r.entregada); }
+function tentativosEn_(rows, min){ return rows.filter(function(r){ if(ocupaHorario_(r)) return false; var i=horaAMinutos_(r.hora), f=i+(r.duracionMinutos||60); return min>=i && min<f; }); }
 function seSuperponenHorarios_(hora1, dur1, hora2, dur2){
   var inicio1=horaAMinutos_(hora1), fin1=inicio1+(dur1||60);
   var inicio2=horaAMinutos_(hora2), fin2=inicio2+(dur2||60);
@@ -9125,7 +9132,7 @@ function renderHorariosDia_(){
       min += PASO;
       continue;
     }
-    var ocupante = rows.find(function(r){
+    var ocupante = rows.filter(ocupaHorario_).find(function(r){
       var inicio = horaAMinutos_(r.hora);
       var fin = inicio + (r.duracionMinutos || 60);
       return min>=inicio && min<fin;
@@ -9145,7 +9152,7 @@ function renderHorariosDia_(){
       continue;
     } else {
       html += '<div class="horario-slot libre" onclick="reservarHorario_(\''+fechaStr+'\',\''+horaSlot+'\')">'+
-        '<span class="hora">'+horaSlot+'</span><span class="info">🟢 Libre — tocá para agendar</span></div>';
+        '<span class="hora">'+horaSlot+'</span><span class="info">🟢 Libre — tocá para agendar'+(function(){ var t=tentativosEn_(rows,min); return t.length ? '<br><small style="color:var(--warn);font-weight:700;">⏳ Tentativo (sin confirmar): '+t.map(function(x){return x.cliente;}).join(', ')+'</small>' : ''; })()+'</span></div>';
       min += PASO;
     }
   }
@@ -9756,7 +9763,7 @@ function armarColumnasDetalle_(activar){
 }
 // =====================================================================
 // USADOS — ALISTAMIENTO (solo cuando "Tipo de venta" = Usado)
-// La completa el equipo de usados y la usa Logística (alistamiento) para preparar el auto.
+// La completa el administrativo y la usa Logística (alistamiento) para preparar el auto.
 // =====================================================================
 var US_OPC = {
   usCompServicio: ['Tiene','No tiene','Vencido'],
@@ -10713,6 +10720,11 @@ function toggleFechaSinConfirmar_(){
   if(!detailId) return;
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}); if(!r) return;
   var marcar = !r.fechaSinConfirmar;
+  if(!marcar){
+    var marcasAg = marcasCompartenAgenda_(r.marca);
+    var otro = ENTREGAS.find(function(x){ return x.id!==r.id && marcasAg.indexOf(x.marca)>-1 && x.sucursal===r.sucursal && x.fecha===r.fecha && ocupaHorario_(x) && seSuperponenHorarios_(r.hora, r.duracionMinutos, x.hora, x.duracionMinutos); });
+    if(otro){ showToast('⚠ Ese horario ya lo tomó '+otro.cliente+' ('+r.fecha+' '+x_hora_(otro)+'). Reprogramá esta entrega a un horario libre y después confirmala.'); return; }
+  }
   if(!marcar && !confirm('¿La fecha de entrega ya está confirmada con el cliente?')) return;
   r.fechaSinConfirmar = marcar;
   r.fechaSinConfirmarUsuario = usuarioActual(); r.fechaSinConfirmarFecha = fechaHoraAhora_();
@@ -12127,7 +12139,7 @@ function reprogramar(){
   var parts=f.split('-'); var nuevaFecha=parts[2]+'/'+parts[1]+'/'+parts[0];
   var marcasAgendaRepro = marcasCompartenAgenda_(r.marca);
   var choque = ENTREGAS.find(function(x){
-    return marcasAgendaRepro.indexOf(x.marca)>-1 && x.sucursal===nuevaSucursal && x.fecha===nuevaFecha && x.id!==r.id &&
+    return marcasAgendaRepro.indexOf(x.marca)>-1 && x.sucursal===nuevaSucursal && x.fecha===nuevaFecha && x.id!==r.id && ocupaHorario_(x) && ocupaHorario_(r) &&
       seSuperponenHorarios_(h, r.duracionMinutos, x.hora, x.duracionMinutos);
   });
   if(choque){
@@ -12318,6 +12330,7 @@ function openNewDelivery(){
   window.nCampanas=[]; if(typeof renderCampanasNueva_==='function') renderCampanasNueva_();
   var _ac=document.getElementById('nAccCoordinando'); if(_ac) _ac.checked=false;
   if(typeof limpiarUsadoNueva_==='function') limpiarUsadoNueva_();
+  var _sc=document.getElementById('nSinConfirmar'); if(_sc) _sc.checked=false;
   var _ao=document.getElementById('nAccObs'); if(_ao) _ao.value='';
   document.getElementById('nCampanaToggleBtn').textContent='⚠ Pendiente de controlar'; document.getElementById('nCampanaToggleBtn').className='toggle-btn pending'; window.nCampanaState=false;
   // Vendedor y administrativo arrancan EN BLANCO: se escribe o se elige de la lista con la flechita.
@@ -12380,7 +12393,8 @@ function renderDisponibilidadNuevaEntrega(){
   var brand = BRANDS.find(function(x){return x.id===marcaSel;});
   var sucursalSel = (brand && brand.branches) ? document.getElementById('nSucursal').value : 'default';
   var marcasAgenda = marcasCompartenAgenda_(marcaSel);
-  var rows = ENTREGAS.filter(function(r){ return marcasAgenda.indexOf(r.marca)>-1 && r.sucursal===sucursalSel && r.fecha===fechaStr; });
+  var rowsDia = ENTREGAS.filter(function(r){ return marcasAgenda.indexOf(r.marca)>-1 && r.sucursal===sucursalSel && r.fecha===fechaStr; });
+  var rows = rowsDia.filter(ocupaHorario_); // las de fecha sin confirmar no ocupan el horario
   var desdeMin = horaAMinutos_('09:00');
   var hastaMin = horaAMinutos_('18:00');
   var html='';
@@ -12409,7 +12423,7 @@ function renderDisponibilidadNuevaEntrega(){
       continue;
     } else {
       var esElegido = (horaSlot === document.getElementById('nHora').value);
-      html += '<div class="horario-slot libre'+(esElegido?' seleccionado':'')+'" onclick="document.getElementById(\'nHora\').value=\''+horaSlot+'\';checkNewDeliveryDate();renderDisponibilidadNuevaEntrega();"><span class="hora">'+horaSlot+'</span><span class="info">'+(esElegido?'✔ Seleccionado':'🟢 Libre — tocá para elegir')+'</span></div>';
+      html += '<div class="horario-slot libre'+(esElegido?' seleccionado':'')+'" onclick="document.getElementById(\'nHora\').value=\''+horaSlot+'\';checkNewDeliveryDate();renderDisponibilidadNuevaEntrega();"><span class="hora">'+horaSlot+'</span><span class="info">'+(esElegido?'✔ Seleccionado':'🟢 Libre — tocá para elegir')+(function(){ var t=tentativosEn_(rowsDia,min); return t.length ? '<br><small style="color:var(--warn);font-weight:700;">⏳ Tentativo: '+t.map(function(x){return x.cliente;}).join(', ')+'</small>' : ''; })()+'</span></div>';
       min += 15;
     }
   }
@@ -12567,8 +12581,9 @@ function submitNewDelivery(){
   // Tiene en cuenta la duración estimada de cada entrega, no solo la hora exacta de inicio.
   // Cada marca tiene su propia agenda independiente.
   var marcasAgendaNueva = marcasCompartenAgenda_(marcaElegida);
-  var choque = ENTREGAS.find(function(r){
-    return marcasAgendaNueva.indexOf(r.marca)>-1 && r.sucursal===sucursalElegida && r.fecha===fecha &&
+  var nuevaSinConfirmar = !!(document.getElementById('nSinConfirmar')||{}).checked;
+  var choque = nuevaSinConfirmar ? null : ENTREGAS.find(function(r){
+    return marcasAgendaNueva.indexOf(r.marca)>-1 && r.sucursal===sucursalElegida && r.fecha===fecha && ocupaHorario_(r) &&
       seSuperponenHorarios_(horaVal, duracionElegida, r.hora, r.duracionMinutos);
   });
   var warningEl = document.getElementById('newWarning');
@@ -12630,6 +12645,7 @@ function submitNewDelivery(){
     comentarios:[], historial:[]
   };
   Object.assign(nueva, datosUsadoNueva_()); // Usado: datos para alistamiento
+  if((document.getElementById('nSinConfirmar')||{}).checked){ nueva.fechaSinConfirmar = true; nueva.fechaSinConfirmarUsuario = usuarioActual(); nueva.fechaSinConfirmarFecha = fechaHoraAhora_(); }
   gasPost('addEntrega',{marca:marcaElegida,obj:nueva}).then(function(res){
     nueva.id=res.id; nueva.marca=marcaElegida;
     ENTREGAS.push(nueva);
