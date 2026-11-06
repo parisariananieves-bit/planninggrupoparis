@@ -363,7 +363,21 @@ var CAMPOS = [
   {k:'fechaSinConfirmarUsuario', h:'Fecha sin confirmar — Usuario'},
   {k:'fechaSinConfirmarFecha', h:'Fecha sin confirmar — Fecha'},
   {k:'accesoriosCoordinando', h:'Accesorios — Todavía se coordinan', bool:true},
-  {k:'accesoriosObs', h:'Accesorios — Observación'}
+  {k:'accesoriosObs', h:'Accesorios — Observación'},
+  // ---- Usados: alistamiento (solo cuando Tipo de venta = Usado) ----
+  {k:'usFechaOferta', h:'Usado — Fecha de oferta'},
+  {k:'usFechaCarga', h:'Usado — Fecha de carga'},
+  {k:'usFechaCompromiso', h:'Usado — Fecha compromiso taller'},
+  {k:'usSinGarantia', h:'Usado — Sin garantía', bool:true},
+  {k:'usCompServicio', h:'Usado — Comprobantes de servicio'},
+  {k:'usCompDistribucion', h:'Usado — Comprobante de distribución'},
+  {k:'usDupLlave', h:'Usado — Duplicado de llave'},
+  {k:'usEstadoDoc', h:'Usado — Estado de documentación'},
+  {k:'usObs', h:'Usado — Observaciones'},
+  {k:'usAnulada', h:'Usado — Operación anulada', bool:true},
+  {k:'usAnuladaMotivo', h:'Usado — Motivo de anulación'},
+  {k:'usAnuladaPor', h:'Usado — Anulada por'},
+  {k:'usAnuladaFecha', h:'Usado — Fecha de anulación'}
 ];
 
 // ============================================================
