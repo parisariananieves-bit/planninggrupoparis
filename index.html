@@ -1243,7 +1243,8 @@
   #drawer .drawer-head [id$="Alerta"] .al-txt{flex:1;min-width:0;line-height:1.35;}
   #dUsadoSection .section-title{cursor:pointer;}
   #dUsadoSection .section-title::before{content:'';}
-  #dUsObs,#nUsObs{resize:vertical;overflow:hidden;min-height:64px;line-height:1.45;}
+  #dUsObs,#nUsObs{display:block;width:100% !important;max-width:100%;box-sizing:border-box;resize:vertical;overflow:hidden;min-height:64px;line-height:1.45;}
+  #dUsadoSection .field.full,#nUsadoBlock .form-field.full{grid-column:1/-1;width:100%;}
   .camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
   .camp-chips:empty{display:none;}
   .camp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 6px 3px 10px;font-size:11.5px;font-weight:700;}
