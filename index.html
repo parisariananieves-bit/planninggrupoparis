@@ -1233,6 +1233,14 @@
   .us-nota{display:block;margin-top:6px;padding:8px 10px;border-radius:10px;background:var(--panel);border:1px dashed var(--warn);color:var(--text) !important;}
   .d-acciones-fila .d-accion.d-accion-bloq{background:var(--panel-2) !important;border:1px dashed var(--hairline) !important;color:var(--text-dim) !important;cursor:not-allowed;}
   .us-resalta{box-shadow:0 0 0 3px var(--accent) !important;transition:box-shadow .3s;}
+  /* Sección "Usado — Alistamiento": color propio (ámbar) para que se distinga del resto */
+  #drawer #dUsadoSection{background:color-mix(in srgb, #F59E0B 9%, var(--panel)) !important;border:2px solid #F59E0B !important;box-shadow:0 6px 18px -10px rgba(245,158,11,.55);}
+  #drawer #dUsadoSection .section-title{color:#B45309 !important;border-left-color:#F59E0B !important;font-size:13px;}
+  #drawer #dUsadoSection .field .l{color:#B45309 !important;}
+  #drawer #dUsadoSection .field input,#drawer #dUsadoSection .field select,#drawer #dUsadoSection textarea{border-color:color-mix(in srgb, #F59E0B 45%, var(--hairline)) !important;}
+  body:not(.light-mode) #drawer #dUsadoSection .section-title,body:not(.light-mode) #drawer #dUsadoSection .field .l{color:#FBBF24 !important;}
+  .us-falta{outline:3px solid var(--danger) !important;outline-offset:2px;animation:alertaPulso 1.6s ease-in-out 2;}
+  #drawer .drawer-head [id$="Alerta"] .al-txt{flex:1;min-width:0;line-height:1.35;}
   .camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
   .camp-chips:empty{display:none;}
   .camp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 6px 3px 10px;font-size:11.5px;font-weight:700;}
@@ -1774,7 +1782,7 @@
         <input type="checkbox" id="nSinConfirmar" class="tgl-in">
         <span class="tgl-sw" aria-hidden="true"></span>
         <span class="tgl-txt"><b>⏳ Fecha a confirmar</b><small>Activalo si el cliente todavía no confirmó el día. Se guarda igual, queda marcada como “Fecha a confirmar” y el horario sigue libre para otra entrega.</small>
-        <small id="nUsadoNota" class="us-nota" style="display:none;">🚗 <b>Usado:</b> hasta la fecha de compromiso de taller queda solo como <b>carga</b>. Desde ese día el administrativo programa y confirma la fecha de entrega. No hace falta elegir horario ahora.</small></span>
+        <small id="nUsadoNota" class="us-nota" style="display:none;">🚗 <b>Usado:</b> hasta la fecha de compromiso de taller queda solo como <b>carga</b>. Desde ese día el administrativo programa y confirma la fecha de entrega. No hace falta elegir horario ahora; el compromiso de taller lo puede cargar Logística después.</small></span>
       </label></div>
       <div class="form-field"><label>Tipo de venta</label><select id="nTipoVenta" onchange="toggleUsadoNueva_()"><option value="OKM">0KM</option><option value="USADO">Usado</option></select></div>
       <div class="form-field"><label>¿Entrega usado (parte de pago)?</label><select id="nUsado"><option value="No">No</option><option value="Sí">Sí</option></select></div>
@@ -1783,7 +1791,7 @@
         <div class="us-block-t"><span class="material-symbols-outlined">car_repair</span> Usado — Alistamiento <small>Lo completa el administrativo, para que Logística tenga la información y prepare el auto.</small></div>
         <div class="us-grid">
           <div class="form-field"><label>Fecha de oferta</label><input type="date" id="nUsFechaOferta"></div>
-          <div class="form-field"><label>Fecha compromiso de taller</label><input type="date" id="nUsFechaCompromiso"></div>
+          <div class="form-field"><label>Fecha compromiso de taller <small style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--text-faint);">(opcional: la carga Logística después)</small></label><input type="date" id="nUsFechaCompromiso"></div>
           <div class="form-field"><label>¿Sin garantía?</label><select id="nUsSinGarantia"><option>No</option><option>Sí</option></select></div>
           <div class="form-field"><label>Comprobantes de servicio</label><select id="nUsCompServicio"><option value="">—</option><option>Tiene</option><option>No tiene</option><option>Vencido</option></select></div>
           <div class="form-field"><label>Comprobante de distribución</label><select id="nUsCompDistribucion"><option value="">—</option><option>Tiene</option><option>No tiene</option><option>No corresponde</option><option>Cadenero</option></select></div>
@@ -3172,8 +3180,8 @@
     <div id="dConfirmacionAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionConfirmacion_()"><span class="material-symbols-outlined" style="font-size:15px;">mail</span>Falta enviar la confirmación de esta entrega</div>
     <div id="dAccesorioAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionAccesorio_()"><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
     <div id="dCampanaAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="var x=document.getElementById('dCampanaSection'); if(x) x.scrollIntoView({behavior:'smooth',block:'start'});"><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
-    <div id="dUsadoAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="var x=document.getElementById('dCampanaSection'); if(x) x.scrollIntoView({behavior:'smooth',block:'start'});"><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
-    <div id="dUsCompromisoAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="var x=document.getElementById('dCampanaSection'); if(x) x.scrollIntoView({behavior:'smooth',block:'start'});"><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
+    <div id="dUsadoAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="irAUsado_()"><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
+    <div id="dUsCompromisoAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="irAUsado_()"><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
     <div id="dAccCoordAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" ><span class="material-symbols-outlined" style="font-size:15px;">build</span></div>
     <div id="dOnstarAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;cursor:pointer;" onclick="abrirSeccionOnstar_()"><span class="material-symbols-outlined" style="font-size:15px;">directions_car</span></div>
     <div id="dTrasladoAlerta" style="display:none;margin-top:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:15px;">local_shipping</span></div>
@@ -9817,12 +9825,25 @@ function cuentaRegresiva_(iso){
 }
 function renderAlertaCompromiso_(r){
   var al=document.getElementById('dUsCompromisoAlerta'); if(!al) return;
-  var c=(esUsadoVenta_(r) && !r.entregada && !r.usAnulada) ? cuentaRegresiva_(r.usFechaCompromiso) : null;
-  if(!c){ al.style.display='none'; return; }
+  if(!(esUsadoVenta_(r) && !r.entregada && !r.usAnulada)){ al.style.display='none'; return; }
   al.style.display='flex';
-  var col = c.nivel==='ok' ? 'ok' : c.nivel==='cerca' ? 'warn' : 'danger';
-  al.style.background='var(--'+col+'-soft)'; al.style.color='var(--'+col+')'; al.style.borderColor='var(--'+col+')';
-  al.innerHTML='<span class="material-symbols-outlined" style="font-size:15px;">timer</span>Compromiso de taller: <b style="margin:0 4px;">'+c.txt+'</b> · '+c.fecha+(r.usEstadoDoc && r.usEstadoDoc!=='Listo' ? ' · documentación '+r.usEstadoDoc.toLowerCase() : '');
+  var pinta=function(col){ al.style.background='var(--'+col+'-soft)'; al.style.color='var(--'+col+')'; al.style.borderColor='var(--'+col+')'; };
+  var c=cuentaRegresiva_(r.usFechaCompromiso);
+  var txt, ic='timer';
+  if(!c){
+    pinta('warn');
+    txt='Compromiso de taller: <b>sin fecha todavía</b> (la carga Logística) · 🔒 todavía no se puede programar la entrega';
+  } else if(!r.fechaSinConfirmar){
+    pinta('ok'); ic='event_available';
+    txt='Compromiso de taller: <b>'+c.fecha+'</b> · ✅ entrega programada para el '+usEsc_(r.fecha)+' '+usEsc_(r.hora||'');
+  } else if(c.dias>0){
+    pinta(c.dias<=3?'warn':'ok');
+    txt='Compromiso de taller: <b>'+c.fecha+'</b> ('+c.txt+') · 🔒 se habilita para programar ese día';
+  } else {
+    pinta('danger'); ic='event';
+    txt='Compromiso de taller: <b>'+c.fecha+'</b> ('+c.txt+') · ✅ <b>ya se puede programar</b> la entrega';
+  }
+  al.innerHTML='<span class="material-symbols-outlined" style="font-size:15px;flex:none;">'+ic+'</span><span class="al-txt">'+txt+'</span>';
 }
 // Qué le falta a un usado para estar listo para alistamiento
 function usFaltantes_(r){
@@ -9863,11 +9884,23 @@ function guardarUsado_(campo, valor){
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
   if(r){ renderAlertaUsado_(r); renderAlertaCompromiso_(r); renderFechaSinConfirmarUI_(r); if(currentAppView==='alistamiento') renderAlistamiento(); }
 }
+// Lleva a la sección Usado — Alistamiento, la abre y pone el foco en lo primero que falta.
+function irAUsado_(){
+  var sec=document.getElementById('dUsadoSection'); if(!sec) return;
+  sec.classList.remove('collapsed'); sec.style.display='';
+  sec.scrollIntoView({behavior:'smooth',block:'center'});
+  sec.classList.add('us-resalta'); setTimeout(function(){ sec.classList.remove('us-resalta'); }, 2500);
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}) || {};
+  var id = !r.usFechaCompromiso ? 'dUsFechaCompromiso' : (r.usEstadoDoc!=='Listo' ? 'dUsEstadoDoc' : (r.usDupLlave==='No' ? 'dUsDupLlave' : 'dUsFechaCompromiso'));
+  var el=document.getElementById(id);
+  if(el){ el.classList.add('us-falta'); setTimeout(function(){ try{ el.focus(); if(el.showPicker && el.type==='date') el.showPicker(); }catch(e){} }, 450); setTimeout(function(){ el.classList.remove('us-falta'); }, 4000); }
+}
 function renderUsadoUI_(r){
   var sec=document.getElementById('dUsadoSection'); if(!sec) return;
   var on=esUsadoVenta_(r);
   sec.style.display = on ? '' : 'none';
   if(!on) return;
+  sec.classList.remove('collapsed'); // la sección de usado siempre se muestra expandida
   var set=function(id,v){ var e=document.getElementById(id); if(e && document.activeElement!==e) e.value=v==null?'':v; };
   set('dUsFechaOferta', r.usFechaOferta); set('dUsFechaCompromiso', r.usFechaCompromiso);
   set('dUsSinGarantia', r.usSinGarantia?'Sí':'No');
@@ -12656,9 +12689,11 @@ function submitNewDelivery(){
   var esUsadoNE = document.getElementById('nTipoVenta').value==='USADO';
   if(esUsadoNE){
     var _cmp = (document.getElementById('nUsFechaCompromiso')||{}).value || '';
-    if(!_cmp){ limpiarErroresNueva_(); marcarErrorCampo_('nUsFechaCompromiso'); showToast('Usado: cargá la fecha de compromiso de taller'); return; }
     document.getElementById('nSinConfirmar').checked = true;
-    if(!fechaVal){ fechaVal = _cmp; document.getElementById('nFecha').value = _cmp; }
+    if(!fechaVal){
+      var _h=new Date(), _hoy=_h.getFullYear()+'-'+String(_h.getMonth()+1).padStart(2,'0')+'-'+String(_h.getDate()).padStart(2,'0');
+      fechaVal = _cmp || _hoy; document.getElementById('nFecha').value = fechaVal;
+    }
     if(!horaVal){ horaVal = '09:00'; document.getElementById('nHora').value = '09:00'; }
   }
   limpiarErroresNueva_();
