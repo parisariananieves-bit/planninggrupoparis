@@ -1241,6 +1241,9 @@
   body:not(.light-mode) #drawer #dUsadoSection .section-title,body:not(.light-mode) #drawer #dUsadoSection .field .l{color:#FBBF24 !important;}
   .us-falta{outline:3px solid var(--danger) !important;outline-offset:2px;animation:alertaPulso 1.6s ease-in-out 2;}
   #drawer .drawer-head [id$="Alerta"] .al-txt{flex:1;min-width:0;line-height:1.35;}
+  #dUsadoSection .section-title{cursor:pointer;}
+  #dUsadoSection .section-title::before{content:'';}
+  #dUsObs,#nUsObs{resize:vertical;overflow:hidden;min-height:64px;line-height:1.45;}
   .camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
   .camp-chips:empty{display:none;}
   .camp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 6px 3px 10px;font-size:11.5px;font-weight:700;}
@@ -1797,7 +1800,7 @@
           <div class="form-field"><label>Comprobante de distribución</label><select id="nUsCompDistribucion"><option value="">—</option><option>Tiene</option><option>No tiene</option><option>No corresponde</option><option>Cadenero</option></select></div>
           <div class="form-field"><label>¿Tiene duplicado de llave?</label><select id="nUsDupLlave"><option value="">—</option><option>Sí</option><option>No</option></select></div>
           <div class="form-field"><label>Estado de documentación</label><select id="nUsEstadoDoc"><option value="">—</option><option>En proceso</option><option>Falta verificación policial</option><option>Listo</option></select></div>
-          <div class="form-field full"><label>Observaciones para alistamiento</label><textarea id="nUsObs" rows="2" placeholder="Ej: falta carpeta, ingresa por San Juan, demorado por un repuesto…"></textarea></div>
+          <div class="form-field full"><label>Observaciones para alistamiento</label><textarea id="nUsObs" rows="2" oninput="autoAjustarTexto_(this)" placeholder="Ej: falta carpeta, ingresa por San Juan, demorado por un repuesto…"></textarea></div>
         </div>
       </div>
       <div class="form-field full"><label>Cliente</label><input id="nCliente" placeholder="Ej: GÓMEZ MARÍA"></div>
@@ -3259,7 +3262,7 @@
         <div class="field"><div class="l">Comprobante de distribución</div><select id="dUsCompDistribucion" onchange="guardarUsado_('usCompDistribucion', this.value)"></select></div>
         <div class="field"><div class="l">¿Tiene duplicado de llave?</div><select id="dUsDupLlave" onchange="guardarUsado_('usDupLlave', this.value)"></select></div>
         <div class="field full"><div class="l">Estado de documentación</div><select id="dUsEstadoDoc" onchange="guardarUsado_('usEstadoDoc', this.value)"></select></div>
-        <div class="field full"><div class="l">Observaciones para alistamiento</div><textarea id="dUsObs" rows="2" onchange="guardarUsado_('usObs', this.value.trim())" placeholder="Ej: falta carpeta, demorado por un repuesto…"></textarea></div>
+        <div class="field full"><div class="l">Observaciones para alistamiento</div><textarea id="dUsObs" rows="2" oninput="autoAjustarTexto_(this)" onchange="guardarUsado_('usObs', this.value.trim())" placeholder="Ej: falta carpeta, demorado por un repuesto…"></textarea></div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px;flex-wrap:wrap;">
         <small id="dUsCarga" style="color:var(--text-faint);"></small>
@@ -9885,6 +9888,7 @@ function guardarUsado_(campo, valor){
   if(r){ renderAlertaUsado_(r); renderAlertaCompromiso_(r); renderFechaSinConfirmarUI_(r); if(currentAppView==='alistamiento') renderAlistamiento(); }
 }
 // Lleva a la sección Usado — Alistamiento, la abre y pone el foco en lo primero que falta.
+function autoAjustarTexto_(ta){ if(!ta) return; ta.style.height='auto'; ta.style.height=Math.max(64, ta.scrollHeight+2)+'px'; }
 function irAUsado_(){
   var sec=document.getElementById('dUsadoSection'); if(!sec) return;
   sec.classList.remove('collapsed'); sec.style.display='';
@@ -9900,12 +9904,14 @@ function renderUsadoUI_(r){
   var on=esUsadoVenta_(r);
   sec.style.display = on ? '' : 'none';
   if(!on) return;
-  sec.classList.remove('collapsed'); // la sección de usado siempre se muestra expandida
+  // Se abre expandida al entrar a la entrega; después se puede comprimir (no se vuelve a abrir sola).
+  if(window._usAbiertoPara !== (r.marca+'|'+r.id)){ sec.classList.remove('collapsed'); window._usAbiertoPara = r.marca+'|'+r.id; }
   var set=function(id,v){ var e=document.getElementById(id); if(e && document.activeElement!==e) e.value=v==null?'':v; };
   set('dUsFechaOferta', r.usFechaOferta); set('dUsFechaCompromiso', r.usFechaCompromiso);
   set('dUsSinGarantia', r.usSinGarantia?'Sí':'No');
   ['usCompServicio','usCompDistribucion','usDupLlave','usEstadoDoc'].forEach(function(k){ var e=document.getElementById('d'+k.charAt(0).toUpperCase()+k.slice(1)); if(e) e.innerHTML=usOpts_(k, r[k]); });
   set('dUsObs', r.usObs);
+  autoAjustarTexto_(document.getElementById('dUsObs'));
   var info=document.getElementById('dUsCarga'); if(info) info.textContent = r.usFechaCarga ? 'Cargado el '+usFecha_(r.usFechaCarga) : '';
   var an=document.getElementById('dUsAnulada'), btn=document.getElementById('dUsAnularBtn');
   if(an) { an.style.display = r.usAnulada ? '' : 'none'; an.innerHTML = r.usAnulada ? '⛔ Operación anulada'+(r.usAnuladaMotivo?' — '+usEsc_(r.usAnuladaMotivo):'')+(r.usAnuladaPor?' <small>('+usEsc_(r.usAnuladaPor)+(r.usAnuladaFecha?', '+usEsc_(r.usAnuladaFecha):'')+')</small>':'') : ''; }
@@ -11349,6 +11355,7 @@ function inicializarAcordeonDrawer_(r){
 function seccionTieneContenido_(titulo, r){
   if(!r) return false;
   if(titulo.indexOf('Confirmación y Recordatorio')>-1) return true; // siempre abierta, para verla de un vistazo
+  if(titulo.indexOf('Usado — Alistamiento')>-1) return true; // usado: arranca expandida (se puede comprimir)
   if(titulo.indexOf('Accesorio')>-1) return accHayAlgo_(r);
   if(titulo.indexOf('Campaña')>-1) return !!r.campanaTexto;
   if(titulo.indexOf('Kit de Seguridad')>-1) return !!r.kitSeguridad;
