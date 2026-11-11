@@ -1298,14 +1298,59 @@
   }
   /* ===================== Dashboard / reportes: estética más limpia ===================== */
   .stat-chip{background:var(--panel)!important;border-radius:16px!important;box-shadow:0 1px 2px rgba(16,24,40,.05);}
-  .chart-panel{background:var(--panel)!important;border-radius:18px!important;box-shadow:0 1px 2px rgba(16,24,40,.05);}
-  .chart-panel-title{font-size:13px!important;letter-spacing:-.005em;}
+  .chart-panel{background:var(--panel)!important;border-radius:22px!important;border:1px solid var(--hairline)!important;box-shadow:0 10px 30px -18px rgba(30,27,75,.25)!important;padding:20px 22px!important;}
+  .chart-panel:hover{transform:none!important;}
+  .chart-panel-title{font-size:15px!important;font-weight:700!important;letter-spacing:-.01em;color:var(--text)!important;margin-bottom:16px!important;}
+  .chart-panel-title .material-symbols-outlined{width:30px;height:30px;border-radius:10px;background:#EEECFE;color:#5B4CF0!important;display:inline-flex;align-items:center;justify-content:center;font-size:17px!important;}
   .filter-bar{border-radius:16px!important;box-shadow:0 1px 2px rgba(16,24,40,.04);}
   .filter-pill{border-radius:999px!important;transition:background .15s,color .15s;}
   .filter-pill.active{background:var(--text)!important;color:var(--panel)!important;box-shadow:none!important;}
   .report-wrap{border-radius:14px!important;background:var(--panel);}
   .report-table tbody tr:hover td,.report-table tr:hover td{background:var(--accent-soft);}
   .report-table th{position:sticky;top:0;z-index:1;}
+
+  /* ===== Ranking v2: más limpio y moderno ===== */
+  .rk2-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:var(--panel);border:1px solid var(--hairline);border-radius:18px;margin-bottom:18px;overflow:hidden;}
+  .rk2-kpis > div{padding:14px 18px;border-right:1px solid var(--hairline);display:flex;flex-direction:column;gap:2px;} .rk2-kpis > div:last-child{border-right:none;}
+  .rk2-kpis span{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);}
+  .rk2-kpis b{font-family:'Space Grotesk',sans-serif;font-size:30px;line-height:1.05;color:var(--text);letter-spacing:-.02em;} .rk2-kpis b em{font-style:normal;font-size:16px;color:var(--text-faint);}
+  .rk2-kpis small{font-size:11.5px;color:var(--text-dim);}
+  .rk2-ok{color:var(--ok)!important} .rk2-warn{color:var(--warn)!important} .rk2-bad{color:var(--danger)!important} .rk2-gris{color:var(--text-faint)!important}
+  .rk2-podio{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:16px;align-items:end;margin:6px 0 20px;}
+  .rk2-pod{position:relative;text-align:center;background:var(--panel);border:1px solid var(--hairline);border-radius:22px;padding:22px 16px 0;overflow:hidden;}
+  .rk2-p1{--m:#E8A33D;background:linear-gradient(180deg,color-mix(in srgb,#E8A33D 10%,var(--panel)) 0%,var(--panel) 55%);border-color:color-mix(in srgb,#E8A33D 40%,var(--hairline));box-shadow:0 22px 44px -26px rgba(232,163,61,.7);}
+  .rk2-p2{--m:#9AA4B5;} .rk2-p3{--m:#C98A5A;}
+  .rk2-av{position:relative;width:64px;height:64px;margin:0 auto 10px;border-radius:50%;background:var(--panel-2);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px var(--panel),0 0 0 5px var(--m);}
+  .rk2-p1 .rk2-av{width:78px;height:78px;}
+  .rk2-av span{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:var(--text);}
+  .rk2-av b{position:absolute;right:-4px;bottom:-4px;width:26px;height:26px;border-radius:50%;background:var(--m);color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px var(--panel);}
+  .rk2-nom{font-weight:800;font-size:15px;color:var(--text);line-height:1.2;}
+  .rk2-suc{font-size:12px;color:var(--text-dim);margin-top:2px;}
+  .rk2-nps{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:44px;line-height:1;margin:12px 0 6px;letter-spacing:-.03em;} .rk2-p1 .rk2-nps{font-size:56px;}
+  .rk2-chip{display:inline-block;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;}
+  .rk2-c-ok{background:var(--ok-soft);color:var(--ok);} .rk2-c-warn{background:var(--warn-soft);color:var(--warn);} .rk2-c-bad{background:var(--danger-soft);color:var(--danger);} .rk2-c-gris{background:var(--panel-2);color:var(--text-faint);}
+  .rk2-pie{font-size:11.5px;color:var(--text-dim);margin:10px 0 14px;}
+  .rk2-pedestal{margin:0 -16px;padding:10px 0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:#fff;background:var(--m);letter-spacing:.04em;}
+  .rk2-p1 .rk2-pedestal{padding:16px 0;font-size:22px;} .rk2-p3 .rk2-pedestal{padding:7px 0;}
+  .rk2-bloque{background:var(--panel);border:1px solid var(--hairline);border-radius:18px;padding:6px 6px 4px;margin-bottom:18px;}
+  .rk2-bt{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);padding:10px 14px 6px;} .rk2-bt small{font-weight:600;letter-spacing:0;text-transform:none;color:var(--text-faint);}
+  .rk2-fila{display:grid;grid-template-columns:34px 34px minmax(140px,1.1fr) minmax(120px,2fr) 64px;align-items:center;gap:12px;padding:9px 14px;border-radius:12px;}
+  .rk2-fila:hover{background:var(--panel-2);}
+  .rk2-bloque .rk2-fila + .rk2-fila{border-top:1px solid var(--hairline);}
+  .rk2-bloque:last-child .rk2-fila{grid-template-columns:34px minmax(140px,1.1fr) minmax(120px,2fr) 64px;}
+  .rk2-pos{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:var(--text-faint);text-align:center;}
+  .rk2-mini{width:32px;height:32px;border-radius:50%;background:var(--panel-2);display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:800;color:var(--text-dim);}
+  .rk2-quien{min-width:0;display:flex;flex-direction:column;} .rk2-quien b{font-size:13.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .rk2-quien small{font-size:11px;color:var(--text-faint);}
+  .rk2-barra{position:relative;height:6px;border-radius:99px;background:var(--panel-2);}
+  .rk2-barra span{display:block;height:100%;border-radius:99px;} .rk2-b-ok{background:var(--ok);} .rk2-b-warn{background:var(--warn);} .rk2-b-bad{background:var(--danger);} .rk2-b-gris{background:var(--text-faint);}
+  .rk2-barra i{position:absolute;top:-4px;width:2px;height:14px;border-radius:2px;background:var(--text);opacity:.35;}
+  .rk2-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;text-align:right;}
+  .pp-canvas{position:relative;width:100%;}
+  @media (max-width:720px){
+    .rk2-kpis{grid-template-columns:1fr 1fr;} .rk2-kpis > div:nth-child(2){border-right:none;} .rk2-kpis > div:last-child{grid-column:1/-1;border-top:1px solid var(--hairline);}
+    .rk2-podio{grid-template-columns:1fr 1fr;gap:10px;} .rk2-p1{grid-column:1/-1;order:-1;}
+    .rk2-fila,.rk2-bloque:last-child .rk2-fila{grid-template-columns:28px minmax(0,1fr) 54px;row-gap:6px;} .rk2-mini{display:none;} .rk2-barra{grid-column:2/3;grid-row:2;}
+  }
   .camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
   .camp-chips:empty{display:none;}
   .camp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 6px 3px 10px;font-size:11.5px;font-weight:700;}
@@ -17033,6 +17078,177 @@ function agregarInstanciaAlRanking_(acum, instancia, entregasVivas, extractor, s
 // Al tocar un vendedor del ranking se abre (o cierra) debajo una tabla
 // con su evolución mes a mes: ventas, respuestas, NPS y, si están las 3
 // encuestas juntas, el NPS de cada encuesta en ese mes.
+// =====================================================================
+// GRÁFICOS: estilo profesional para TODOS los gráficos del Planning.
+// No cambia ningún dato ni cálculo: solo cómo se dibujan.
+//  - Tipografía, grilla suave, tooltips oscuros, barras redondeadas, puntos chicos.
+//  - Meses "2026-10" → "oct 26".
+//  - Tortas/donas → barras horizontales ordenadas (se comparan mejor), con % en el tooltip.
+//  - Valores al final de cada barra (gráficos de una sola serie).
+//  - Línea punteada "Meta 90" en los gráficos de NPS.
+//  - Relleno degradado suave debajo de las líneas.
+// =====================================================================
+(function(){
+  var MES_ = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  var esMesIso_ = function(l){ return typeof l==='string' && /^\d{4}-\d{2}$/.test(l); };
+  var mesCorto_ = function(l){ var p=l.split('-'); return MES_[+p[1]-1]+' '+p[0].slice(2); };
+  var cssVar_ = function(n, def){ try{ var v=getComputedStyle(document.body).getPropertyValue(n).trim(); return v||def; }catch(e){ return def; } };
+  function colores_(){
+    return { texto: cssVar_('--text-dim','#5B6270'), fuerte: cssVar_('--text','#14161B'), grilla: document.body.classList.contains('light-mode') ? 'rgba(17,24,39,.07)' : 'rgba(255,255,255,.07)', panel: cssVar_('--panel','#ffffff') };
+  }
+  function aplicarDefaults_(C){
+    var c=colores_(), d=C.defaults;
+    d.font.family = 'Inter, system-ui, -apple-system, "Segoe UI", sans-serif'; d.font.size = 11; d.color = c.texto;
+    d.borderColor = c.grilla;
+    d.plugins.legend.labels.usePointStyle = true; d.plugins.legend.labels.pointStyle = 'circle';
+    d.plugins.legend.labels.boxWidth = 7; d.plugins.legend.labels.boxHeight = 7; d.plugins.legend.labels.padding = 14;
+    var t=d.plugins.tooltip; t.backgroundColor='#FFFFFF'; t.titleColor='#111827'; t.bodyColor='#374151'; t.borderColor='#E5E7EB'; t.borderWidth=1; t.padding=12; t.cornerRadius=12;
+    t.titleFont={weight:'700', size:12}; t.bodyFont={weight:'600', size:12}; t.usePointStyle=true; t.boxPadding=6; t.caretSize=6; t.titleMarginBottom=8;
+    d.interaction = {mode:'index', intersect:false};
+    d.plugins.legend.position = 'bottom'; d.plugins.legend.align = 'center';
+    d.elements.bar.borderRadius = 999; d.elements.bar.borderSkipped = false;
+    d.elements.line.tension = .42; d.elements.line.borderWidth = 3; d.elements.line.cubicInterpolationMode = 'default';
+    // leyenda y tooltip con puntos llenos del color de cada serie
+    var genOrig = C.defaults.plugins.legend.labels.generateLabels;
+    if(!genOrig.__pp){ var gen=function(chart){ return genOrig.call(this, chart).map(function(l){ var ds=chart.data.datasets[l.datasetIndex]; var col = ds && (ds.type||chart.config.type)==='line' ? ds.borderColor : l.fillStyle; if(typeof col==='string'){ l.fillStyle=col; l.strokeStyle=col; } l.lineWidth=0; return l; }); }; gen.__pp=true; d.plugins.legend.labels.generateLabels=gen; }
+    t.callbacks = t.callbacks || {};
+    t.callbacks.labelColor = function(ctx){ var ds=ctx.dataset, col = (ds.type||ctx.chart.config.type)==='line' ? ds.borderColor : (Array.isArray(ds.backgroundColor) ? ds.backgroundColor[ctx.dataIndex] : ds.backgroundColor); if(typeof col!=='string') col='#5B4CF0'; return {borderColor:col, backgroundColor:col, borderWidth:0, borderRadius:6}; };
+    d.elements.point.radius = 0; d.elements.point.hoverRadius = 7; d.elements.point.borderWidth = 3; d.elements.point.hoverBorderWidth = 3; d.elements.point.backgroundColor = '#FFFFFF';
+    d.elements.arc.borderWidth = 0;
+    ['category','linear'].forEach(function(k){ var s=C.defaults.scales[k]; if(!s) return; s.grid=s.grid||{}; s.grid.color=c.grilla; s.grid.drawTicks=false; s.border=s.border||{}; s.border.display=false; s.border.dash=[4,4]; s.ticks=s.ticks||{}; s.ticks.padding=10; });
+    if(C.defaults.scales.category){ C.defaults.scales.category.grid.display=false; }
+    d.datasets.bar.maxBarThickness = 22;
+    d.datasets.bar.categoryPercentage = .6; d.datasets.bar.barPercentage = .8;
+    d.animation.duration = 500;
+  }
+  // Plugin: valores al final de las barras (una sola serie)
+  var pluginValores_ = {
+    id:'ppValores',
+    afterDatasetsDraw: function(chart){
+      var cfg=chart.config, ds=chart.data.datasets||[];
+      if(cfg.type!=='bar' || ds.length!==1 || (chart.options.plugins.ppValores===false)) return;
+      var meta=chart.getDatasetMeta(0); if(!meta || meta.data.length>24) return;
+      var ctx=chart.ctx, horiz=chart.options.indexAxis==='y', c=colores_();
+      var escala = horiz ? chart.scales.x : chart.scales.y;
+      var esPct = escala && escala.max===100 && escala.options && escala.options.ticks && escala.options.ticks.callback && String(escala.options.ticks.callback).indexOf('%')>-1;
+      ctx.save(); ctx.font='700 11px Inter, system-ui, sans-serif'; ctx.fillStyle=c.fuerte;
+      meta.data.forEach(function(el, i){
+        var v=ds[0].data[i]; if(v===null || v===undefined || isNaN(v)) return;
+        var txt=(Math.round(v*10)/10).toString().replace('.',',')+(esPct?'%':'');
+        if(horiz){ ctx.textAlign='left'; ctx.textBaseline='middle'; var x=el.x+6; if(x+ctx.measureText(txt).width>chart.chartArea.right){ x=el.x-6; ctx.textAlign='right'; ctx.fillStyle='#fff'; } else ctx.fillStyle=c.fuerte; ctx.fillText(txt, x, el.y); }
+        else { ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillStyle=c.fuerte; ctx.fillText(txt, el.x, (v>=0? el.y-4 : el.y+14)); }
+      });
+      ctx.restore();
+    }
+  };
+  // Plugin: guía vertical punteada en el punto que se está mirando
+  var pluginGuia_ = {
+    id:'ppGuia',
+    afterDatasetsDraw: function(chart){
+      var act = chart.tooltip && chart.tooltip.getActiveElements ? chart.tooltip.getActiveElements() : [];
+      if(!act.length) return;
+      var tieneLinea = (chart.data.datasets||[]).some(function(d){ return (d.type||chart.config.type)==='line'; });
+      if(!tieneLinea) return;
+      var x=act[0].element.x, a=chart.chartArea, ctx=chart.ctx;
+      ctx.save(); ctx.setLineDash([4,4]); ctx.strokeStyle='rgba(91,76,240,.45)'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(x,a.top); ctx.lineTo(x,a.bottom); ctx.stroke(); ctx.restore();
+    }
+  };
+  // Plugin: línea de meta NPS 90 en ejes de NPS (-100 a 100)
+  var pluginMeta_ = {
+    id:'ppMetaNps',
+    afterDraw: function(chart){
+      var ejes=Object.keys(chart.scales||{}).map(function(k){ return chart.scales[k]; }).filter(function(s){ return s.axis!=='x' && s.options && (s.options.ppNps || (s.options.min===-100 && s.options.max===100)); });
+      if(!ejes.length) return;
+      var s=ejes[0], y=s.getPixelForValue(90), y0=s.getPixelForValue(0), a=chart.chartArea, ctx=chart.ctx;
+      ctx.save();
+      ctx.strokeStyle='rgba(22,163,74,.75)'; ctx.setLineDash([6,5]); ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(a.left,y); ctx.lineTo(a.right,y); ctx.stroke();
+      if(s.id==='y' && s.min<0){ ctx.setLineDash([]); ctx.strokeStyle=colores_().grilla; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(a.left,y0); ctx.lineTo(a.right,y0); ctx.stroke(); }
+      ctx.font='700 10px Inter, system-ui, sans-serif'; ctx.fillStyle='#16A34A'; ctx.textAlign='right'; ctx.textBaseline='bottom'; ctx.fillText('Meta 90', a.right-4, y-3);
+      ctx.restore();
+    }
+  };
+  function degradado_(color){
+    return function(context){
+      var chart=context.chart, a=chart.chartArea; if(!a) return 'transparent';
+      var g=chart.ctx.createLinearGradient(0,a.top,0,a.bottom);
+      g.addColorStop(0, hexAlpha_(color,.16)); g.addColorStop(1, hexAlpha_(color,0));
+      return g;
+    };
+  }
+  function hexAlpha_(c, a){
+    if(typeof c!=='string') return 'rgba(62,103,206,'+a+')';
+    var m=c.match(/^#([0-9a-f]{6})$/i); if(!m) return c;
+    var n=parseInt(m[1],16); return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+a+')';
+  }
+  function mejorarConfig_(canvas, cfg){
+    if(!cfg || !cfg.data) return cfg;
+    var data=cfg.data, labels=data.labels||[];
+    cfg.options = cfg.options || {}; cfg.options.plugins = cfg.options.plugins || {};
+    // meses legibles
+    if(labels.length && labels.every(esMesIso_)) data.labels = labels.map(mesCorto_);
+    // ejes de NPS (-100 a 100): se acercan a los datos para que las curvas se lean (la meta 90 queda siempre visible)
+    var esc = cfg.options && cfg.options.scales;
+    if(esc) Object.keys(esc).forEach(function(k){
+      var sc=esc[k]; if(!sc || sc.min!==-100 || sc.max!==100) return;
+      var vals=[]; (data.datasets||[]).forEach(function(d){ var ax=d.yAxisID || 'y'; if(ax!==k && !(k==='y' && !d.yAxisID)) return; if(ax!==k) return; (d.data||[]).forEach(function(v){ if(typeof v==='number' && !isNaN(v)) vals.push(v); }); });
+      if(!vals.length) return;
+      var mn=Math.min.apply(null, vals);
+      var nuevo = mn>=0 ? Math.max(0, Math.floor((mn-10)/20)*20) : Math.max(-100, Math.floor((mn-10)/20)*20);
+      sc.min = Math.min(nuevo, 80); sc.ppNps = true;
+      sc.ticks = Object.assign({stepSize:20}, sc.ticks||{});
+    });
+    // tortas y donas → barras horizontales ordenadas
+    if((cfg.type==='doughnut' || cfg.type==='pie') && data.datasets && data.datasets.length===1){
+      var ds=data.datasets[0], cols=Array.isArray(ds.backgroundColor)?ds.backgroundColor:[ds.backgroundColor];
+      var items=(data.labels||[]).map(function(l,i){ return {l:l, v:Number(ds.data[i])||0, c:cols[i%cols.length]}; }).sort(function(a,b){ return b.v-a.v; });
+      var total=items.reduce(function(a,x){return a+x.v;},0)||1;
+      cfg.type='bar';
+      data.labels=items.map(function(x){return x.l;});
+      data.datasets=[{ data:items.map(function(x){return x.v;}), backgroundColor:items.map(function(x){return x.c;}) }];
+      cfg.options.indexAxis='y'; cfg.options.maintainAspectRatio=false;
+      cfg.options.plugins.legend={display:false};
+      cfg.options.plugins.tooltip={callbacks:{label:function(c){ return ' '+c.raw+' ('+Math.round(c.raw/total*100)+'%)'; }}};
+      cfg.options.scales={x:{beginAtZero:true, ticks:{precision:0}, grid:{color:colores_().grilla}}, y:{grid:{display:false}}};
+      if(canvas && canvas.parentElement){ var alto=Math.max(160, items.length*34+30); canvas.style.height=alto+'px'; canvas.style.maxHeight=alto+'px'; if(!canvas.parentElement.classList.contains('pp-canvas')){ var w=document.createElement('div'); w.className='pp-canvas'; w.style.height=alto+'px'; canvas.parentElement.insertBefore(w, canvas); w.appendChild(canvas); } else canvas.parentElement.style.height=alto+'px'; }
+    }
+    // líneas: relleno degradado suave (si hay 1 o 2 líneas)
+    var lineas=(data.datasets||[]).filter(function(d){ return (d.type||cfg.type)==='line'; });
+    var PALETA_ = ['#5B4CF0','#2BC48A','#F5A524','#EF5D60','#0EA5E9'];
+    lineas.forEach(function(d, i){ d.borderColor = PALETA_[i % PALETA_.length]; if(!d.borderWidth || d.borderWidth<3) d.borderWidth = 3; });
+    var todasLineas = lineas.length === (data.datasets||[]).length;
+    if(lineas.length===1 && todasLineas){ // una sola curva: relleno muy suave debajo
+      var d0=lineas[0]; if(!d0.backgroundColor || d0.backgroundColor==='transparent'){ d0.backgroundColor=degradado_(d0.borderColor); d0.fill='start'; }
+    } else lineas.forEach(function(d){ d.fill=false; });
+    (data.datasets||[]).forEach(function(d){
+      // barras apiladas: segmentos rectos (si no, cada tramo queda como una "pastilla")
+      if((d.type||cfg.type)==='bar' && d.stack){ if(d.borderRadius===undefined) d.borderRadius=0; }
+      if((d.type||cfg.type)==='line'){ d.pointBackgroundColor = d.pointBackgroundColor || colores_().panel; d.pointBorderColor = d.pointBorderColor || d.borderColor; }
+    });
+    // barras de una sola serie: sin grilla en el eje de categorías
+    if(cfg.type==='bar' && (data.datasets||[]).length===1){
+      var b0=data.datasets[0]; if(typeof b0.backgroundColor==='string' && /^#(3E67CE|3FBF88|E8A33D)$/i.test(b0.backgroundColor)) b0.backgroundColor='#5B4CF0';
+      cfg.options.scales = cfg.options.scales || {};
+      var cat = cfg.options.indexAxis==='y' ? 'y' : 'x';
+      cfg.options.scales[cat] = Object.assign({grid:{display:false}}, cfg.options.scales[cat]||{});
+      if(cfg.options.indexAxis==='y'){ cfg.options.layout = cfg.options.layout || {}; cfg.options.layout.padding = Object.assign({right:34}, cfg.options.layout.padding||{}); }
+      else { cfg.options.layout = cfg.options.layout || {}; cfg.options.layout.padding = Object.assign({top:18}, cfg.options.layout.padding||{}); }
+    }
+    return cfg;
+  }
+  function instalar_(){
+    var C=window.Chart; if(!C || C.__pp) return !!(C && C.__pp);
+    aplicarDefaults_(C);
+    C.register(pluginValores_, pluginMeta_, pluginGuia_);
+    var Envuelto=function(canvas, cfg){ aplicarDefaults_(C); return new C(canvas, mejorarConfig_(canvas, cfg)); };
+    Object.setPrototypeOf(Envuelto, C); Envuelto.prototype=C.prototype; Envuelto.__pp=true;
+    window.Chart=Envuelto;
+    return true;
+  }
+  // Chart.js se carga con "defer": se instala apenas está disponible
+  if(!instalar_()){ document.addEventListener('DOMContentLoaded', instalar_); window.addEventListener('load', instalar_); }
+})();
+
 function toggleDesgloseVendedor_(tr, i){
   var siguiente = tr.nextElementSibling;
   var chevron = tr.querySelector('.rank-vend-chevron');
@@ -17107,34 +17323,45 @@ function rkStats_(v, totalResp){
   var part = totalResp>0 ? Math.round(v.total/totalResp*100)+'%' : '—';
   return '<div class="rk-stats"><span><b>'+v.total+'</b> resp.</span>'+(oc?'':'<span><b>'+(v.ventas||0)+'</b> ventas</span><span><b>'+tasa+'</b> tasa</span>')+'<span><b>'+part+'</b> partic.</span></div>';
 }
+function rkIniciales_(n){ var p=String(n||'').trim().split(/\s+/); return ((p[0]||'')[0]||'').toUpperCase()+((p[1]||'')[0]||'').toUpperCase(); }
 function renderRankingVisual_(lista, totalResp, listaSuc, totalRespSuc){
   var el=document.getElementById('rankVisual'); if(!el) return;
-  window._rkSucursales_ = listaSuc || [];
   if(!lista.length){ el.innerHTML='<div class="rk-vacio">Todavía no hay respuestas con vendedor para este filtro.</div>'; return; }
+  var oc=rkOcultaVentas_();
+  var tasa_=function(v){ return v.ventas>0 ? Math.round(v.total/v.ventas*100)+'%' : '—'; };
+  var detalle_=function(v){ return 'Promotores '+v.promotores+' · Neutrales '+v.pasivos+' · Detractores '+v.detractores+(oc?'':' · Ventas '+(v.ventas||0)+' · Tasa de respuesta '+tasa_(v))+' · Participación '+(totalResp>0?Math.round(v.total/totalResp*100):0)+'%'; };
   var top=lista.slice(0,3), resto=lista.slice(3);
   var orden=[1,0,2].filter(function(i){ return top[i]; });
-  var podio='<div class="rk-podio">'+orden.map(function(i){
-    var v=top[i];
-    return '<div class="rk-pod rk-pos'+(i+1)+'"><div class="rk-medalla">'+(i+1)+'</div>'+
-      '<div class="rk-nombre">'+rkEsc_(v.nombre)+'</div><div class="rk-suc">'+rkEsc_(v.sucursalPrincipal)+'</div>'+
-      '<div class="rk-nps" style="color:'+rkColor_(v.nps)+'">'+rkNps_(v.nps)+'<small>NPS</small></div>'+
-      '<div class="rk-dif rk-'+rkEstado_(v.nps)+'">'+rkDif_(v.nps)+'</div>'+
-      rkProgreso_(v.nps)+rkBarraPND_(v)+rkStats_(v, totalResp)+
-      '<div class="rk-base"></div></div>';
+  var podio='<div class="rk2-podio">'+orden.map(function(i){
+    var v=top[i], est=rkEstado_(v.nps);
+    return '<div class="rk2-pod rk2-p'+(i+1)+'" title="'+rkEsc_(detalle_(v))+'">'+
+      '<div class="rk2-av"><span>'+rkEsc_(rkIniciales_(v.nombre))+'</span><b>'+(i+1)+'</b></div>'+
+      '<div class="rk2-nom">'+rkEsc_(v.nombre)+'</div><div class="rk2-suc">'+rkEsc_(v.sucursalPrincipal)+'</div>'+
+      '<div class="rk2-nps rk2-'+est+'">'+rkNps_(v.nps)+'</div>'+
+      '<div class="rk2-chip rk2-c-'+est+'">'+rkDif_(v.nps)+'</div>'+
+      '<div class="rk2-pie">'+v.total+' respuestas'+(oc?'':' · '+tasa_(v)+' tasa')+'</div>'+
+      '<div class="rk2-pedestal">'+(i+1)+'°</div></div>';
   }).join('')+'</div>';
-  var tarjetas = resto.length ? '<div class="rk-grid">'+resto.map(function(v, k){
-    var pos=k+4;
-    return '<div class="rk-card"><div class="rk-card-top"><span class="rk-pos">'+pos+'</span><div class="rk-card-nom"><b>'+rkEsc_(v.nombre)+'</b><small>'+rkEsc_(v.sucursalPrincipal)+'</small></div>'+
-      '<div class="rk-card-nps" style="color:'+rkColor_(v.nps)+'">'+rkNps_(v.nps)+'</div></div>'+
-      rkProgreso_(v.nps)+'<div class="rk-card-bot">'+rkStats_(v, totalResp)+rkBarraPND_(v)+'</div></div>';
+  var tabla = resto.length ? '<div class="rk2-lista">'+resto.map(function(v,k){
+    var est=rkEstado_(v.nps), w = v.nps===null ? 0 : Math.max(0, Math.min(100, v.nps));
+    return '<div class="rk2-fila" title="'+rkEsc_(detalle_(v))+'"><span class="rk2-pos">'+(k+4)+'</span>'+
+      '<span class="rk2-mini">'+rkEsc_(rkIniciales_(v.nombre))+'</span>'+
+      '<div class="rk2-quien"><b>'+rkEsc_(v.nombre)+'</b><small>'+rkEsc_(v.sucursalPrincipal)+' · '+v.total+' resp.</small></div>'+
+      '<div class="rk2-barra"><span class="rk2-b-'+est+'" style="width:'+w+'%"></span><i style="left:'+RANK_META_NPS_+'%"></i></div>'+
+      '<span class="rk2-val rk2-'+est+'">'+rkNps_(v.nps)+'</span></div>';
   }).join('')+'</div>' : '';
+  var G=window._rkGeneral_||{total:totalResp, nps:null, conVendedor:totalResp, sinVendedor:0};
   var cumplen=lista.filter(function(v){ return v.nps!==null && v.nps>=RANK_META_NPS_; }).length;
-  var resumen='<div class="rk-resumen"><div><b>'+lista.length+'</b><span>vendedores</span></div><div><b class="rk-ok-t">'+cumplen+'</b><span>llegan a la meta ('+RANK_META_NPS_+')</span></div><div><b>'+totalResp+'</b><span>respuestas</span></div>'+
-    '<div class="rk-ley"><i class="p"></i>Promotores <i class="n"></i>Neutrales <i class="d"></i>Detractores <i class="m"></i>Meta '+RANK_META_NPS_+'</div></div>';
-  var suc = (listaSuc && listaSuc.length) ? '<div class="rk-suc-wrap"><div class="rk-subt">Por sucursal</div>'+listaSuc.map(function(v,i){
-    return '<div class="rk-suc-row"><span class="rk-pos">'+(i+1)+'</span><b class="rk-suc-n">'+rkEsc_(v.nombre)+'</b><div class="rk-suc-bar">'+rkProgreso_(v.nps)+rkBarraPND_(v)+'</div><span class="rk-suc-v" style="color:'+rkColor_(v.nps)+'">'+rkNps_(v.nps)+'</span><small>'+v.total+' resp.</small></div>';
-  }).join('')+'</div>' : '';
-  el.innerHTML=resumen+podio+tarjetas+suc;
+  var resumen='<div class="rk2-kpis">'+
+    '<div><span>NPS general</span><b class="rk2-'+rkEstado_(G.nps)+'">'+rkNps_(G.nps)+'</b></div>'+
+    '<div><span>Respuestas</span><b>'+G.total+'</b><small>'+G.conVendedor+' con vendedor'+(G.sinVendedor?' · '+G.sinVendedor+' sin vendedor':'')+'</small></div>'+
+    '<div><span>En la meta ('+RANK_META_NPS_+')</span><b class="rk2-ok">'+cumplen+'<em> / '+lista.length+'</em></b><small>vendedores</small></div></div>';
+  var suc = (listaSuc && listaSuc.length) ? '<div class="rk2-bloque"><div class="rk2-bt">Por sucursal</div><div class="rk2-lista">'+listaSuc.map(function(v,i){
+    var est=rkEstado_(v.nps), w = v.nps===null ? 0 : Math.max(0, Math.min(100, v.nps));
+    return '<div class="rk2-fila" title="Promotores '+v.promotores+' · Neutrales '+v.pasivos+' · Detractores '+v.detractores+'"><span class="rk2-pos">'+(i+1)+'</span><div class="rk2-quien"><b>'+rkEsc_(v.nombre)+'</b><small>'+v.total+' resp.</small></div>'+
+      '<div class="rk2-barra"><span class="rk2-b-'+est+'" style="width:'+w+'%"></span><i style="left:'+RANK_META_NPS_+'%"></i></div><span class="rk2-val rk2-'+est+'">'+rkNps_(v.nps)+'</span></div>';
+  }).join('')+'</div></div>' : '';
+  el.innerHTML=resumen+podio+(tabla?'<div class="rk2-bloque"><div class="rk2-bt">Resto del ranking <small>· la línea marca la meta '+RANK_META_NPS_+'</small></div>'+tabla+'</div>':'')+suc;
 }
 // ---------- Imagen para WhatsApp (1080 x 1350) ----------
 function rkFiltrosTexto_(){
@@ -17214,7 +17441,8 @@ function rkDibujarPagina_(ctx, logo, filtros, lista, desde, conPodio, pag, totPa
   // pie
   ctx.fillStyle='#0A0F1E'; ctx.fillRect(0,H-70,W,70);
   var d=new Date(), fh=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-  ctx.fillStyle='#C9CFDA'; ctx.font='600 20px '+FONT; ctx.fillText('Meta NPS '+RANK_META_NPS_+'  ·  '+totalResp+' respuestas en total', 60, H-28);
+  var G=window._rkGeneral_||{total:totalResp, nps:null};
+  ctx.fillStyle='#C9CFDA'; ctx.font='600 20px '+FONT; ctx.fillText('NPS general '+rkNps_(G.nps)+'  ·  '+G.total+' respuestas  ·  Meta '+RANK_META_NPS_, 60, H-28);
   ctx.textAlign='right'; ctx.fillText('Actualizado '+fh+'  ·  Grupo París', W-60, H-28); ctx.textAlign='left';
 }
 async function compartirRanking_(){
@@ -17450,6 +17678,10 @@ function renderRankingVendedorPanel_(){
   document.getElementById('rankSucursalTabla').innerHTML = encabezadoSucursal+
     (listaSucursales.map(filaSucursalHtml_).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
 
+  // Total REAL de respuestas (incluye las anónimas / sin vendedor, que no pueden rankear) — igual que la tarjeta de NPS
+  var _gen = {promotores:0, pasivos:0, detractores:0, total:0};
+  Object.keys(acumVendedor).forEach(function(n){ var v=acumVendedor[n]; _gen.promotores+=v.promotores; _gen.pasivos+=v.pasivos; _gen.detractores+=v.detractores; _gen.total+=v.total; });
+  window._rkGeneral_ = {total:_gen.total, nps:npsDeConteo_(_gen), conVendedor:totalRespuestasTodos, sinVendedor:_gen.total-totalRespuestasTodos};
   renderRankingVisual_(listaVendedores, totalRespuestasTodos, listaSucursales, totalRespuestasSucursales);
   var ventasTotalGeneral = listaSucursales.reduce(function(a,v){return a+v.ventas;}, 0);
   // Conciliación: cuántas respuestas hay en total por encuesta y cuántas
