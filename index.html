@@ -1245,6 +1245,67 @@
   #dUsadoSection .section-title::before{content:'';}
   #dUsObs,#nUsObs{display:block;width:100% !important;max-width:100%;box-sizing:border-box;resize:vertical;overflow:hidden;min-height:64px;line-height:1.45;}
   #dUsadoSection .field.full,#nUsadoBlock .form-field.full{grid-column:1/-1;width:100%;}
+
+  /* ===================== RANKING VISUAL ===================== */
+  .rk-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 12px;}
+  .rk-kick{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);}
+  .rk-title{margin:2px 0 0;font-family:'Space Grotesk',sans-serif;font-size:24px;letter-spacing:-.02em;color:var(--text);}
+  .rk-share{display:inline-flex;align-items:center;gap:8px;border:none;border-radius:999px;padding:11px 20px;background:#0A0F1E;color:#fff;font-weight:800;font-size:12.5px;letter-spacing:.06em;cursor:pointer;box-shadow:0 10px 24px -12px rgba(10,15,30,.7);}
+  body:not(.light-mode) .rk-share{background:var(--accent);color:#1A1206;}
+  .rk-share:hover{transform:translateY(-1px);} .rk-share .material-symbols-outlined{font-size:18px;}
+  .rk-resumen{display:flex;flex-wrap:wrap;align-items:center;gap:22px;background:var(--panel);border:1px solid var(--hairline);border-radius:16px;padding:12px 18px;margin-bottom:14px;}
+  .rk-resumen > div:not(.rk-ley){display:flex;flex-direction:column;} .rk-resumen b{font-family:'Space Grotesk',sans-serif;font-size:24px;line-height:1;color:var(--text);} .rk-resumen span{font-size:11.5px;color:var(--text-dim);margin-top:3px;}
+  .rk-ok-t{color:var(--ok)!important;}
+  .rk-ley{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-dim);flex-wrap:wrap;}
+  .rk-ley i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-left:6px;} .rk-ley i.p{background:var(--ok)} .rk-ley i.n{background:var(--warn)} .rk-ley i.d{background:var(--danger)} .rk-ley i.m{width:2px;height:12px;background:var(--text);}
+  .rk-podio{display:grid;grid-template-columns:1fr 1.12fr 1fr;gap:14px;align-items:end;margin-bottom:16px;}
+  .rk-pod{position:relative;background:var(--panel);border:1px solid var(--hairline);border-radius:20px;padding:18px 16px 14px;text-align:center;box-shadow:0 1px 2px rgba(16,24,40,.05);overflow:hidden;}
+  .rk-pod::before{content:'';position:absolute;inset:0 0 auto 0;height:5px;background:var(--rkc);}
+  .rk-pos1{--rkc:#E8A33D;padding-top:26px;box-shadow:0 18px 40px -22px rgba(232,163,61,.65);border-color:color-mix(in srgb,#E8A33D 45%,var(--hairline));}
+  .rk-pos2{--rkc:#AAB3C2;} .rk-pos3{--rkc:#C98A5A;}
+  .rk-medalla{width:46px;height:46px;border-radius:50%;margin:0 auto 10px;background:var(--rkc);color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px -6px var(--rkc);}
+  .rk-pos1 .rk-medalla{width:58px;height:58px;font-size:28px;}
+  .rk-nombre{font-weight:800;font-size:15px;color:var(--text);line-height:1.2;min-height:36px;}
+  .rk-suc{font-size:11.5px;color:var(--text-dim);margin-top:2px;}
+  .rk-nps{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:40px;line-height:1;margin:12px 0 2px;letter-spacing:-.02em;}
+  .rk-pos1 .rk-nps{font-size:50px;} .rk-nps small{display:block;font-size:10.5px;letter-spacing:.12em;color:var(--text-faint);font-family:Inter,sans-serif;font-weight:700;margin-top:4px;}
+  .rk-dif{font-size:11.5px;font-weight:700;margin-bottom:10px;} .rk-dif.rk-ok{color:var(--ok)} .rk-dif.rk-warn{color:var(--warn)} .rk-dif.rk-bad{color:var(--danger)} .rk-dif.rk-gris{color:var(--text-faint)}
+  .rk-prog{position:relative;height:8px;border-radius:99px;background:var(--panel-2);margin:6px 0;overflow:visible;}
+  .rk-prog span{display:block;height:100%;border-radius:99px;} .rk-prog span.rk-ok{background:var(--ok)} .rk-prog span.rk-warn{background:var(--warn)} .rk-prog span.rk-bad{background:var(--danger)} .rk-prog span.rk-gris{background:var(--text-faint)}
+  .rk-meta{position:absolute;top:-3px;width:2px;height:14px;background:var(--text);border-radius:2px;opacity:.55;}
+  .rk-pnd{display:flex;height:6px;border-radius:99px;overflow:hidden;background:var(--panel-2);margin:6px 0;} .rk-pnd i{display:block;height:100%;} .rk-pnd i.p{background:var(--ok)} .rk-pnd i.n{background:var(--warn)} .rk-pnd i.d{background:var(--danger)}
+  .rk-stats{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;font-size:11.5px;color:var(--text-dim);margin-top:6px;} .rk-stats b{color:var(--text);}
+  .rk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:18px;}
+  .rk-card{background:var(--panel);border:1px solid var(--hairline);border-radius:16px;padding:12px 14px;box-shadow:0 1px 2px rgba(16,24,40,.04);}
+  .rk-card-top{display:flex;align-items:center;gap:10px;}
+  .rk-pos{flex:none;min-width:30px;height:30px;border-radius:10px;background:var(--panel-2);color:var(--text);font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;}
+  .rk-card-nom{flex:1;min-width:0;display:flex;flex-direction:column;} .rk-card-nom b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);} .rk-card-nom small{font-size:11px;color:var(--text-dim);}
+  .rk-card-nps{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;}
+  .rk-card-bot .rk-stats{justify-content:flex-start;margin-top:4px;}
+  .rk-subt{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin:4px 0 8px;}
+  .rk-suc-wrap{background:var(--panel);border:1px solid var(--hairline);border-radius:16px;padding:12px 16px;margin-bottom:18px;}
+  .rk-suc-row{display:grid;grid-template-columns:30px minmax(110px,180px) 1fr 70px 70px;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--hairline);}
+  .rk-suc-row:last-child{border-bottom:none;} .rk-suc-n{font-size:13px;color:var(--text);} .rk-suc-v{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;text-align:right;} .rk-suc-row small{font-size:11px;color:var(--text-dim);text-align:right;}
+  .rk-vacio{padding:26px;text-align:center;color:var(--text-faint);background:var(--panel);border:1px dashed var(--hairline);border-radius:16px;}
+  .rk-prev{width:min(760px,100%);max-height:92vh;display:flex;flex-direction:column;background:var(--panel);border-radius:20px;overflow:hidden;border:1px solid var(--hairline);}
+  .rk-prev-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--hairline);color:var(--text);} .rk-prev-h span{font-size:12px;color:var(--text-dim);}
+  .rk-prev-imgs{overflow:auto;padding:14px;display:flex;gap:12px;background:var(--panel-2);} .rk-prev-imgs img{height:min(62vh,640px);width:auto;border-radius:12px;box-shadow:0 10px 30px -14px rgba(0,0,0,.5);}
+  .rk-prev-acc{display:flex;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid var(--hairline);}
+  @media (max-width:720px){
+    .rk-podio{grid-template-columns:1fr;} .rk-pos1{order:-1;} .rk-nombre{min-height:0;}
+    .rk-suc-row{grid-template-columns:28px 1fr 60px;} .rk-suc-row .rk-suc-bar,.rk-suc-row small{grid-column:2/-1;}
+    .rk-ley{margin-left:0;}
+  }
+  /* ===================== Dashboard / reportes: estética más limpia ===================== */
+  .stat-chip{background:var(--panel)!important;border-radius:16px!important;box-shadow:0 1px 2px rgba(16,24,40,.05);}
+  .chart-panel{background:var(--panel)!important;border-radius:18px!important;box-shadow:0 1px 2px rgba(16,24,40,.05);}
+  .chart-panel-title{font-size:13px!important;letter-spacing:-.005em;}
+  .filter-bar{border-radius:16px!important;box-shadow:0 1px 2px rgba(16,24,40,.04);}
+  .filter-pill{border-radius:999px!important;transition:background .15s,color .15s;}
+  .filter-pill.active{background:var(--text)!important;color:var(--panel)!important;box-shadow:none!important;}
+  .report-wrap{border-radius:14px!important;background:var(--panel);}
+  .report-table tbody tr:hover td,.report-table tr:hover td{background:var(--accent-soft);}
+  .report-table th{position:sticky;top:0;z-index:1;}
   .camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
   .camp-chips:empty{display:none;}
   .camp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 6px 3px 10px;font-size:11.5px;font-weight:700;}
@@ -2997,8 +3058,10 @@
       </div>
       <div id="rankCorteVentas" style="font-size:9.5px;color:var(--text-faint);margin-bottom:14px;"></div>
 
-      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--warn);">military_tech</span>Top 5 Vendedores</div>
-      <div class="report-wrap"><table class="report-table" id="rankVendedorTop5Tabla"></table></div>
+      <div class="rk-head"><div><div class="rk-kick">Calidad · NPS</div><h3 class="rk-title">Ranking de vendedores</h3></div>
+        <button class="rk-share" onclick="compartirRanking_()"><span class="material-symbols-outlined">share</span> COMPARTIR RANKING</button></div>
+      <div id="rankVisual"></div>
+      <div style="display:none;"><table class="report-table" id="rankVendedorTop5Tabla"></table></div>
 
       <div class="section-title" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">emoji_events</span>Ranking completo por Vendedor <span style="font-weight:400;font-size:10.5px;color:var(--text-faint);text-transform:none;letter-spacing:0;">— tocá un vendedor para ver su desglose por mes</span></div>
       <div class="report-wrap"><table class="report-table" id="rankVendedorTabla"></table></div>
@@ -17017,6 +17080,182 @@ function toggleDesgloseVendedor_(tr, i){
       nota+
     '</td></tr>');
 }
+// =====================================================================
+// RANKING VISUAL (podio + tarjetas) y GENERADOR DE IMAGEN PARA WHATSAPP
+// Usa exactamente la lista ya calculada y ordenada por renderRankingVendedorPanel_
+// (mismas reglas: primero los que llegan al 90% de NPS, después por cantidad de respuestas).
+// =====================================================================
+var RANK_META_NPS_ = 90;
+function rkEsc_(x){ return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function rkColor_(nps){ return nps===null ? 'var(--text-faint)' : nps>=RANK_META_NPS_ ? 'var(--ok)' : nps>=0 ? 'var(--warn)' : 'var(--danger)'; }
+function rkEstado_(nps){ return nps===null ? 'gris' : nps>=RANK_META_NPS_ ? 'ok' : nps>=0 ? 'warn' : 'bad'; }
+function rkNps_(n){ return n===null ? '—' : (Math.round(n*10)/10).toString().replace('.',','); }
+function rkDif_(n){ if(n===null) return ''; var d=Math.round((n-RANK_META_NPS_)*10)/10; return (d>=0?'+':'')+String(d).replace('.',',')+' pts vs meta'; }
+function rkOcultaVentas_(){ try{ return localStorage.getItem('rankOcultarVentas')==='1'; }catch(e){ return false; } }
+function rkBarraPND_(v){
+  var t=v.total||0; if(!t) return '<div class="rk-pnd vacio"></div>';
+  var p=v.promotores/t*100, n=v.pasivos/t*100, d=v.detractores/t*100;
+  return '<div class="rk-pnd" title="Promotores '+v.promotores+' · Neutrales '+v.pasivos+' · Detractores '+v.detractores+'"><i class="p" style="width:'+p+'%"></i><i class="n" style="width:'+n+'%"></i><i class="d" style="width:'+d+'%"></i></div>';
+}
+function rkProgreso_(nps){
+  var w = nps===null ? 0 : Math.max(0, Math.min(100, nps));
+  return '<div class="rk-prog"><span class="rk-'+rkEstado_(nps)+'" style="width:'+w+'%"></span><b class="rk-meta" style="left:'+RANK_META_NPS_+'%" title="Meta '+RANK_META_NPS_+'"></b></div>';
+}
+function rkStats_(v, totalResp){
+  var oc=rkOcultaVentas_();
+  var tasa = v.ventas>0 ? Math.round(v.total/v.ventas*100)+'%' : '—';
+  var part = totalResp>0 ? Math.round(v.total/totalResp*100)+'%' : '—';
+  return '<div class="rk-stats"><span><b>'+v.total+'</b> resp.</span>'+(oc?'':'<span><b>'+(v.ventas||0)+'</b> ventas</span><span><b>'+tasa+'</b> tasa</span>')+'<span><b>'+part+'</b> partic.</span></div>';
+}
+function renderRankingVisual_(lista, totalResp, listaSuc, totalRespSuc){
+  var el=document.getElementById('rankVisual'); if(!el) return;
+  window._rkSucursales_ = listaSuc || [];
+  if(!lista.length){ el.innerHTML='<div class="rk-vacio">Todavía no hay respuestas con vendedor para este filtro.</div>'; return; }
+  var top=lista.slice(0,3), resto=lista.slice(3);
+  var orden=[1,0,2].filter(function(i){ return top[i]; });
+  var podio='<div class="rk-podio">'+orden.map(function(i){
+    var v=top[i];
+    return '<div class="rk-pod rk-pos'+(i+1)+'"><div class="rk-medalla">'+(i+1)+'</div>'+
+      '<div class="rk-nombre">'+rkEsc_(v.nombre)+'</div><div class="rk-suc">'+rkEsc_(v.sucursalPrincipal)+'</div>'+
+      '<div class="rk-nps" style="color:'+rkColor_(v.nps)+'">'+rkNps_(v.nps)+'<small>NPS</small></div>'+
+      '<div class="rk-dif rk-'+rkEstado_(v.nps)+'">'+rkDif_(v.nps)+'</div>'+
+      rkProgreso_(v.nps)+rkBarraPND_(v)+rkStats_(v, totalResp)+
+      '<div class="rk-base"></div></div>';
+  }).join('')+'</div>';
+  var tarjetas = resto.length ? '<div class="rk-grid">'+resto.map(function(v, k){
+    var pos=k+4;
+    return '<div class="rk-card"><div class="rk-card-top"><span class="rk-pos">'+pos+'</span><div class="rk-card-nom"><b>'+rkEsc_(v.nombre)+'</b><small>'+rkEsc_(v.sucursalPrincipal)+'</small></div>'+
+      '<div class="rk-card-nps" style="color:'+rkColor_(v.nps)+'">'+rkNps_(v.nps)+'</div></div>'+
+      rkProgreso_(v.nps)+'<div class="rk-card-bot">'+rkStats_(v, totalResp)+rkBarraPND_(v)+'</div></div>';
+  }).join('')+'</div>' : '';
+  var cumplen=lista.filter(function(v){ return v.nps!==null && v.nps>=RANK_META_NPS_; }).length;
+  var resumen='<div class="rk-resumen"><div><b>'+lista.length+'</b><span>vendedores</span></div><div><b class="rk-ok-t">'+cumplen+'</b><span>llegan a la meta ('+RANK_META_NPS_+')</span></div><div><b>'+totalResp+'</b><span>respuestas</span></div>'+
+    '<div class="rk-ley"><i class="p"></i>Promotores <i class="n"></i>Neutrales <i class="d"></i>Detractores <i class="m"></i>Meta '+RANK_META_NPS_+'</div></div>';
+  var suc = (listaSuc && listaSuc.length) ? '<div class="rk-suc-wrap"><div class="rk-subt">Por sucursal</div>'+listaSuc.map(function(v,i){
+    return '<div class="rk-suc-row"><span class="rk-pos">'+(i+1)+'</span><b class="rk-suc-n">'+rkEsc_(v.nombre)+'</b><div class="rk-suc-bar">'+rkProgreso_(v.nps)+rkBarraPND_(v)+'</div><span class="rk-suc-v" style="color:'+rkColor_(v.nps)+'">'+rkNps_(v.nps)+'</span><small>'+v.total+' resp.</small></div>';
+  }).join('')+'</div>' : '';
+  el.innerHTML=resumen+podio+tarjetas+suc;
+}
+// ---------- Imagen para WhatsApp (1080 x 1350) ----------
+function rkFiltrosTexto_(){
+  var per;
+  var f=function(x){ if(!x) return ''; var p=String(x).split('-'); return p[2]+'/'+p[1]+'/'+p[0]; };
+  if(typeof dashboardFechaDesde!=='undefined' && (dashboardFechaDesde||dashboardFechaHasta)) per=(dashboardFechaDesde?f(dashboardFechaDesde):'inicio')+' al '+(dashboardFechaHasta?f(dashboardFechaHasta):'hoy');
+  else per='Todo el período';
+  var inst=document.getElementById('rankFiltroInstancia'); var instTxt = inst ? inst.options[inst.selectedIndex].text : '';
+  var marcas = (typeof dashboardMarcasActivas!=='undefined' && dashboardMarcasActivas.indexOf('todas')===-1) ? dashboardMarcasActivas.map(function(m){ var b=BRANDS.find(function(x){return x.id===m;}); return b?b.label:m; }).join(' · ') : 'Todas las marcas';
+  var canal = filterCanal==='pda' ? 'Canal PDA' : filterCanal==='tradicional' ? 'Vendedores (sin PDA)' : 'Todos los canales';
+  return {periodo:per, encuesta:instTxt, marcas:marcas, canal:canal};
+}
+function rkCargarImg_(src){ return new Promise(function(ok){ var im=new Image(); im.onload=function(){ ok(im); }; im.onerror=function(){ ok(null); }; im.src=src; }); }
+function rkTextoAjustado_(ctx, txt, maxW){ txt=String(txt||''); if(ctx.measureText(txt).width<=maxW) return txt; while(txt.length>1 && ctx.measureText(txt+'…').width>maxW) txt=txt.slice(0,-1); return txt+'…'; }
+function rkRect_(ctx,x,y,w,h,r,fill,stroke){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); if(fill){ ctx.fillStyle=fill; ctx.fill(); } if(stroke){ ctx.strokeStyle=stroke; ctx.lineWidth=2; ctx.stroke(); } }
+var RK_COL_ = {ok:'#16A34A', warn:'#D97706', bad:'#DC2626', gris:'#9CA3AF'};
+function rkDibujarPagina_(ctx, logo, filtros, lista, desde, conPodio, pag, totPag, totalResp){
+  var W=1080, H=1350, FONT='Inter, "Segoe UI", Arial, sans-serif', HFONT='"Space Grotesk", Inter, Arial, sans-serif';
+  ctx.fillStyle='#F4F5F8'; ctx.fillRect(0,0,W,H);
+  // encabezado
+  var g=ctx.createLinearGradient(0,0,W,300); g.addColorStop(0,'#0A0F1E'); g.addColorStop(1,'#1B2440'); ctx.fillStyle=g; ctx.fillRect(0,0,W,300);
+  rkRect_(ctx,60,46,250,72,18,'#FFFFFF');
+  if(logo){ var lh=46, lw=logo.width*lh/logo.height; ctx.drawImage(logo, 60+(250-lw)/2, 46+13, lw, lh); }
+  ctx.fillStyle='#E8A33D'; ctx.font='800 22px '+FONT; ctx.textAlign='right'; ctx.fillText('NPS · CALIDAD', W-60, 92);
+  ctx.textAlign='left'; ctx.fillStyle='#FFFFFF'; ctx.font='800 64px '+HFONT; ctx.fillText('RANKING DE VENDEDORES', 60, 200);
+  ctx.fillStyle='#C9CFDA'; ctx.font='500 26px '+FONT;
+  ctx.fillText(rkTextoAjustado_(ctx, filtros.periodo+'  ·  '+filtros.encuesta, W-120), 60, 244);
+  ctx.fillText(rkTextoAjustado_(ctx, filtros.marcas+'  ·  '+filtros.canal+(totPag>1?'  ·  Página '+pag+' de '+totPag:''), W-120), 60, 280);
+  var y=340;
+  if(conPodio){
+    var pos=[{i:1,x:60,h:250,c:'#C0C7D2',t:'2°'},{i:0,x:390,h:320,c:'#E8A33D',t:'1°'},{i:2,x:720,h:210,c:'#C98A5A',t:'3°'}];
+    var baseY=820;
+    pos.forEach(function(p){
+      var v=lista[p.i]; if(!v) return;
+      var w=300, top=baseY-p.h;
+      // tarjeta
+      rkRect_(ctx,p.x,top-170,w,p.h+170,26,'#FFFFFF');
+      ctx.fillStyle=p.c; rkRect_(ctx,p.x,top-170,w,14,7,p.c);
+      // medalla
+      ctx.beginPath(); ctx.arc(p.x+w/2, top-120, 40, 0, Math.PI*2); ctx.fillStyle=p.c; ctx.fill();
+      ctx.fillStyle='#FFFFFF'; ctx.font='800 36px '+HFONT; ctx.textAlign='center'; ctx.fillText(p.t, p.x+w/2, top-107);
+      // nombre
+      ctx.fillStyle='#111827'; ctx.font='800 28px '+FONT;
+      var palabras=String(v.nombre).split(' '), l1='', l2='';
+      palabras.forEach(function(pp){ if(ctx.measureText((l1+' '+pp).trim()).width<w-30 && !l2) l1=(l1+' '+pp).trim(); else l2=(l2+' '+pp).trim(); });
+      ctx.fillText(l1, p.x+w/2, l2 ? top-40 : top-26); if(l2) ctx.fillText(rkTextoAjustado_(ctx,l2,w-30), p.x+w/2, top-6);
+      ctx.fillStyle='#6B7280'; ctx.font='500 22px '+FONT; ctx.fillText(rkTextoAjustado_(ctx, v.sucursalPrincipal||'', w-30), p.x+w/2, l2 ? top+28 : top+14);
+      // NPS
+      var est=rkEstado_(v.nps);
+      ctx.fillStyle=RK_COL_[est]; ctx.font='800 '+(p.i===0?92:78)+'px '+HFONT; ctx.fillText(rkNps_(v.nps), p.x+w/2, top+(p.i===0?130:118));
+      ctx.fillStyle='#6B7280'; ctx.font='700 20px '+FONT; ctx.fillText('NPS · '+v.total+' respuestas', p.x+w/2, top+(p.i===0?168:152));
+      // barra P/N/D
+      var bx=p.x+30, bw=w-60, by=top+(p.i===0?192:174), t=v.total||1;
+      rkRect_(ctx,bx,by,bw,12,6,'#E5E7EB');
+      var segs=[[v.promotores,'#16A34A'],[v.pasivos,'#F59E0B'],[v.detractores,'#DC2626']], xx=bx;
+      segs.forEach(function(sg){ var ww=bw*sg[0]/t; if(ww>0){ ctx.fillStyle=sg[1]; ctx.fillRect(xx,by,ww,12); xx+=ww; } });
+      ctx.textAlign='left';
+    });
+    y=860;
+  }
+  // lista
+  var filas=lista.slice(desde.ini, desde.fin);
+  var rowH=conPodio?50:54;
+  if(filas.length){
+    ctx.fillStyle='#6B7280'; ctx.font='800 18px '+FONT; ctx.fillText('POSICIÓN', 80, y+4); ctx.textAlign='right'; ctx.fillText('NPS', W-80, y+4); ctx.fillText('RESP.', W-220, y+4); ctx.textAlign='left';
+    y+=18;
+    filas.forEach(function(v, k){
+      var pos=desde.ini+k+1, ry=y+k*rowH;
+      rkRect_(ctx,60,ry,W-120,rowH-8,14, k%2 ? '#FFFFFF' : '#EEF0F4');
+      ctx.fillStyle='#111827'; ctx.font='800 24px '+HFONT; ctx.fillText(String(pos), 84, ry+rowH/2+4);
+      ctx.font='700 24px '+FONT; ctx.fillText(rkTextoAjustado_(ctx, v.nombre, 480), 140, ry+rowH/2+4);
+      ctx.fillStyle='#6B7280'; ctx.font='500 19px '+FONT; ctx.fillText(rkTextoAjustado_(ctx, v.sucursalPrincipal||'', 200), 640, ry+rowH/2+3);
+      ctx.textAlign='right'; ctx.fillStyle='#374151'; ctx.font='700 22px '+FONT; ctx.fillText(String(v.total), W-220, ry+rowH/2+4);
+      ctx.fillStyle=RK_COL_[rkEstado_(v.nps)]; ctx.font='800 28px '+HFONT; ctx.fillText(rkNps_(v.nps), W-80, ry+rowH/2+5); ctx.textAlign='left';
+    });
+  }
+  // pie
+  ctx.fillStyle='#0A0F1E'; ctx.fillRect(0,H-70,W,70);
+  var d=new Date(), fh=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  ctx.fillStyle='#C9CFDA'; ctx.font='600 20px '+FONT; ctx.fillText('Meta NPS '+RANK_META_NPS_+'  ·  '+totalResp+' respuestas en total', 60, H-28);
+  ctx.textAlign='right'; ctx.fillText('Actualizado '+fh+'  ·  Grupo París', W-60, H-28); ctx.textAlign='left';
+}
+async function compartirRanking_(){
+  var lista=window._rankVendedoresLista_||[];
+  if(!lista.length){ showToast('No hay datos en el ranking para compartir'); return; }
+  showToast('Armando la imagen del ranking…');
+  try{ if(document.fonts && document.fonts.ready) await document.fonts.ready; }catch(e){}
+  var logo=await rkCargarImg_(LOGO_GRUPOPARIS_WORDMARK);
+  var filtros=rkFiltrosTexto_();
+  var totalResp=lista.reduce(function(a,v){return a+v.total;},0);
+  // páginas: la 1° lleva el podio + 8 puestos; las siguientes, 17 puestos cada una (todos entran sin achicar la letra)
+  var paginas=[{podio:true, ini:3, fin:Math.min(lista.length,11)}];
+  for(var ini=11; ini<lista.length; ini+=17) paginas.push({podio:false, ini:ini, fin:Math.min(lista.length, ini+17)});
+  var archivos=[];
+  for(var p=0;p<paginas.length;p++){
+    var cv=document.createElement('canvas'); cv.width=1080; cv.height=1350;
+    var ctx=cv.getContext('2d');
+    rkDibujarPagina_(ctx, logo, filtros, lista, paginas[p], paginas[p].podio, p+1, paginas.length, totalResp);
+    var blob=await new Promise(function(ok){ cv.toBlob(ok,'image/png'); });
+    archivos.push(new File([blob], 'Ranking vendedores'+(paginas.length>1?' ('+(p+1)+' de '+paginas.length+')':'')+'.png', {type:'image/png'}));
+  }
+  window._rkUltimasImagenes_=archivos;
+  mostrarVistaPreviaRanking_(archivos);
+}
+function mostrarVistaPreviaRanking_(archivos){
+  var fondo=document.createElement('div'); fondo.className='pw-modal-fondo';
+  var urls=archivos.map(function(f){ return URL.createObjectURL(f); });
+  var puedeCompartir = !!(navigator.canShare && navigator.canShare({files:archivos}));
+  fondo.innerHTML='<div class="rk-prev"><div class="rk-prev-h"><b>Imagen para WhatsApp</b><span>'+archivos.length+(archivos.length===1?' imagen':' imágenes')+' · 1080 × 1350</span></div>'+
+    '<div class="rk-prev-imgs">'+urls.map(function(u){ return '<img src="'+u+'" alt="Ranking">'; }).join('')+'</div>'+
+    '<div class="rk-prev-acc"><button type="button" class="view-btn" data-x="cerrar">Cerrar</button><button type="button" class="view-btn" data-x="bajar">⬇ Descargar PNG</button>'+(puedeCompartir?'<button type="button" class="save-btn" data-x="compartir">📤 Compartir</button>':'')+'</div></div>';
+  document.body.appendChild(fondo);
+  var cerrar=function(){ fondo.remove(); setTimeout(function(){ urls.forEach(function(u){ URL.revokeObjectURL(u); }); }, 2000); };
+  fondo.addEventListener('click', function(e){
+    if(e.target===fondo) return cerrar();
+    var x=e.target.closest('[data-x]'); if(!x) return;
+    if(x.dataset.x==='cerrar') cerrar();
+    if(x.dataset.x==='bajar') archivos.forEach(function(f,i){ var a=document.createElement('a'); a.href=urls[i]; a.download=f.name; document.body.appendChild(a); a.click(); a.remove(); });
+    if(x.dataset.x==='compartir') navigator.share({files:archivos, title:'Ranking de vendedores'}).catch(function(){});
+  });
+}
 function renderRankingVendedorPanel_(){
   if(!document.getElementById('rankVendedorTabla')) return;
   renderCanalToggleGenerico_('rankCanalToggle');
@@ -17211,6 +17450,7 @@ function renderRankingVendedorPanel_(){
   document.getElementById('rankSucursalTabla').innerHTML = encabezadoSucursal+
     (listaSucursales.map(filaSucursalHtml_).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--text-faint);">Sin datos todavía.</td></tr>');
 
+  renderRankingVisual_(listaVendedores, totalRespuestasTodos, listaSucursales, totalRespuestasSucursales);
   var ventasTotalGeneral = listaSucursales.reduce(function(a,v){return a+v.ventas;}, 0);
   // Conciliación: cuántas respuestas hay en total por encuesta y cuántas
   // no entran al ranking por no tener vendedor (anónimas del archivo).
