@@ -3469,6 +3469,7 @@
         <div class="field"><div class="l">Teléfono</div><input id="dTelefono" onchange="guardarCampo('telefono', this.value)"></div>
         <div class="field"><div class="l">E-mail</div><input id="dEmail" onchange="guardarCampo('email', this.value)"></div>
         <div class="field"><div class="l">Tipo de venta</div><select id="dTipoVenta" onchange="guardarCampo('tipoVenta', this.value); (function(){ var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}); if(r) renderUsadoUI_(r); })();"><option value="OKM">0KM</option><option value="USADO">Usado</option></select></div>
+        <div class="field"><div class="l">Canal (encuestas y ranking)</div><select id="dCanalVenta" onchange="setCanalVentaDetalle_(this.value)"><option value="">Automático</option><option value="pda">Plan de Ahorro (PDA)</option><option value="directa">Directa / Tradicional</option></select><small id="dCanalVentaInfo" style="display:block;font-size:10.5px;color:var(--text-faint);margin-top:3px;"></small></div>
         <div class="field"><div class="l">Es usado (parte de pago)</div><select id="dUsado" onchange="guardarCampo('usado', this.value)"><option value="No">No</option><option value="Sí">Sí</option></select></div>
         <div class="field"><div class="l">Vendedor</div><input class="combo-input" id="dVendedor" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('dVendedor','dVendedor_lista')" onfocus="comboAbrir('dVendedor','dVendedor_lista')" onkeydown="comboTeclado(event,'dVendedor','dVendedor_lista')" onchange="guardarCampo('vendedor', this.value)"><div class="combo-lista" id="dVendedor_lista"></div></div>
         <div class="field"><div class="l">Administrativo</div><input class="combo-input" id="dAdministrativo" placeholder="Escribí para buscar..." autocomplete="off" oninput="comboFiltrar('dAdministrativo','dAdministrativo_lista')" onfocus="comboAbrir('dAdministrativo','dAdministrativo_lista')" onkeydown="comboTeclado(event,'dAdministrativo','dAdministrativo_lista')" onchange="guardarCampo('administrativo', this.value)"><div class="combo-lista" id="dAdministrativo_lista"></div></div>
@@ -5537,7 +5538,37 @@ function etiquetaCortaFecha_(f){
 var DIAS=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 
 var filterCanal = null; // null = todos, 'pda' = solo canal PDA, 'tradicional' = vendedores con nombre
-function esCanalPDA_(r){ return (r.vendedor||'').trim().toUpperCase()==='PDA'; }
+// PDA (Plan de Ahorro). Se guía primero por lo que dice "Plan de Ahorro":
+//  1) la entrega marcada como Plan de Ahorro (a mano en el detalle o al importar las encuestas de GM de ChevyPlan)
+//  2) el VIN figura como Plan de Ahorro (T.v 5) en la base de ventas del sistema
+//  3) el vendedor es "PDA" o es un vendedor de Plan de Ahorro (VENDEDORES_PDA_, p. ej. Darío Ruiz)
+var VENDEDORES_PDA_ = ['PDA','DARIO RUIZ'];
+var _vinsPdaVentas_ = {clave:'', set:{}};
+function vinsPlanDeAhorroVentas_(){
+  try{
+    var arch = (typeof obtenerArchivoNps_==='function') ? obtenerArchivoNps_('ventas','pda') : null;
+    if(!arch) return {};
+    var clave = arch.fecha+'|'+arch.puntos.length;
+    if(_vinsPdaVentas_.clave!==clave){ var set={}; arch.puntos.forEach(function(p){ var v=String(p.vin||'').toUpperCase().replace(/[^A-Z0-9]/g,''); if(v.length>=8) set[v.slice(-8)]=true; }); _vinsPdaVentas_={clave:clave, set:set}; }
+    return _vinsPdaVentas_.set;
+  }catch(e){ return {}; }
+}
+function normNombre_(x){ return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase().replace(/\s+/g,' '); }
+function esCanalPDA_(r){
+  if(!r) return false;
+  if(r.canalVenta==='pda') return true;
+  if(r.canalVenta==='directa') return false; // marcado a mano como venta directa
+  var v=String(r.chasis||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(v.length>=8 && vinsPlanDeAhorroVentas_()[v.slice(-8)]) return true;
+  return VENDEDORES_PDA_.indexOf(normNombre_(r.vendedor))>-1;
+}
+function setCanalVentaDetalle_(valor){
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}); if(!r) return;
+  guardarCampo('canalVenta', valor);
+  var info=document.getElementById('dCanalVentaInfo'); if(info) info.textContent='Ahora cuenta como: '+(esCanalPDA_(r)?'Plan de Ahorro (PDA)':'Directa / Tradicional')+(r.canalVenta?'':' (automático)');
+  showToast(valor==='pda' ? 'Marcada como Plan de Ahorro (PDA)' : valor==='directa' ? 'Marcada como venta Directa / Tradicional' : 'Canal automático (según vendedor y base de ventas)');
+  if(typeof refrescarPanelCalidadActivo_==='function') refrescarPanelCalidadActivo_();
+}
 function pasaFiltroCanal_(r){
   if(!filterCanal) return true;
   var esPDA = esCanalPDA_(r);
@@ -11530,8 +11561,9 @@ function openDetailCore_(marca, id){
   document.getElementById('dGarantiaFecha').value = soloFechaISO_(r.garantiaFecha);
   pintarGarantiaFiltradaDot_(r);
   renderAlertaGarantia_(r);
+  (function(){ var sel=document.getElementById('dCanalVenta'); if(sel){ sel.value = r.canalVenta||''; var info=document.getElementById('dCanalVentaInfo'); if(info) info.textContent = 'Ahora cuenta como: '+(esCanalPDA_(r)?'Plan de Ahorro (PDA)':'Directa / Tradicional')+(r.canalVenta?'':' (automático)'); } })();
   document.getElementById('dNpsFabricaScore').value = (r.npsFabricaScore!==undefined && r.npsFabricaScore!==null) ? r.npsFabricaScore : '';
-  document.getElementById('dNpsFabricaFecha').value = soloFechaISO_(r.npsFabricaFecha);
+  document.getElementById('dNpsFabricaFecha').value = fechaAIso_(r.npsFabricaFecha) || soloFechaISO_(r.npsFabricaFecha);
   document.getElementById('dNpsFabricaComentario').value = r.npsFabricaComentario || '';
   renderAlertaNpsFabrica_(r);
   document.getElementById('dContactoSofiNombre').value = r.contactoSofiNombre || 'Sofi';
@@ -15959,11 +15991,20 @@ function aplicarImportGm_(){
   // 1) entregas del Planning: completar la nota de Fábrica
   a.planningCompletar.forEach(function(o){
     var r=o.r, e=o.e;
-    r.npsFabricaScore=e.score; r.npsFabricaFecha=e.fecha; if(e.comentario && !r.npsFabricaComentario) r.npsFabricaComentario=e.comentario;
+    r.npsFabricaScore=e.score; r.npsFabricaFecha=fechaAIso_(e.fecha)||e.fecha; if(e.comentario && !r.npsFabricaComentario) r.npsFabricaComentario=e.comentario;
+    if(x.canalKey==='pda') r.canalVenta='pda';
     var d=new Date(); r.npsFabricaCargadoEn=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
     var campos={npsFabricaScore:r.npsFabricaScore, npsFabricaFecha:r.npsFabricaFecha, npsFabricaCargadoEn:r.npsFabricaCargadoEn}; if(r.npsFabricaComentario) campos.npsFabricaComentario=r.npsFabricaComentario;
+    if(r.canalVenta) campos.canalVenta=r.canalVenta;
     promesas.push(gasPost('updateEntregaFields',{marca:r.marca, id:r.id, fields:campos}));
     try{ logHistorial_(r.marca, r.id, '📥 NPS de Fábrica importado de GM: '+e.score+' ('+e.fecha+')'); }catch(err){}
+  });
+  // las entregas del Planning que ya tenían su nota igual se marcan como Plan de Ahorro si vienen del archivo de PDA
+  if(x.canalKey==='pda') a.planningYaTenia.forEach(function(o){
+    var r=o.r, campos={};
+    if(r.canalVenta!=='pda'){ r.canalVenta='pda'; campos.canalVenta='pda'; }
+    if(!fechaAIso_(r.npsFabricaFecha) || /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(String(r.npsFabricaFecha||''))){ r.npsFabricaFecha = fechaAIso_(r.npsFabricaFecha) || fechaAIso_(o.e.fecha); campos.npsFabricaFecha=r.npsFabricaFecha; }
+    if(Object.keys(campos).length) promesas.push(gasPost('updateEntregaFields',{marca:r.marca, id:r.id, fields:campos}));
   });
   // 2) y 3) registro: con datos del cliente + anónimas (vendedor/sucursal de la base vieja si los había)
   var lote=a.nuevasConDatos.map(function(e){ var dv=a.datosViejos[vin8_(e.vin)]||{}; return {vin:e.vin, cliente:e.cliente, vendedor:dv.vendedor||'', sucursal:dv.sucursal||'', fecha:e.fecha, score:e.score, comentario:e.comentario, idGm:e.idGm, origen:'GM'}; })

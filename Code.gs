@@ -386,7 +386,8 @@ var CAMPOS = [
   {k:'usAnuladaPor', h:'Usado — Anulada por'},
   {k:'usAnuladaFecha', h:'Usado — Fecha de anulación'},
   {k:'npsFabricaCargadoEn', h:'NPS Fábrica — Cargado/modificado en el sistema'},
-  {k:'encuestaUsadoEnviada', h:'Usado — Encuesta por mail enviada'}
+  {k:'encuestaUsadoEnviada', h:'Usado — Encuesta por mail enviada'},
+  {k:'canalVenta', h:'Canal de venta (pda = Plan de Ahorro)'}
 ];
 
 // ============================================================
