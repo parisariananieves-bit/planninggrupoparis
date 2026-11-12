@@ -1992,7 +1992,7 @@
         <span class="tgl-txt"><b>⏳ Fecha a confirmar</b><small>Activalo si el cliente todavía no confirmó el día. Se guarda igual, queda marcada como “Fecha a confirmar” y el horario sigue libre para otra entrega.</small>
         <small id="nUsadoNota" class="us-nota" style="display:none;">🚗 <b>Usado:</b> viene encendido. Si ya tenés el día y la hora acordados con el cliente, cargalos y apagalo. Si no, guardalo así y después tocá <b>Confirmar fecha</b> o reprogramá cuando quieras. El compromiso de taller lo puede cargar Logística después.</small></span>
       </label></div>
-      <div class="form-field"><label>Tipo de venta</label><select id="nTipoVenta" onchange="toggleUsadoNueva_()"><option value="OKM">0KM</option><option value="USADO">Usado</option></select></div>
+      <div class="form-field"><label>Tipo de venta</label><select id="nTipoVenta" onchange="this._autoUsado=false;toggleUsadoNueva_()"><option value="OKM">0KM</option><option value="USADO">Usado</option></select></div>
       <div class="form-field"><label>¿Entrega usado (parte de pago)?</label><select id="nUsado"><option value="No">No</option><option value="Sí">Sí</option></select></div>
       <div class="form-field"><label>Lugar de entrega</label><input id="nLugar"></div>
       <div class="form-field full us-block" id="nUsadoBlock" style="display:none;">
@@ -12780,6 +12780,7 @@ function openNewDelivery(){
   var _ac=document.getElementById('nAccCoordinando'); if(_ac) _ac.checked=false;
   if(typeof limpiarUsadoNueva_==='function') limpiarUsadoNueva_();
   var _sc=document.getElementById('nSinConfirmar'); if(_sc) _sc.checked=false;
+  aplicarTipoVentaPorMarca_(brand.id); // marca Usados → Tipo de venta: Usado
   var _ao=document.getElementById('nAccObs'); if(_ao) _ao.value='';
   document.getElementById('nCampanaToggleBtn').textContent='⚠ Pendiente de controlar'; document.getElementById('nCampanaToggleBtn').className='toggle-btn pending'; window.nCampanaState=false;
   // Vendedor y administrativo arrancan EN BLANCO: se escribe o se elige de la lista con la flechita.
@@ -12807,8 +12808,17 @@ function actualizarSucursalYContextoNuevaEntrega_(brand){
   }
   renderDisponibilidadNuevaEntrega();
 }
+// Si la entrega se programa en la marca Usados, el Tipo de venta arranca en "Usado"
+// (y si se cambia a otra marca, vuelve a 0KM — solo si lo había puesto el Planning).
+function aplicarTipoVentaPorMarca_(marca){
+  var tv=document.getElementById('nTipoVenta'); if(!tv) return;
+  if(marca==='usados'){ if(tv.value!=='USADO'){ tv.value='USADO'; tv._autoUsado=true; } }
+  else if(tv._autoUsado){ tv.value='OKM'; tv._autoUsado=false; }
+  if(typeof toggleUsadoNueva_==='function') toggleUsadoNueva_();
+}
 function cambiarMarcaNuevaEntrega(){
   var brand = BRANDS.find(function(x){return x.id===document.getElementById('nMarca').value;});
+  aplicarTipoVentaPorMarca_(brand.id);
   actualizarSucursalYContextoNuevaEntrega_(brand);
   checkNewDeliveryDate();
 }
