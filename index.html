@@ -11094,6 +11094,9 @@ function usadoBloqueadoHasta_(r){
   return null;
 }
 function renderFechaSinConfirmarUI_(r){
+  // el aviso del compromiso de taller muestra si la fecha está a confirmar: se refresca junto con este botón
+  if(r && typeof renderAlertaCompromiso_==='function') renderAlertaCompromiso_(r);
+  if(typeof currentAppView!=='undefined' && currentAppView==='alistamiento' && typeof renderAlistamiento==='function') renderAlistamiento();
   var btn = document.getElementById('dSinConfirmarBtn'), al = document.getElementById('dSinConfirmarAlerta');
   var on = !!(r && r.fechaSinConfirmar && !r.entregada);
   var bloq = r ? usadoBloqueadoHasta_(r) : null;
