@@ -15872,7 +15872,12 @@ function leerEncuestasGmVentas_(filas){
   if(hi===-1) return null;
   var h=filas[hi].map(function(x){return String(x||'').trim().toUpperCase();});
   var col=function(t){ return h.findIndex(function(x){ return x.indexOf(t)>-1; }); };
-  var c={fecha:col('FECHA DE LA ENCUESTA'), vin:col('VIN'), id:col('CFMC ID'), nombre:col('NOMBRE DEL CLIENTE'), modelo:col('MODELO'), score:col('RECOMENDAR CONCESIONARIO PARA COMPRA'), com:col('COMENTARIO'), excl:col('EXCLUSI'), bac:col('BAC'), email:col('EMAIL')};
+  var c={fecha:col('FECHA DE LA ENCUESTA'), vin:col('VIN'), id:col('CFMC ID'), nombre:col('NOMBRE DEL CLIENTE'), modelo:col('MODELO'), score:col('RECOMENDAR CONCESIONARIO PARA COMPRA'), com:col('COMENTARIO'), excl:col('EXCLUSI'), bac:col('BAC'), email:col('EMAIL'), pago:h.findIndex(function(x){ return x==='FORMA DE PAGO (ARGENTINA)'; })};
+  // Canal: el reporte de "ChevyPlan / Plan de Ahorro" es PDA; el de "sales" es Directa / Tradicional
+  var textoFiltros = filas.slice(0,hi).map(function(f){ return (f||[]).join(' '); }).join(' ').toUpperCase();
+  var pdaFilas = 0, totFilas = 0;
+  for(var q=hi+1;q<filas.length;q++){ var fp=filas[q]; if(!fp||!fp.length) continue; totFilas++; if(c.pago>-1 && /PLAN DE AHORRO|CHEVYPLAN/i.test(String(fp[c.pago]||''))) pdaFilas++; }
+  leerEncuestasGmVentas_.canal = (/PLAN DE AHORRO|CHEVYPLAN/.test(textoFiltros) || (totFilas && pdaFilas/totFilas>0.5)) ? 'pda' : 'directa';
   if(c.score===-1 || c.vin===-1) return null;
   var out=[];
   for(var r=hi+1;r<filas.length;r++){
@@ -15884,17 +15889,20 @@ function leerEncuestasGmVentas_(filas){
   }
   return out;
 }
-function analizarEncuestasGmVentas_(encuestas, canalKey){
+function analizarEncuestasGmVentas_(encuestas, canalKey, reemplazar){
   var arch=obtenerArchivoNps_('fabrica', canalKey);
-  var puntos=arch ? arch.puntos : [];
+  var puntosViejos=arch ? arch.puntos : [];
+  // vendedor y sucursal de la base vieja (por VIN), para no perderlos al reemplazarla
+  var datosViejos={}; puntosViejos.forEach(function(p){ var k=vin8_(p.vin); if(k && (p.vendedor||p.sucursal)) datosViejos[k]={vendedor:p.vendedor||'', sucursal:p.sucursal||''}; });
+  var puntos=reemplazar ? [] : puntosViejos;
   var enArchivo={}, idsArchivo={};
   puntos.forEach(function(p){ var k=vin8_(p.vin); if(k) enArchivo[k]=true; if(p.idGm) idsArchivo[p.idGm]=true; });
   var porVin={}; ENTREGAS.forEach(function(r){ var k=vin8_(r.chasis); if(k) porVin[k]=r; });
   // anónimas que ya existen: las del archivo (y las cargadas en el registro) + las cargadas a mano con "+ Agregar"
   var anonExist=[];
   puntos.forEach(function(p){ if(esAnonimoGm_(p.sucursal) || esAnonimoGm_(p.cliente) || p.anonimo || (!p.vin && !p.vendedor && !p.cliente)) anonExist.push({fecha:p.fecha, score:Number(p.score), usada:false}); });
-  (ANONIMAS_FABRICA_||[]).forEach(function(a){ if(a.canal===(canalKey==='pda'?'PDA':'TD')) anonExist.push({fecha:a.fecha, score:Number(a.puntaje), usada:false}); });
-  var res={yaArchivo:[], planningCompletar:[], planningYaTenia:[], nuevasConDatos:[], anonYa:[], anonNuevas:[]};
+  if(!reemplazar) (ANONIMAS_FABRICA_||[]).forEach(function(a){ if(a.canal===(canalKey==='pda'?'PDA':'TD')) anonExist.push({fecha:a.fecha, score:Number(a.puntaje), usada:false}); });
+  var res={yaArchivo:[], planningCompletar:[], planningYaTenia:[], nuevasConDatos:[], anonYa:[], anonNuevas:[], datosViejos:datosViejos, reemplazar:!!reemplazar, baseVieja:puntosViejos.length};
   encuestas.forEach(function(e){
     if(e.idGm && idsArchivo[e.idGm]){ (esAnonimoGm_(e.vin)?res.anonYa:res.yaArchivo).push(e); return; }
     if(esAnonimoGm_(e.vin) || !vin8_(e.vin)){
@@ -15919,9 +15927,9 @@ function importarEncuestasGmVentas_(event){
       var filas=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, raw:true, defval:''});
       var enc=leerEncuestasGmVentas_(filas);
       if(!enc){ showToast('No reconocí el archivo: tiene que ser el "Completed Surveys - Sales" de GM (con VIN y "Recomendar Concesionario para Compra").'); return; }
-      var canalKey='directa';
-      var a=analizarEncuestasGmVentas_(enc, canalKey);
-      window._gmImport={a:a, canalKey:canalKey, nombre:file.name, total:enc.length};
+      var canalKey=leerEncuestasGmVentas_.canal || 'directa';
+      var a=analizarEncuestasGmVentas_(enc, canalKey, true);
+      window._gmImport={a:a, canalKey:canalKey, nombre:file.name, total:enc.length, enc:enc};
       mostrarResumenImportGm_();
     }catch(err){ showToast('No se pudo leer el archivo: '+err.message); }
   };
@@ -15930,9 +15938,12 @@ function importarEncuestasGmVentas_(event){
 function mostrarResumenImportGm_(){
   var x=window._gmImport, a=x.a;
   var fila=function(ic,t,n,sub,col){ return '<div style="display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--hairline);"><span style="font-size:18px;">'+ic+'</span><div style="flex:1;"><b style="color:'+(col||'var(--text)')+'">'+n+'</b> '+t+(sub?'<div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">'+sub+'</div>':'')+'</div></div>'; };
+  var viejo=document.getElementById('gmImportModal'); if(viejo) viejo.remove();
+  var canalTxt = x.canalKey==='pda' ? 'Plan de Ahorro (PDA)' : 'Directa / Tradicional';
   var fondo=document.createElement('div'); fondo.className='pw-modal-fondo'; fondo.id='gmImportModal';
-  fondo.innerHTML='<div class="tr-modal" style="max-width:560px;"><h3>Importar encuestas de GM — NPS de Fábrica (Directa)</h3><p style="margin-bottom:6px;">'+usEsc_(x.nombre)+' · <b>'+x.total+'</b> encuestas completadas</p>'+
-    fila('✅','ya están en el archivo base (no se tocan)', a.yaArchivo.length)+
+  fondo.innerHTML='<div class="tr-modal" style="max-width:580px;"><h3>Importar encuestas de GM — NPS de Fábrica · '+canalTxt+'</h3><p style="margin-bottom:6px;">'+usEsc_(x.nombre)+' · <b>'+x.total+'</b> encuestas completadas</p>'+
+    '<label style="display:flex;gap:8px;align-items:flex-start;background:var(--danger-soft);border:1px solid var(--danger);border-radius:10px;padding:9px 11px;margin:6px 0 4px;font-size:12.5px;cursor:pointer;"><input type="checkbox" id="gmReemplazar" '+(a.reemplazar?'checked':'')+' onchange="window._gmImport.a=analizarEncuestasGmVentas_(window._gmImport.enc, window._gmImport.canalKey, this.checked); mostrarResumenImportGm_();"> <span><b>Borrar la base importada anterior de '+canalTxt+'</b> ('+a.baseVieja+' encuestas) y quedarme solo con este archivo de GM. Se guarda un respaldo. El vendedor y la sucursal de la base vieja se conservan para el Ranking.</span></label>'+
+    (a.reemplazar ? '' : fila('✅','ya están en el archivo base (no se tocan)', a.yaArchivo.length))+
     fila('🔗','son de entregas del Planning: se completa la nota en la entrega', a.planningCompletar.length, a.planningYaTenia.length?(a.planningYaTenia.length+' más ya tenían su nota cargada y no se tocan'):'', 'var(--accent)')+
     fila('📝','no están en el Planning ni en el archivo: se registran en “Cargadas con datos del cliente”', a.nuevasConDatos.length, a.nuevasConDatos.slice(0,4).map(function(e){return usEsc_(e.cliente)+' ('+e.score+')';}).join(' · ')+(a.nuevasConDatos.length>4?' …':''), 'var(--accent)')+
     fila('👤','anónimas que ya estaban registradas (misma nota y fecha)', a.anonYa.length)+
@@ -15954,10 +15965,13 @@ function aplicarImportGm_(){
     promesas.push(gasPost('updateEntregaFields',{marca:r.marca, id:r.id, fields:campos}));
     try{ logHistorial_(r.marca, r.id, '📥 NPS de Fábrica importado de GM: '+e.score+' ('+e.fecha+')'); }catch(err){}
   });
-  // 2) y 3) registro manual: con datos del cliente + anónimas que faltaban
-  var lote=a.nuevasConDatos.map(function(e){ return {vin:e.vin, cliente:e.cliente, vendedor:'', sucursal:'', fecha:e.fecha, score:e.score, comentario:e.comentario, idGm:e.idGm, origen:'GM'}; })
+  // 2) y 3) registro: con datos del cliente + anónimas (vendedor/sucursal de la base vieja si los había)
+  var lote=a.nuevasConDatos.map(function(e){ var dv=a.datosViejos[vin8_(e.vin)]||{}; return {vin:e.vin, cliente:e.cliente, vendedor:dv.vendedor||'', sucursal:dv.sucursal||'', fecha:e.fecha, score:e.score, comentario:e.comentario, idGm:e.idGm, origen:'GM'}; })
     .concat(a.anonNuevas.map(function(e){ return {vin:'', cliente:'', vendedor:'', sucursal:'Anonimo', fecha:e.fecha, score:e.score, comentario:e.comentario, idGm:e.idGm, origen:'GM', anonimo:true}; }));
-  if(lote.length) promesas.push(gasPost('agregarPuntosManualesLote',{instancia:'fabrica', canal:x.canalKey, puntos:JSON.stringify(lote), autor:usuarioActual()}));
+  if(a.reemplazar){
+    lote.forEach(function(p){ p.manual=true; });
+    promesas.push(guardarArchivoNpsBackend_('fabrica', x.canalKey, 'Encuestas GM — '+x.nombre, lote, fechaHoyIso_(), false));
+  } else if(lote.length) promesas.push(gasPost('agregarPuntosManualesLote',{instancia:'fabrica', canal:x.canalKey, puntos:JSON.stringify(lote), autor:usuarioActual()}));
   Promise.all(promesas).then(function(res){
     var m=document.getElementById('gmImportModal'); if(m) m.remove();
     _archivosNpsCargados_=false;
