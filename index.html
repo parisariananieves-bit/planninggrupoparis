@@ -1345,6 +1345,9 @@
   .rk2-barra span{display:block;height:100%;border-radius:99px;} .rk2-b-ok{background:var(--ok);} .rk2-b-warn{background:var(--warn);} .rk2-b-bad{background:var(--danger);} .rk2-b-gris{background:var(--text-faint);}
   .rk2-barra i{position:absolute;top:-4px;width:2px;height:14px;border-radius:2px;background:var(--text);opacity:.35;}
   .rk2-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;text-align:right;}
+  .rk2-av .rk2-ico{font-family:'Material Symbols Outlined'!important;font-size:38px;color:var(--m);font-variation-settings:'FILL' 1;}
+  .rk2-p1 .rk2-av .rk2-ico{font-size:46px;}
+  .rk2-mini .material-symbols-outlined{font-size:20px;color:var(--text-faint);font-variation-settings:'FILL' 1;}
   .pp-canvas{position:relative;width:100%;}
   @media (max-width:720px){
     .rk2-kpis{grid-template-columns:1fr 1fr;} .rk2-kpis > div:nth-child(2){border-right:none;} .rk2-kpis > div:last-child{grid-column:1/-1;border-top:1px solid var(--hairline);}
@@ -17818,7 +17821,7 @@ function renderRankingVisual_(lista, totalResp, listaSuc, totalRespSuc){
   var podio='<div class="rk2-podio">'+orden.map(function(i){
     var v=top[i], est=rkEstado_(v.nps);
     return '<div class="rk2-pod rk2-p'+(i+1)+'" title="'+rkEsc_(detalle_(v))+'">'+
-      '<div class="rk2-av"><span>'+rkEsc_(rkIniciales_(v.nombre))+'</span><b>'+(i+1)+'</b></div>'+
+      '<div class="rk2-av"><span class="material-symbols-outlined rk2-ico">person</span><b>'+(i+1)+'</b></div>'+
       '<div class="rk2-nom">'+rkEsc_(v.nombre)+'</div><div class="rk2-suc">'+rkEsc_(v.sucursalPrincipal)+'</div>'+
       '<div class="rk2-nps rk2-'+est+'">'+rkNps_(v.nps)+'</div>'+
       '<div class="rk2-chip rk2-c-'+est+'">'+rkDif_(v.nps)+'</div>'+
@@ -17828,7 +17831,7 @@ function renderRankingVisual_(lista, totalResp, listaSuc, totalRespSuc){
   var tabla = resto.length ? '<div class="rk2-lista">'+resto.map(function(v,k){
     var est=rkEstado_(v.nps), w = v.nps===null ? 0 : Math.max(0, Math.min(100, v.nps));
     return '<div class="rk2-fila" title="'+rkEsc_(detalle_(v))+'"><span class="rk2-pos">'+(k+4)+'</span>'+
-      '<span class="rk2-mini">'+rkEsc_(rkIniciales_(v.nombre))+'</span>'+
+      '<span class="rk2-mini"><span class="material-symbols-outlined">person</span></span>'+
       '<div class="rk2-quien"><b>'+rkEsc_(v.nombre)+'</b><small>'+rkEsc_(v.sucursalPrincipal)+' · '+v.total+' resp.</small></div>'+
       '<div class="rk2-barra"><span class="rk2-b-'+est+'" style="width:'+w+'%"></span><i style="left:'+RANK_META_NPS_+'%"></i></div>'+
       '<span class="rk2-val rk2-'+est+'">'+rkNps_(v.nps)+'</span></div>';
