@@ -8423,12 +8423,15 @@ function pintarBodyContactoPosterior_(cache){
   }
   var sub=document.querySelector('#modalContactoPosterior .modal-head .sub');
   if(sub) sub.textContent = e.origen ? 'Encuesta por mail de usados — la nota y el comentario los carga el cliente.' : 'Encuesta pública de satisfacción 0km (post-venta) — solo lectura, cruce por VIN o patente.';
-  if(e.origen){
-    // Encuesta de usados: solo los datos que tiene esa encuesta
+  var rDet = ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
+  var esUsadoCP = !!e.origen || (rDet && esUsadoVenta_(rDet));
+  if(sub && esUsadoCP) sub.textContent = 'Encuesta por mail de usados — la nota y el comentario los carga el cliente.';
+  if(esUsadoCP){
+    // Encuesta de usados: solo los datos que tiene esa encuesta (sin las preguntas de la encuesta 0 km)
     body.innerHTML =
       bloqueNpsGrande_(e.recomienda, 'Respondida '+(e.fecha||''), e.comentario)+
       '<div style="border:1px solid var(--hairline);border-radius:9px;padding:12px 14px;">'+
-        fila('Origen', e.origen)+fila('Fecha de respuesta', e.fecha)+fila('Nombre', e.nombre)+fila('Email', e.email)+fila('Patente / VIN', e.vinPatente)+
+        fila('Origen', e.origen || 'Encuesta de usados')+fila('Fecha de respuesta', e.fecha)+fila('Nombre', e.nombre)+fila('Email', e.email)+fila('Patente / VIN', e.vinPatente)+
         fila('Comentario', e.comentario ? '“'+String(e.comentario).replace(/</g,'&lt;')+'”' : 'Sin comentario')+
       '</div>';
     return;
