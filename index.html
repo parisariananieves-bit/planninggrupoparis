@@ -8503,7 +8503,7 @@ function enviarEncuestaUsadoAhora_(){
   if(!r.email){ showToast('Falta el email del cliente'); return; }
   if(!confirm('¿Enviar la encuesta a '+r.email+'?')) return;
   showToast('Enviando encuesta…');
-  gasPost('enviarEncuestaUsado',{marca:r.marca, id:r.id, usuario:usuarioActual()}).then(function(res){
+  gasPost('enviarEncuestaUsado',{marca:r.marca, id:r.id, usuario:usuarioActual(), urlPublica:API_URL}).then(function(res){
     if(res && res.ok){ r.encuestaUsadoEnviada=res.enviada; showToast('✉ Encuesta enviada a '+r.email); renderEncuestaUsado_(r); }
     else showToast('No se pudo enviar: '+((res&&res.error)||'error'));
   }).catch(function(){ showToast('No se pudo enviar la encuesta'); });

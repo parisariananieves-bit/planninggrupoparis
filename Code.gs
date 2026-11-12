@@ -52,7 +52,7 @@ function doPost(e){
     else if(action==='agregarHistorial') result = {ok: agregarHistorial(p.marca, p.id, p.texto)};
     else if(action==='enviarConfirmacion') result = enviarConfirmacion(p.marca, p.id, p.usuario);
     else if(action==='enviarBienvenidaMail') result = enviarBienvenidaMail(p.marca, p.id, p.usuario, p.forzar);
-    else if(action==='enviarEncuestaUsado') result = enviarEncuestaUsado(p.marca, p.id, p.usuario);
+    else if(action==='enviarEncuestaUsado') result = enviarEncuestaUsado(p.marca, p.id, p.usuario, p.urlPublica);
     else if(action==='fichaTecnicaEntrega') result = fichaTecnicaEntrega(p.marca, p.id);
     else if(action==='listarFichasTecnicas') result = listarFichasTecnicas();
     else if(action==='enviarRecordatorio') result = enviarRecordatorio(p.marca, p.id, p.usuario);
@@ -3908,8 +3908,15 @@ function tokenEncuestaUsado_(marca, id){
   var sig = Utilities.computeHmacSha256Signature(String(marca)+'|'+String(id), secretoEncuestaUsado_());
   return Utilities.base64EncodeWebSafe(sig).replace(/=+$/,'').slice(0,24);
 }
+// Dirección PÚBLICA de la app (la misma que usa el Planning, termina en /exec).
+// ScriptApp.getService().getUrl() a veces devuelve la de prueba (/dev), que solo abren los
+// editores del script: por eso al cliente le salía "No se puede abrir el archivo".
+function urlPublicaEncuesta_(){
+  var u = PropertiesService.getScriptProperties().getProperty('URL_PUBLICA_ENCUESTA') || ScriptApp.getService().getUrl() || '';
+  return String(u).replace(/\/dev(\?.*)?$/, '/exec').replace(/\/u\/\d+\//, '/');
+}
 function urlEncuestaUsado_(r, nota){
-  var base = ScriptApp.getService().getUrl();
+  var base = urlPublicaEncuesta_();
   return base+'?action=encuestaUsado&m='+encodeURIComponent(r.marca)+'&id='+encodeURIComponent(r.id)+'&t='+tokenEncuestaUsado_(r.marca, r.id)+(nota!=null?'&n='+nota:'');
 }
 function buscarEntrega_(marca, id){
@@ -3956,7 +3963,9 @@ function enviarEncuestaUsado_(r, usuario){
   return {ok:true, enviada:ahora};
 }
 // Envío manual desde el detalle
-function enviarEncuestaUsado(marca, id, usuario){
+function enviarEncuestaUsado(marca, id, usuario, urlPublica){
+  // el Planning manda su propia dirección pública: se guarda para los envíos automáticos
+  if(urlPublica && /\/exec$/.test(String(urlPublica))) PropertiesService.getScriptProperties().setProperty('URL_PUBLICA_ENCUESTA', String(urlPublica).replace(/\/u\/\d+\//, '/'));
   var r = buscarEntrega_(marca, id);
   if(!r) return {ok:false, error:'No se encontró la entrega'};
   try{ return enviarEncuestaUsado_(r, usuario); }catch(err){ return {ok:false, error:String(err.message||err)}; }
@@ -3996,7 +4005,7 @@ function paginaEncuestaUsado_(p){
   if(p.c !== undefined){
     return pagina('¡Gracias!', '<div class="top"><small>'+entidad.toUpperCase()+'</small><h1>¡Muchas gracias!</h1></div><div class="card" style="text-align:center">'+notaHtml+'<p>Recibimos tu respuesta y tu comentario. Nos ayuda mucho a mejorar.</p></div>');
   }
-  var accion = ScriptApp.getService().getUrl();
+  var accion = urlPublicaEncuesta_();
   var esc = function(x){ return String(x||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
   return pagina('Gracias por tu respuesta',
     '<div class="top"><small>'+entidad.toUpperCase()+'</small><h1>¡Gracias por tu respuesta!</h1></div>'+
