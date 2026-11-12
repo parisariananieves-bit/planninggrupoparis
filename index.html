@@ -8611,6 +8611,10 @@ function toggleGarantiaFiltrada_(){
   renderAlertaGarantia_(r);
   renderHistorialUI(r);
 }
+// Entra en NPS de Fábrica si tiene cupón de garantía y no está marcada como "filtrada".
+// PERO si el cliente respondió (tiene nota), cuenta siempre: si respondió, la encuesta le llegó.
+function tieneNotaFabrica_(r){ return r && r.npsFabricaScore!==null && r.npsFabricaScore!==undefined && r.npsFabricaScore!==''; }
+function elegibleNpsFabrica_(r){ return tieneNotaFabrica_(r) || (!!r.garantiaFecha && !r.garantiaFiltrada); }
 function pintarGarantiaFiltradaDot_(r){
   var dot = document.getElementById('dGarantiaFiltradaDot');
   if(!dot) return;
@@ -8653,6 +8657,11 @@ function guardarNpsFabricaCampo_(campo, valor){
   var _d=new Date(); r.npsFabricaCargadoEn = String(_d.getDate()).padStart(2,'0')+'/'+String(_d.getMonth()+1).padStart(2,'0')+'/'+_d.getFullYear()+' '+String(_d.getHours()).padStart(2,'0')+':'+String(_d.getMinutes()).padStart(2,'0');
   fields.npsFabricaCargadoEn = r.npsFabricaCargadoEn;
   gasPost('updateEntregaFields',{marca:detailMarca, id:detailId, fields:fields});
+  if(campo==='npsFabricaScore' && valor!=='' && r.garantiaFiltrada){
+    r.garantiaFiltrada=false; gasPost('updateEntregaFields',{marca:detailMarca, id:detailId, fields:{garantiaFiltrada:false}});
+    logHistorial_(detailMarca, detailId, '🛡️ Garantía desmarcada como filtrada (el cliente respondió la encuesta de fábrica)');
+    pintarGarantiaFiltradaDot_(r);
+  }
   if(campo==='npsFabricaScore' && valor!==''){
     logHistorial_(detailMarca, detailId, '🏭 NPS de Fábrica cargado — '+valor+'/10');
     renderHistorialUI(r);
@@ -15386,7 +15395,7 @@ function dibujarNpsGeneral_(){
   var conteoCP = conteoAcumuladoGeneral_('contactoposterior', ANONIMAS_CP_, cpRows.map(function(x){return x.npsScore;}));
   var cpNps = conteoCP.total ? npsDeConteo_(conteoCP) : null;
 
-  var fabElegibles = rows.filter(function(r){ return !!r.garantiaFecha && !r.garantiaFiltrada; }).filter(function(r){
+  var fabElegibles = rows.filter(function(r){ return elegibleNpsFabrica_(r); }).filter(function(r){
     return pasaFiltroFechaGlobal_(fechaAIso_(r.npsFabricaFecha||r.garantiaFecha));
   });
   var fabRespondidas = fabElegibles.filter(function(r){ return r.npsFabricaScore!==null && r.npsFabricaScore!==undefined && r.npsFabricaScore!==''; });
@@ -15993,9 +16002,11 @@ function aplicarImportGm_(){
     var r=o.r, e=o.e;
     r.npsFabricaScore=e.score; r.npsFabricaFecha=fechaAIso_(e.fecha)||e.fecha; if(e.comentario && !r.npsFabricaComentario) r.npsFabricaComentario=e.comentario;
     if(x.canalKey==='pda') r.canalVenta='pda';
+    if(r.garantiaFiltrada) r.garantiaFiltrada=false;
     var d=new Date(); r.npsFabricaCargadoEn=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
     var campos={npsFabricaScore:r.npsFabricaScore, npsFabricaFecha:r.npsFabricaFecha, npsFabricaCargadoEn:r.npsFabricaCargadoEn}; if(r.npsFabricaComentario) campos.npsFabricaComentario=r.npsFabricaComentario;
     if(r.canalVenta) campos.canalVenta=r.canalVenta;
+    campos.garantiaFiltrada=false;
     promesas.push(gasPost('updateEntregaFields',{marca:r.marca, id:r.id, fields:campos}));
     try{ logHistorial_(r.marca, r.id, '📥 NPS de Fábrica importado de GM: '+e.score+' ('+e.fecha+')'); }catch(err){}
   });
@@ -16044,6 +16055,8 @@ function importarNpsFabricaArchivo_(event){
       if(!puntos){ showToast('No se encontraron respuestas de NPS de Fábrica en el archivo.'); event.target.value=''; return; }
 
       var canal = detectarCanalArchivoFabrica_(filas);
+      var actualGm = obtenerArchivoNps_('fabrica', canal);
+      if(actualGm && /^Encuestas GM/.test(actualGm.nombreArchivo||'') && !confirm('La base de NPS de Fábrica de este canal hoy viene de las encuestas de GM.\n\n¿Reemplazarla con esta planilla? (Si solo querés cargar Alerta Temprana, Contacto Posterior y Ventas, usá el botón de carga del Ranking: ese no toca Fábrica.)')){ event.target.value=''; return; }
       puntos = normalizarPuntosPDA_(puntos, canal);
       guardarResumenArchivoFabrica_(canal, file.name, puntos);
       renderNpsFabricaPanel_();
@@ -16759,8 +16772,30 @@ function importarNpsTodasLasInstancias_(event){
       } else if(puntosVentas.length){ guardarArchivoNpsBackend_('ventas', canal, file.name, puntosVentas, null, true); resumen.push('Ventas: '+puntosVentas.length); }
 
       // ---- Fábrica ----
-      var puntosFab = calcularNpsDesdeFilas_(filas, idxHeaderRow, headers);
-      if(puntosFab){ puntosFab = normalizarPuntosPDA_(puntosFab, canal); guardarResumenArchivoFabrica_(canal, file.name, puntosFab); resumen.push('Fábrica: '+puntosFab.length); }
+      // Si la base de Fábrica ya viene de las encuestas de GM, NO se reemplaza con esta planilla:
+      // solo se usa para completar vendedor y sucursal (por VIN) y que el Ranking quede bien asignado.
+      var archFabActual = obtenerArchivoNps_('fabrica', canal);
+      if(archFabActual && /^Encuestas GM/.test(archFabActual.nombreArchivo||'')){
+        var datosVin = {};
+        var colVinF = buscarColPorNombre_(headers, ['VIN','CHASIS']), colVendF = buscarColPorNombre_(headers, ['VENDEDOR']), colSucF = buscarColPorNombre_(headers, ['SUCURSAL']);
+        if(colVinF>-1) for(var rf=idxHeaderRow+1; rf<filas.length; rf++){
+          var ff = filas[rf]; if(!ff) continue;
+          var k8 = vin8_(ff[colVinF]); if(!k8) continue;
+          var nv = normalizarVendedorSucursalPDA_(colVendF>-1?String(ff[colVendF]||'').trim():'', colSucF>-1?String(ff[colSucF]||'').trim():'', canal);
+          if(nv.vendedor || nv.sucursal) datosVin[k8] = nv;
+        }
+        var completados = 0;
+        var ptsFab = archFabActual.puntos.map(function(pp){
+          var d = datosVin[vin8_(pp.vin)];
+          if(d && (!pp.vendedor || !pp.sucursal)){ completados++; var c2={}; for(var kk in pp) c2[kk]=pp[kk]; if(!c2.vendedor) c2.vendedor=d.vendedor; if(!c2.sucursal) c2.sucursal=d.sucursal; return c2; }
+          return pp;
+        });
+        if(completados) guardarArchivoNpsBackend_('fabrica', canal, archFabActual.nombreArchivo, ptsFab, archFabActual.fechaCorte, false);
+        resumen.push('Fábrica: se mantiene la base de GM'+(completados?' (se completó vendedor/sucursal de '+completados+')':''));
+      } else {
+        var puntosFab = calcularNpsDesdeFilas_(filas, idxHeaderRow, headers);
+        if(puntosFab){ puntosFab = normalizarPuntosPDA_(puntosFab, canal); guardarResumenArchivoFabrica_(canal, file.name, puntosFab); resumen.push('Fábrica: '+puntosFab.length); }
+      }
 
       // ---- Alerta Temprana ----
       var colFabrica = buscarColPorNombre_(headers, ['NPS','FABRICA']);
@@ -17210,7 +17245,7 @@ function renderNpsFabricaPanel_(){
   iniciarAutoRefrescoFabrica_();
   if(!document.getElementById('fabResumen')) return;
   var rows = entregasCalidadSinFiltroFecha_('fabFiltroSucursal');
-  var elegibles = rows.filter(function(r){ return !!r.garantiaFecha && !r.garantiaFiltrada; });
+  var elegibles = rows.filter(function(r){ return elegibleNpsFabrica_(r); });
   // El filtro de Desde/Hasta acá aplica sobre la fecha de garantía (o de
   // respuesta si ya respondió) — no sobre la fecha de entrega, que puede
   // ser meses antes y no tiene nada que ver con cuándo corresponde esta
@@ -18310,7 +18345,7 @@ function renderRankingVendedorPanel_(){
   }
   if(instanciaSel==='todas' || instanciaSel==='fabrica'){
     // Mismo criterio que la tarjeta de NPS Fábrica: sin las garantías filtradas.
-    agregarInstanciaAlRanking_(acumVendedor, 'fabrica', rowsResp.filter(function(r){return !!r.garantiaFecha && !r.garantiaFiltrada;}), function(r){
+    agregarInstanciaAlRanking_(acumVendedor, 'fabrica', rowsResp.filter(function(r){return elegibleNpsFabrica_(r);}), function(r){
       if(r.npsFabricaScore===null || r.npsFabricaScore===undefined || r.npsFabricaScore==='') return null;
       return {score:Number(r.npsFabricaScore), fecha:r.npsFabricaFecha || r.garantiaFecha};
     }, statsInst.fabrica);
@@ -18387,7 +18422,7 @@ function renderRankingVendedorPanel_(){
     });
   }
   if(instanciaSel==='todas' || instanciaSel==='fabrica'){
-    agregarInstanciaASucursal_('fabrica', rowsResp.filter(function(r){return !!r.garantiaFecha && !r.garantiaFiltrada;}), function(r){
+    agregarInstanciaASucursal_('fabrica', rowsResp.filter(function(r){return elegibleNpsFabrica_(r);}), function(r){
       if(r.npsFabricaScore===null || r.npsFabricaScore===undefined || r.npsFabricaScore==='') return null;
       return {score:Number(r.npsFabricaScore), fecha:r.npsFabricaFecha || r.garantiaFecha};
     });
@@ -18483,7 +18518,7 @@ function exportarExcelCalidad_(){
   var atNps = atRespondidas.length ? calcularNps_(atRespondidas) : null;
   var cpConDato = rows.map(function(r){ return {r:r, d:contactoPosteriorInfo_(r)}; }).filter(function(x){ return x.d && x.d.recomienda!==undefined && x.d.recomienda!==''; });
   var cpNps = cpConDato.length ? calcularNps_(cpConDato.map(function(x){return {npsScore:Number(x.d.recomienda)};})) : null;
-  var fabElegibles = rows.filter(function(r){ return !!r.garantiaFecha && !r.garantiaFiltrada; });
+  var fabElegibles = rows.filter(function(r){ return elegibleNpsFabrica_(r); });
   var fabRespondidas = fabElegibles.filter(function(r){ return r.npsFabricaScore!==null && r.npsFabricaScore!==undefined && r.npsFabricaScore!==''; });
   var fabNps = fabRespondidas.length ? calcularNps_(fabRespondidas.map(function(r){return {npsScore:Number(r.npsFabricaScore)};})) : null;
   var totalEsperadoGeneral = total+total+fabElegibles.length;
