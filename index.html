@@ -15699,7 +15699,7 @@ function detectarCanalArchivoFabrica_(filas){
   return 'directa'; // por defecto, si no dice PDA asumimos Directa/Tradicional
 }
 function guardarResumenArchivoFabrica_(canal, nombreArchivo, puntos){
-  guardarArchivoNpsBackend_('fabrica', canal, nombreArchivo, puntos);
+  guardarArchivoNpsBackend_('fabrica', canal, nombreArchivo, puntos, null, true);
 }
 // Convierte "dd/mm/aaaa" (como guarda el input de fecha de la ficha) a
 // "aaaa-mm-dd" para poder comparar contra la fecha de corte ISO.
@@ -15969,15 +15969,26 @@ function obtenerArchivoNps_(instancia, canalKey){
   };
 }
 // Guarda (o reemplaza) el archivo de una instancia+canal en el backend.
-function guardarArchivoNpsBackend_(instancia, canalKey, nombreArchivo, puntos, fechaCorteOpcional){
+function guardarArchivoNpsBackend_(instancia, canalKey, nombreArchivo, puntos, fechaCorteOpcional, conservarManuales){
   var canal = canalKey==='directa' ? 'directa' : 'pda';
   var fechaCorte = fechaCorteOpcional || fechaHoyIso_();
+  // Importación de un archivo nuevo: se conservan las encuestas cargadas a mano con datos del cliente
+  if(conservarManuales){
+    var prev = obtenerArchivoNps_(instancia, canal);
+    if(prev && prev.puntos && prev.puntos.length){
+      var clave = function(p){ return [String(p.cliente||'').trim().toUpperCase(), String(p.vin||'').trim().toUpperCase(), String(p.fecha||'').trim(), String(p.score)].join('|'); };
+      var ya = {}; puntos.forEach(function(p){ ya[clave(p)] = true; });
+      var sumadas = 0;
+      prev.puntos.forEach(function(p){ if((p.manual || p.cliente) && !ya[clave(p)]){ puntos.push(p); ya[clave(p)] = true; sumadas++; } });
+      if(sumadas) showToast('Se conservaron '+sumadas+' encuesta'+(sumadas>1?'s':'')+' cargada'+(sumadas>1?'s':'')+' a mano con datos del cliente');
+    }
+  }
   var puntosJson = JSON.stringify(puntos);
   // Actualiza el caché local ya mismo, así se ve al toque sin esperar la vuelta del servidor.
   var idx = ARCHIVOS_NPS_.findIndex(function(a){ return a.instancia===instancia && a.canal===canal; });
   var filaLocal = {instancia:instancia, canal:canal, nombreArchivo:nombreArchivo, fechaCarga:fmtFecha(new Date()), fechaCorte:fechaCorte, puntosJson:puntosJson, cargadoPor:usuarioActual()};
   if(idx>-1) ARCHIVOS_NPS_[idx] = filaLocal; else ARCHIVOS_NPS_.push(filaLocal);
-  return gasPost('guardarArchivoNpsImportado', {instancia:instancia, canal:canal, nombreArchivo:nombreArchivo, fechaCorte:fechaCorte, puntosJson:puntosJson, autor:usuarioActual()}).then(function(res){
+  return gasPost('guardarArchivoNpsImportado', {instancia:instancia, canal:canal, nombreArchivo:nombreArchivo, fechaCorte:fechaCorte, puntosJson:puntosJson, autor:usuarioActual(), conservarManuales:conservarManuales?'true':''}).then(function(res){
     // Antes, si el servidor rechazaba el guardado (p. ej. por tamaño), no
     // avisaba nada: se veía bien en esta pantalla y al recargar desaparecía.
     if(!res || !res.ok) showToast('⚠️ No se pudo guardar '+instancia+' / '+canal+' en el servidor'+(res&&res.error?': '+res.error:'')+'. ¿Está actualizado el Code.gs?');
@@ -16049,7 +16060,7 @@ function cargarAnonimasATSiHaceFalta_(){
   }).catch(function(){ _anonimasATCargadas_ = true; });
 }
 function guardarResumenArchivoAT_(canal, nombreArchivo, puntos){
-  guardarArchivoNpsBackend_('alertatemprana', canal, nombreArchivo, puntos);
+  guardarArchivoNpsBackend_('alertatemprana', canal, nombreArchivo, puntos, null, true);
 }
 function conteoAcumuladoAT_(canalKey, respondidasCanal){
   var entrada = obtenerArchivoNps_('alertatemprana', canalKey);
@@ -16455,7 +16466,7 @@ function importarBaseVentasDMS_(event){
       ['directa','pda'].forEach(function(ck){
         var pts = Object.keys(porCanal[ck]).map(function(v){ return porCanal[ck][v]; });
         if(!pts.length) return;
-        promesas.push(guardarArchivoNpsBackend_('ventas', ck, nombre, pts, corte));
+        promesas.push(guardarArchivoNpsBackend_('ventas', ck, nombre, pts, corte, true));
         var porMarca = {};
         pts.forEach(function(p){ porMarca[p.marca] = (porMarca[p.marca]||0)+1; });
         resumen.push((ck==='pda'?'PDA':'Directa')+': '+pts.length+' ('+Object.keys(porMarca).map(function(m){ return m+' '+porMarca[m]; }).join(', ')+')');
@@ -16535,7 +16546,7 @@ function importarNpsTodasLasInstancias_(event){
       var ventasActual = obtenerArchivoNps_('ventas', canal);
       if(ventasActual && /^DMS:/.test(ventasActual.nombreArchivo||'')){
         resumen.push('Ventas: se mantiene la base del sistema (DMS)');
-      } else if(puntosVentas.length){ guardarArchivoNpsBackend_('ventas', canal, file.name, puntosVentas); resumen.push('Ventas: '+puntosVentas.length); }
+      } else if(puntosVentas.length){ guardarArchivoNpsBackend_('ventas', canal, file.name, puntosVentas, null, true); resumen.push('Ventas: '+puntosVentas.length); }
 
       // ---- Fábrica ----
       var puntosFab = calcularNpsDesdeFilas_(filas, idxHeaderRow, headers);
@@ -16697,7 +16708,7 @@ function cargarAnonimasCpSiHaceFalta_(){
   }).catch(function(){ _anonimasCpCargadas_ = true; });
 }
 function guardarResumenArchivoCp_(canal, nombreArchivo, puntos){
-  guardarArchivoNpsBackend_('contactoposterior', canal, nombreArchivo, puntos);
+  guardarArchivoNpsBackend_('contactoposterior', canal, nombreArchivo, puntos, null, true);
 }
 function conteoAcumuladoCp_(canalKey, respondidasCanal){
   var entrada = obtenerArchivoNps_('contactoposterior', canalKey);

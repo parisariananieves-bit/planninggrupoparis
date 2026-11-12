@@ -97,7 +97,7 @@ else if(action==='agregarNpsAnonimo') result = agregarNpsAnonimo_(p.tipo, p.cana
 else if(action==='agregarPuntoManualArchivo') result = agregarPuntoManualArchivo_(p.instancia, p.canal, p.punto, p.autor);
 else if(action==='eliminarPuntoManualArchivo') result = eliminarPuntoManualArchivo_(p.instancia, p.canal, p.vin, p.indice);
 else if(action==='eliminarNpsAnonimo') result = eliminarNpsAnonimo_(p.tipo, p.fila);
-else if(action==='guardarArchivoNpsImportado') result = guardarArchivoNpsImportado_(p.instancia, p.canal, p.nombreArchivo, p.fechaCorte, p.puntosJson, p.autor);
+else if(action==='guardarArchivoNpsImportado') result = guardarArchivoNpsImportado_(p.instancia, p.canal, p.nombreArchivo, p.fechaCorte, p.puntosJson, p.autor, p.conservarManuales);
 else if(action==='actualizarFechaCorteArchivo') result = actualizarFechaCorteArchivo_(p.instancia, p.canal, p.nuevaFecha);
 else if(action==='eliminarItemCatalogoAccesorios') result = eliminarItemCatalogoAccesorios_(p.nombre, p.marca, p.modelo);
     else if(action==='importarCatalogoAccesorios') result = importarCatalogoAccesorios_(p.filas);
@@ -2780,7 +2780,20 @@ function eliminarPuntoManualArchivo_(instancia, canal, vin, indice){
   }
   return {ok:true};
 }
-function guardarArchivoNpsImportado_(instancia, canal, nombreArchivo, fechaCorte, puntosJson, autor){
+// Las encuestas cargadas a mano "con datos del cliente" viven dentro del archivo importado.
+// Antes, al subir un archivo nuevo se reemplazaba todo y SE PERDÍAN. Ahora, cuando es una
+// importación (conservarManuales), se copian al archivo nuevo las que no vengan ya en él,
+// y siempre se guarda un respaldo de lo anterior en la hoja "NPS Archivo — Respaldo".
+function claveManualNps_(p){ return [String(p.cliente||'').trim().toUpperCase(), String(p.vin||'').trim().toUpperCase(), String(p.fecha||'').trim(), String(p.score)].join('|'); }
+function respaldarFilaArchivoNps_(fila){
+  try{
+    var ss=SpreadsheetApp.getActiveSpreadsheet(), h=ss.getSheetByName('NPS Archivo — Respaldo');
+    if(!h){ h=ss.insertSheet('NPS Archivo — Respaldo'); h.appendRow(['Respaldado','Instancia','Canal','Archivo','Fecha de carga','Puntos (JSON)']); h.setFrozenRows(1); }
+    var json=leerPuntosJsonFila_(fila);
+    h.appendRow([Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm'), fila[0], fila[1], fila[2], String(fila[3]||''), "'"+json.slice(0,49000)]);
+  }catch(e){}
+}
+function guardarArchivoNpsImportado_(instancia, canal, nombreArchivo, fechaCorte, puntosJson, autor, conservarManuales){
   if(['fabrica','alertatemprana','contactoposterior','ventas'].indexOf(instancia)===-1) return {ok:false, error:'Instancia inválida.'};
   if(canal!=='directa' && canal!=='pda') return {ok:false, error:'Canal inválido.'};
   var hoja = getHojaNpsArchivoImportado_();
@@ -2788,6 +2801,19 @@ function guardarArchivoNpsImportado_(instancia, canal, nombreArchivo, fechaCorte
   var filaExistente = -1;
   for(var i=1;i<datos.length;i++){
     if(datos[i][0]===instancia && datos[i][1]===canal){ filaExistente = i+1; break; }
+  }
+  if(filaExistente>-1){
+    var previa = datos[filaExistente-1];
+    respaldarFilaArchivoNps_(previa);
+    if(String(conservarManuales)==='true' || conservarManuales===true){
+      try{
+        var viejos = JSON.parse(leerPuntosJsonFila_(previa)||'[]') || [];
+        var nuevos = JSON.parse(puntosJson||'[]') || [];
+        var ya = {}; nuevos.forEach(function(p){ ya[claveManualNps_(p)] = true; });
+        viejos.forEach(function(p){ if((p.manual || p.cliente) && !ya[claveManualNps_(p)]){ nuevos.push(p); ya[claveManualNps_(p)] = true; } });
+        puntosJson = JSON.stringify(nuevos);
+      }catch(e){}
+    }
   }
   var fechaCarga = "'" + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
   var fila = [instancia, canal, nombreArchivo, fechaCarga, "'" + fechaCorte, puntosJson, autor||'—'];
@@ -3984,6 +4010,8 @@ function paginaEncuestaUsado_(p){
       '<style>body{margin:0;background:#F2F3F5;font-family:Arial,Helvetica,sans-serif;color:#111827}.top{background:#0A0F1E;color:#fff;text-align:center;padding:26px 16px 70px}.top small{color:#E8A33D;font-weight:bold;letter-spacing:2px;font-size:12px}.top h1{margin:8px 0 0;font-size:22px}'+
       '.card{max-width:460px;margin:-50px auto 30px;background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.08);padding:26px 24px}.nota{width:64px;height:64px;border-radius:16px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:bold}'+
       'textarea{width:100%;box-sizing:border-box;min-height:110px;border:1px solid #D1D5DB;border-radius:12px;padding:12px;font:inherit;font-size:15px;resize:vertical}button{width:100%;margin-top:12px;background:#0A0F1E;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:bold;cursor:pointer}p{line-height:1.55}</style></head><body>'+contenido+'</body></html>';
+    // logo de París Usados arriba (también en el "¡Muchas gracias!", que es la misma página)
+    html = html.replace(/<div class="top">/g, '<div class="top"><div style="display:inline-block;background:#fff;border-radius:14px;padding:8px 12px;margin-bottom:12px"><img src="data:image/png;base64,'+LOGO_USADOS_B64_+'" alt="París Usados" style="display:block;height:64px"></div><br>');
     return HtmlService.createHtmlOutput(html).setTitle(titulo).addMetaTag('viewport','width=device-width, initial-scale=1').setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   };
   if(!marca || !id || p.t !== tokenEncuestaUsado_(marca, id)) return pagina('Encuesta', '<div class="top"><h1>Enlace no válido</h1></div><div class="card"><p>Este enlace no es válido o está incompleto. Si tenés dudas, comunicate con nosotros.</p></div>');
