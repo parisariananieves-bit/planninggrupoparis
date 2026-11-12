@@ -8421,10 +8421,21 @@ function pintarBodyContactoPosterior_(cache){
     return '<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--hairline);font-size:12px;">'+
       '<span style="color:var(--text-faint);">'+label+'</span><span style="font-weight:600;text-align:right;">'+(valor||'—')+'</span></div>';
   }
+  var sub=document.querySelector('#modalContactoPosterior .modal-head .sub');
+  if(sub) sub.textContent = e.origen ? 'Encuesta por mail de usados — la nota y el comentario los carga el cliente.' : 'Encuesta pública de satisfacción 0km (post-venta) — solo lectura, cruce por VIN o patente.';
+  if(e.origen){
+    // Encuesta de usados: solo los datos que tiene esa encuesta
+    body.innerHTML =
+      bloqueNpsGrande_(e.recomienda, 'Respondida '+(e.fecha||''), e.comentario)+
+      '<div style="border:1px solid var(--hairline);border-radius:9px;padding:12px 14px;">'+
+        fila('Origen', e.origen)+fila('Fecha de respuesta', e.fecha)+fila('Nombre', e.nombre)+fila('Email', e.email)+fila('Patente / VIN', e.vinPatente)+
+        fila('Comentario', e.comentario ? '“'+String(e.comentario).replace(/</g,'&lt;')+'”' : 'Sin comentario')+
+      '</div>';
+    return;
+  }
   body.innerHTML =
     bloqueNpsGrande_(e.recomienda, 'Respondida '+(e.fecha||''), e.comentario)+
     '<div style="border:1px solid var(--hairline);border-radius:9px;padding:12px 14px;">'+
-      (e.origen ? fila('Origen', e.origen) : '')+
       fila('Fecha de respuesta', e.fecha)+
       fila('Nombre', e.nombre)+
       fila('Email', e.email)+
@@ -8443,6 +8454,20 @@ function verContactoPosterior_(marca, id){
   document.getElementById('contactoPosteriorClienteHeader').innerHTML =
     '<b>'+(r.cliente||'—')+'</b> · VIN '+(r.chasis||'—')+' · Adm: '+(r.administrativo||'—')+' · Vend: '+(r.vendedor||'—');
   var cache = contactoPosteriorCache_(r);
+  if(esUsadoVenta_(r)){
+    // Usados: la respuesta la carga el cliente desde el mail — se trae al momento para ver la nota y el comentario más nuevos
+    if(cache && cache.encontrado) pintarBodyContactoPosterior_(cache);
+    else document.getElementById('contactoPosteriorBody').innerHTML='<div style="text-align:center;padding:24px;color:var(--text-faint);font-size:12.5px;">Buscando la respuesta…</div>';
+    gasGet('cpEntrega',{marca:r.marca, id:r.id}).then(function(res){
+      if(!res || !res.ok) return;
+      r.contactoPosteriorData = res.contactoPosteriorData || r.contactoPosteriorData; if(res.encuestaUsadoEnviada) r.encuestaUsadoEnviada = res.encuestaUsadoEnviada;
+      var c2 = contactoPosteriorCache_(r);
+      if(c2 && c2.encontrado) pintarBodyContactoPosterior_(c2);
+      else document.getElementById('contactoPosteriorBody').innerHTML='<div style="padding:18px;color:var(--text-faint);font-size:12.5px;">El cliente todavía no respondió la encuesta de usados.</div>';
+      renderAlertaNpsContactoPosterior_(r); renderContactoPosteriorResumen_(r);
+    }).catch(function(){});
+    return;
+  }
   if(cache && cache.buscado && (cache.encontrado || !debeReintentarContactoPosterior_(cache))){
     pintarBodyContactoPosterior_(cache);
     return;
