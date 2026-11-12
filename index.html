@@ -1986,7 +1986,7 @@
         <input type="checkbox" id="nSinConfirmar" class="tgl-in">
         <span class="tgl-sw" aria-hidden="true"></span>
         <span class="tgl-txt"><b>⏳ Fecha a confirmar</b><small>Activalo si el cliente todavía no confirmó el día. Se guarda igual, queda marcada como “Fecha a confirmar” y el horario sigue libre para otra entrega.</small>
-        <small id="nUsadoNota" class="us-nota" style="display:none;">🚗 <b>Usado:</b> hasta la fecha de compromiso de taller queda solo como <b>carga</b>. Desde ese día el administrativo programa y confirma la fecha de entrega. No hace falta elegir horario ahora; el compromiso de taller lo puede cargar Logística después.</small></span>
+        <small id="nUsadoNota" class="us-nota" style="display:none;">🚗 <b>Usado:</b> viene encendido. Si ya tenés el día y la hora acordados con el cliente, cargalos y apagalo. Si no, guardalo así y después tocá <b>Confirmar fecha</b> o reprogramá cuando quieras. El compromiso de taller lo puede cargar Logística después.</small></span>
       </label></div>
       <div class="form-field"><label>Tipo de venta</label><select id="nTipoVenta" onchange="toggleUsadoNueva_()"><option value="OKM">0KM</option><option value="USADO">Usado</option></select></div>
       <div class="form-field"><label>¿Entrega usado (parte de pago)?</label><select id="nUsado"><option value="No">No</option><option value="Sí">Sí</option></select></div>
@@ -5003,7 +5003,13 @@ function datosCacheKey_(){
   var s = sesionActual();
   return 'datosCache_' + (s && s.usuario ? s.usuario : 'anon');
 }
+// IndexedDB: guarda la última copia de los datos sin el límite de ~5 MB de localStorage
+// (con muchas entregas el caché ya no entraba y cada apertura esperaba a la red).
+function idbCache_(){ return new Promise(function(ok, mal){ try{ var rq=indexedDB.open('planningCache',1); rq.onupgradeneeded=function(){ rq.result.createObjectStore('datos'); }; rq.onsuccess=function(){ ok(rq.result); }; rq.onerror=function(){ mal(rq.error); }; }catch(e){ mal(e); } }); }
+function idbGuardarCache_(clave, valor){ return idbCache_().then(function(db){ return new Promise(function(ok){ var tx=db.transaction('datos','readwrite'); tx.objectStore('datos').put(valor, clave); tx.oncomplete=function(){ ok(true); }; tx.onerror=function(){ ok(false); }; }); }).catch(function(){ return false; }); }
+function idbLeerCache_(clave){ return idbCache_().then(function(db){ return new Promise(function(ok){ var rq=db.transaction('datos','readonly').objectStore('datos').get(clave); rq.onsuccess=function(){ ok(rq.result||null); }; rq.onerror=function(){ ok(null); }; }); }).catch(function(){ return null; }); }
 function leerDatosCache_(){
+  if(window._cacheIdb && window._cacheIdb.entregas && window._cacheIdb.config) return window._cacheIdb;
   try{
     var raw = localStorage.getItem(datosCacheKey_());
     if(!raw) return null;
@@ -5013,8 +5019,11 @@ function leerDatosCache_(){
   }catch(e){ return null; }
 }
 function guardarDatosCache_(entregas, config){
-  try{ localStorage.setItem(datosCacheKey_(), JSON.stringify({entregas:entregas, config:config, guardadoEn:Date.now()})); }
-  catch(e){ /* localStorage lleno o no disponible: no pasa nada, seguimos sin caché */ }
+  var dato={entregas:entregas, config:config, guardadoEn:Date.now()};
+  window._cacheIdb = dato;
+  idbGuardarCache_(datosCacheKey_(), dato);
+  try{ localStorage.setItem(datosCacheKey_(), JSON.stringify(dato)); }
+  catch(e){ try{ localStorage.removeItem(datosCacheKey_()); }catch(e2){} /* lleno: queda la copia de IndexedDB */ }
 }
 function pintarDatosCargados_(esPrimeraVezReal){
   document.getElementById('loadingMsg').style.display='none';
@@ -5043,6 +5052,12 @@ function cargarTodo(omitirRefrescoInicial){
   }
 
   var pedidoManual = !primeraCargaApp_; // click en "Actualizar datos", no la carga inicial
+  if(!pedidoManual && !window._idbLeido && !leerDatosCache_()){
+    // No había copia en localStorage: probamos la de IndexedDB antes de esperar a la red
+    window._idbLeido = true;
+    idbLeerCache_(datosCacheKey_()).then(function(c){ if(c && c.entregas && c.config) window._cacheIdb = c; cargarTodo(omitirRefrescoInicial); });
+    return;
+  }
   var cache = leerDatosCache_();
 
   if(cache && !pedidoManual){
@@ -8541,6 +8556,9 @@ function guardarNpsFabricaCampo_(campo, valor){
   if(!r) return;
   r[campo] = valor;
   var fields = {}; fields[campo] = valor;
+  // marca de cuándo se cargó/modificó el NPS de Fábrica (para "Última carga" del panel)
+  var _d=new Date(); r.npsFabricaCargadoEn = String(_d.getDate()).padStart(2,'0')+'/'+String(_d.getMonth()+1).padStart(2,'0')+'/'+_d.getFullYear()+' '+String(_d.getHours()).padStart(2,'0')+':'+String(_d.getMinutes()).padStart(2,'0');
+  fields.npsFabricaCargadoEn = r.npsFabricaCargadoEn;
   gasPost('updateEntregaFields',{marca:detailMarca, id:detailId, fields:fields});
   if(campo==='npsFabricaScore' && valor!==''){
     logHistorial_(detailMarca, detailId, '🏭 NPS de Fábrica cargado — '+valor+'/10');
@@ -10070,21 +10088,11 @@ function renderAlertaCompromiso_(r){
   if(!(esUsadoVenta_(r) && !r.entregada && !r.usAnulada)){ al.style.display='none'; return; }
   al.style.display='flex';
   var pinta=function(col){ al.style.background='var(--'+col+'-soft)'; al.style.color='var(--'+col+')'; al.style.borderColor='var(--'+col+')'; };
-  var c=cuentaRegresiva_(r.usFechaCompromiso);
-  var txt, ic='timer';
-  if(!c){
-    pinta('warn');
-    txt='Compromiso de taller: <b>sin fecha todavía</b> (la carga Logística) · 🔒 todavía no se puede programar la entrega';
-  } else if(!r.fechaSinConfirmar){
-    pinta('ok'); ic='event_available';
-    txt='Compromiso de taller: <b>'+c.fecha+'</b> · ✅ entrega programada para el '+usEsc_(r.fecha)+' '+usEsc_(r.hora||'');
-  } else if(c.dias>0){
-    pinta(c.dias<=3?'warn':'ok');
-    txt='Compromiso de taller: <b>'+c.fecha+'</b> ('+c.txt+') · 🔒 se habilita para programar ese día';
-  } else {
-    pinta('danger'); ic='event';
-    txt='Compromiso de taller: <b>'+c.fecha+'</b> ('+c.txt+') · ✅ <b>ya se puede programar</b> la entrega';
-  }
+  var c=cuentaRegresiva_(r.usFechaCompromiso), txt, ic='timer';
+  var entrega = r.fechaSinConfirmar ? ' · fecha de entrega <b>a confirmar</b>' : ' · ✅ entrega confirmada para el '+usEsc_(r.fecha)+' '+usEsc_(r.hora||'');
+  if(!c){ pinta('warn'); txt='Compromiso de taller: <b>sin fecha todavía</b> (la carga Logística)'+entrega; }
+  else { pinta(r.fechaSinConfirmar ? (c.dias<0?'danger':c.dias<=1?'danger':c.dias<=3?'warn':'ok') : 'ok'); if(!r.fechaSinConfirmar) ic='event_available';
+    txt='Compromiso de taller: <b>'+c.fecha+'</b> ('+c.txt+')'+entrega; }
   al.innerHTML='<span class="material-symbols-outlined" style="font-size:15px;flex:none;">'+ic+'</span><span class="al-txt">'+txt+'</span>';
 }
 // Qué le falta a un usado para estar listo para alistamiento
@@ -10103,8 +10111,8 @@ function toggleUsadoNueva_(){
   var on=document.getElementById('nTipoVenta').value==='USADO';
   b.style.display = on ? '' : 'none';
   var sc=document.getElementById('nSinConfirmar'), card=sc && sc.closest('.tgl-card');
-  if(sc){ if(on) sc.checked=true; sc.disabled=on; }
-  if(card) card.classList.toggle('tgl-fijo', on);
+  if(sc){ if(on && !sc._tocadoUsado) sc.checked=true; sc.disabled=false; }
+  if(card) card.classList.remove('tgl-fijo');
   var nota=document.getElementById('nUsadoNota'); if(nota) nota.style.display = on ? '' : 'none';
 }
 function datosUsadoNueva_(){
@@ -10142,7 +10150,7 @@ function renderUsadoUI_(r){
   var sec=document.getElementById('dUsadoSection'); if(!sec) return;
   var on=esUsadoVenta_(r);
   sec.style.display = on ? '' : 'none';
-  if(!on) return;
+  if(!on){ renderAlertaUsado_(r); renderAlertaCompromiso_(r); return; } // (se ocultan los avisos de usado si es 0 km)
   // Se abre expandida al entrar a la entrega; después se puede comprimir (no se vuelve a abrir sola).
   if(window._usAbiertoPara !== (r.marca+'|'+r.id)){ sec.classList.remove('collapsed'); window._usAbiertoPara = r.marca+'|'+r.id; }
   var set=function(id,v){ var e=document.getElementById(id); if(e && document.activeElement!==e) e.value=v==null?'':v; };
@@ -10246,8 +10254,7 @@ function renderAlistamiento(){
       var e=usEstadoFila_(r), venc = r.usFechaCompromiso && r.usFechaCompromiso<hoyStr && e!=='entregada' && e!=='anulada';
       var bq = usadoBloqueadoHasta_(r);
       var ent = r.entregada ? '<span class="us-chip ok">✓ Entregado</span>'
-        : bq ? '<span class="us-chip">📦 En carga</span>'
-        : r.fechaSinConfirmar ? '<span class="us-chip mid">📅 Programar</span>'
+        : r.fechaSinConfirmar ? '<span class="us-chip mid">⏳ '+usEsc_(r.fecha||'')+' '+usEsc_(r.hora||'')+' · a confirmar</span>'
         : (r.fecha ? usEsc_(r.fecha)+' '+usEsc_(r.hora||'') : '—');
       return '<tr class="us-'+e+'" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
         '<td>'+usEsc_(usFecha_(r.usFechaOferta))+'</td><td>'+usEsc_(usFecha_(r.usFechaCarga))+'</td>'+
@@ -11058,8 +11065,8 @@ function toggleFechaSinConfirmar_(){
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}); if(!r) return;
   var bloq = usadoBloqueadoHasta_(r);
   if(bloq){ showToast(bloq.sinFecha ? 'Primero cargá la fecha de compromiso de taller (sección Usado — Alistamiento).' : '🔒 Se habilita el '+bloq.fecha+' ('+bloq.txt+'). Mientras tanto queda como carga.'); return; }
-  if(esUsadoVenta_(r) && r.fechaSinConfirmar && !r.entregada){
-    // Usado: se programa (día y hora) en Reprogramar y, al guardar, queda confirmada.
+  if(false && esUsadoVenta_(r) && r.fechaSinConfirmar && !r.entregada){
+    // (desactivado) antes el usado se programaba solo desde Reprogramar.
     window._confirmarAlReprogramar = r.id;
     var sec=document.getElementById('seccionReprogramar');
     if(sec){ if(sec.classList.contains('collapsed')) sec.classList.remove('collapsed'); sec.scrollIntoView({behavior:'smooth',block:'center'}); sec.classList.add('us-resalta'); setTimeout(function(){ sec.classList.remove('us-resalta'); }, 2500); }
@@ -11083,11 +11090,8 @@ function toggleFechaSinConfirmar_(){
   renderAll();
 }
 function usadoBloqueadoHasta_(r){
-  // Usado con fecha a confirmar: se puede programar/confirmar recién desde el compromiso de taller.
-  if(!esUsadoVenta_(r) || !r.fechaSinConfirmar || r.entregada) return null;
-  if(!r.usFechaCompromiso) return {sinFecha:true};
-  var c=cuentaRegresiva_(r.usFechaCompromiso);
-  return c && c.dias>0 ? c : null;
+  // Ya no se bloquea: el administrativo programa y confirma libremente (puede entregarse el mismo día del compromiso).
+  return null;
 }
 function renderFechaSinConfirmarUI_(r){
   var btn = document.getElementById('dSinConfirmarBtn'), al = document.getElementById('dSinConfirmarAlerta');
@@ -11102,7 +11106,7 @@ function renderFechaSinConfirmarUI_(r){
     return;
   }
   if(btn) btn.classList.remove('d-accion-bloq');
-  if(btn && on && esUsadoVenta_(r)){
+  if(false && btn && on && esUsadoVenta_(r)){
     btn.classList.add('pending','d-accion-alerta');
     btn.innerHTML = '<span class="d-acc-ic">📅</span><span>Programar y confirmar</span><small class="d-acc-sub">ya se puede: elegí el día y la hora</small>';
     btn.title = 'Elegí la fecha y la hora de entrega con el cliente y confirmala.';
@@ -12935,7 +12939,7 @@ function submitNewDelivery(){
   var esUsadoNE = document.getElementById('nTipoVenta').value==='USADO';
   if(esUsadoNE){
     var _cmp = (document.getElementById('nUsFechaCompromiso')||{}).value || '';
-    document.getElementById('nSinConfirmar').checked = true;
+    if(!fechaVal || !horaVal) document.getElementById('nSinConfirmar').checked = true; // sin día u hora: queda a confirmar
     if(!fechaVal){
       var _h=new Date(), _hoy=_h.getFullYear()+'-'+String(_h.getMonth()+1).padStart(2,'0')+'-'+String(_h.getDate()).padStart(2,'0');
       fechaVal = _cmp || _hoy; document.getElementById('nFecha').value = fechaVal;
@@ -15738,6 +15742,12 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
   var pdaEntry = totalesPorCanal.find(function(x){return x.canal==='pda';});
   var badgeTotalFab = filterCanal==='pda' ? (pdaEntry?pdaEntry.total:0)+' PDA' : (filterCanal==='tradicional' ? (directaEntry?directaEntry.total:0)+' Directa' : totalCombinado+' encuestas en total (Directa + PDA)');
   var horaCalculoFab = (function(){ if(filterCanal==='pda') return pdaEntry?pdaEntry.fechaCarga:''; if(filterCanal==='tradicional') return directaEntry?directaEntry.fechaCarga:''; var op=[directaEntry,pdaEntry].filter(Boolean).sort(function(a,b){return fechaCargaAOrden_(b.fechaCarga)-fechaCargaAOrden_(a.fechaCarga);}); return op.length?op[0].fechaCarga:''; })();
+  // Si después del archivo se cargó o modificó un NPS de Fábrica desde el detalle de un cliente, esa es la última carga
+  (function(){
+    var ult='', ultT=fechaCargaAOrden_(horaCalculoFab);
+    ENTREGAS.forEach(function(x){ if(!x.npsFabricaCargadoEn || !pasaFiltroCanal_(x)) return; var t=fechaCargaAOrden_(x.npsFabricaCargadoEn); if(t>ultT){ ultT=t; ult=x.npsFabricaCargadoEn; } });
+    if(ult) horaCalculoFab = ult;
+  })();
   cont.style.display = 'block';
   cont.innerHTML =
     '<div class="section-title" style="margin-top:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">NPS de Fábrica — acumulado (archivo + lo cargado en el sistema) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Suma los totales del archivo con las entregas que vayas completando acá — no cruza por VIN, solo suma cantidades. Guardado en el sistema, lo ven todos los usuarios.</span></span>'+
@@ -15829,7 +15839,20 @@ function descargarImagenReporte_(elementId, nombreArchivo){
   if(typeof html2canvas==='undefined'){ showToast('Todavía está cargando la herramienta de imagen, esperá un segundo y probá de nuevo.'); return; }
   showToast('Generando imagen…');
   var fondoOscuro = getComputedStyle(document.body).getPropertyValue('--bg') || '#0e1630';
-  html2canvas(el, {backgroundColor: fondoOscuro.trim() || '#0e1630', scale:2, useCORS:true}).then(function(canvas){
+  // NPS Fábrica: la imagen lleva SOLO el acumulado (con el progreso al objetivo) y la evolución mensual
+  var permitidos = null;
+  if(elementId==='fabReporteImagen'){
+    var evo=document.getElementById('fabChartEvolucionMensual');
+    permitidos=[document.getElementById('fabResumenArchivo'), evo ? evo.closest('.chart-panel') : null].filter(Boolean);
+  }
+  var opciones = {backgroundColor: fondoOscuro.trim() || '#0e1630', scale:2, useCORS:true};
+  if(permitidos){
+    opciones.ignoreElements = function(n){
+      if(n.parentElement===el) return permitidos.indexOf(n)===-1;      // otras secciones del panel: afuera
+      return !!(n.classList && (n.classList.contains('ayuda-tip')));   // los "?" de ayuda: afuera
+    };
+  }
+  html2canvas(el, opciones).then(function(canvas){
     canvas.toBlob(function(blob){
       var a = document.createElement('a');
       a.href = URL.createObjectURL(blob);

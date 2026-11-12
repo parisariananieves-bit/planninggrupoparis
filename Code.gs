@@ -377,7 +377,8 @@ var CAMPOS = [
   {k:'usAnulada', h:'Usado — Operación anulada', bool:true},
   {k:'usAnuladaMotivo', h:'Usado — Motivo de anulación'},
   {k:'usAnuladaPor', h:'Usado — Anulada por'},
-  {k:'usAnuladaFecha', h:'Usado — Fecha de anulación'}
+  {k:'usAnuladaFecha', h:'Usado — Fecha de anulación'},
+  {k:'npsFabricaCargadoEn', h:'NPS Fábrica — Cargado/modificado en el sistema'}
 ];
 
 // ============================================================
