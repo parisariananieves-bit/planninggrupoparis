@@ -1445,6 +1445,10 @@
     #rcPrint table{width:100%;border-collapse:collapse;font-size:9px;} #rcPrint th{background:#1D2330;color:#fff;text-align:left;padding:4px;} #rcPrint td{border-bottom:1px solid #e5e5e5;padding:3px 4px;}
     #rcPrint tr{break-inside:avoid;}
   }
+  .enc-us{border:1px solid var(--hairline);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:var(--panel);}
+  .enc-us-t{display:flex;align-items:center;gap:6px;font-weight:800;font-size:12.5px;color:var(--text);} .enc-us-t .material-symbols-outlined{font-size:17px;color:#5B4CF0;} .enc-us-t small{font-weight:500;color:var(--text-faint);}
+  .enc-us-e{font-size:12px;color:var(--text-dim);margin:6px 0 8px;line-height:1.4;}
+  .enc-us button{width:100%;background:#5B4CF0;color:#fff;border:none;border-radius:9px;padding:8px 12px;font-weight:700;font-size:12px;cursor:pointer;}
   .camp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
   .camp-chips:empty{display:none;}
   .camp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);border-radius:14px;padding:3px 6px 3px 10px;font-size:11.5px;font-weight:700;}
@@ -3679,6 +3683,7 @@
 
       <div class="section-title" style="margin-top:18px;display:flex;align-items:center;gap:5px;">NPS Contacto Posterior <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Cruza VIN o patente con la encuesta pública de satisfacción 0km (post-venta). Se busca una sola vez y queda guardado.</span></span></div>
       <div id="dContactoPosteriorResumen" style="display:none;margin-bottom:8px;"></div>
+      <div id="dEncuestaUsado" class="enc-us" style="display:none;"></div>
       <button id="dBtnContactoPosterior" onclick="verContactoPosterior_(detailMarca, detailId)" style="width:100%;background:var(--panel-2);color:var(--text);border:1px solid var(--hairline);border-radius:7px;padding:8px 13px;font-weight:600;font-size:11.5px;cursor:pointer;"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">forum</span> Ver contacto posterior</button>
 
       <div class="section-title" style="margin-top:18px;">Garantía</div>
@@ -8419,6 +8424,7 @@ function pintarBodyContactoPosterior_(cache){
   body.innerHTML =
     bloqueNpsGrande_(e.recomienda, 'Respondida '+(e.fecha||''), e.comentario)+
     '<div style="border:1px solid var(--hairline);border-radius:9px;padding:12px 14px;">'+
+      (e.origen ? fila('Origen', e.origen) : '')+
       fila('Fecha de respuesta', e.fecha)+
       fila('Nombre', e.nombre)+
       fila('Email', e.email)+
@@ -8479,7 +8485,31 @@ function buscarContactoPosteriorSilencioso_(r){
     if(detailId===r.id && detailMarca===r.marca){ renderAlertaNpsContactoPosterior_(r); renderContactoPosteriorResumen_(r); renderHistorialUI(r); }
   }).catch(function(){});
 }
+// Encuesta de usados por mail (1 a 10 + comentario): se envía sola tras la entrega o a mano desde acá
+function renderEncuestaUsado_(r){
+  var el=document.getElementById('dEncuestaUsado'); if(!el) return;
+  if(!esUsadoVenta_(r)){ el.style.display='none'; return; }
+  el.style.display='block';
+  var cache=contactoPosteriorCache_(r), resp=cache && cache.encontrado && cache.respuesta && cache.respuesta.origen ? cache.respuesta : null;
+  var estado = resp ? '✅ Respondida: <b>'+resp.recomienda+'/10</b>'+(resp.comentario?' · con comentario':'')
+    : r.encuestaUsadoEnviada ? '✉ Enviada el '+usEsc_(r.encuestaUsadoEnviada)+' — esperando respuesta'
+    : (r.email ? 'Todavía no se envió. Se manda sola después de la entrega, o la podés mandar ahora.' : '⚠ Falta el email del cliente para poder enviarla.');
+  el.innerHTML='<div class="enc-us-t"><span class="material-symbols-outlined">mail</span>Encuesta de usado por mail <small>1 a 10 + comentario</small></div>'+
+    '<div class="enc-us-e">'+estado+'</div>'+
+    (r.email && !resp ? '<button onclick="enviarEncuestaUsadoAhora_()">'+(r.encuestaUsadoEnviada?'Reenviar encuesta':'✉ Enviar encuesta ahora')+'</button>' : '');
+}
+function enviarEncuestaUsadoAhora_(){
+  var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}); if(!r) return;
+  if(!r.email){ showToast('Falta el email del cliente'); return; }
+  if(!confirm('¿Enviar la encuesta a '+r.email+'?')) return;
+  showToast('Enviando encuesta…');
+  gasPost('enviarEncuestaUsado',{marca:r.marca, id:r.id, usuario:usuarioActual()}).then(function(res){
+    if(res && res.ok){ r.encuestaUsadoEnviada=res.enviada; showToast('✉ Encuesta enviada a '+r.email); renderEncuestaUsado_(r); }
+    else showToast('No se pudo enviar: '+((res&&res.error)||'error'));
+  }).catch(function(){ showToast('No se pudo enviar la encuesta'); });
+}
 function renderContactoPosteriorResumen_(r){
+  renderEncuestaUsado_(r);
   var wrap = document.getElementById('dContactoPosteriorResumen');
   if(!wrap) return;
   var cache = contactoPosteriorCache_(r);

@@ -6,6 +6,7 @@
 
 function doGet(e) {
   var action = e && e.parameter && e.parameter.action;
+  if (action === 'encuestaUsado') return paginaEncuestaUsado_(e.parameter); // página pública de la encuesta de usados
   var result;
   try {
     if (action === 'entregas') result = getEntregas();
@@ -51,6 +52,7 @@ function doPost(e){
     else if(action==='agregarHistorial') result = {ok: agregarHistorial(p.marca, p.id, p.texto)};
     else if(action==='enviarConfirmacion') result = enviarConfirmacion(p.marca, p.id, p.usuario);
     else if(action==='enviarBienvenidaMail') result = enviarBienvenidaMail(p.marca, p.id, p.usuario, p.forzar);
+    else if(action==='enviarEncuestaUsado') result = enviarEncuestaUsado(p.marca, p.id, p.usuario);
     else if(action==='fichaTecnicaEntrega') result = fichaTecnicaEntrega(p.marca, p.id);
     else if(action==='listarFichasTecnicas') result = listarFichasTecnicas();
     else if(action==='enviarRecordatorio') result = enviarRecordatorio(p.marca, p.id, p.usuario);
@@ -378,7 +380,8 @@ var CAMPOS = [
   {k:'usAnuladaMotivo', h:'Usado — Motivo de anulación'},
   {k:'usAnuladaPor', h:'Usado — Anulada por'},
   {k:'usAnuladaFecha', h:'Usado — Fecha de anulación'},
-  {k:'npsFabricaCargadoEn', h:'NPS Fábrica — Cargado/modificado en el sistema'}
+  {k:'npsFabricaCargadoEn', h:'NPS Fábrica — Cargado/modificado en el sistema'},
+  {k:'encuestaUsadoEnviada', h:'Usado — Encuesta por mail enviada'}
 ];
 
 // ============================================================
@@ -1872,7 +1875,8 @@ function ejecutarAutomatizaciones(){
 
     // WhatsApp queda MANUAL a propósito — el cliente elige y toca el botón desde la web,
     // no se manda solo. Solo Email corre automático acá.
-    if(auto.email && auto.email.activo && auto.email.marcas.indexOf(r.marca)>-1){
+    var esUsadoV = String(r.tipoVenta||'').toUpperCase()==='USADO';
+    if(auto.email && auto.email.activo && (auto.email.marcas.indexOf(r.marca)>-1 || esUsadoV)){
       procesarComunicacion_(r, 'email', auto.email, ahora, config);
     }
   });
@@ -1900,7 +1904,8 @@ function procesarComunicacion_(r, canal, configCanal, ahora, configCompleto){
       registrarComunicacion_(r, canal, 'Enviada', intentos, '', mensaje);
     } else if(canal==='email'){
       var asunto = reemplazarVariablesServidor_(configCanal.asunto, r);
-      enviarEmailPostEntrega_(r, asunto, configCompleto); // ya conectada, con tu HTML calcado de la captura
+      if(String(r.tipoVenta||'').toUpperCase()==='USADO') enviarEncuestaUsado_(r); // usados: encuesta propia 1 a 10 + comentario
+      else enviarEmailPostEntrega_(r, asunto, configCompleto); // ya conectada, con tu HTML calcado de la captura
       registrarComunicacion_(r, canal, 'Enviada', intentos, '', '');
     }
   } catch(err){
@@ -3882,4 +3887,124 @@ function enviarBienvenidaMail(marca, id, usuario, forzar){
   updateEntregaFields(marca, id, {bienvenidaEnviada:true, bienvenidaFecha:ahora, bienvenidaMailFecha:ahora});
   agregarHistorialInterno_(marca, id, '✉️ Bienvenida de postventa enviada por mail'+(ficha ? ' con la ficha técnica ('+ficha.nombre+')' : ' (sin ficha técnica: no se encontró una para este modelo)')+(usuario ? ' — '+usuario : '')+'.');
   return {ok:true, ficha: ficha ? {nombre:ficha.nombre, url:ficha.url} : null};
+}
+
+// ============================================================
+// ENCUESTA DE USADOS POR MAIL (1 a 10 + comentario)
+// ------------------------------------------------------------
+// El mail trae 10 botones. El cliente toca uno: la nota se guarda al
+// instante en "Contacto Posterior" de esa entrega y se abre una página
+// para dejar un comentario (opcional), que también se guarda ahí.
+// Cada enlace lleva una firma propia de la entrega, así nadie puede
+// responder por otro cliente cambiando la dirección.
+// ============================================================
+function secretoEncuestaUsado_(){
+  var props = PropertiesService.getScriptProperties();
+  var s = props.getProperty('ENCUESTA_USADO_SECRET');
+  if(!s){ s = Utilities.getUuid()+Utilities.getUuid(); props.setProperty('ENCUESTA_USADO_SECRET', s); }
+  return s;
+}
+function tokenEncuestaUsado_(marca, id){
+  var sig = Utilities.computeHmacSha256Signature(String(marca)+'|'+String(id), secretoEncuestaUsado_());
+  return Utilities.base64EncodeWebSafe(sig).replace(/=+$/,'').slice(0,24);
+}
+function urlEncuestaUsado_(r, nota){
+  var base = ScriptApp.getService().getUrl();
+  return base+'?action=encuestaUsado&m='+encodeURIComponent(r.marca)+'&id='+encodeURIComponent(r.id)+'&t='+tokenEncuestaUsado_(r.marca, r.id)+(nota!=null?'&n='+nota:'');
+}
+function buscarEntrega_(marca, id){
+  var todas = getEntregas();
+  for(var i=0;i<todas.length;i++){ if(todas[i].marca===marca && String(todas[i].id)===String(id)) return todas[i]; }
+  return null;
+}
+function enviarEncuestaUsado_(r, usuario){
+  if(!r || !r.email) throw new Error('La entrega no tiene email del cliente');
+  var config = getConfig();
+  var entidad = nombreEntidadPorMarca_(r.marca);
+  var colores = function(n){ return n>=9 ? ['#16A34A','#DCFCE7'] : n>=7 ? ['#D97706','#FEF3C7'] : ['#DC2626','#FEE2E2']; };
+  var botones = '';
+  for(var n=1;n<=10;n++){
+    var c = colores(n);
+    botones += '<td align="center" style="padding:3px;"><a href="'+urlEncuestaUsado_(r, n)+'" style="display:block;width:38px;height:38px;line-height:38px;border-radius:10px;background:'+c[1]+';color:'+c[0]+';font-family:Arial,sans-serif;font-weight:bold;font-size:16px;text-decoration:none;text-align:center;border:1px solid '+c[0]+';">'+n+'</a></td>';
+  }
+  var cuerpo = ''+
+    '<div style="background:#F2F3F5;padding:0;font-family:Arial,sans-serif;">'+
+      '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="background:#0A0F1E;padding:26px 20px 70px;">'+
+        '<div style="color:#E8A33D;font-size:12px;font-weight:bold;letter-spacing:2px;">'+entidad.toUpperCase()+'</div>'+
+        '<div style="color:#ffffff;font-size:22px;font-weight:bold;margin-top:8px;">¿Cómo fue tu experiencia?</div>'+
+      '</td></tr></table>'+
+      '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:0 14px 30px;">'+
+        '<table width="480" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:16px;margin-top:-50px;box-shadow:0 10px 30px rgba(0,0,0,.08);">'+
+          '<tr><td style="padding:30px 28px 10px;font-family:Arial,sans-serif;">'+
+            '<p style="margin:0 0 10px;color:#111827;font-size:15px;">Hola <b>'+(r.cliente||'')+'</b>,</p>'+
+            '<p style="margin:0 0 6px;color:#374151;font-size:14px;line-height:1.6;">Gracias por elegirnos para tu <b>'+(r.modelo||'vehículo')+'</b>. Queremos saber cómo te fue.</p>'+
+            '<p style="margin:18px 0 12px;color:#111827;font-size:16px;font-weight:bold;line-height:1.4;text-align:center;">Del 1 al 10, ¿con qué probabilidad recomendarías '+entidad+' a un familiar o amigo?</p>'+
+          '</td></tr>'+
+          '<tr><td align="center" style="padding:0 16px;"><table cellpadding="0" cellspacing="0"><tr>'+botones+'</tr></table></td></tr>'+
+          '<tr><td style="padding:6px 28px 0;"><table width="100%" cellpadding="0" cellspacing="0"><tr><td style="font-size:11px;color:#9CA3AF;font-family:Arial,sans-serif;">1 = Nada probable</td><td align="right" style="font-size:11px;color:#9CA3AF;font-family:Arial,sans-serif;">10 = Muy probable</td></tr></table></td></tr>'+
+          '<tr><td style="padding:22px 28px 28px;font-family:Arial,sans-serif;"><p style="margin:0;color:#6B7280;font-size:12.5px;text-align:center;line-height:1.5;">Tocá un número: se abre una página para que, si querés, nos dejes un comentario. Te lleva menos de un minuto.</p></td></tr>'+
+        '</table>'+
+      '</td></tr></table>'+
+      '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:6px 16px 22px;font-family:Arial,sans-serif;color:#6b7280;font-size:11px;">'+
+        '<b>'+entidad+'</b><br>Recepción: '+(config.telefonoContacto||'')+' | Calidad: '+(config.telefonoCalidad||'')+
+      '</td></tr></table>'+
+    '</div>';
+  MailApp.sendEmail({to:r.email, subject:'¿Cómo fue tu experiencia con '+entidad+'?', htmlBody:cuerpo, name:entidad});
+  var ahora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
+  updateEntregaFields(r.marca, r.id, {encuestaUsadoEnviada: ahora});
+  agregarHistorialInterno_(r.marca, r.id, '✉ Encuesta de usado enviada a '+r.email+(usuario?' ('+usuario+')':''));
+  return {ok:true, enviada:ahora};
+}
+// Envío manual desde el detalle
+function enviarEncuestaUsado(marca, id, usuario){
+  var r = buscarEntrega_(marca, id);
+  if(!r) return {ok:false, error:'No se encontró la entrega'};
+  try{ return enviarEncuestaUsado_(r, usuario); }catch(err){ return {ok:false, error:String(err.message||err)}; }
+}
+// Página que abre el cliente al tocar un número (y al mandar el comentario)
+function paginaEncuestaUsado_(p){
+  var marca = p.m, id = p.id;
+  var pagina = function(titulo, contenido){
+    var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+titulo+'</title>'+
+      '<style>body{margin:0;background:#F2F3F5;font-family:Arial,Helvetica,sans-serif;color:#111827}.top{background:#0A0F1E;color:#fff;text-align:center;padding:26px 16px 70px}.top small{color:#E8A33D;font-weight:bold;letter-spacing:2px;font-size:12px}.top h1{margin:8px 0 0;font-size:22px}'+
+      '.card{max-width:460px;margin:-50px auto 30px;background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.08);padding:26px 24px}.nota{width:64px;height:64px;border-radius:16px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:bold}'+
+      'textarea{width:100%;box-sizing:border-box;min-height:110px;border:1px solid #D1D5DB;border-radius:12px;padding:12px;font:inherit;font-size:15px;resize:vertical}button{width:100%;margin-top:12px;background:#0A0F1E;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:bold;cursor:pointer}p{line-height:1.55}</style></head><body>'+contenido+'</body></html>';
+    return HtmlService.createHtmlOutput(html).setTitle(titulo).addMetaTag('viewport','width=device-width, initial-scale=1').setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  };
+  if(!marca || !id || p.t !== tokenEncuestaUsado_(marca, id)) return pagina('Encuesta', '<div class="top"><h1>Enlace no válido</h1></div><div class="card"><p>Este enlace no es válido o está incompleto. Si tenés dudas, comunicate con nosotros.</p></div>');
+  var r = buscarEntrega_(marca, id);
+  if(!r) return pagina('Encuesta', '<div class="top"><h1>No encontramos tu entrega</h1></div><div class="card"><p>Comunicate con nosotros, por favor.</p></div>');
+  var entidad = nombreEntidadPorMarca_(r.marca);
+  var cache = {}; try{ cache = r.contactoPosteriorData ? JSON.parse(r.contactoPosteriorData) : {}; }catch(e){ cache = {}; }
+  var prev = (cache && cache.respuesta) || {};
+  var n = parseInt(p.n, 10);
+  if(!(n>=1 && n<=10)) n = parseInt(prev.recomienda, 10);
+  if(!(n>=1 && n<=10)) return pagina('Encuesta', '<div class="top"><small>'+entidad.toUpperCase()+'</small><h1>Elegí un número del 1 al 10 en el mail</h1></div><div class="card"><p>Volvé al mail y tocá el número que mejor describa tu experiencia.</p></div>');
+  var comentario = (p.c !== undefined) ? String(p.c).slice(0, 2000) : (prev.comentario || '');
+  var ahora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
+  var respuesta = {
+    fecha: ahora, email: r.email || '', nombre: r.cliente || '', vinPatente: r.dominio || r.chasis || '',
+    recomienda: n, comentario: comentario, origen: 'Encuesta por mail (usado)',
+    atencionAsesor: prev.atencionAsesor || '', gestionAdmin: prev.gestionAdmin || '', experienciaEntrega: prev.experienciaEntrega || '', usado: prev.usado || ''
+  };
+  var nuevo = {buscado:true, encontrado:true, respuesta:respuesta, fechaUltimoIntento: Date.now()};
+  updateEntregaFields(r.marca, r.id, {contactoPosteriorData: JSON.stringify(nuevo)});
+  if(p.c !== undefined) agregarHistorialInterno_(r.marca, r.id, '💬 Encuesta de usado — comentario del cliente: “'+comentario.slice(0,120)+'”');
+  else if(String(prev.recomienda) !== String(n)) agregarHistorialInterno_(r.marca, r.id, '📋 Encuesta de usado respondida — '+n+'/10');
+  var col = n>=9 ? ['#16A34A','#DCFCE7'] : n>=7 ? ['#D97706','#FEF3C7'] : ['#DC2626','#FEE2E2'];
+  var notaHtml = '<div class="nota" style="background:'+col[1]+';color:'+col[0]+'">'+n+'</div>';
+  if(p.c !== undefined){
+    return pagina('¡Gracias!', '<div class="top"><small>'+entidad.toUpperCase()+'</small><h1>¡Muchas gracias!</h1></div><div class="card" style="text-align:center">'+notaHtml+'<p>Recibimos tu respuesta y tu comentario. Nos ayuda mucho a mejorar.</p></div>');
+  }
+  var accion = ScriptApp.getService().getUrl();
+  var esc = function(x){ return String(x||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
+  return pagina('Gracias por tu respuesta',
+    '<div class="top"><small>'+entidad.toUpperCase()+'</small><h1>¡Gracias por tu respuesta!</h1></div>'+
+    '<div class="card">'+notaHtml+'<p style="text-align:center;margin:0 0 14px;color:#6B7280">Guardamos tu calificación. Si te equivocaste, volvé al mail y tocá otro número.</p>'+
+    '<form method="get" action="'+accion+'" target="_top">'+
+      '<input type="hidden" name="action" value="encuestaUsado"><input type="hidden" name="m" value="'+esc(r.marca)+'"><input type="hidden" name="id" value="'+esc(r.id)+'"><input type="hidden" name="t" value="'+esc(p.t)+'"><input type="hidden" name="n" value="'+n+'">'+
+      '<p style="font-weight:bold;margin:6px 0 8px">¿Querés contarnos algo más? (opcional)</p>'+
+      '<textarea name="c" placeholder="Contanos qué te gustó o qué podemos mejorar…">'+esc(comentario)+'</textarea>'+
+      '<button type="submit">Enviar comentario</button>'+
+    '</form></div>');
 }
