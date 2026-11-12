@@ -95,6 +95,7 @@ else if(action==='agregarItemCatalogoAccesorios') result = agregarItemCatalogoAc
 else if(action==='agregarNpsFabricaAnonimo') result = agregarNpsFabricaAnonimo_(p.canal, p.puntaje, p.comentario, p.autor);
 else if(action==='agregarNpsAnonimo') result = agregarNpsAnonimo_(p.tipo, p.canal, p.puntaje, p.comentario, p.autor);
 else if(action==='agregarPuntoManualArchivo') result = agregarPuntoManualArchivo_(p.instancia, p.canal, p.punto, p.autor);
+else if(action==='agregarPuntosManualesLote') result = agregarPuntosManualesLote_(p.instancia, p.canal, p.puntos, p.autor);
 else if(action==='eliminarPuntoManualArchivo') result = eliminarPuntoManualArchivo_(p.instancia, p.canal, p.vin, p.indice);
 else if(action==='eliminarNpsAnonimo') result = eliminarNpsAnonimo_(p.tipo, p.fila);
 else if(action==='guardarArchivoNpsImportado') result = guardarArchivoNpsImportado_(p.instancia, p.canal, p.nombreArchivo, p.fechaCorte, p.puntosJson, p.autor, p.conservarManuales);
@@ -4068,4 +4069,43 @@ function guardarComentarioEncuestaUsado(marca, id, token, nota, comentario){
   updateEntregaFields(r.marca, r.id, {contactoPosteriorData: JSON.stringify({buscado:true, encontrado:true, respuesta:resp, fechaUltimoIntento: Date.now()})});
   if(resp.comentario) agregarHistorialInterno_(r.marca, r.id, '💬 Encuesta de usado — comentario del cliente: “'+resp.comentario.slice(0,120)+'”');
   return {ok:true};
+}
+
+// Agrega VARIAS encuestas al registro manual de un archivo de una sola vez (importación de GM).
+// No duplica: saltea las que ya están (mismo ID de encuesta GM o mismo VIN).
+function agregarPuntosManualesLote_(instancia, canal, puntos, autor){
+  if(['fabrica','alertatemprana','contactoposterior'].indexOf(instancia)===-1) return {ok:false, error:'Instancia inválida.'};
+  if(canal!=='directa' && canal!=='pda') return {ok:false, error:'Canal inválido.'};
+  if(typeof puntos==='string'){ try{ puntos=JSON.parse(puntos); }catch(e){ puntos=[]; } }
+  puntos = puntos || [];
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try{
+    var hoja = getHojaNpsArchivoImportado_();
+    var datos = hoja.getDataRange().getValues();
+    var filaExistente = -1;
+    for(var i=1;i<datos.length;i++){ if(datos[i][0]===instancia && datos[i][1]===canal){ filaExistente = i+1; break; } }
+    var actuales = [], fechaCorte = '0000-00-00', nombreArchivo = 'Cargas manuales';
+    if(filaExistente>-1){
+      actuales = leerPuntosFila_(datos[filaExistente-1]);
+      fechaCorte = String(datos[filaExistente-1][4]||'').replace(/^'/,'');
+      nombreArchivo = datos[filaExistente-1][2] || nombreArchivo;
+    }
+    var v8 = function(v){ v=String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,''); return v.length>=8 ? v.slice(-8) : ''; };
+    var ids = {}, vins = {};
+    actuales.forEach(function(p){ if(p.idGm) ids[p.idGm]=true; var k=v8(p.vin); if(k) vins[k]=true; });
+    var agregados = 0;
+    puntos.forEach(function(p){
+      if(p.idGm && ids[p.idGm]) return;
+      var k=v8(p.vin); if(k && vins[k]) return;
+      p.manual = true;
+      actuales.push(p); agregados++;
+      if(p.idGm) ids[p.idGm]=true; if(k) vins[k]=true;
+      try{ registrarCargaManualLegible_(instancia, canal, p, autor); }catch(e){}
+    });
+    if(agregados){
+      var fechaCarga = "'" + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
+      escribirFilaArchivoNps_(hoja, filaExistente, [instancia, canal, nombreArchivo, fechaCarga, "'"+fechaCorte, JSON.stringify(actuales), autor||'—']);
+    }
+    return {ok:true, agregados:agregados};
+  } finally { lock.releaseLock(); }
 }
