@@ -3147,7 +3147,7 @@ function listarUnidadesPreparacion_(){
       id, p.cliente||'', p.vin||'', p.patente||'', p.modelo||'', p.version||'', p.marca||'', p.sucursal||'',
       p.vendedor||'', p.administrativo||'', (p.fechaVenta?"'"+p.fechaVenta:''), (p.fechaPrometida?"'"+p.fechaPrometida:''), p.color||'', p.motor||'',
       '', 'Sin asignar', p.prioridad||'Media',
-      JSON.stringify(checklistInicial), JSON.stringify(historial), new Date(), '', '', p.referencia||'', '', !!p.autoElectrico
+      JSON.stringify(checklistInicial), JSON.stringify(historial), new Date(), '', p.entregaVinculadaId||'', p.referencia||'', '', !!p.autoElectrico
     ]);
     return {ok:true, id:id};
   }
@@ -3174,7 +3174,7 @@ function importarUnidadesPreparacion_(filas, autor){
     crearUnidadPreparacion_({
       cliente:f[0], vin:vin, patente:f[2], modelo:f[3], version:f[4], marca:f[5],
       sucursal:f[6], vendedor:f[7], administrativo:f[8], fechaVenta:f[9], fechaPrometida:f[10],
-      color:f[11], motor:f[12], referencia:referencia, prioridad:f[14]||''
+      color:f[11], motor:f[12], referencia:referencia, prioridad:f[14]||'', entregaVinculadaId:f[15]||''
     }, autor);
     if(referencia) referenciasExistentes[referencia] = true;
     if(vin) vinsExistentes[vin] = true;
