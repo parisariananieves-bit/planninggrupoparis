@@ -10100,7 +10100,7 @@ function renderHorariosDia_(){
       var horaFinTxt = minutosAHora_(Math.min(finOcupante, hastaMin));
       var etiquetaMarcaCal = (currentBrands.indexOf(ocupante.marca)===-1) ? ' ('+(BRANDS.find(function(x){return x.id===ocupante.marca;})||{}).label+')' : '';
       html += '<div class="horario-slot ocupado" onclick="openDetail(\''+ocupante.marca+'\',\''+ocupante.id+'\')">'+
-        '<span class="hora">'+horaInicioTxt+' a '+horaFinTxt+'</span><span class="info">🔴 '+ocupante.cliente+' · '+ocupante.modelo+etiquetaMarcaCal+'</span></div>';
+        '<span class="hora">'+horaInicioTxt+' a '+horaFinTxt+'</span><span class="info">🔴 '+ocupante.cliente+' · '+ocupante.modelo+(idVehiculo_(ocupante)?' · <b>'+idVehiculo_(ocupante)+'</b>':'')+etiquetaMarcaCal+'</span></div>';
       min = finOcupante>min ? finOcupante : (min+PASO);
       continue;
     } else {
