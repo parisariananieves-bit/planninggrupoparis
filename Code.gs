@@ -3902,13 +3902,6 @@ function armarBienvenidaHtml_(d){
         (contactos ? '<tr><td style="padding:22px 26px 6px;font-family:Arial,sans-serif;">'+
           '<div style="color:#111827;font-size:14px;font-weight:bold;margin:0 0 10px;"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:'+col+';margin-right:7px;"></span>Guardá estos números</div>'+
           '<table width="100%" cellpadding="0" cellspacing="0">'+contactos+'</table></td></tr>' : '')+
-        (d.vendedor ? '<tr><td style="padding:2px 26px 6px;font-family:Arial,sans-serif;color:#4b5563;font-size:13px;">👤 Tu asesor comercial: <b style="color:#111827;">'+e(d.vendedor)+'</b></td></tr>' : '')+
-        (d.fichaUrl ? '<tr><td style="padding:14px 26px 4px;">'+
-          '<table width="100%" cellpadding="0" cellspacing="0" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;"><tr><td style="padding:14px 16px;font-family:Arial,sans-serif;">'+
-            '<div style="color:#1e3a8a;font-size:14px;font-weight:bold;">📄 Ficha técnica de tu '+e(d.modelo||'vehículo')+'</div>'+
-            '<div style="color:#475569;font-size:12.5px;margin:3px 0 10px;">Te la adjuntamos en este mail para que la tengas siempre a mano.</div>'+
-            '<a href="'+d.fichaUrl+'" style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;font-weight:bold;font-size:13px;padding:9px 18px;border-radius:8px;">Ver ficha técnica</a>'+
-          '</td></tr></table></td></tr>' : '')+
         '<tr><td align="center" style="padding:20px 30px 30px;font-family:Arial,sans-serif;">'+
           '<p style="margin:0;color:#111827;font-size:14px;line-height:1.6;font-weight:bold;">'+p(d.cierre)+'</p>'+
         '</td></tr>'+
