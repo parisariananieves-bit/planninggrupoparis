@@ -1288,6 +1288,22 @@
   .tpl-b-asunto{display:flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;padding:7px 10px;font-size:12px;margin-bottom:8px;}
   .tpl-b-asunto .material-symbols-outlined{font-size:16px;color:var(--text-faint);}
   @media (max-width: 860px){ .tpl-b-grid{grid-template-columns:1fr;} .cfg-eq-n{display:none;} }
+
+  /* --- Bienvenida en Calidad → Comunicaciones --- */
+  .bv-estado{background:var(--panel);border:1px solid var(--hairline);border-radius:10px;padding:10px;margin-bottom:14px;display:flex;flex-direction:column;gap:7px;}
+  .bv-tit{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--text);}
+  .bv-tit .material-symbols-outlined{font-size:17px;color:var(--accent);}
+  .bv-auto{margin-left:auto;font-size:10.5px;font-weight:700;color:var(--ok);background:var(--ok-soft);border-radius:999px;padding:2px 8px;}
+  .bv-fila{display:flex;gap:9px;align-items:flex-start;border-radius:8px;padding:7px 9px;background:var(--panel-2);}
+  .bv-fila > .material-symbols-outlined{font-size:18px;color:var(--text-faint);}
+  .bv-fila div{display:flex;flex-direction:column;gap:1px;font-size:12px;} .bv-fila small{font-size:11px;color:var(--text-dim);line-height:1.4;}
+  .bv-fila.ok{background:var(--ok-soft);} .bv-fila.ok > .material-symbols-outlined,.bv-fila.ok b{color:var(--ok);}
+  .bv-fila.mal{background:var(--danger-soft);} .bv-fila.mal > .material-symbols-outlined,.bv-fila.mal b{color:var(--danger);}
+  .bv-acc{display:flex;gap:6px;flex-wrap:wrap;}
+  .bv-btn{flex:1;min-width:130px;display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--accent);color:#1a1206;border:none;border-radius:8px;padding:8px 10px;font:700 12px 'Inter',sans-serif;cursor:pointer;}
+  .bv-btn.sec{background:var(--panel);color:var(--text);border:1px solid var(--hairline);}
+  .bv-btn:disabled{opacity:.45;cursor:not-allowed;}
+  .bv-btn .material-symbols-outlined{font-size:16px;}
 </style>
 <style>
   .app-shell{display:flex;min-height:100vh;}
@@ -4177,8 +4193,7 @@
 
       <div class="section-title" style="margin-top:6px;">Comunicaciones (post-entrega)</div>
       <div style="font-size:10.5px;color:var(--text-faint);margin-bottom:10px;">Mensaje de bienvenida y encuesta post-entrega — por WhatsApp o Email.</div>
-      <div id="dBienvenidaEstado" style="display:none;font-size:12px;color:var(--ok);background:var(--ok-soft);padding:9px 11px;border-radius:7px;margin-bottom:8px;"></div>
-      <button class="comms-btn" onclick="abrirModalBienvenida()" style="margin-bottom:14px;"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">forum</span> Ver / enviar mensaje de bienvenida</button>
+      <div id="dBienvenidaEstado" class="bv-estado"></div>
       <div id="dComunicaciones"></div>
 
       <div class="section-title" style="margin-top:18px;display:flex;align-items:center;gap:5px;">NPS Contacto Posterior <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Cruza VIN o patente con la encuesta pública de satisfacción 0km (post-venta). Se busca una sola vez y queda guardado.</span></span></div>
@@ -10982,7 +10997,7 @@ function marcarEntregadaEfectiva_(marca, id, r){
     gasPost('notificarEntregaCompletada', {marca:marca, id:id, autor:usuarioActual(), extra:extra});
     enviarBienvenidaMailAuto_(marca, id, r);
   }
-  if(detailId===id) updateEntregaToggleUI(r);
+  if(detailId===id){ updateEntregaToggleUI(r); renderEstadoBienvenida_(r); }
   renderAll();
   showToast(r.entregada?'Unidad entregada a '+r.cliente:'Se desmarcó como entregada');
 }
@@ -10998,16 +11013,20 @@ function bienvenidaAutoConfig_(){
 function enviarBienvenidaMailAuto_(marca, id, r){
   var cb = bienvenidaAutoConfig_();
   if(!cb.activo || (cb.marcas||[]).indexOf(marca)===-1) return;
-  if(!r || !r.email || r.bienvenidaMailFecha) return;
+  if(!r || r.bienvenidaMailFecha) return;
+  if(!r.email){ logHistorial_(marca, id, '✉️ No salió la bienvenida a Postventa por mail: la entrega no tiene email del cliente'); if(detailId===id) renderEstadoBienvenida_(r); return; }
+  r._bvEnviando = true; if(detailId===id) renderEstadoBienvenida_(r);
   gasPost('enviarBienvenidaMail', {marca:marca, id:id, usuario:usuarioActual()}).then(function(res){
-    if(!res || res.ok===false){ showToast('No se pudo enviar el mail de bienvenida'+(res&&res.error?': '+res.error:'')); return; }
-    if(res.yaEnviado) return;
+    r._bvEnviando = false;
+    if(!res || res.ok===false){ showToast('No se pudo enviar el mail de bienvenida'+(res&&res.error?': '+res.error:'')); logHistorial_(marca, id, '⚠ No se pudo enviar la bienvenida a Postventa por mail'+(res&&res.error?': '+res.error:'')); if(detailId===id) renderEstadoBienvenida_(r); return; }
+    if(res.yaEnviado){ if(detailId===id) renderEstadoBienvenida_(r); return; }
     r.bienvenidaMailFecha = fechaHoraAhora_(); r.bienvenidaEnviada = true; r.bienvenidaFecha = r.bienvenidaFecha || r.bienvenidaMailFecha;
     r.historial = r.historial || [];
-    r.historial.push({fecha: fechaHoraAhora_(), texto:'✉️ Bienvenida de postventa enviada por mail'+(res.ficha?' con la ficha técnica ('+res.ficha.nombre+')':' (sin ficha técnica para este modelo)'), autor: usuarioActual()});
+    r.historial.push({fecha: fechaHoraAhora_(), texto:'✉️ Bienvenida a Postventa enviada por mail a '+r.email+(res.ficha?' (con la ficha técnica adjunta)':'')+' (por '+(usuarioActual()||'envío automático')+')'});
     showToast(res.ficha ? '✉️ Se envió la bienvenida con la ficha técnica a '+r.email : '✉️ Se envió la bienvenida a '+r.email+' (no hay ficha técnica para este modelo)');
     if(detailId===id && typeof renderEstadoBienvenida_==='function') renderEstadoBienvenida_(r);
-  }).catch(function(){ showToast('No se pudo enviar el mail de bienvenida'); });
+    if(detailId===id && detailMarca===marca) renderHistorialUI(r);
+  }).catch(function(){ r._bvEnviando = false; showToast('No se pudo enviar el mail de bienvenida'); if(detailId===id) renderEstadoBienvenida_(r); });
 }
 
 // ============================================================
@@ -13835,14 +13854,17 @@ function enviarBienvenidaMailManual_(){
   var r = ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}); if(!r || !r.email) return;
   if(!confirm('¿Enviar el mail de bienvenida a Postventa a '+r.email+'?')) return;
   var b = document.getElementById('bienvenidaMailBtn'); if(b){ b.disabled = true; b.textContent = 'Enviando…'; }
+  r._bvEnviando = true; renderEstadoBienvenida_(r);
   gasPost('enviarBienvenidaMail', {marca:r.marca, id:r.id, usuario:usuarioActual(), forzar:true}).then(function(res){
-    if(!res || res.ok===false){ showToast('No se pudo enviar: '+((res&&res.error)||'error')); pintarFichaBienvenida_(r); return; }
+    r._bvEnviando = false;
+    if(!res || res.ok===false){ showToast('No se pudo enviar: '+((res&&res.error)||'error')); pintarFichaBienvenida_(r); renderEstadoBienvenida_(r); return; }
     r.bienvenidaMailFecha = fechaHoraAhora_(); r.bienvenidaEnviada = true; r.bienvenidaFecha = r.bienvenidaFecha || r.bienvenidaMailFecha;
     if(res.ficha) r._fichaTecnica = res.ficha;
-    r.historial = r.historial || []; r.historial.push({fecha: fechaHoraAhora_(), texto:'✉️ Bienvenida de postventa enviada por mail'+(res.ficha?' con la ficha técnica ('+res.ficha.nombre+')':''), autor: usuarioActual()});
+    r.historial = r.historial || []; r.historial.push({fecha: fechaHoraAhora_(), texto:'✉️ Bienvenida a Postventa enviada por mail a '+r.email+(res.ficha?' (con la ficha técnica adjunta)':'')+' (por '+(usuarioActual()||'')+')'});
     showToast('✉️ Bienvenida enviada a '+r.email);
     pintarFichaBienvenida_(r); renderEstadoBienvenida_(r);
-  }).catch(function(){ showToast('No se pudo enviar el mail'); pintarFichaBienvenida_(r); });
+    if(detailId===r.id && detailMarca===r.marca) renderHistorialUI(r);
+  }).catch(function(){ r._bvEnviando = false; showToast('No se pudo enviar el mail'); pintarFichaBienvenida_(r); renderEstadoBienvenida_(r); });
 }
 function cerrarModalBienvenida(){
   document.getElementById('overlay').classList.remove('show');
@@ -13862,6 +13884,7 @@ function marcarBienvenidaEnviada(){
   if(!r) return;
   r.bienvenidaEnviada = true;
   r.bienvenidaFecha = fechaHoraAhora_();
+  r._bvWa = true;
   gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{bienvenidaEnviada:true, bienvenidaFecha:r.bienvenidaFecha}});
   logHistorial_(detailMarca, detailId, 'Mensaje de bienvenida marcado como enviado');
   gasPost('registrarComunicacionManual',{
@@ -13876,14 +13899,25 @@ function marcarBienvenidaEnviada(){
   renderEstadoBienvenida_(r);
 }
 function renderEstadoBienvenida_(r){
-  var el = document.getElementById('dBienvenidaEstado');
-  if(!el) return;
-  if(r && r.bienvenidaEnviada){
-    el.style.display = 'block';
-    el.textContent = '✓ Enviado el '+(r.bienvenidaFecha||'');
-  } else {
-    el.style.display = 'none';
-  }
+  var el = document.getElementById('dBienvenidaEstado'); if(!el || !r) return;
+  var cb = (typeof bienvenidaAutoConfig_==='function') ? bienvenidaAutoConfig_() : {activo:false, marcas:[]};
+  var autoOn = cb.activo && (cb.marcas||[]).indexOf(r.marca)>-1;
+  var mail;
+  if(r.bienvenidaMailFecha) mail = {cls:'ok', ic:'mark_email_read', t:'Mail enviado', s:'El '+r.bienvenidaMailFecha+(r.email?' a '+r.email:'')};
+  else if(!r.email) mail = {cls:'mal', ic:'mail_lock', t:'Mail no enviado', s:'La entrega no tiene email del cliente. Cargalo en Datos del cliente para poder mandarlo.'};
+  else if(r._bvEnviando) mail = {cls:'pend', ic:'schedule_send', t:'Enviando el mail…', s:'A '+r.email};
+  else if(r.entregada) mail = {cls:'pend', ic:'mail', t:'Mail sin enviar', s: autoOn ? 'Debería haber salido al marcarla entregada. Mandalo ahora con el botón.' : 'El envío automático está apagado'+(cb.activo?' para esta marca':'')+'. Podés mandarlo ahora.'};
+  else mail = {cls:'pend', ic:'mail', t:'Mail pendiente', s: autoOn ? 'Sale solo cuando se marque la entrega como entregada.' : 'El envío automático está apagado. Se puede mandar a mano.'};
+  var waOk = r.bienvenidaEnviada && (r._bvWa || !r.bienvenidaMailFecha || r.bienvenidaFecha!==r.bienvenidaMailFecha);
+  var wa = waOk ? {cls:'ok', ic:'chat', t:'WhatsApp marcado como enviado', s:'El '+(r.bienvenidaFecha||'')} : {cls:'pend', ic:'chat', t:'WhatsApp sin enviar', s:'Se manda desde tu WhatsApp con el mensaje armado.'};
+  var fila = function(x){ return '<div class="bv-fila '+x.cls+'"><span class="material-symbols-outlined">'+x.ic+'</span><div><b>'+x.t+'</b><small>'+cfgEsc_(x.s)+'</small></div></div>'; };
+  var puedeMail = !!r.email && !r._bvEnviando;
+  el.innerHTML = '<div class="bv-tit"><span class="material-symbols-outlined">waving_hand</span>Bienvenida a Postventa'+(autoOn?'<span class="bv-auto">automática</span>':'')+'</div>'+
+    fila(mail)+fila(wa)+
+    '<div class="bv-acc">'+
+      '<button type="button" class="bv-btn" '+(puedeMail?'':'disabled')+' onclick="enviarBienvenidaMailManual_()"><span class="material-symbols-outlined">send</span>'+(r.bienvenidaMailFecha?'Reenviar mail':'Mandar mail ahora')+'</button>'+
+      '<button type="button" class="bv-btn sec" onclick="abrirModalBienvenida()"><span class="material-symbols-outlined">forum</span>WhatsApp</button>'+
+    '</div>';
 }
 function confirmarEnvioEmail(){
   var r=ENTREGAS.find(function(x){return x.marca===emailCtx.marca && x.id===emailCtx.id;});
