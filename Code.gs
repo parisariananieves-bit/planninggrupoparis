@@ -106,7 +106,8 @@ else if(action==='eliminarItemCatalogoAccesorios') result = eliminarItemCatalogo
     else if(action==='importarUnidadesPreparacion') result = importarUnidadesPreparacion_(p.filas, p.autor);
     else if(action==='prepAsignarResponsable') result = prepAsignarResponsable_(p.id, p.responsable, p.autor);
     else if(action==='prepMarcarTraslado') result = prepMarcarTraslado_(p.id, p.datos, p.autor);
-    else if(action==='prepCambiarEstado') result = prepCambiarEstado_(p.id, p.estado, p.autor);
+    else if(action==='prepCambiarEstado') result = prepCambiarEstado_(p.id, p.estado, p.autor, p.sinChecklist, p.nota);
+    else if(action==='prepAgregarNota') result = prepAgregarHistorial_(p.id, p.texto, p.autor);
     else if(action==='prepCambiarPrioridad') result = prepCambiarPrioridad_(p.id, p.prioridad, p.autor);
     else if(action==='prepMarcarChecklistItem') result = prepMarcarChecklistItem_(p.id, p.item, p.hecho, p.observaciones, p.autor);
     else if(action==='prepSincronizarChecklist') result = prepSincronizarChecklist_(p.id, p.checklist, p.autor);
@@ -3228,18 +3229,21 @@ function prepValidarListoParaEntregar_(datos){
   var faltantes = checklist.filter(function(it){ return !it.hecho; }).map(function(it){ return it.item; });
   return {ok: faltantes.length===0, faltantes: faltantes};
 }
-function prepCambiarEstado_(id, estado, autor){
+// sinChecklist: lo usa la Auditoría de vendidos — el "OK para entregar" sale de la revisión
+// física de la unidad, no del checklist del Centro de Preparación.
+// nota: texto que queda en el historial en lugar del genérico "Cambió a estado…".
+function prepCambiarEstado_(id, estado, autor, sinChecklist, nota){
   if(ESTADOS_PREPARACION.indexOf(estado)===-1) return {ok:false, error:'Estado inválido.'};
   var encontrado = prepBuscarFila_(id);
   if(!encontrado) return {ok:false, error:'No se encontró la unidad.'};
-  if(estado==='Listo para entregar'){
+  if(estado==='Listo para entregar' && !sinChecklist){
     var validacion = prepValidarListoParaEntregar_(encontrado.datos);
     if(!validacion.ok){
       return {ok:false, error:'Todavía falta completar el checklist: '+validacion.faltantes.join(', ')};
     }
   }
   encontrado.hoja.getRange(encontrado.fila, 16).setValue(estado);
-  prepAgregarHistorial_(id, 'Cambió a estado "'+estado+'"', autor);
+  prepAgregarHistorial_(id, nota || ('Cambió a estado "'+estado+'"'), autor);
   if(estado==='Listo para entregar'){
     encontrado.hoja.getRange(encontrado.fila, 21).setValue(new Date());
     var cliente = encontrado.datos[1], modelo = encontrado.datos[4], administrativo = encontrado.datos[9], responsable = encontrado.datos[14];

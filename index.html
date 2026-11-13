@@ -1304,6 +1304,88 @@
   .bv-btn.sec{background:var(--panel);color:var(--text);border:1px solid var(--hairline);}
   .bv-btn:disabled{opacity:.45;cursor:not-allowed;}
   .bv-btn .material-symbols-outlined{font-size:16px;}
+
+  /* --- Auditoría de vendidos --- */
+  .aud-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+  .aud-head h2{font-family:'Space Grotesk',sans-serif;font-size:22px;margin:0 0 3px;}
+  .aud-head p{margin:0;color:var(--text-dim);font-size:13px;max-width:70ch;}
+  .aud-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;border-radius:9px;padding:8px 12px;font:700 12.5px 'Inter',sans-serif;cursor:pointer;white-space:nowrap;}
+  .aud-btn .material-symbols-outlined{font-size:17px;}
+  .aud-btn.pri{background:var(--accent);color:#1a1206;}
+  .aud-btn.ok{background:var(--ok);color:#fff;}
+  .aud-btn.chapa{background:var(--warn-soft);color:var(--warn);border-color:var(--warn);}
+  .aud-btn.pv{background:var(--usados-soft);color:var(--usados);border-color:var(--usados);}
+  .aud-btn.sec{background:var(--panel);color:var(--text);border-color:var(--hairline);}
+  .aud-btn:disabled{opacity:.45;cursor:not-allowed;}
+  .aud-import{background:var(--panel);border:1px solid var(--hairline);border-radius:16px;padding:16px;margin-bottom:16px;}
+  .aud-import-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:12px;}
+  .aud-drop{display:flex;flex-direction:column;gap:4px;border:2px dashed var(--hairline);border-radius:14px;padding:14px 16px;cursor:pointer;background:var(--panel-2);}
+  .aud-drop:hover{border-color:var(--accent);}
+  .aud-drop.ok{border-style:solid;border-color:var(--ok);background:var(--ok-soft);}
+  .aud-drop input{display:none;}
+  .aud-drop > .material-symbols-outlined{font-size:26px;color:var(--accent);}
+  .aud-drop b{font-size:14px;} .aud-drop small{font-size:12px;color:var(--text-dim);}
+  .aud-drop em{font-style:normal;font-size:12px;font-weight:700;color:var(--accent);margin-top:4px;}
+  .aud-drop.ok em{color:var(--ok);}
+  .aud-paso{font-size:12.5px;color:var(--text-dim);background:var(--panel-2);border-radius:10px;padding:10px 12px;}
+  .aud-paso.ok{color:var(--ok);background:var(--ok-soft);}
+  .aud-resumen{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:12px;}
+  .aud-res{display:flex;flex-direction:column;gap:1px;border-radius:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--hairline);}
+  .aud-res .material-symbols-outlined{font-size:20px;color:var(--text-faint);}
+  .aud-res b{font:700 24px 'Space Grotesk',sans-serif;line-height:1.1;}
+  .aud-res span:not(.material-symbols-outlined){font-size:12.5px;font-weight:700;} .aud-res small{font-size:11px;color:var(--text-dim);}
+  .aud-res.nuevas{background:var(--accent-soft);border-color:var(--accent);} .aud-res.nuevas .material-symbols-outlined{color:var(--accent);}
+  .aud-res.prog .material-symbols-outlined{color:var(--dfsk);} .aud-res.ent .material-symbols-outlined{color:var(--ok);}
+  .aud-det{margin-bottom:10px;} .aud-det summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text-dim);padding:4px 0;}
+  .aud-nuevas{border:1px solid var(--hairline);border-radius:12px;overflow:hidden;}
+  .aud-nuevas-h{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--panel-2);font-size:12.5px;font-weight:700;}
+  .aud-nuevas-h span{color:var(--text-dim);font-weight:600;}
+  .aud-nuevas .save-btn{margin:10px 12px 12px;width:calc(100% - 24px);}
+  .aud-fila{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 12px;border-top:1px solid var(--hairline);font-size:12.5px;}
+  .aud-fila.sel{cursor:pointer;} .aud-fila.sel:hover{background:var(--panel-2);}
+  .aud-fila input{accent-color:var(--accent);}
+  .aud-fila span{color:var(--text-dim);}
+  .aud-tag{font-size:11px;font-weight:600;background:var(--panel-2);border:1px solid var(--hairline);border-radius:999px;padding:2px 8px;color:var(--text) !important;}
+  .aud-tag.prog{background:var(--dfsk-soft);border-color:transparent;} .aud-tag.nota{background:var(--warn-soft);border-color:transparent;}
+  .aud-tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:12px;}
+  .aud-tab{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;gap:0 9px;align-items:center;text-align:left;background:var(--panel);border:1px solid var(--hairline);border-radius:14px;padding:11px 12px;cursor:pointer;color:var(--text);font-family:'Inter',sans-serif;}
+  .aud-tab .material-symbols-outlined{grid-row:span 2;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--cs);color:var(--c);font-size:20px;}
+  .aud-tab-t{font-size:12px;font-weight:600;color:var(--text-dim);}
+  .aud-tab b{font:700 22px 'Space Grotesk',sans-serif;line-height:1.1;}
+  .aud-tab:hover{border-color:var(--c);}
+  .aud-tab.on{border-color:var(--c);box-shadow:inset 0 0 0 1px var(--c);background:var(--cs);}
+  .aud-tab.on .aud-tab-t{color:var(--text);}
+  .aud-filtros{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;}
+  .aud-buscar{flex:0 1 340px;display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--hairline);border-radius:10px;padding:0 11px;min-height:40px;}
+  .aud-buscar .material-symbols-outlined{font-size:18px;color:var(--text-faint);}
+  .aud-buscar input{flex:1;min-width:0;background:none;border:none;outline:none;color:var(--text);font:500 13px 'Inter',sans-serif;}
+  .aud-sucs{display:flex;gap:6px;flex-wrap:wrap;}
+  .aud-col-d{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-dim);margin-bottom:10px;}
+  .aud-col-d .material-symbols-outlined{font-size:18px;color:var(--c);}
+  .aud-lista{display:flex;flex-direction:column;gap:10px;}
+  .aud-card{display:flex;gap:14px;justify-content:space-between;flex-wrap:wrap;background:var(--panel);border:1px solid var(--hairline);border-left:5px solid var(--c);border-radius:14px;padding:14px 16px;}
+  .aud-card-main{flex:1 1 380px;min-width:0;display:flex;flex-direction:column;gap:6px;}
+  .aud-mod{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+  .aud-mod b{font:700 17px 'Space Grotesk',sans-serif;} .aud-mod > span{font-size:12.5px;color:var(--text-dim);}
+  .aud-color{font-size:11.5px !important;font-weight:700;color:var(--text) !important;background:var(--panel-2);border:1px solid var(--hairline);border-radius:999px;padding:2px 9px;}
+  .aud-cli{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:13.5px;font-weight:600;}
+  .aud-cli .material-symbols-outlined{font-size:18px;color:var(--text-faint);}
+  .aud-ids{display:flex;gap:6px;flex-wrap:wrap;}
+  .aud-id{font-size:12px;color:var(--text-dim);background:var(--panel-2);border-radius:7px;padding:3px 8px;} .aud-id b{color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12px;}
+  .aud-fecha{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;background:var(--dfsk-soft);border-radius:9px;padding:6px 10px;font-size:13px;}
+  .aud-fecha .material-symbols-outlined{font-size:18px;color:var(--dfsk);}
+  .aud-nota{display:flex;gap:7px;align-items:flex-start;font-size:12.5px;background:var(--panel-2);border-radius:9px;padding:7px 10px;}
+  .aud-nota .material-symbols-outlined{font-size:17px;color:var(--warn);}
+  .aud-nota small{display:block;font-size:11px;color:var(--text-faint);margin-top:1px;}
+  .aud-card-der{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:10px;}
+  .aud-dias{text-align:right;line-height:1;} .aud-dias b{font:700 26px 'Space Grotesk',sans-serif;display:block;} .aud-dias small{font-size:11px;color:var(--text-dim);}
+  .aud-dias.medio b{color:var(--warn);} .aud-dias.alto b{color:var(--danger);}
+  .aud-acc{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+  .aud-vacio{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:36px 20px;background:var(--panel);border:1px dashed var(--hairline);border-radius:16px;}
+  .aud-vacio .material-symbols-outlined{font-size:36px;color:var(--c);} .aud-vacio b{font-size:15px;} .aud-vacio small{font-size:12.5px;color:var(--text-dim);max-width:52ch;}
+  .aud-pie{font-size:12px;color:var(--text-faint);text-align:center;margin-top:6px;}
+  @media (max-width: 1100px){ .aud-tabs{grid-template-columns:repeat(3,minmax(0,1fr));} }
+  @media (max-width: 640px){ .aud-tabs{grid-template-columns:repeat(2,minmax(0,1fr));} .aud-card-der{align-items:stretch;width:100%;} .aud-dias{text-align:left;} .aud-acc{justify-content:flex-start;} }
 </style>
 <style>
   .app-shell{display:flex;min-height:100vh;}
@@ -2245,6 +2327,7 @@
         <button class="nav-item" id="navLista" title="Lista de Entregas" onclick="setAppView('lista')"><span class="material-symbols-outlined">list_alt</span><span class="nav-label">Lista de Entregas</span></button>
         <button class="nav-item" id="navSeccionLogistica" title="Logística" onclick="irALogistica()"><span class="material-symbols-outlined">local_shipping</span><span class="nav-label">Logística</span></button>
         <div class="nav-submenu" id="submenuLogistica" style="display:none;">
+          <button class="nav-subitem" id="subLogisticaAuditoria" onclick="setAppView('auditoria')">Auditoría de vendidos</button>
           <button class="nav-subitem" id="subLogisticaPreparacion" onclick="setAppView('preparacion')">Centro de Preparación</button>
           <button class="nav-subitem" id="subLogisticaTraslado" onclick="setAppView('traslados')">Traslado</button>
           <button class="nav-subitem" id="subLogisticaFaltantes" onclick="setAppView('faltantes')">Faltantes</button>
@@ -2701,6 +2784,28 @@
               <div id="prepCalendarioGrilla" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;"></div>
             </div>
           </div>
+        </div>
+
+        <div class="app-view" id="viewAuditoria">
+          <div class="aud-head">
+            <div><h2>Auditoría de vendidos</h2><p>Buscamos, revisamos y decidimos cada unidad vendida <b>antes</b> de que la programen: OK para entregar, a chapa o a postventa.</p></div>
+            <div class="aud-head-acc">
+              <button type="button" class="aud-btn sec" onclick="audToggleImport_()"><span class="material-symbols-outlined">upload_file</span>Importar listados</button>
+            </div>
+          </div>
+          <section class="aud-import" id="audImport" style="display:none;">
+            <div class="aud-import-g">
+              <label class="aud-drop" id="audDropVentas"><input type="file" accept=".xls,.xlsx" onchange="audLeerArchivo_(event,'ventas')"><span class="material-symbols-outlined">receipt_long</span><b>1 · Listado de ventas</b><small>GRIDLST — las ofertas en <b>VN4</b> son las que ya se pueden programar.</small><em id="audNomVentas">Elegir archivo</em></label>
+              <label class="aud-drop" id="audDropEntregados"><input type="file" accept=".xls,.xlsx" onchange="audLeerArchivo_(event,'entregados')"><span class="material-symbols-outlined">task_alt</span><b>2 · Listado de entregados</b> <small>(opcional)</small><small>ULSTVEN — lo que ya tiene fecha de entrega no se carga.</small><em id="audNomEntregados">Elegir archivo</em></label>
+            </div>
+            <div id="audPrevia"></div>
+          </section>
+          <div class="aud-tabs" id="audTabs"></div>
+          <div class="aud-filtros">
+            <label class="aud-buscar"><span class="material-symbols-outlined">search</span><input id="audBuscar" type="search" placeholder="Buscar por cliente, modelo, VIN o patente" oninput="debounce_('audB', audRender_, 150)"></label>
+            <div class="aud-sucs" id="audSucs"></div>
+          </div>
+          <div id="audLista" class="aud-lista"></div>
         </div>
 
         <div class="app-view" id="viewHistorialcoms">
@@ -5040,6 +5145,7 @@ function aplicarPermisosUI(){
     var trasladosVisible = document.getElementById('subLogisticaTraslado').style.display !== 'none';
     var faltantesVisible = document.getElementById('subLogisticaFaltantes').style.display !== 'none';
     var preparacionVisible = document.getElementById('subLogisticaPreparacion').style.display !== 'none';
+    var subAud = document.getElementById('subLogisticaAuditoria'); if(subAud) subAud.style.display = preparacionVisible ? '' : 'none';
     seccionLogistica.style.display = (trasladosVisible || faltantesVisible || preparacionVisible) ? '' : 'none';
   }
   document.body.classList.toggle('role-tv', esTvRecepcion());
@@ -5678,7 +5784,7 @@ function activarVistaPrevia(){
 // ============================================================
 // NAVEGACIÓN POR VISTAS (Dashboard / Calendario / Lista / Maestro)
 // ============================================================
-var VISTAS_APP = ['dashboard','calendario','lista','historialcoms','casos','notificaciones','traslados','faltantes','alistamiento','preparacion','maestro','nuevaentrega','tv'];
+var VISTAS_APP = ['dashboard','calendario','lista','historialcoms','casos','notificaciones','traslados','faltantes','alistamiento','preparacion','auditoria','maestro','nuevaentrega','tv'];
 // ============================================================
 // MODO TV — pantalla de solo lectura para monitor de la concesionaria.
 // Se actualiza sola (usa el mismo refresco silencioso de cada 25s que
@@ -6050,7 +6156,7 @@ function setAppView(view){
     var navMaestro = document.getElementById('navMaestro'); if(navMaestro) navMaestro.classList.remove('expanded');
     if(window._intervalUsuariosTabla){ clearInterval(window._intervalUsuariosTabla); window._intervalUsuariosTabla = null; }
   }
-  var VISTAS_LOGISTICA_ = {traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', alistamiento:'subLogisticaAlistamiento', preparacion:'subLogisticaPreparacion'};
+  var VISTAS_LOGISTICA_ = {traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', alistamiento:'subLogisticaAlistamiento', preparacion:'subLogisticaPreparacion', auditoria:'subLogisticaAuditoria'};
   var subL = document.getElementById('submenuLogistica');
   var navL = document.getElementById('navSeccionLogistica');
   if(VISTAS_LOGISTICA_[view]){
@@ -6080,6 +6186,7 @@ function setAppView(view){
   if(view==='faltantes'){ renderFaltantes(); }
   if(view==='alistamiento'){ renderAlistamiento(); }
   if(view==='preparacion'){ cargarPreparacionSiHaceFalta_().then(function(){ renderPrepPantallaCompleta_(); }); }
+  if(view==='auditoria'){ audAbrir_(); }
 }
 
 function fmtFecha(d){ var dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0'); return dd+'/'+mm+'/'+d.getFullYear(); }
@@ -8777,6 +8884,283 @@ function importarUnidadesPreparacionArchivo_(event){
     event.target.value = '';
   };
   reader.readAsArrayBuffer(file);
+}
+
+
+// ============================================================
+// AUDITORÍA DE VENDIDOS (Logística)
+// Usa las mismas unidades del Centro de Preparación, así que al
+// programar la entrega, con el VIN o la patente se completan solos
+// los datos y queda vinculada.
+//   Por buscar   → Sin asignar / Asignado
+//   En revisión  → En preparación (y otros "Esperando…")
+//   En chapa     → Esperando Chapa y Pintura
+//   En postventa → Esperando Taller
+//   OK           → Listo para entregar
+//   Programadas  → tienen entrega en el Planning (o estado Agendado)
+// ============================================================
+var AUD_COLS_ = [
+  {id:'buscar', t:'Por buscar', ic:'search', c:'--text-dim', cs:'--panel-2', d:'Vendidas en VN4: hay que ubicarlas.'},
+  {id:'revision', t:'En revisión', ic:'fact_check', c:'--peugeot', cs:'--peugeot-soft', d:'Ya la encontramos: falta revisarla y decidir.'},
+  {id:'chapa', t:'En chapa', ic:'format_paint', c:'--warn', cs:'--warn-soft', d:'Tiene detalles de chapa o pintura.'},
+  {id:'postventa', t:'En postventa', ic:'build', c:'--usados', cs:'--usados-soft', d:'Necesita taller antes de entregar.'},
+  {id:'ok', t:'OK para entregar', ic:'verified', c:'--ok', cs:'--ok-soft', d:'Revisada y lista: ya se puede programar.'},
+  {id:'programada', t:'Programadas', ic:'event_available', c:'--dfsk', cs:'--dfsk-soft', d:'Ya tienen fecha de entrega en el Planning.'}
+];
+var _aud = {col:'buscar', suc:'', ventas:null, entregados:null, nomV:'', nomE:''};
+function audNorm_(v){ return String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
+function audEsVin_(v){ v=audNorm_(v); return v.length===17; }
+function audEntregaDe_(u){
+  var vin = audNorm_(u.vin), pat = audNorm_(u.patente);
+  if(u.entregaVinculadaId){ var x = ENTREGAS.find(function(r){ return r.id===u.entregaVinculadaId && !r.usAnulada; }); if(x) return x; }
+  return ENTREGAS.find(function(r){
+    if(r.usAnulada) return false;
+    var rv = audNorm_(r.chasis), rp = audNorm_(r.dominio);
+    return (vin.length>=8 && rv.length>=8 && (rv===vin || rv.slice(-8)===vin.slice(-8))) || (pat.length>=6 && rp===pat);
+  }) || null;
+}
+function audColDe_(u){
+  var e = audEntregaDe_(u);
+  if(e) return e.entregada ? 'entregada' : 'programada';
+  switch(u.estado){
+    case 'Entregado': return 'entregada';
+    case 'Venta caída': return 'caida';
+    case 'Agendado': return 'programada';
+    case 'Listo para entregar': return 'ok';
+    case 'Esperando Chapa y Pintura': return 'chapa';
+    case 'Esperando Taller': return 'postventa';
+    case 'Sin asignar': case 'Asignado': case '': case undefined: return 'buscar';
+    default: return 'revision';
+  }
+}
+function audAbrir_(){
+  var l = document.getElementById('audLista'); if(l && !l.innerHTML) l.innerHTML = '<div class="cfg-vacio">Cargando unidades…</div>';
+  cargarPreparacionSiHaceFalta_().then(audRender_);
+}
+function audDias_(f){
+  if(!f) return null;
+  var d = f instanceof Date ? f : null;
+  if(!d){ var p = String(f).replace(/^'/,'').split(/[\/\-]/); if(p.length===3){ d = p[0].length===4 ? new Date(+p[0],+p[1]-1,+p[2]) : new Date(+p[2],+p[1]-1,+p[0]); } }
+  if(!d || isNaN(d)) return null;
+  var h = new Date(); h.setHours(0,0,0,0); d.setHours(0,0,0,0);
+  return Math.round((h-d)/86400000);
+}
+function audRender_(){
+  var us = (PREP_UNIDADES||[]).map(function(u){ return {u:u, col:audColDe_(u)}; });
+  var q = cfgNorm_((document.getElementById('audBuscar')||{}).value||'').trim();
+  var cuenta = {}; us.forEach(function(x){ cuenta[x.col] = (cuenta[x.col]||0)+1; });
+  // Pestañas
+  document.getElementById('audTabs').innerHTML = AUD_COLS_.map(function(c){
+    return '<button type="button" class="aud-tab'+(_aud.col===c.id?' on':'')+'" style="--c:var('+c.c+');--cs:var('+c.cs+');" onclick="_aud.col=\''+c.id+'\';audRender_()"><span class="material-symbols-outlined">'+c.ic+'</span><span class="aud-tab-t">'+c.t+'</span><b>'+(cuenta[c.id]||0)+'</b></button>';
+  }).join('');
+  // Sucursales
+  var enCol = us.filter(function(x){ return x.col===_aud.col; });
+  var sucs = {}; enCol.forEach(function(x){ var sc = x.u.sucursal||''; sucs[sc] = (sucs[sc]||0)+1; });
+  if(_aud.suc && !sucs[_aud.suc]) _aud.suc = '';
+  document.getElementById('audSucs').innerHTML = Object.keys(sucs).length>1 ? ['<button type="button" class="cfg-eq-chip'+(!_aud.suc?' on':'')+'" onclick="_aud.suc=\'\';audRender_()">Todas<small>'+enCol.length+'</small></button>'].concat(Object.keys(sucs).sort().map(function(sc){
+    return '<button type="button" class="cfg-eq-chip'+(_aud.suc===sc?' on':'')+'" onclick="_aud.suc=\''+sc+'\';audRender_()">'+(sc?'<i style="background:var('+(CFG_SUC_COLOR_[sc]||'--text-dim')+')"></i>'+sc:'Sin sucursal')+'<small>'+sucs[sc]+'</small></button>';
+  })).join('') : '';
+  // Lista
+  var col = AUD_COLS_.find(function(c){ return c.id===_aud.col; });
+  var lista = enCol.filter(function(x){
+    if(_aud.suc && (x.u.sucursal||'')!==_aud.suc) return false;
+    if(q && cfgNorm_([x.u.cliente,x.u.modelo,x.u.version,x.u.vin,x.u.patente,x.u.color,x.u.referencia].join(' ')).replace(/\s+/g,' ').indexOf(q)===-1 && audNorm_(x.u.vin+x.u.patente).indexOf(audNorm_(q))===-1) return false;
+    return true;
+  }).sort(function(a,b){ return (audDias_(b.u.fechaVenta)||0)-(audDias_(a.u.fechaVenta)||0); });
+  var el = document.getElementById('audLista');
+  var extra = (cuenta.entregada||cuenta.caida) ? '<div class="aud-pie">No se muestran '+(cuenta.entregada?cuenta.entregada+' ya entregada'+(cuenta.entregada===1?'':'s'):'')+(cuenta.entregada&&cuenta.caida?' ni ':'')+(cuenta.caida?cuenta.caida+' venta'+(cuenta.caida===1?'':'s')+' caída'+(cuenta.caida===1?'':'s'):'')+'.</div>' : '';
+  if(!lista.length){
+    el.innerHTML = '<div class="aud-vacio" style="--c:var('+col.c+');"><span class="material-symbols-outlined">'+col.ic+'</span><b>'+(q||_aud.suc?'Nada coincide con el filtro':'No hay unidades '+col.t.toLowerCase())+'</b><small>'+col.d+(!(PREP_UNIDADES||[]).length?' Para empezar, tocá <b>Importar listados</b> arriba.':'')+'</small></div>'+extra;
+    return;
+  }
+  el.innerHTML = '<div class="aud-col-d" style="--c:var('+col.c+');"><span class="material-symbols-outlined">'+col.ic+'</span>'+col.d+'</div>'+lista.map(function(x){ return audCard_(x.u, x.col); }).join('')+extra;
+}
+function audUltimaNota_(u){
+  var h = (u.historial||[]).slice().reverse().find(function(x){ return /^📝|^🔎|^🎨|^🔧|^✅/.test(x.texto||''); });
+  return h ? h : null;
+}
+function audCard_(u, col){
+  var c = AUD_COLS_.find(function(x){ return x.id===col; }) || AUD_COLS_[0];
+  var dias = audDias_(u.fechaVenta), ent = col==='programada' ? audEntregaDe_(u) : null;
+  var id = u.patente ? '<span class="aud-id">Patente <b>'+cfgEsc_(String(u.patente).toUpperCase())+'</b></span>' : '';
+  if(u.vin) id += '<span class="aud-id">VIN <b>'+cfgEsc_(u.vin)+'</b></span>';
+  var nota = audUltimaNota_(u);
+  var puede = puedeEditarModulo_('preparacion');
+  var b = function(cls, ic, txt, js){ return '<button type="button" class="aud-btn '+cls+'" onclick="'+js+'"'+(puede?'':' disabled')+'><span class="material-symbols-outlined">'+ic+'</span>'+txt+'</button>'; };
+  var acc = '';
+  var uid = "'"+u.id+"'";
+  if(col==='buscar') acc = b('pri','location_searching','La encontramos','audMover_('+uid+',\'revision\')');
+  else if(col==='revision') acc = b('ok','verified','OK para entregar','audMover_('+uid+',\'ok\')')+b('chapa','format_paint','A chapa','audMover_('+uid+',\'chapa\')')+b('pv','build','A postventa','audMover_('+uid+',\'postventa\')');
+  else if(col==='chapa' || col==='postventa') acc = b('ok','verified','Ya quedó OK','audMover_('+uid+',\'ok\')')+b('sec','swap_horiz', col==='chapa'?'Pasar a postventa':'Pasar a chapa','audMover_('+uid+',\''+(col==='chapa'?'postventa':'chapa')+'\')');
+  else if(col==='ok') acc = b('pri','event','Programar entrega','audProgramar_('+uid+')')+b('sec','undo','Volver a revisión','audMover_('+uid+',\'revision\')');
+  else if(col==='programada' && ent) acc = '<button type="button" class="aud-btn sec" onclick="openDetail(\''+ent.marca+'\',\''+ent.id+'\')"><span class="material-symbols-outlined">open_in_new</span>Ver entrega</button>';
+  if(col!=='programada') acc += b('sec','edit_note','Nota','audNota_('+uid+')');
+  var DS = ['dom','lun','mar','mié','jue','vie','sáb'];
+  var fechaEnt = ent ? (function(){ var p = String(ent.fecha).split('/'); var d = new Date(+p[2],+p[1]-1,+p[0]); return DS[d.getDay()]+' '+ent.fecha.slice(0,5)+' · '+ent.hora+(ent.sucursal&&ent.sucursal!=='default'?' · '+ent.sucursal:''); })() : '';
+  return '<article class="aud-card" style="--c:var('+c.c+');--cs:var('+c.cs+');">'+
+    '<div class="aud-card-main">'+
+      '<div class="aud-mod"><b>'+cfgEsc_(u.modelo||'Modelo sin cargar')+'</b>'+(u.version?' <span>'+cfgEsc_(u.version)+'</span>':'')+(u.color?'<span class="aud-color">'+cfgEsc_(u.color)+'</span>':'')+'</div>'+
+      '<div class="aud-cli"><span class="material-symbols-outlined">person</span>'+cfgEsc_(u.cliente||'—')+(u.sucursal?'<span class="cfg-badge" style="--c:var('+(CFG_SUC_COLOR_[u.sucursal]||'--text-dim')+')">'+cfgEsc_(u.sucursal)+'</span>':'')+'</div>'+
+      '<div class="aud-ids">'+id+(u.referencia?'<span class="aud-id">Oferta <b>'+cfgEsc_(String(u.referencia).replace(/^OF-?/,''))+'</b></span>':'')+'</div>'+
+      (ent ? '<div class="aud-fecha"><span class="material-symbols-outlined">event_available</span>Entrega programada: <b>'+fechaEnt+'</b></div>' : '')+
+      (nota ? '<div class="aud-nota"><span class="material-symbols-outlined">sticky_note_2</span><span>'+cfgEsc_(nota.texto)+'<small>'+cfgEsc_(nota.autor||'')+' · '+cfgEsc_(nota.fecha||'')+'</small></span></div>' : '')+
+    '</div>'+
+    '<div class="aud-card-der">'+
+      (dias!=null ? '<div class="aud-dias'+(dias>=15?' alto':dias>=7?' medio':'')+'"><b>'+dias+'</b><small>'+(dias===1?'día':'días')+' de vendida</small></div>' : '')+
+      '<div class="aud-acc">'+acc+'</div>'+
+    '</div>'+
+  '</article>';
+}
+var AUD_A_ESTADO_ = {buscar:'Sin asignar', revision:'En preparación', chapa:'Esperando Chapa y Pintura', postventa:'Esperando Taller', ok:'Listo para entregar'};
+var AUD_TXT_ = {revision:'🔎 La encontramos — en revisión', chapa:'🎨 A chapa y pintura', postventa:'🔧 A postventa (taller)', ok:'✅ Auditoría OK — lista para entregar', buscar:'↩ Volvió a "por buscar"'};
+function audMover_(id, destino){
+  var u = PREP_UNIDADES.find(function(x){ return x.id===id; }); if(!u) return;
+  if(!puedeEditarModulo_('preparacion')){ showToast('Tenés acceso de solo lectura.'); return; }
+  var nota = '';
+  if(destino==='chapa' || destino==='postventa') { nota = prompt(destino==='chapa' ? '¿Qué hay que hacerle en chapa y pintura? (opcional)' : '¿Qué necesita en el taller? (opcional)', ''); if(nota===null) return; }
+  if(destino==='revision' && audColDe_(u)==='buscar'){ nota = prompt('¿Dónde estaba? (opcional — ej: playa de San Luis, depósito)', ''); if(nota===null) return; }
+  var estado = AUD_A_ESTADO_[destino], antes = u.estado;
+  u.estado = estado;
+  var texto = AUD_TXT_[destino] + (nota ? ': '+nota.trim() : '');
+  (u.historial = u.historial||[]).push({fecha: fechaHoraAhora_(), texto: texto, autor: usuarioActual()});
+  audRender_();
+  gasPost('prepCambiarEstado', {id:id, estado:estado, autor:usuarioActual(), sinChecklist:true, nota:texto}).then(function(res){
+    if(!res || !res.ok){ u.estado = antes; u.historial.pop(); audRender_(); showToast((res&&res.error)||'No se pudo guardar'); return; }
+    showToast(AUD_COLS_.find(function(c){ return c.id===destino; }).t+': '+(u.cliente||u.modelo));
+  }).catch(function(){ u.estado = antes; u.historial.pop(); audRender_(); showToast('No se pudo guardar. Revisá la conexión.'); });
+}
+function audNota_(id){
+  var u = PREP_UNIDADES.find(function(x){ return x.id===id; }); if(!u) return;
+  var t = prompt('Nota para '+(u.cliente||u.modelo)+' (ej: falta lavar, tiene un rayón en la puerta):', ''); if(!t || !t.trim()) return;
+  var texto = '📝 '+t.trim();
+  (u.historial = u.historial||[]).push({fecha: fechaHoraAhora_(), texto: texto, autor: usuarioActual()});
+  audRender_();
+  gasPost('prepAgregarNota', {id:id, texto:texto, autor:usuarioActual()}).then(function(res){ if(!res || !res.ok) showToast('No se pudo guardar la nota'); });
+}
+function audProgramar_(id){
+  abrirNuevaEntregaDesdePreparacion_(id);
+}
+// ---------- Importar listados ----------
+function audToggleImport_(){ var b = document.getElementById('audImport'); b.style.display = b.style.display==='none' ? '' : 'none'; }
+function audCelda_(v){ return v==null ? '' : String(v).trim(); }
+function audFecha_(v){
+  if(!v) return '';
+  if(v instanceof Date && !isNaN(v)) return String(v.getDate()).padStart(2,'0')+'/'+String(v.getMonth()+1).padStart(2,'0')+'/'+v.getFullYear();
+  if(typeof v==='number') return excelSerialAFecha_(v);
+  return String(v).trim();
+}
+function audLeerArchivo_(ev, tipo){
+  var f = ev.target.files[0]; if(!f) return;
+  var rd = new FileReader();
+  rd.onload = function(e){
+    try{
+      var wb = XLSX.read(new Uint8Array(e.target.result), {type:'array', cellDates:true});
+      var filas = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, raw:true, defval:''});
+      if(tipo==='ventas'){ _aud.ventas = audParsearVentas_(filas); _aud.nomV = f.name; if(!_aud.ventas){ showToast('Este archivo no parece el listado de ventas (falta la columna "Estado de la oferta")'); return; } }
+      else { _aud.entregados = audParsearEntregados_(filas); _aud.nomE = f.name; if(!_aud.entregados){ showToast('Este archivo no parece el listado de entregados (falta la columna "Bastidor")'); return; } }
+      document.getElementById(tipo==='ventas'?'audNomVentas':'audNomEntregados').textContent = '✓ '+f.name;
+      document.getElementById(tipo==='ventas'?'audDropVentas':'audDropEntregados').classList.add('ok');
+      audPrevia_();
+    }catch(err){ showToast('No se pudo leer el archivo: '+err.message); }
+    ev.target.value = '';
+  };
+  rd.readAsArrayBuffer(f);
+}
+function audBuscarCab_(filas, nombre){
+  for(var i=0;i<Math.min(filas.length,15);i++){ var j = filas[i].findIndex(function(c){ return String(c).trim().toLowerCase().indexOf(nombre.toLowerCase())===0; }); if(j>-1) return {fila:i, col:j}; }
+  return null;
+}
+function audParsearVentas_(filas){
+  var h = audBuscarCab_(filas, 'Estado de la oferta'); if(!h) return null;
+  var cab = filas[h.fila].map(function(c){ return String(c).trim(); });
+  var col = function(n){ return cab.findIndex(function(c){ return c.toLowerCase().indexOf(n.toLowerCase())===0; }); };
+  var iMod=col('Modelo'), iCol=col('Color'), iCli=col('Cliente'), iTel=col('Teléfono'), iOfe=col('Nro.Ofe'), iUbi=col('Ubicación'), iEst=col('Estado de la oferta'), iId=col('Matrícula'), iFin=col('F. final');
+  var SUC = {SJ:'San Juan', SL:'San Luis', VM:'Villa Mercedes', ML:'Merlo'};
+  var out = [];
+  for(var r=h.fila+1;r<filas.length;r++){
+    var f = filas[r]; if(!f || !audCelda_(f[iCli])) continue;
+    var idv = audCelda_(f[iId]);
+    var nota = '', suc = '';
+    for(var k=iFin+1;k<f.length;k++){ var v = audCelda_(f[k] instanceof Date ? audFecha_(f[k]) : f[k]); if(!v) continue; if(SUC[v.toUpperCase()]) suc = SUC[v.toUpperCase()]; else nota += (nota?' · ':'')+v; }
+    var ubi = audCelda_(f[iUbi]);
+    if(!suc) suc = PREP_LOCALIDADES_A_SUCURSAL_.find(function(s){ return ubi.toUpperCase()===s.toUpperCase() || ubi.toUpperCase().indexOf(s.toUpperCase()+' CAPITAL')===0; }) || '';
+    out.push({modelo:audCelda_(f[iMod]), color:audCelda_(f[iCol]), cliente:audCelda_(f[iCli]).replace(/\s*,\s*/g,' ').replace(/\s+/g,' '), tel:audCelda_(f[iTel]),
+      oferta:audCelda_(f[iOfe]), ubicacion:ubi, estado:audCelda_(f[iEst]), vin: audEsVin_(idv)?audNorm_(idv):'', patente: audEsVin_(idv)?'':audNorm_(idv),
+      fecha: audFecha_(f[iFin]), sucursal: suc, notaArchivo: nota});
+  }
+  return out;
+}
+function audParsearEntregados_(filas){
+  var h = audBuscarCab_(filas, 'Bastidor'); if(!h) return null;
+  var cab = filas[h.fila].map(function(c){ return String(c).trim(); });
+  var iB = cab.indexOf('Bastidor'), iM = cab.findIndex(function(c){ return /^Matr[ií]cula$/i.test(c); }), iF = cab.findIndex(function(c){ return /^Fec\.?\s*entr/i.test(c); });
+  var iC = cab.lastIndexOf('Nombre cliente');
+  var mapa = {};
+  for(var r=h.fila+1;r<filas.length;r++){
+    var f = filas[r]; if(!f) continue;
+    var vin = audNorm_(f[iB]), pat = iM>-1 ? audNorm_(f[iM]) : '', fe = iF>-1 ? audFecha_(f[iF]) : '';
+    if(!vin && !pat) continue;
+    var info = {fecha:fe, cliente: iC>-1 ? audCelda_(f[iC]) : ''};
+    if(vin){ mapa['V'+vin] = info; mapa['8'+vin.slice(-8)] = info; }
+    if(pat.length>=6) mapa['P'+pat] = info;
+  }
+  return mapa;
+}
+function audPrevia_(){
+  var cont = document.getElementById('audPrevia');
+  if(!_aud.ventas){ cont.innerHTML = '<div class="aud-paso">Elegí primero el <b>listado de ventas</b>. El de entregados es opcional, pero ayuda a no cargar unidades que ya se entregaron.</div>'; return; }
+  var grupos = {nuevas:[], programadas:[], entregadas:[], yaEstan:[], noVn4:[], anuladas:[]};
+  _aud.ventas.forEach(function(v){
+    var est = v.estado.toUpperCase();
+    if(est.indexOf('ANULADA')>-1){ grupos.anuladas.push(v); return; }
+    if(est.indexOf('VN4')!==0){ grupos.noVn4.push(v); return; }
+    var ent = _aud.entregados ? (_aud.entregados['V'+v.vin] || (v.vin && _aud.entregados['8'+v.vin.slice(-8)]) || (v.patente && _aud.entregados['P'+v.patente])) : null;
+    var enPlanning = audEntregaDe_({vin:v.vin, patente:v.patente});
+    if(ent || (enPlanning && enPlanning.entregada)){ v._ent = ent ? ent.fecha : enPlanning.fecha; grupos.entregadas.push(v); return; }
+    if(enPlanning){ v._prog = enPlanning; grupos.programadas.push(v); return; }
+    var ya = (PREP_UNIDADES||[]).find(function(u){ return (u.referencia && String(u.referencia).replace(/^OF-?/,'')===v.oferta) || (v.vin && audNorm_(u.vin)===v.vin) || (v.patente && audNorm_(u.patente)===v.patente); });
+    if(ya){ v._ya = ya; grupos.yaEstan.push(v); return; }
+    grupos.nuevas.push(v);
+  });
+  _aud.grupos = grupos;
+  var chip = function(ic, cls, n, t, sub){ return '<div class="aud-res '+cls+'"><span class="material-symbols-outlined">'+ic+'</span><b>'+n+'</b><span>'+t+'</span>'+(sub?'<small>'+sub+'</small>':'')+'</div>'; };
+  var html = '<div class="aud-resumen">'+
+    chip('add_task','nuevas', grupos.nuevas.length, 'Nuevas para auditar', 'VN4, sin entregar ni programar')+
+    chip('event_available','prog', grupos.programadas.length, 'Ya programadas', 'tienen fecha en el Planning')+
+    chip('task_alt','ent', grupos.entregadas.length, 'Ya entregadas', _aud.entregados?'según el listado de entregados':'según el Planning')+
+    chip('inventory','ya', grupos.yaEstan.length, 'Ya cargadas', 'están en la auditoría')+
+    chip('hourglass_top','espera', grupos.noVn4.length, 'Todavía no en VN4', 'no se pueden programar aún')+
+    (grupos.anuladas.length ? chip('block','anul', grupos.anuladas.length, 'Anuladas', '') : '')+
+  '</div>';
+  if(grupos.programadas.length){
+    html += '<details class="aud-det"><summary>Ver las '+grupos.programadas.length+' ya programadas</summary>'+grupos.programadas.map(function(v){ return '<div class="aud-fila"><b>'+cfgEsc_(v.cliente)+'</b><span>'+cfgEsc_(v.modelo)+'</span><span class="aud-tag prog">📅 '+v._prog.fecha+' '+v._prog.hora+'</span></div>'; }).join('')+'</details>';
+  }
+  if(grupos.nuevas.length){
+    html += '<div class="aud-nuevas"><div class="aud-nuevas-h"><label><input type="checkbox" checked onchange="document.querySelectorAll(\'.aud-chk\').forEach(function(c){c.checked=this.checked;}.bind(this));audContarSel_()"> Todas</label><span id="audSelCnt"></span></div>'+
+      grupos.nuevas.map(function(v,i){ return '<label class="aud-fila sel"><input type="checkbox" class="aud-chk" data-i="'+i+'" checked onchange="audContarSel_()"><b>'+cfgEsc_(v.cliente)+'</b><span>'+cfgEsc_(v.modelo)+(v.color?' · '+cfgEsc_(v.color):'')+'</span><span class="aud-tag">'+(v.patente?'Patente '+v.patente:'VIN '+v.vin)+'</span>'+(v.sucursal?'<span class="aud-tag">'+v.sucursal+'</span>':'')+(v.notaArchivo?'<span class="aud-tag nota">'+cfgEsc_(v.notaArchivo)+'</span>':'')+'</label>'; }).join('')+
+      '<button type="button" class="save-btn" id="audBtnCargar" onclick="audCargar_()"></button></div>';
+  } else {
+    html += '<div class="aud-paso ok">No hay unidades nuevas para cargar: todo lo que está en VN4 ya está auditado, programado o entregado.</div>';
+  }
+  cont.innerHTML = html;
+  audContarSel_();
+}
+function audContarSel_(){
+  var n = document.querySelectorAll('.aud-chk:checked').length, b = document.getElementById('audBtnCargar'), c = document.getElementById('audSelCnt');
+  if(b){ b.textContent = 'Cargar '+n+(n===1?' unidad':' unidades')+' para auditar'; b.disabled = !n; }
+  if(c) c.textContent = n+' elegida'+(n===1?'':'s');
+}
+function audCargar_(){
+  var sel = Array.prototype.slice.call(document.querySelectorAll('.aud-chk:checked')).map(function(c){ return _aud.grupos.nuevas[+c.getAttribute('data-i')]; });
+  if(!sel.length) return;
+  var filas = sel.map(function(v){ return [v.cliente, v.vin, v.patente, v.modelo, '', 'chevrolet', v.sucursal, '', '', v.fecha, '', v.color, '', 'OF-'+v.oferta]; });
+  var b = document.getElementById('audBtnCargar'); b.disabled = true; b.textContent = 'Cargando '+sel.length+'…';
+  gasPost('importarUnidadesPreparacion', {filas:filas, autor:usuarioActual()}).then(function(res){
+    if(!res || !res.ok){ showToast((res&&res.error)||'No se pudo importar'); audContarSel_(); return; }
+    showToast('✓ '+res.creadas+' unidad'+(res.creadas===1?'':'es')+' cargada'+(res.creadas===1?'':'s')+' en "Por buscar"'+(res.saltadas?' · '+res.saltadas+' ya estaban':''));
+    _preparacionCargada_ = false; _aud.col = 'buscar';
+    cargarPreparacionSiHaceFalta_().then(function(){ audPrevia_(); audRender_(); });
+  }).catch(function(){ showToast('No se pudo importar. Revisá la conexión.'); audContarSel_(); });
 }
 
 function renderFaltantes(){
@@ -13348,8 +13732,10 @@ function buscarEnPreparacion_(valor){
   var legend = document.getElementById('nPreparacionLegend');
   var q = (valor||'').trim().toLowerCase();
   if(q.length<4){ legend.style.display='none'; _prepOrigenParaNuevaEntrega_=null; return; }
+  var qn = q.toUpperCase().replace(/[^A-Z0-9]/g,'');
   var u = (PREP_UNIDADES||[]).find(function(x){
-    return (x.vin && x.vin.toLowerCase()===q) || (x.patente && x.patente.toLowerCase()===q);
+    var xv = String(x.vin||'').toUpperCase().replace(/[^A-Z0-9]/g,''), xp = String(x.patente||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+    return (xv && (xv===qn || (qn.length===8 && xv.slice(-8)===qn))) || (xp && xp===qn);
   });
   if(!u){ legend.style.display='none'; _prepOrigenParaNuevaEntrega_=null; return; }
   if(u.cliente) document.getElementById('nCliente').value = u.cliente;
