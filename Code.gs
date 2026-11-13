@@ -3859,67 +3859,107 @@ function fichaTecnicaEntrega(marca, id){
 function listarFichasTecnicas(){ return {ok:true, fichas: listarFichasTecnicas_()}; }
 
 function escHtmlMail_(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function bienvenidaHtml_(r, config, ficha){
-  var marcaTxt = {chevrolet:'Chevrolet', peugeot:'Peugeot', citroen:'Citroën', honda:'Honda', dfsk:'DFSK / Jetour', usados:'Usados'}[r.marca] || '';
-  var postventa = (config.postventaWhatsapp && config.postventaWhatsapp[r.marca]) || '';
-  var repuestos = (config.repuestosServicio && config.repuestosServicio[r.marca]) || '';
-  var telWa = String(postventa).replace(/[^0-9]/g,'');
-  var nombre = String(r.cliente||'').split(/\s+/).slice(-1)[0] ? r.cliente : '';
-  var logoMarcaUrl = MARCA_LOGO[r.marca] || '';
-  var logoHeader = logoMarcaUrl
-    ? '<div style="width:64px;height:64px;border-radius:50%;background:#ffffff;margin:0 auto;display:table;"><div style="display:table-cell;vertical-align:middle;text-align:center;"><img src="'+logoMarcaUrl+'" alt="'+marcaTxt+'" style="max-width:46px;max-height:30px;"></div></div>'
-    : '';
-  var item = function(t){ return '<tr><td style="padding:5px 0;font-family:Arial,sans-serif;font-size:13.5px;color:#374151;line-height:1.5;"><span style="color:#16a34a;font-weight:bold;">✓</span>&nbsp; '+t+'</td></tr>'; };
-  var cuerpo = ''+
-  '<div style="background:#000000;padding:0;font-family:Arial,sans-serif;">'+
-    '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:28px 20px 18px;">'+logoHeader+
-      '<div style="color:#ffffff;font-size:12px;letter-spacing:2px;margin-top:12px;font-weight:bold;">'+escHtmlMail_(nombreEntidadPorMarca_(r.marca)).toUpperCase()+' · POSTVENTA '+escHtmlMail_(marcaTxt).toUpperCase()+'</div>'+
+// ===== Mail de BIENVENIDA A POSTVENTA (mismo diseño en la web y en Apps Script) =====
+// d = {marcaTxt, entidad, color, colorTexto, logoUrl, mascotaUrl, titulo, intro, cierre,
+//      postventa, repuestos, calidad, vendedor, modelo, fichaUrl, recepcion, copia}
+function armarBienvenidaHtml_(d){
+  var e = function(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var p = function(x){ return e(x).replace(/\n/g,'<br>'); };
+  var tel = function(x){ return String(x||'').replace(/[^0-9+]/g,''); };
+  var wa = String(d.postventa||'').replace(/[^0-9]/g,'');
+  var col = d.color || '#1D2330', colT = d.colorTexto || '#ffffff';
+  var tarjeta = function(icono, titulo, numero, texto, boton){
+    return '<tr><td style="padding:0 0 12px;">'+
+      '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;"><tr>'+
+      '<td width="54" valign="top" style="padding:16px 0 16px 16px;font-size:26px;line-height:1;">'+icono+'</td>'+
+      '<td valign="top" style="padding:14px 16px 14px 10px;font-family:Arial,sans-serif;">'+
+        '<div style="color:#6b7280;font-size:11.5px;font-weight:bold;letter-spacing:.6px;text-transform:uppercase;">'+e(titulo)+'</div>'+
+        '<div style="color:#111827;font-size:19px;font-weight:bold;margin:3px 0 4px;">'+e(numero)+'</div>'+
+        '<div style="color:#4b5563;font-size:12.5px;line-height:1.5;">'+e(texto)+'</div>'+
+        (boton||'')+
+      '</td></tr></table></td></tr>';
+  };
+  var contactos = '';
+  if(d.postventa) contactos += tarjeta('🔧', 'Taller y turnos · WhatsApp de Postventa', d.postventa,
+    'Para sacar turno para el service, consultar por garantía o cualquier cosa que necesite tu vehículo.',
+    wa ? '<div style="margin-top:10px;"><a href="https://wa.me/'+wa+'" style="display:inline-block;background:#16a34a;color:#ffffff;text-decoration:none;font-weight:bold;font-size:13px;padding:9px 18px;border-radius:8px;">Sacar turno por WhatsApp</a></div>' : '');
+  if(d.repuestos) contactos += tarjeta('🔩', 'Repuestos', d.repuestos, 'Para consultar precio y disponibilidad de repuestos y accesorios originales.',
+    tel(d.repuestos) ? '<div style="margin-top:10px;"><a href="tel:'+tel(d.repuestos)+'" style="display:inline-block;background:#ffffff;color:#111827;border:1px solid #d1d5db;text-decoration:none;font-weight:bold;font-size:13px;padding:8px 16px;border-radius:8px;">Llamar a Repuestos</a></div>' : '');
+  if(d.calidad) contactos += tarjeta('⭐', 'Calidad', d.calidad, 'Si algo no salió como esperabas, o querés contarnos tu experiencia, escribinos.', '');
+  return ''+
+  '<div style="background:#f3f4f6;padding:0;margin:0;font-family:Arial,sans-serif;">'+
+    '<table width="100%" cellpadding="0" cellspacing="0" style="background:#111827;"><tr><td align="center" style="padding:24px 20px 20px;">'+
+      (d.logoUrl ? '<div style="width:60px;height:60px;border-radius:50%;background:#ffffff;margin:0 auto;display:table;"><div style="display:table-cell;vertical-align:middle;text-align:center;"><img src="'+d.logoUrl+'" alt="'+e(d.marcaTxt)+'" style="max-width:42px;max-height:28px;"></div></div>' : '')+
+      '<div style="color:#ffffff;font-size:11.5px;letter-spacing:2px;margin-top:10px;font-weight:bold;">'+e(String(d.entidad||'').toUpperCase())+' · POSTVENTA '+e(String(d.marcaTxt||'').toUpperCase())+'</div>'+
     '</td></tr></table>'+
-    '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:0 16px 40px;">'+
-      '<table width="480" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;">'+
-        '<tr><td style="padding:34px 32px 8px;font-family:Arial,sans-serif;" align="center">'+
-          '<div style="font-size:30px;line-height:1;">🚗</div>'+
-          '<h2 style="margin:12px 0 6px;color:#111827;font-size:21px;">¡Bienvenido/a a Grupo París!</h2>'+
-          '<p style="margin:0 0 4px;color:#1d4ed8;font-size:14px;">Hola '+escHtmlMail_(nombre)+',</p>'+
-          '<p style="margin:0;color:#374151;font-size:13.5px;line-height:1.6;">La entrega de tu <b>'+escHtmlMail_(r.modelo)+'</b> es solo el comienzo. Desde hoy contás con un equipo preparado para acompañarte cada vez que lo necesites.</p>'+
+    '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:0 14px 34px;">'+
+      '<table width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;background:#ffffff;border-radius:14px;margin-top:-1px;border-top:5px solid '+col+';">'+
+        (d.mascotaUrl ? '<tr><td align="center" style="padding:26px 24px 0;"><img src="'+d.mascotaUrl+'" alt="" width="170" style="width:170px;max-width:60%;height:auto;display:block;"></td></tr>' : '')+
+        '<tr><td align="center" style="padding:'+(d.mascotaUrl?'14px':'30px')+' 30px 4px;font-family:Arial,sans-serif;">'+
+          '<h1 style="margin:0 0 10px;color:#111827;font-size:22px;line-height:1.3;">'+p(d.titulo)+'</h1>'+
+          '<p style="margin:0;color:#374151;font-size:14px;line-height:1.65;">'+p(d.intro)+'</p>'+
         '</td></tr>'+
-        (postventa ? '<tr><td style="padding:22px 32px 6px;" align="center">'+
-          '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;"><tr><td align="center" style="padding:18px 16px;font-family:Arial,sans-serif;">'+
-            '<div style="color:#166534;font-size:11.5px;font-weight:bold;letter-spacing:1px;">WHATSAPP DE POSTVENTA '+escHtmlMail_(marcaTxt).toUpperCase()+'</div>'+
-            '<div style="color:#111827;font-size:22px;font-weight:bold;margin:6px 0 12px;">'+escHtmlMail_(postventa)+'</div>'+
-            (telWa ? '<a href="https://wa.me/'+telWa+'" style="display:inline-block;background:#16a34a;color:#ffffff;text-decoration:none;font-weight:bold;font-size:13.5px;padding:11px 24px;border-radius:8px;">Escribinos por WhatsApp</a>' : '')+
-            '<div style="color:#4b5563;font-size:12px;margin-top:10px;line-height:1.5;">Guardá este número: es nuestro principal canal para acompañarte durante toda la vida útil de tu vehículo.</div>'+
+        (contactos ? '<tr><td style="padding:22px 26px 6px;font-family:Arial,sans-serif;">'+
+          '<div style="color:#111827;font-size:14px;font-weight:bold;margin:0 0 10px;"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:'+col+';margin-right:7px;"></span>Guardá estos números</div>'+
+          '<table width="100%" cellpadding="0" cellspacing="0">'+contactos+'</table></td></tr>' : '')+
+        (d.vendedor ? '<tr><td style="padding:2px 26px 6px;font-family:Arial,sans-serif;color:#4b5563;font-size:13px;">👤 Tu asesor comercial: <b style="color:#111827;">'+e(d.vendedor)+'</b></td></tr>' : '')+
+        (d.fichaUrl ? '<tr><td style="padding:14px 26px 4px;">'+
+          '<table width="100%" cellpadding="0" cellspacing="0" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;"><tr><td style="padding:14px 16px;font-family:Arial,sans-serif;">'+
+            '<div style="color:#1e3a8a;font-size:14px;font-weight:bold;">📄 Ficha técnica de tu '+e(d.modelo||'vehículo')+'</div>'+
+            '<div style="color:#475569;font-size:12.5px;margin:3px 0 10px;">Te la adjuntamos en este mail para que la tengas siempre a mano.</div>'+
+            '<a href="'+d.fichaUrl+'" style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;font-weight:bold;font-size:13px;padding:9px 18px;border-radius:8px;">Ver ficha técnica</a>'+
           '</td></tr></table></td></tr>' : '')+
-        '<tr><td style="padding:20px 32px 4px;font-family:Arial,sans-serif;">'+
-          '<div style="color:#111827;font-size:14px;font-weight:bold;margin-bottom:6px;">Con nuestro equipo de Postventa podés:</div>'+
-          '<table width="100%" cellpadding="0" cellspacing="0">'+item('Pedir turnos para los services de mantenimiento.')+item('Consultar sobre mantenimientos y garantía.')+item('Recibir asesoramiento y resolver dudas sobre tu vehículo.')+item('Coordinar revisiones y asistencia cuando lo necesites.')+'</table>'+
-        '</td></tr>'+
-        (ficha ? '<tr><td style="padding:20px 32px 6px;" align="center">'+
-          '<table width="100%" cellpadding="0" cellspacing="0" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;"><tr><td style="padding:16px 18px;font-family:Arial,sans-serif;">'+
-            '<table width="100%" cellpadding="0" cellspacing="0"><tr><td width="44" valign="middle" style="font-size:28px;">📄</td><td valign="middle" style="font-family:Arial,sans-serif;">'+
-              '<div style="color:#1e3a8a;font-size:14px;font-weight:bold;">Ficha técnica de tu '+escHtmlMail_(r.modelo)+'</div>'+
-              '<div style="color:#475569;font-size:12.5px;margin-top:2px;">Te la adjuntamos en este mail para que la tengas siempre a mano.</div>'+
-            '</td></tr></table>'+
-            (ficha.url ? '<div style="text-align:center;margin-top:12px;"><a href="'+ficha.url+'" style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;font-weight:bold;font-size:13px;padding:10px 22px;border-radius:8px;">Ver ficha técnica</a></div>' : '')+
-          '</td></tr></table></td></tr>' : '')+
-        '<tr><td style="padding:22px 32px 30px;font-family:Arial,sans-serif;">'+
-          '<div style="border-top:1px solid #e5e7eb;padding-top:16px;color:#111827;font-size:13.5px;font-weight:bold;margin-bottom:6px;">Tus contactos</div>'+
-          '<div style="color:#374151;font-size:13px;line-height:1.7;">'+
-            '👤 Asesor comercial: <b>'+escHtmlMail_(r.vendedor||'—')+'</b><br>'+
-            (postventa ? '🔧 Postventa (WhatsApp): <b>'+escHtmlMail_(postventa)+'</b><br>' : '')+
-            (repuestos ? '🔩 Repuestos: <b>'+escHtmlMail_(repuestos)+'</b><br>' : '')+
-            (config.telefonoContacto ? '📞 Recepción: <b>'+escHtmlMail_(config.telefonoContacto)+'</b><br>' : '')+
-            (config.telefonoCalidad ? '⭐ Calidad: <b>'+escHtmlMail_(config.telefonoCalidad)+'</b>' : '')+
-          '</div>'+
-          '<p style="margin:16px 0 0;color:#111827;font-size:13.5px;">¡Gracias por elegirnos y que disfrutes tu '+escHtmlMail_(marcaTxt||'vehículo')+'!</p>'+
+        '<tr><td align="center" style="padding:20px 30px 30px;font-family:Arial,sans-serif;">'+
+          '<p style="margin:0;color:#111827;font-size:14px;line-height:1.6;font-weight:bold;">'+p(d.cierre)+'</p>'+
         '</td></tr>'+
       '</table>'+
     '</td></tr></table>'+
-    '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="background:#f3f4f6;padding:16px;font-family:Arial,sans-serif;color:#6b7280;font-size:11px;">'+
-      '<b>'+escHtmlMail_(nombreEntidadPorMarca_(r.marca))+'</b><br>Recepción: '+escHtmlMail_(config.telefonoContacto||'')+' | Calidad: '+escHtmlMail_(config.telefonoCalidad||'')+'<br>'+escHtmlMail_(config.copiaSiempreA||'')+
+    '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="background:#e5e7eb;padding:14px;font-family:Arial,sans-serif;color:#6b7280;font-size:11px;line-height:1.6;">'+
+      '<b>'+e(d.entidad)+'</b>'+(d.recepcion?'<br>Recepción: '+e(d.recepcion):'')+(d.copia?'<br>'+e(d.copia):'')+
     '</td></tr></table>'+
   '</div>';
-  return cuerpo;
+}
+// Textos por defecto (si la marca no tiene plantilla de bienvenida propia)
+function bienvenidaDefault_(marca){
+  return {
+    asunto: '¡Bienvenido/a a la Postventa de {Entidad}! Tus contactos para tu {Modelo}',
+    titulo: marca==='chevrolet' ? '¡Hola {NombreCompleto}! Chevy te da la bienvenida a la Postventa' : '¡Hola {NombreCompleto}! Te damos la bienvenida a la Postventa',
+    intro: 'La entrega de tu {Modelo} es solo el comienzo. Desde hoy contás con un equipo para acompañarte en cada service, consulta o repuesto que necesites. Te dejamos nuestros números para que los tengas siempre a mano.',
+    cierre: '¡Gracias por elegirnos y que disfrutes tu {Modelo}!'
+  };
+}
+function bienvenidaTextos_(pl, marca){
+  var def = bienvenidaDefault_(marca), c = {};
+  try{ c = pl && pl.cuerpo ? JSON.parse(pl.cuerpo) : {}; }catch(err){ c = {}; }
+  return { asunto: (pl && pl.asunto) || def.asunto, titulo: c.titulo || def.titulo, intro: c.intro || def.intro, cierre: c.cierre || def.cierre };
+}
+
+var URL_APP_ = 'https://planning-grupoparis.vercel.app/';
+// Mascota que encabeza la bienvenida (imagen pública en el sitio). Las marcas sin mascota usan solo el logo.
+var MASCOTA_BIENVENIDA = {chevrolet: URL_APP_ + 'assets/mail/chevy-postventa.png'};
+function tituloCasoGs_(s){ return String(s||'').toLowerCase().replace(/(^|\s)\S/g, function(c){ return c.toUpperCase(); }); }
+function textosBienvenidaPara_(r){
+  var todas = {}; try{ todas = getPlantillas() || {}; }catch(e){}
+  var t = bienvenidaTextos_(todas[r.marca] && todas[r.marca].bienvenida, r.marca);
+  var rr = {}; for(var k in r) rr[k] = r[k];
+  rr.cliente = tituloCasoGs_(r.cliente);
+  var fx = function(x){ return reemplazarVariablesServidor_(String(x||'').split('{Marca}').join(MARCA_LABEL[r.marca]||r.marca||''), rr); };
+  return {asunto: fx(t.asunto), titulo: fx(t.titulo), intro: fx(t.intro), cierre: fx(t.cierre)};
+}
+function bienvenidaHtml_(r, config, ficha){
+  var t = textosBienvenidaPara_(r);
+  return armarBienvenidaHtml_({
+    marcaTxt: MARCA_LABEL[r.marca] || '', entidad: nombreEntidadPorMarca_(r.marca),
+    color: MARCA_COLOR[r.marca] || '#1D2330', colorTexto: MARCA_TEXTO[r.marca] || '#ffffff',
+    logoUrl: MARCA_LOGO[r.marca] || '', mascotaUrl: MASCOTA_BIENVENIDA[r.marca] || '',
+    titulo: t.titulo, intro: t.intro, cierre: t.cierre,
+    postventa: (config.postventaWhatsapp && config.postventaWhatsapp[r.marca]) || '',
+    repuestos: (config.repuestosServicio && config.repuestosServicio[r.marca]) || '',
+    calidad: config.telefonoCalidad || config.telefonoContacto || '',
+    vendedor: r.vendedor || '', modelo: r.modelo || '',
+    fichaUrl: ficha && ficha.url ? ficha.url : '',
+    recepcion: config.telefonoContacto || '', copia: config.copiaSiempreA || ''
+  });
 }
 function enviarBienvenidaMail(marca, id, usuario, forzar){
   var config = getConfig();
@@ -3936,7 +3976,7 @@ function enviarBienvenidaMail(marca, id, usuario, forzar){
       adjuntos.push(file.getBlob().setName('Ficha técnica - '+String(r.modelo||'vehículo').replace(/[\\/:*?"<>|]/g,'')+'.pdf'));
     }catch(e){ ficha = null; }
   }
-  var asunto = '¡Bienvenido/a a '+nombreEntidadPorMarca_(marca)+'! Tu '+(r.modelo||'vehículo')+' y tu equipo de Postventa';
+  var asunto = textosBienvenidaPara_(r).asunto || ('¡Bienvenido/a a '+nombreEntidadPorMarca_(marca)+'! Tu '+(r.modelo||'vehículo')+' y tu equipo de Postventa');
   MailApp.sendEmail({to:r.email, cc:armarCC_(r, config), subject:asunto, htmlBody:bienvenidaHtml_(r, config, ficha), name:nombreEntidadPorMarca_(marca), attachments:adjuntos});
   var ahora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
   updateEntregaFields(marca, id, {bienvenidaEnviada:true, bienvenidaFecha:ahora, bienvenidaMailFecha:ahora});

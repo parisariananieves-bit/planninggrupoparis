@@ -1230,6 +1230,64 @@
     .cfg-pg-fila .cfg-pg-seg{grid-column:1 / -1;grid-row:2;justify-self:start;}
     .cfg-pg-sc{grid-row:1;grid-column:3;}
   }
+
+  /* --- Equipo: barra de filtros --- */
+  .cfg-eq-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 12px;background:var(--panel);border-bottom:1px solid var(--hairline);}
+  .cfg-eq-chips,.cfg-eq-der{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+  .cfg-eq-chip{display:inline-flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:999px;padding:5px 8px 5px 11px;color:var(--text-dim);font:600 12px 'Inter',sans-serif;cursor:pointer;}
+  .cfg-eq-chip i{width:7px;height:7px;border-radius:50%;}
+  .cfg-eq-chip small{background:var(--panel);border-radius:999px;padding:0 6px;font-size:10.5px;color:var(--text-faint);}
+  .cfg-eq-chip .material-symbols-outlined{font-size:15px;color:var(--warn);}
+  .cfg-eq-chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--text);}
+  .cfg-eq-der select{background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;color:var(--text);padding:6px 9px;font:600 12px 'Inter',sans-serif;}
+  .cfg-eq-head,.cfg-eq-row{grid-template-columns:minmax(160px,1.3fr) minmax(140px,1.3fr) minmax(100px,.9fr) minmax(100px,.8fr) 84px 72px !important;}
+  .cfg-eq-row.editando{grid-template-columns:minmax(160px,1.3fr) minmax(140px,1.3fr) minmax(100px,.9fr) minmax(100px,.8fr) 10px auto !important;}
+  .cfg-eq-n{font-weight:700;color:var(--text) !important;text-align:center;}
+  .cfg-eq-n.cero{color:var(--text-faint) !important;font-weight:500;}
+  .cfg-eq-head > span:nth-child(5){text-align:center;}
+  /* --- VIN ya programado --- */
+  .dup-aviso{display:flex;gap:10px;align-items:flex-start;background:var(--warn-soft);border:1px solid var(--warn);border-radius:10px;padding:11px 13px;color:var(--text);}
+  .dup-aviso > .material-symbols-outlined{color:var(--warn);font-size:22px;}
+  .dup-aviso.info{background:var(--panel-2);border-color:var(--hairline);} .dup-aviso.info > .material-symbols-outlined{color:var(--text-dim);}
+  .dup-aviso > div{display:flex;flex-direction:column;gap:3px;font-size:12.5px;}
+  .dup-aviso small{color:var(--text-dim);font-size:11.5px;}
+  .dup-acc{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+  .dup-btn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#1a1206;border:none;border-radius:8px;padding:7px 12px;font:700 12px 'Inter',sans-serif;cursor:pointer;}
+  .dup-btn.sec{background:var(--panel);color:var(--text);border:1px solid var(--hairline);}
+  .dup-btn .material-symbols-outlined{font-size:16px;}
+  .resaltar-sec{animation:resaltarSec 1.6s ease-out;}
+  @keyframes resaltarSec{0%{box-shadow:0 0 0 3px var(--accent);}100%{box-shadow:0 0 0 0 transparent;}}
+  /* --- Reprogramar: horarios libres --- */
+  .r-horarios{display:flex;flex-direction:column;gap:8px;}
+  .r-h-tit{font-size:11.5px;font-weight:700;color:var(--text);} .r-h-tit span{font-weight:500;color:var(--text-faint);margin-left:4px;}
+  .r-h-turno small{display:block;font-size:10.5px;font-weight:700;color:var(--text-faint);margin-bottom:4px;}
+  .r-h-chips{display:flex;flex-wrap:wrap;gap:5px;}
+  .r-h-chip{background:var(--ok-soft);color:var(--ok);border:1px solid transparent;border-radius:7px;padding:5px 8px;font:700 11.5px 'Inter',sans-serif;cursor:pointer;}
+  .r-h-chip:hover{border-color:var(--ok);}
+  .r-h-chip.on{background:var(--ok);color:#fff;}
+  .r-h-msg{font-size:11.5px;color:var(--text-dim);background:var(--panel-2);border-radius:8px;padding:8px 10px;}
+  .r-h-msg.danger{color:var(--danger);background:var(--danger-soft);}
+  /* --- Editor de plantillas --- */
+  #plantillasModal{width:min(1120px,96vw);max-width:1120px;}
+  .tpl-barra{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0 8px;}
+  .tpl-modos{display:inline-flex;background:var(--panel-2);border:1px solid var(--hairline);border-radius:10px;padding:3px;}
+  .tpl-modos button{display:inline-flex;align-items:center;gap:5px;background:none;border:none;border-radius:8px;padding:6px 12px;font:600 12px 'Inter',sans-serif;color:var(--text-dim);cursor:pointer;}
+  .tpl-modos button .material-symbols-outlined{font-size:16px;}
+  .tpl-modos button.on{background:var(--panel);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.12);}
+  .tpl-formato{display:inline-flex;gap:4px;}
+  .tpl-formato button{width:32px;height:30px;border:1px solid var(--hairline);background:var(--panel);border-radius:7px;color:var(--text);cursor:pointer;display:grid;place-items:center;font-size:13px;}
+  .tpl-formato button .material-symbols-outlined{font-size:17px;}
+  .tpl-vars{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px;font-size:11.5px;color:var(--text-faint);}
+  .cfg-var.bl{border-color:#C7D2FE;}
+  .tpl-frame{width:100%;height:440px;border:1px solid var(--hairline);border-radius:12px;background:#f3f4f6;display:block;}
+  .tpl-codigo{width:100%;box-sizing:border-box;height:440px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;color:var(--text);padding:12px;font:12px 'IBM Plex Mono',monospace;}
+  .tpl-nota{font-size:11.5px;color:var(--text-dim);margin:8px 0 12px;line-height:1.5;}
+  .tpl-b-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:18px;align-items:start;margin-bottom:12px;}
+  .tpl-b-form textarea{min-height:110px;}
+  .tpl-b-prev-t{font-size:12px;font-weight:600;color:var(--text-dim);margin-bottom:6px;} .tpl-b-prev-t small{color:var(--text-faint);font-weight:500;}
+  .tpl-b-asunto{display:flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;padding:7px 10px;font-size:12px;margin-bottom:8px;}
+  .tpl-b-asunto .material-symbols-outlined{font-size:16px;color:var(--text-faint);}
+  @media (max-width: 860px){ .tpl-b-grid{grid-template-columns:1fr;} .cfg-eq-n{display:none;} }
 </style>
 <style>
   .app-shell{display:flex;min-height:100vh;}
@@ -2165,7 +2223,7 @@
       <div class="sidebar-brand"><img class="sidebar-logo-full" alt="Grupo París" src="assets/logos/logo-grupoparis-wordmark.png" width="200" height="49"><div class="tag">Planning Entregas</div></div>
       <nav class="sidebar-nav">
         <button class="nav-item" id="navNotificaciones" title="Bandeja de entrada" onclick="setAppView('notificaciones')" style="position:relative;color:var(--caso);"><span class="material-symbols-outlined" style="color:var(--caso);">notifications</span><span class="nav-label">Bandeja de entrada</span><span id="navNotifBadge" style="display:none;position:absolute;top:6px;left:26px;background:var(--danger);color:#fff;font-size:9.5px;font-weight:800;min-width:15px;height:15px;border-radius:20px;align-items:center;justify-content:center;padding:0 3px;line-height:1;">0</span></button>
-        <button class="nav-item active" id="navDashboard" title="Dashboard" onclick="setAppView('dashboard')"><span class="material-symbols-outlined">dashboard</span><span class="nav-label">Dashboard</span></button>
+        <button class="nav-item active" id="navDashboard" title="Inicio" onclick="setAppView('dashboard')"><span class="material-symbols-outlined">home</span><span class="nav-label">Inicio</span></button>
         <button class="nav-item nav-item-highlight" id="navNuevaentrega" title="Programar Entrega" onclick="abrirElegirTipoEntrega_()"><span class="material-symbols-outlined">add_circle</span><span class="nav-label">Programar Entrega</span></button>
         <button class="nav-item" id="navCalendario" title="Calendario" onclick="setAppView('calendario')"><span class="material-symbols-outlined">calendar_today</span><span class="nav-label">Calendario</span></button>
         <button class="nav-item" id="navLista" title="Lista de Entregas" onclick="setAppView('lista')"><span class="material-symbols-outlined">list_alt</span><span class="nav-label">Lista de Entregas</span></button>
@@ -2269,7 +2327,7 @@
 
         <div class="app-view active" id="viewDashboard">
           <div class="view-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-            <div><h2>Dashboard</h2><p>Filtrá el resumen general, o mirá directo la próxima entrega y las que siguen.</p></div>
+            <div><h2>Inicio</h2><p>Filtrá el resumen general, o mirá directo la próxima entrega y las que siguen.</p></div>
             <select id="dashFiltroAdministrativo" onchange="setFilterAdministrativo(this.value)" style="background:var(--panel-2);border:1px solid var(--hairline);border-radius:20px;color:var(--text-dim);padding:6px 12px;font-family:'Inter',sans-serif;font-weight:600;font-size:11.5px;max-width:170px;cursor:pointer;"></select>
           </div>
 
@@ -2411,9 +2469,10 @@
       <div class="form-field"><label>E-mail</label><input id="nEmail"></div>
       <div class="form-field full"><label>Modelo</label><input id="nModelo"></div>
       <div class="form-field"><label>Color</label><input id="nColor"></div>
-      <div class="form-field"><label>Dominio</label><input id="nDominio" oninput="buscarEnPreparacion_(this.value)"></div>
-      <div class="form-field full"><label>Chasis / VIN</label><input id="nChasis" oninput="buscarEnPreparacion_(this.value)"></div>
+      <div class="form-field"><label>Dominio</label><input id="nDominio" oninput="buscarEnPreparacion_(this.value);buscarDuplicadoProgramado_()"></div>
+      <div class="form-field full"><label>Chasis / VIN</label><input id="nChasis" oninput="buscarEnPreparacion_(this.value);buscarDuplicadoProgramado_()"></div>
       <div id="nPreparacionLegend" class="form-field full" style="display:none;"></div>
+      <div id="nDuplicadoLegend" class="form-field full" style="display:none;"></div>
       <div class="form-field"><label>Duración estimada</label>
         <select id="nDuracion" onchange="renderDisponibilidadNuevaEntrega()">
           <option value="15">15 minutos</option>
@@ -3046,7 +3105,7 @@
       </div>
     </div>
     <div id="paneMaestroPlantillas" style="display:none;padding:4px 0 10px;">
-      <div class="cfg-info"><span class="material-symbols-outlined">mail</span><span>Cada marca tiene su propio <b>recordatorio</b> (se manda el día antes) y su propia <b>confirmación</b> (se manda al confirmar día y hora). Si una marca no tiene la suya, se usa la de Peugeot.</span></div>
+      <div class="cfg-info"><span class="material-symbols-outlined">mail</span><span>Cada marca tiene su propio <b>recordatorio</b> (se manda el día antes) y su propia <b>confirmación</b> (se manda al confirmar día y hora); si no tiene la suya, se usa la de Peugeot. La <b>bienvenida a Postventa</b> sale al entregar el vehículo.</span></div>
       <div id="tplLanding" class="tpl-landing"><div class="cfg-vacio">Cargando plantillas…</div></div>
     </div>
 
@@ -3295,6 +3354,7 @@
             <div id="direccionesContainer"></div>
       <div class="form-grid" style="margin-top:14px;">
         <div class="form-field full"><label>Teléfono de contacto (para los mails)</label><input id="cfgTelefono"></div>
+        <div class="form-field full"><label>Teléfono de Calidad (va en la bienvenida a Postventa)</label><input id="cfgTelefonoCalidad" placeholder="Si lo dejás vacío se usa el teléfono de contacto"></div>
         <div class="form-field full"><label>Copia siempre a (todas las confirmaciones y recordatorios)</label><input type="email" id="cfgCopiaA"></div>
         <div class="form-field full"><label>Duración estimada de la entrega (minutos) — se usa en todos los mails, de las 4 marcas</label><input type="number" id="cfgDuracion" min="1"></div>
         <div class="form-field full">
@@ -4098,8 +4158,9 @@
     <div class="section" id="seccionReprogramar">
       <div class="section-title">Reprogramar</div>
       <div class="reprog-grid">
-        <input type="date" id="rFecha"><input type="time" id="rHora">
-        <select id="rSucursal" style="grid-column:1/-1;background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:8px 9px;font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;"></select>
+        <input type="date" id="rFecha" onchange="renderHorariosReprog_()"><input type="time" id="rHora" onchange="renderHorariosReprog_()">
+        <select id="rSucursal" onchange="renderHorariosReprog_()" style="grid-column:1/-1;background:var(--panel-2);border:1px solid var(--hairline);border-radius:7px;color:var(--text);padding:8px 9px;font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;"></select>
+        <div id="rHorarios" class="r-horarios" style="grid-column:1/-1;"></div>
         <textarea id="rMotivo" placeholder="Motivo de la reprogramación" style="grid-column:1/-1;"></textarea>
       </div>
       <div class="new-warning" id="rWarning"></div>
@@ -4431,20 +4492,51 @@
 
 <div class="modal wide" id="plantillasModal">
   <div class="modal-head">
-    <div><h3>Editar plantillas de mail</h3><div class="sub">Una plantilla distinta por marca y por tipo.</div></div>
+    <div><h3>Editar plantillas de mail</h3><div class="sub">Escribí como en un documento: los datos de cada entrega (cliente, fecha, hora…) se completan solos al enviar.</div></div>
     <button class="close" onclick="closePlantillas()">✕</button>
   </div>
   <div class="modal-body">
     <div class="tpl-tabs" id="tplMarcaTabs"></div>
     <div class="tpl-tabs">
+      <button class="tpl-tab" id="tabConf" onclick="setTplTab('confirmacion')">Confirmación de entrega</button>
       <button class="tpl-tab active" id="tabRec" onclick="setTplTab('recordatorio')">Recordatorio</button>
-      <button class="tpl-tab" id="tabConf" onclick="setTplTab('confirmacion')">Confirmación</button>
+      <button class="tpl-tab" id="tabBienv" onclick="setTplTab('bienvenida')">Bienvenida a Postventa</button>
     </div>
-    <div class="tpl-help">
-      Placeholders disponibles: <code>{{cliente}}</code> <code>{{marca}}</code> <code>{{modelo}}</code> <code>{{dominio}}</code> <code>{{chasis}}</code> <code>{{fecha}}</code> <code>{{hora}}</code> <code>{{sucursal}}</code> <code>{{direccion}}</code> <code>{{responsable}}</code> <code>{{vendedor}}</code> <code>{{administrativo}}</code> <code>{{flota}}</code> <code>{{flotaTexto}}</code> <code>{{telefono_contacto}}</code> <code>{{appBlock}}</code> <code>{{usadoBlock}}</code>
+    <div id="tplEdHtml">
+      <div class="form-field full" style="margin-bottom:9px;"><label>Asunto</label><input id="tplAsunto"></div>
+      <div class="tpl-barra">
+        <div class="tpl-modos" role="tablist">
+          <button type="button" data-m="visual" onclick="tplModo_('visual')"><span class="material-symbols-outlined">edit</span>Editar</button>
+          <button type="button" data-m="preview" onclick="tplModo_('preview')"><span class="material-symbols-outlined">visibility</span>Vista previa</button>
+          <button type="button" data-m="codigo" onclick="tplModo_('codigo')"><span class="material-symbols-outlined">code</span>Código HTML</button>
+        </div>
+        <div class="tpl-formato" id="tplFormato">
+          <button type="button" title="Negrita" onclick="tplCmd_('bold')"><b>N</b></button>
+          <button type="button" title="Cursiva" onclick="tplCmd_('italic')"><i>K</i></button>
+          <button type="button" title="Subrayado" onclick="tplCmd_('underline')"><u>S</u></button>
+          <button type="button" title="Deshacer" onclick="tplCmd_('undo')"><span class="material-symbols-outlined">undo</span></button>
+          <button type="button" title="Rehacer" onclick="tplCmd_('redo')"><span class="material-symbols-outlined">redo</span></button>
+        </div>
+      </div>
+      <div class="tpl-vars" id="tplVars"></div>
+      <iframe id="tplFrame" class="tpl-frame" title="Editor de la plantilla"></iframe>
+      <textarea id="tplCuerpo" class="tpl-codigo" style="display:none;" oninput="tplCodigoCambio_()"></textarea>
+      <div class="tpl-nota" id="tplNota"></div>
     </div>
-    <div class="form-field full" style="margin-bottom:9px;"><label>Asunto</label><input id="tplAsunto"></div>
-    <div class="form-field full"><label>Cuerpo</label><textarea id="tplCuerpo" style="height:220px;font-family:'IBM Plex Mono',monospace;font-size:12px;"></textarea></div>
+    <div id="tplEdBienv" style="display:none;">
+      <div class="tpl-b-grid">
+        <div class="tpl-b-form">
+          <div class="cfg-info" style="margin-bottom:12px;"><span class="material-symbols-outlined">waving_hand</span><span>El diseño ya está armado con el logo, la mascota y los números de <b>Postventa (WhatsApp)</b>, <b>Repuestos</b> y <b>Calidad</b> de Configuración. Acá solo cambiás los textos.</span></div>
+          <div class="form-field full"><label>Asunto</label><input id="tplBAsunto" oninput="tplBPreview_()"></div>
+          <div class="form-field full"><label>Título</label><input id="tplBTitulo" oninput="tplBPreview_()"></div>
+          <div class="form-field full"><label>Texto de bienvenida</label><textarea id="tplBIntro" rows="5" oninput="tplBPreview_()"></textarea></div>
+          <div class="form-field full"><label>Cierre</label><input id="tplBCierre" oninput="tplBPreview_()"></div>
+          <div class="tpl-vars" id="tplBVars"></div>
+          <button type="button" class="cfg-link" onclick="tplBRestaurar_()">Volver al texto estándar</button>
+        </div>
+        <div class="tpl-b-prev"><div class="tpl-b-prev-t">Así le llega al cliente <small>(con datos de ejemplo)</small></div><div class="tpl-b-asunto" id="tplBAsuntoPrev"></div><iframe id="tplBFrame" class="tpl-frame" title="Vista previa del mail de bienvenida"></iframe></div>
+      </div>
+    </div>
     <button class="save-btn" onclick="guardarPlantillaUI()">Guardar plantilla</button>
   </div>
 </div>
@@ -5102,7 +5194,7 @@ function mostrarUltimoIngreso_(nombre, ultimoIngreso){
 // Nombres legibles + agrupación por tema, para la pantalla de Permisos
 // (antes se mostraban solo los íconos, todos amontonados en una fila).
 var ETIQUETAS_MODULOS_ = {
-  dashboard:'Dashboard', nuevaentrega:'Programar Entrega', calendario:'Calendario', lista:'Lista de Entregas',
+  dashboard:'Inicio', nuevaentrega:'Programar Entrega', calendario:'Calendario', lista:'Lista de Entregas',
   traslados:'Traslados', faltantes:'Faltantes', alistamiento:'Alistamiento usados', preparacion:'Centro de Preparación', reportes:'Reportes',
   historialcoms:'Historial de Comunicaciones', casos:'Reportar Caso', notificaciones:'Bandeja de entrada',
   manual:'Manual', maestro:'Configuración', tv:'TV Entregas'
@@ -12093,6 +12185,7 @@ function openDetailCore_(marca, id){
   } else {
     selRSucursal.innerHTML = '<option value="default">—</option>';
   }
+  setTimeout(renderHorariosReprog_, 0);
   document.getElementById('rWarning').style.display='none';
   renderHistorialUI(r); renderComentariosUI(r);
   // Trae (si hace falta) los datos de Centro de Preparación para poder
@@ -13255,6 +13348,7 @@ function openNewDelivery(){
   if(!puedeEditar() || !puedeEditarModulo_('nuevaentrega')){ showToast('Tu usuario no tiene permiso para agendar entregas.'); setAppView('dashboard'); return; }
   cargarPreparacionSiHaceFalta_(); // para poder cruzar por VIN/dominio contra el Centro de Preparación
   document.getElementById('nPreparacionLegend').style.display='none';
+  var _dupL = document.getElementById('nDuplicadoLegend'); if(_dupL){ _dupL.style.display='none'; _dupL.innerHTML=''; } window._dupEntrega = null;
   document.getElementById('nMarca').innerHTML = BRANDS.map(function(b){
     return '<option value="'+b.id+'" '+(b.id===currentBrand?'selected':'')+'>'+b.label+'</option>';
   }).join('');
@@ -13501,6 +13595,8 @@ function limpiarErroresNueva_(){
 }
 function submitNewDelivery(){
   if(submittingEntrega) return; // evita doble click / doble submit
+  var _dup = buscarDuplicadoProgramado_();
+  if(_dup && !confirm('Este vehículo ya tiene una entrega programada: '+_dup.cliente+' — '+_dup.fecha+' '+_dup.hora+(_dup.sucursal&&_dup.sucursal!=='default'?' ('+_dup.sucursal+')':'')+'.\n\nSi es un cambio de día u horario, cancelá y usá "Reprogramar esa entrega".\n\n¿Querés cargar una entrega NUEVA igual?')) return;
   var cliente=document.getElementById('nCliente').value.trim();
   var modelo=document.getElementById('nModelo').value.trim();
   var dominio=document.getElementById('nDominio').value.trim();
@@ -13660,7 +13756,7 @@ function construirMensajeBienvenida_(r){
   var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
   var postventa = (CONFIG.postventaWhatsapp && CONFIG.postventaWhatsapp[r.marca]) || '';
   var repuestosServicio = (CONFIG.repuestosServicio && CONFIG.repuestosServicio[r.marca]) || '';
-  var calidad = CONFIG.telefonoContacto || '';
+  var calidad = CONFIG.telefonoCalidad || CONFIG.telefonoContacto || '';
   var asesor = r.vendedor || '—';
   return '🚗 ¡Bienvenido/a a Grupo París!\n\n'+
     '📲 WhatsApp de Postventa '+b.label+': '+(postventa||'—')+'\n'+
@@ -13991,6 +14087,7 @@ function openConfig(){
   renderBloqueoTags();
   renderDireccionesUI();
   document.getElementById('cfgTelefono').value = CONFIG.telefonoContacto || '';
+  document.getElementById('cfgTelefonoCalidad').value = CONFIG.telefonoCalidad || '';
   renderPostventaWhatsappInputs_();
   renderRepuestosServicioInputs_();
   document.getElementById('cfgAccesoLibrePassword').value = CONFIG.accesoLibrePassword || '';
@@ -14220,7 +14317,7 @@ function cfgAutoEstados_(){
 }
 
 // ---------- Plantillas ----------
-var CFG_TPL_TIPOS_ = [{id:'confirmacion', t:'Confirmación de entrega', d:'Se manda al confirmar día y hora.', ic:'event_available'},{id:'recordatorio', t:'Recordatorio', d:'Se manda el día antes de la entrega.', ic:'notifications'}];
+var CFG_TPL_TIPOS_ = [{id:'confirmacion', t:'Confirmación de entrega', d:'Se manda al confirmar día y hora.', ic:'event_available'},{id:'recordatorio', t:'Recordatorio', d:'Se manda el día antes de la entrega.', ic:'notifications'},{id:'bienvenida', t:'Bienvenida a Postventa', d:'Al entregar: números de taller, repuestos y calidad.', ic:'waving_hand'}];
 function cfgRenderPlantillasLanding_(){
   var cont = document.getElementById('tplLanding'); if(!cont) return;
   var pinta = function(pl){
@@ -14228,7 +14325,7 @@ function cfgRenderPlantillasLanding_(){
       return '<section class="tpl-marca" style="--b:var('+b.color+');--bs:var('+b.soft+');"><header><span class="cfg-mlogo"><img src="'+b.logo+'" alt="" onerror="this.remove()"></span><h3>'+b.label+'</h3></header>'+
         CFG_TPL_TIPOS_.map(function(tp){
           var x = pl && pl[b.id] && pl[b.id][tp.id];
-          return '<button type="button" class="tpl-item" onclick="openPlantillas(\''+b.id+'\',\''+tp.id+'\')"><span class="material-symbols-outlined">'+tp.ic+'</span><span class="tpl-item-t"><b>'+tp.t+'</b><small>'+(x && x.asunto ? cfgEsc_(String(x.asunto).slice(0,70)) : tp.d)+'</small></span><span class="cfg-pill '+(x?'on':'off')+'">'+(x?'Propia':(b.id==='peugeot'?'Sin cargar':'Usa la de Peugeot'))+'</span><span class="material-symbols-outlined cfg-card-go">chevron_right</span></button>';
+          return '<button type="button" class="tpl-item" onclick="openPlantillas(\''+b.id+'\',\''+tp.id+'\')"><span class="material-symbols-outlined">'+tp.ic+'</span><span class="tpl-item-t"><b>'+tp.t+'</b><small>'+(x && x.asunto && tp.id!=='bienvenida' ? cfgEsc_(String(x.asunto).slice(0,70)) : tp.d)+'</small></span><span class="cfg-pill '+(x?'on':'off')+'">'+(tp.id==='bienvenida' ? (x?'Personalizada':'Texto estándar') : (x?'Propia':(b.id==='peugeot'?'Sin cargar':'Usa la de Peugeot')))+'</span><span class="material-symbols-outlined cfg-card-go">chevron_right</span></button>';
         }).join('')+'</section>';
     }).join('');
   };
@@ -14725,10 +14822,13 @@ function cfgRenderPersonas_(tipo){
   var lista = (CONFIG.maestros||{})[tipo] || [];
   var esAdm = tipo==='administrativos';
   var ed = window._cfgEdit && window._cfgEdit.tipo===tipo ? window._cfgEdit.i : -1;
-  var cab = '<div class="cfg-eq-head"><span>Nombre</span><span>Email</span><span>Teléfono</span><span>'+(esAdm?'Flota':'Sucursal')+'</span><span></span></div>';
+  var cab = '<div class="cfg-eq-head"><span>Nombre</span><span>Email</span><span>Teléfono</span><span>'+(esAdm?'Flota':'Sucursal')+'</span><span title="Entregas de los últimos 30 días">Entregas 30 d</span><span></span></div>';
+  var cnt = cfgEqConteo_(tipo);
   if(!lista.length){ el.innerHTML = '<div class="cfg-vacio" style="margin:0;">Todavía no hay nadie cargado. Agregá la primera persona con el formulario de abajo.</div>'; return; }
-  el.innerHTML = cab + lista.map(function(entry,i){
+  var filasHtml = cfgEqOrden_(tipo, lista, cnt).map(function(i){
+    var entry = lista[i];
     var e = cfgPersonaObj_(entry);
+    if(i!==ed && !cfgEqPasa_(tipo, e)) return '';
     if(i===ed){
       var k = 'onkeydown="if(event.key===\'Enter\'){cfgGuardarPersona_(\''+tipo+'\','+i+');} if(event.key===\'Escape\'){event.stopPropagation();cfgCancelarPersona_(\''+tipo+'\');}"';
       var ultimo = esAdm
@@ -14739,6 +14839,7 @@ function cfgRenderPersonas_(tipo){
         '<input id="eqE_email" type="email" value="'+cfgEsc_(e.email||'')+'" placeholder="Email" '+k+'>'+
         '<input id="eqE_telefono" type="tel" value="'+cfgEsc_(e.telefono||'')+'" placeholder="Teléfono" '+k+'>'+
         ultimo+
+        '<span></span>'+
         '<div class="cfg-eq-acc"><button type="button" class="cfg-btn ok" onclick="cfgGuardarPersona_(\''+tipo+'\','+i+')">Guardar</button><button type="button" class="cfg-btn" onclick="cfgCancelarPersona_(\''+tipo+'\')">Cancelar</button></div>'+
       '</div>';
     }
@@ -14750,11 +14851,57 @@ function cfgRenderPersonas_(tipo){
       '<span class="cfg-eq-c" onclick="'+ed2+'">'+(e.email ? cfgEsc_(e.email)+(cfgEmailOk_(e.email)?'':' <b class="cfg-falta">(revisar)</b>') : '<span class="cfg-falta">'+(esAdm?'Falta email':'Sin email')+'</span>')+'</span>'+
       '<span class="cfg-eq-c" onclick="'+ed2+'">'+(e.telefono ? cfgEsc_(e.telefono) : '<span class="cfg-falta">Sin teléfono</span>')+'</span>'+
       '<span class="cfg-eq-c" onclick="'+ed2+'">'+badge+'</span>'+
+      '<span class="cfg-eq-c cfg-eq-n'+((cnt[cfgNorm_(e.nombre)]||0)?'':' cero')+'" title="Entregas de los últimos 30 días">'+(cnt[cfgNorm_(e.nombre)]||0)+'</span>'+
       '<div class="cfg-eq-acc"><button type="button" class="cfg-ibtn" title="Editar" aria-label="Editar a '+cfgEsc_(e.nombre)+'" onclick="'+ed2+'"><span class="material-symbols-outlined">edit</span></button><button type="button" class="cfg-ibtn del" title="Eliminar" aria-label="Eliminar a '+cfgEsc_(e.nombre)+'" onclick="'+(esAdm?'removeAdministrativo('+i+')':'removeMaestro(\''+tipo+'\','+i+')')+'"><span class="material-symbols-outlined">delete</span></button></div>'+
     '</div>';
   }).join('');
+  el.innerHTML = cfgEqToolbar_(tipo, lista, cnt) + cab + (filasHtml || '<div class="cfg-vacio" style="margin:0;border:none;border-top:1px solid var(--hairline);border-radius:0;">Nadie coincide con este filtro. <button type="button" class="cfg-link" onclick="cfgEqFiltro_(\''+tipo+'\',\'suc\',\'\');cfgEqFiltro_(\''+tipo+'\',\'falta\',false)">Ver a todos</button></div>');
   var q = el.parentNode && el.parentNode.querySelector('.mini-search-input'); if(q && q.value) filtrarMaestroLista(q, el.id);
 }
+
+// ---------- Equipo: filtros por sucursal, datos faltantes, orden y entregas de los últimos 30 días ----------
+window._eqF = window._eqF || {};
+var CFG_EQ_CAMPO_ = {vendedores:'vendedor', administrativos:'administrativo', responsables:'responsableEntrega'};
+function cfgEqEstado_(tipo){ return window._eqF[tipo] || (window._eqF[tipo] = {suc:'', falta:false, orden:'az'}); }
+function cfgEqFalta_(tipo, e){ return tipo==='administrativos' ? !(e.email && e.flota) : !(e.telefono || e.email) || !e.sucursal; }
+function cfgEqPasa_(tipo, e){
+  var f = cfgEqEstado_(tipo);
+  if(f.suc && (f.suc==='__sin' ? e.sucursal : e.sucursal!==f.suc)) return false;
+  if(f.falta && !cfgEqFalta_(tipo, e)) return false;
+  return true;
+}
+function cfgEqConteo_(tipo){
+  var campo = CFG_EQ_CAMPO_[tipo], out = {};
+  var hoy = new Date(); hoy.setHours(23,59,59,0); var desde = new Date(hoy); desde.setDate(desde.getDate()-30); desde.setHours(0,0,0,0);
+  (typeof ENTREGAS!=='undefined' ? ENTREGAS : []).forEach(function(r){
+    if(!r || r.usAnulada) return;
+    var p = String(r.fecha||'').split('/'); if(p.length!==3) return;
+    var d = new Date(+p[2], +p[1]-1, +p[0]); if(d<desde || d>hoy) return;
+    var k = cfgNorm_(r[campo]); if(k) out[k] = (out[k]||0)+1;
+  });
+  return out;
+}
+function cfgEqOrden_(tipo, lista, cnt){
+  var f = cfgEqEstado_(tipo), idx = lista.map(function(_,i){ return i; });
+  if(f.orden==='az') idx.sort(function(a,b){ return nombreDeMaestro_(lista[a]).localeCompare(nombreDeMaestro_(lista[b])); });
+  else if(f.orden==='entregas') idx.sort(function(a,b){ return (cnt[cfgNorm_(nombreDeMaestro_(lista[b]))]||0)-(cnt[cfgNorm_(nombreDeMaestro_(lista[a]))]||0); });
+  return idx;
+}
+function cfgEqToolbar_(tipo, lista, cnt){
+  var f = cfgEqEstado_(tipo), conSuc = tipo!=='administrativos';
+  var obj = lista.map(cfgPersonaObj_);
+  var chip = function(on, txt, n, js){ return '<button type="button" class="cfg-eq-chip'+(on?' on':'')+'" onclick="'+js+'">'+txt+(n!=null?'<small>'+n+'</small>':'')+'</button>'; };
+  var h = '<div class="cfg-eq-bar"><div class="cfg-eq-chips">'+chip(!f.suc, 'Todos', obj.length, "cfgEqFiltro_('"+tipo+"','suc','')");
+  if(conSuc){
+    SUCURSALES.forEach(function(sc){ var n=obj.filter(function(e){ return e.sucursal===sc; }).length; if(n) h += chip(f.suc===sc, '<i style="background:var('+(CFG_SUC_COLOR_[sc]||'--text-dim')+')"></i>'+sc, n, "cfgEqFiltro_('"+tipo+"','suc','"+sc+"')"); });
+    var sin = obj.filter(function(e){ return !e.sucursal; }).length; if(sin) h += chip(f.suc==='__sin', 'Sin sucursal', sin, "cfgEqFiltro_('"+tipo+"','suc','__sin')");
+  }
+  var nf = obj.filter(function(e){ return cfgEqFalta_(tipo, e); }).length;
+  h += '</div><div class="cfg-eq-der">'+(nf ? chip(f.falta, '<span class="material-symbols-outlined">error</span>Faltan datos', nf, "cfgEqFiltro_('"+tipo+"','falta',"+(!f.falta)+")") : '')+
+    '<select aria-label="Ordenar" onchange="cfgEqFiltro_(\''+tipo+'\',\'orden\',this.value)"><option value="az"'+(f.orden==='az'?' selected':'')+'>A → Z</option><option value="entregas"'+(f.orden==='entregas'?' selected':'')+'>Más entregas (30 d)</option><option value="carga"'+(f.orden==='carga'?' selected':'')+'>Orden de carga</option></select></div></div>';
+  return h;
+}
+function cfgEqFiltro_(tipo, k, v){ cfgEqEstado_(tipo)[k] = v; cfgRenderPersonas_(tipo); }
 function cfgEditarPersona_(tipo, i){
   window._cfgEdit = {tipo:tipo, i:i};
   cfgRenderPersonas_(tipo);
@@ -15023,6 +15170,7 @@ function guardarDirecciones(){
     });
   });
   CONFIG.telefonoContacto = document.getElementById('cfgTelefono').value.trim();
+  CONFIG.telefonoCalidad = document.getElementById('cfgTelefonoCalidad').value.trim();
   CONFIG.accesoLibrePassword = document.getElementById('cfgAccesoLibreRequierePassword').checked
     ? document.getElementById('cfgAccesoLibrePassword').value.trim()
     : '';
@@ -15034,7 +15182,7 @@ function guardarDirecciones(){
 function openPlantillas(marcaIni, tipoIni){
   gasGet('plantillas').then(function(pl){
     PLANTILLAS=pl;
-    tplMarcaActual=marcaIni||'chevrolet'; tplTabActual=tipoIni||'recordatorio';
+    _tplSucio_ = false; tplMarcaActual=marcaIni||'chevrolet'; tplTabActual=tipoIni||'recordatorio';
     document.getElementById('tplMarcaTabs').innerHTML = BRANDS.map(function(b){
       return '<button class="tpl-tab" id="tplMarca_'+b.id+'" onclick="setTplMarca(\''+b.id+'\')" style="--accent:var('+b.color+');--accent-soft:var('+b.soft+')">'+b.label+'</button>';
     }).join('');
@@ -15043,31 +15191,253 @@ function openPlantillas(marcaIni, tipoIni){
     document.getElementById('overlay').classList.add('show'); document.getElementById('plantillasModal').classList.add('show');
   });
 }
-function closePlantillas(){ document.getElementById('overlay').classList.remove('show'); document.getElementById('plantillasModal').classList.remove('show'); }
+function closePlantillas(){ if(_tplSucio_ && !confirm('Tenés cambios sin guardar. ¿Cerrar igual?')) return; _tplSucio_ = false; document.getElementById('overlay').classList.remove('show'); document.getElementById('plantillasModal').classList.remove('show'); }
 function setTplMarca(marca){
+  if(_tplSucio_ && marca!==tplMarcaActual && !confirm('Tenés cambios sin guardar en esta plantilla. ¿Descartarlos?')) return;
   tplMarcaActual=marca;
   BRANDS.forEach(function(b){ document.getElementById('tplMarca_'+b.id).classList.toggle('active', b.id===marca); });
   cargarCamposPlantilla_();
 }
 function setTplTab(tipo){
+  if(_tplSucio_ && !confirm('Tenés cambios sin guardar en esta plantilla. ¿Descartarlos?')) return;
   tplTabActual=tipo;
   document.getElementById('tabRec').classList.toggle('active', tipo==='recordatorio');
   document.getElementById('tabConf').classList.toggle('active', tipo==='confirmacion');
+  document.getElementById('tabBienv').classList.toggle('active', tipo==='bienvenida');
   cargarCamposPlantilla_();
 }
+// ---------- Editor de plantillas sin código ----------
+var _tplModo_ = 'visual', _tplSucio_ = false;
+var TPL_PH_ = [
+  {k:'cliente',t:'Cliente'},{k:'modelo',t:'Modelo'},{k:'marca',t:'Marca'},{k:'dominio',t:'Patente'},{k:'chasis',t:'VIN'},
+  {k:'fecha',t:'Fecha'},{k:'hora',t:'Hora'},{k:'sucursal',t:'Sucursal'},{k:'direccion',t:'Dirección'},{k:'responsable',t:'Responsable'},
+  {k:'vendedor',t:'Vendedor'},{k:'administrativo',t:'Administrativo'},{k:'flotaTexto',t:'N° de flota'},{k:'telefono_contacto',t:'Teléfono de contacto'},
+  {k:'duracion',t:'Duración'},{k:'appBlock',t:'Bloque: app de la marca',b:1},{k:'usadoBlock',t:'Bloque: accesorios / usado',b:1},{k:'logoBlock',t:'Logo de la marca',b:1}
+];
+var TPL_COLOR_ = {chevrolet:['#E8A33D','#1a1a1a'], peugeot:['#3E67CE','#ffffff'], citroen:['#D6304A','#ffffff'], honda:['#E4002B','#ffffff'], dfsk:['#2FA891','#ffffff'], usados:['#8E5FD6','#ffffff']};
+function tplEtiqPh_(k){ var x = TPL_PH_.find(function(p){ return p.k===k; }); return x ? x.t : k; }
+function tplMuestra_(k){
+  var b = BRANDS.find(function(x){ return x.id===tplMarcaActual; }) || {label:''};
+  var m = {cliente:'LÓPEZ MARTINA', modelo:'Tracker LTZ', marca:b.label, dominio:'AF 123 BC', chasis:'9BGEP76B0RB123456', fecha:'14/11/2026', hora:'10:15',
+    sucursal:'San Luis', direccion:((CONFIG.direcciones||{})[tplMarcaActual]||{}).SL || 'Av. Illia 123, San Luis', responsable:'Luis Ortiz', vendedor:'Juan Pérez', administrativo:'Ana Ruiz',
+    flota:'12', flotaTexto:' (Flota N° 12)', telefono_contacto:CONFIG.telefonoContacto||'2664 001040', duracion:String(CONFIG.duracionEntrega||60), lugar:'SL',
+    appBlock:'<p style="color:#444;font-size:14px;line-height:1.7;margin:0 0 12px;">Le sugerimos descargar la app <b>myChevrolet</b> desde su tienda de aplicaciones para activarla al momento de la entrega.</p>',
+    usadoBlock:'<p style="color:#444;font-size:14px;line-height:1.7;margin:0 0 12px;">Accesorios incluidos: <b>Alarma, Polarizado</b>.</p>', accesoriosBlock:'',
+    logoBlock:'<div style="text-align:center;margin-bottom:12px;"><img src="'+(b.logo||'')+'" style="max-width:38px;"></div>'};
+  var c = TPL_COLOR_[tplMarcaActual] || ['#1D2330','#ffffff']; m.color = c[0]; m.colorTexto = c[1];
+  return m[k]!=null ? m[k] : '';
+}
+function tplDoc_(html, editable){
+  var c = TPL_COLOR_[tplMarcaActual] || ['#1D2330','#ffffff'];
+  return '<!doctype html><html><head><meta charset="utf-8"><style>:root{--phc:'+c[0]+';--pht:'+c[1]+';}body{margin:0;padding:16px;background:#f3f4f6;font-family:Arial,sans-serif;'+(editable?'outline:none;':'')+'}'+
+    '.ph{display:inline-block;background:#FFF4D6;color:#8A5A00;border:1px solid #F1D08A;border-radius:6px;padding:0 6px;font:600 12.5px Arial,sans-serif;line-height:1.6;white-space:nowrap;cursor:default;}'+
+    '.ph.bl{display:block;text-align:center;margin:8px 0;padding:6px;background:#EEF2FF;color:#3730A3;border-color:#C7D2FE;}</style></head><body>'+html+'</body></html>';
+}
+function tplAEditor_(html){ return String(html||'').replace(/\{\{colorTexto\}\}/g,'var(--pht)').replace(/\{\{color\}\}/g,'var(--phc)'); }
+function tplDesdeEditor_(body){
+  var c = body.cloneNode(true);
+  c.querySelectorAll('span.ph').forEach(function(sp){ sp.replaceWith(document.createTextNode('{{'+sp.getAttribute('data-ph')+'}}')); });
+  return c.innerHTML.replace(/var\(--pht\)/g,'{{colorTexto}}').replace(/var\(--phc\)/g,'{{color}}');
+}
+function tplMarcarPh_(doc){
+  var w = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null), nodos = [], n;
+  while((n = w.nextNode())){ if(/\{\{\w+\}\}/.test(n.nodeValue)) nodos.push(n); }
+  nodos.forEach(function(t){
+    var frag = doc.createDocumentFragment(), partes = t.nodeValue.split(/(\{\{\w+\}\})/);
+    partes.forEach(function(pt){
+      var m = pt.match(/^\{\{(\w+)\}\}$/);
+      if(m){ var x = TPL_PH_.find(function(p){ return p.k===m[1]; }); var sp = doc.createElement('span'); sp.className='ph'+(x&&x.b?' bl':''); sp.setAttribute('contenteditable','false'); sp.setAttribute('data-ph', m[1]); sp.textContent = tplEtiqPh_(m[1]); frag.appendChild(sp); }
+      else if(pt) frag.appendChild(doc.createTextNode(pt));
+    });
+    t.parentNode.replaceChild(frag, t);
+  });
+}
+function tplSincronizar_(){
+  if(_tplModo_!=='visual') return;
+  var fr = document.getElementById('tplFrame'), d = fr && fr.contentDocument;
+  if(d && d.body && d.body.isContentEditable) document.getElementById('tplCuerpo').value = tplDesdeEditor_(d.body);
+}
+function tplModo_(m){
+  tplSincronizar_();
+  _tplModo_ = m;
+  document.querySelectorAll('.tpl-modos button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-m')===m); });
+  document.getElementById('tplFormato').style.visibility = m==='visual' ? 'visible' : 'hidden';
+  var fr = document.getElementById('tplFrame'), ta = document.getElementById('tplCuerpo'), html = ta.value;
+  fr.style.display = m==='codigo' ? 'none' : ''; ta.style.display = m==='codigo' ? '' : 'none';
+  document.getElementById('tplNota').innerHTML = m==='visual' ? 'Hacé clic en el texto para cambiarlo. Los recuadros amarillos son datos que se completan solos: podés moverlos o borrarlos, y agregar otros con los botones de arriba.'
+    : m==='preview' ? 'Así le llega al cliente, con datos de ejemplo. Para cambiar algo volvé a <b>Editar</b>.' : 'Solo para cambios avanzados de diseño. Si no sabés HTML, usá <b>Editar</b>.';
+  if(m==='codigo') return;
+  fr.onload = function(){
+    var d = fr.contentDocument; if(!d || !d.body) return;
+    if(m==='visual'){
+      tplMarcarPh_(d);
+      d.body.contentEditable = 'true';
+      d.body.addEventListener('input', function(){ _tplSucio_ = true; debounce_('tplSync', tplSincronizar_, 300); });
+    }
+    try{ fr.style.height = Math.min(Math.max(d.documentElement.scrollHeight, 320), 620)+'px'; }catch(e){}
+  };
+  if(m==='visual') fr.srcdoc = tplDoc_(tplAEditor_(html), true);
+  else fr.srcdoc = tplDoc_(String(html||'').replace(/\{\{(\w+)\}\}/g, function(_, k){ return tplMuestra_(k); }), false);
+}
+function tplCmd_(c){ var d = document.getElementById('tplFrame').contentDocument; if(!d) return; d.execCommand(c, false, null); _tplSucio_ = true; tplSincronizar_(); }
+function tplCodigoCambio_(){ _tplSucio_ = true; }
+function tplInsertarPh_(k){
+  if(_tplModo_==='preview') tplModo_('visual');
+  if(_tplModo_==='codigo'){
+    var ta = document.getElementById('tplCuerpo'), a = ta.selectionStart||ta.value.length, b = ta.selectionEnd||a, v='{{'+k+'}}';
+    ta.value = ta.value.slice(0,a)+v+ta.value.slice(b); ta.focus(); ta.selectionStart = ta.selectionEnd = a+v.length; _tplSucio_ = true; return;
+  }
+  var fr = document.getElementById('tplFrame'), d = fr.contentDocument; if(!d) return;
+  fr.contentWindow.focus();
+  var x = TPL_PH_.find(function(p){ return p.k===k; });
+  d.execCommand('insertHTML', false, '<span class="ph'+(x&&x.b?' bl':'')+'" contenteditable="false" data-ph="'+k+'">'+cfgEsc_(tplEtiqPh_(k))+'</span>&nbsp;');
+  _tplSucio_ = true; tplSincronizar_();
+}
+function tplRenderVars_(){
+  document.getElementById('tplVars').innerHTML = '<span>Insertar dato:</span>'+TPL_PH_.map(function(p){ return '<button type="button" class="cfg-var'+(p.b?' bl':'')+'" onclick="tplInsertarPh_(\''+p.k+'\')">'+p.t+'</button>'; }).join('');
+}
+// ---------- Bienvenida a Postventa ----------
+var MASCOTA_BIENVENIDA_ = {chevrolet:'assets/mail/chevy-postventa.png'};
+var TPL_B_VARS_ = [['{NombreCompleto}','Nombre del cliente'],['{Modelo}','Modelo'],['{Vendedor}','Vendedor'],['{Entidad}','Paris Cars / Autos / Motos'],['{Marca}','Marca']];
+function tplBCampos_(){ return {asunto:document.getElementById('tplBAsunto').value, titulo:document.getElementById('tplBTitulo').value, intro:document.getElementById('tplBIntro').value, cierre:document.getElementById('tplBCierre').value}; }
+function tplBCargar_(){
+  var t = bienvenidaTextos_(PLANTILLAS[tplMarcaActual] && PLANTILLAS[tplMarcaActual].bienvenida, tplMarcaActual);
+  document.getElementById('tplBAsunto').value = t.asunto; document.getElementById('tplBTitulo').value = t.titulo;
+  document.getElementById('tplBIntro').value = t.intro; document.getElementById('tplBCierre').value = t.cierre;
+  document.getElementById('tplBVars').innerHTML = '<span>Tocá un dato para sumarlo donde está el cursor:</span>'+TPL_B_VARS_.map(function(v){ return '<button type="button" class="cfg-var" onmousedown="event.preventDefault()" onclick="tplBInsertar_(\''+v[0]+'\')" title="'+v[1]+'">'+v[1]+'</button>'; }).join('');
+  ['tplBAsunto','tplBTitulo','tplBIntro','tplBCierre'].forEach(function(id){ document.getElementById(id).onfocus = function(){ window._tplBUltimo = id; }; document.getElementById(id).addEventListener('input', function(){ _tplSucio_ = true; }); });
+  tplBPreview_();
+}
+function tplBInsertar_(v){
+  var el = document.getElementById(window._tplBUltimo || 'tplBIntro'), a = el.selectionStart==null ? el.value.length : el.selectionStart, b = el.selectionEnd==null ? a : el.selectionEnd;
+  el.value = el.value.slice(0,a)+v+el.value.slice(b); el.focus(); el.selectionStart = el.selectionEnd = a+v.length; _tplSucio_ = true; tplBPreview_();
+}
+function tplBRestaurar_(){ var d = bienvenidaDefault_(tplMarcaActual); document.getElementById('tplBAsunto').value=d.asunto; document.getElementById('tplBTitulo').value=d.titulo; document.getElementById('tplBIntro').value=d.intro; document.getElementById('tplBCierre').value=d.cierre; _tplSucio_ = true; tplBPreview_(); }
+function tituloCaso_(s){ return String(s||'').toLowerCase().replace(/(^|\s)\S/g, function(c){ return c.toUpperCase(); }); }
+function bienvenidaHtmlWeb_(marca, campos, r){
+  var b = BRANDS.find(function(x){ return x.id===marca; }) || {label:marca};
+  var rr = Object.assign({}, r, {cliente: tituloCaso_(r.cliente), marca: marca});
+  var fx = function(t){ return reemplazarVariables_(String(t||''), rr); };
+  var c = TPL_COLOR_[marca] || ['#1D2330','#ffffff'];
+  var entidad = marca==='chevrolet' ? 'Paris Cars' : (marca==='honda' ? 'Paris Motos' : 'Paris Autos');
+  return {asunto: fx(campos.asunto), html: armarBienvenidaHtml_({marcaTxt:b.label, entidad:entidad, color:c[0], colorTexto:c[1], logoUrl:b.logo||'', mascotaUrl:MASCOTA_BIENVENIDA_[marca]||'',
+    titulo:fx(campos.titulo), intro:fx(campos.intro), cierre:fx(campos.cierre),
+    postventa:(CONFIG.postventaWhatsapp||{})[marca]||'', repuestos:(CONFIG.repuestosServicio||{})[marca]||'', calidad:CONFIG.telefonoCalidad||CONFIG.telefonoContacto||'',
+    vendedor:r.vendedor||'', modelo:r.modelo||'', fichaUrl:r._fichaUrl||'', recepcion:CONFIG.telefonoContacto||'', copia:CONFIG.copiaSiempreA||''})};
+}
+function tplBPreview_(){
+  debounce_('tplB', function(){
+    var m = bienvenidaHtmlWeb_(tplMarcaActual, tplBCampos_(), {cliente:'LÓPEZ MARTINA', modelo:'Tracker LTZ', vendedor:'Juan Pérez', _fichaUrl:'#'});
+    document.getElementById('tplBAsuntoPrev').innerHTML = '<span class="material-symbols-outlined">mail</span><b>'+cfgEsc_(m.asunto)+'</b>';
+    var fr = document.getElementById('tplBFrame');
+    fr.onload = function(){ try{ fr.style.height = Math.min(Math.max(fr.contentDocument.documentElement.scrollHeight, 400), 900)+'px'; }catch(e){} };
+    fr.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><base href="'+location.href.replace(/[^/]*$/,'')+'"></head><body style="margin:0;">'+m.html+'</body></html>';
+  }, 200);
+}
 function cargarCamposPlantilla_(){
+  _tplSucio_ = false;
+  var esB = tplTabActual==='bienvenida';
+  document.getElementById('tplEdHtml').style.display = esB ? 'none' : '';
+  document.getElementById('tplEdBienv').style.display = esB ? '' : 'none';
+  if(esB){ tplBCargar_(); return; }
   var pl = PLANTILLAS[tplMarcaActual] && PLANTILLAS[tplMarcaActual][tplTabActual];
   document.getElementById('tplAsunto').value = pl ? pl.asunto : '';
   document.getElementById('tplCuerpo').value = pl ? pl.cuerpo : '';
+  document.getElementById('tplAsunto').oninput = function(){ _tplSucio_ = true; };
+  tplRenderVars_();
+  tplModo_(_tplModo_==='codigo' ? 'codigo' : 'visual');
 }
 function guardarPlantillaUI(){
-  var asunto=document.getElementById('tplAsunto').value;
-  var cuerpo=document.getElementById('tplCuerpo').value;
-  gasPost('guardarPlantilla',{marca:tplMarcaActual,tipo:tplTabActual,asunto:asunto,cuerpo:cuerpo}).then(function(){
-    if(!PLANTILLAS[tplMarcaActual]) PLANTILLAS[tplMarcaActual]={};
-    PLANTILLAS[tplMarcaActual][tplTabActual]={asunto:asunto,cuerpo:cuerpo};
-    showToast('Plantilla de '+BRANDS.find(function(b){return b.id===tplMarcaActual;}).label+' ('+(tplTabActual==='recordatorio'?'recordatorio':'confirmación')+') guardada');
+  var asunto, cuerpo, tipo = tplTabActual, marca = tplMarcaActual;
+  if(tipo==='bienvenida'){
+    var c = tplBCampos_(); asunto = c.asunto; cuerpo = JSON.stringify({titulo:c.titulo, intro:c.intro, cierre:c.cierre});
+  } else {
+    tplSincronizar_();
+    asunto = document.getElementById('tplAsunto').value; cuerpo = document.getElementById('tplCuerpo').value;
+  }
+  gasPost('guardarPlantilla',{marca:marca,tipo:tipo,asunto:asunto,cuerpo:cuerpo}).then(function(){
+    if(!PLANTILLAS[marca]) PLANTILLAS[marca]={};
+    PLANTILLAS[marca][tipo]={asunto:asunto,cuerpo:cuerpo};
+    _tplSucio_ = false;
+    var nom = {recordatorio:'recordatorio', confirmacion:'confirmación', bienvenida:'bienvenida a Postventa'}[tipo];
+    showToast('Plantilla de '+BRANDS.find(function(b){return b.id===marca;}).label+' ('+nom+') guardada');
+    if(typeof registrarCambioConfig_==='function'){ registrarCambioConfig_('Editó la plantilla de '+nom+' de '+BRANDS.find(function(b){return b.id===marca;}).label); }
+    if(maestroTabActual==='plantillas') cfgRenderPlantillasLanding_();
   });
+}
+// ===== Mail de BIENVENIDA A POSTVENTA (mismo diseño en la web y en Apps Script) =====
+// d = {marcaTxt, entidad, color, colorTexto, logoUrl, mascotaUrl, titulo, intro, cierre,
+//      postventa, repuestos, calidad, vendedor, modelo, fichaUrl, recepcion, copia}
+function armarBienvenidaHtml_(d){
+  var e = function(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var p = function(x){ return e(x).replace(/\n/g,'<br>'); };
+  var tel = function(x){ return String(x||'').replace(/[^0-9+]/g,''); };
+  var wa = String(d.postventa||'').replace(/[^0-9]/g,'');
+  var col = d.color || '#1D2330', colT = d.colorTexto || '#ffffff';
+  var tarjeta = function(icono, titulo, numero, texto, boton){
+    return '<tr><td style="padding:0 0 12px;">'+
+      '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;"><tr>'+
+      '<td width="54" valign="top" style="padding:16px 0 16px 16px;font-size:26px;line-height:1;">'+icono+'</td>'+
+      '<td valign="top" style="padding:14px 16px 14px 10px;font-family:Arial,sans-serif;">'+
+        '<div style="color:#6b7280;font-size:11.5px;font-weight:bold;letter-spacing:.6px;text-transform:uppercase;">'+e(titulo)+'</div>'+
+        '<div style="color:#111827;font-size:19px;font-weight:bold;margin:3px 0 4px;">'+e(numero)+'</div>'+
+        '<div style="color:#4b5563;font-size:12.5px;line-height:1.5;">'+e(texto)+'</div>'+
+        (boton||'')+
+      '</td></tr></table></td></tr>';
+  };
+  var contactos = '';
+  if(d.postventa) contactos += tarjeta('🔧', 'Taller y turnos · WhatsApp de Postventa', d.postventa,
+    'Para sacar turno para el service, consultar por garantía o cualquier cosa que necesite tu vehículo.',
+    wa ? '<div style="margin-top:10px;"><a href="https://wa.me/'+wa+'" style="display:inline-block;background:#16a34a;color:#ffffff;text-decoration:none;font-weight:bold;font-size:13px;padding:9px 18px;border-radius:8px;">Sacar turno por WhatsApp</a></div>' : '');
+  if(d.repuestos) contactos += tarjeta('🔩', 'Repuestos', d.repuestos, 'Para consultar precio y disponibilidad de repuestos y accesorios originales.',
+    tel(d.repuestos) ? '<div style="margin-top:10px;"><a href="tel:'+tel(d.repuestos)+'" style="display:inline-block;background:#ffffff;color:#111827;border:1px solid #d1d5db;text-decoration:none;font-weight:bold;font-size:13px;padding:8px 16px;border-radius:8px;">Llamar a Repuestos</a></div>' : '');
+  if(d.calidad) contactos += tarjeta('⭐', 'Calidad', d.calidad, 'Si algo no salió como esperabas, o querés contarnos tu experiencia, escribinos.', '');
+  return ''+
+  '<div style="background:#f3f4f6;padding:0;margin:0;font-family:Arial,sans-serif;">'+
+    '<table width="100%" cellpadding="0" cellspacing="0" style="background:#111827;"><tr><td align="center" style="padding:24px 20px 20px;">'+
+      (d.logoUrl ? '<div style="width:60px;height:60px;border-radius:50%;background:#ffffff;margin:0 auto;display:table;"><div style="display:table-cell;vertical-align:middle;text-align:center;"><img src="'+d.logoUrl+'" alt="'+e(d.marcaTxt)+'" style="max-width:42px;max-height:28px;"></div></div>' : '')+
+      '<div style="color:#ffffff;font-size:11.5px;letter-spacing:2px;margin-top:10px;font-weight:bold;">'+e(String(d.entidad||'').toUpperCase())+' · POSTVENTA '+e(String(d.marcaTxt||'').toUpperCase())+'</div>'+
+    '</td></tr></table>'+
+    '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:0 14px 34px;">'+
+      '<table width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;background:#ffffff;border-radius:14px;margin-top:-1px;border-top:5px solid '+col+';">'+
+        (d.mascotaUrl ? '<tr><td align="center" style="padding:26px 24px 0;"><img src="'+d.mascotaUrl+'" alt="" width="170" style="width:170px;max-width:60%;height:auto;display:block;"></td></tr>' : '')+
+        '<tr><td align="center" style="padding:'+(d.mascotaUrl?'14px':'30px')+' 30px 4px;font-family:Arial,sans-serif;">'+
+          '<h1 style="margin:0 0 10px;color:#111827;font-size:22px;line-height:1.3;">'+p(d.titulo)+'</h1>'+
+          '<p style="margin:0;color:#374151;font-size:14px;line-height:1.65;">'+p(d.intro)+'</p>'+
+        '</td></tr>'+
+        (contactos ? '<tr><td style="padding:22px 26px 6px;font-family:Arial,sans-serif;">'+
+          '<div style="color:#111827;font-size:14px;font-weight:bold;margin:0 0 10px;"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:'+col+';margin-right:7px;"></span>Guardá estos números</div>'+
+          '<table width="100%" cellpadding="0" cellspacing="0">'+contactos+'</table></td></tr>' : '')+
+        (d.vendedor ? '<tr><td style="padding:2px 26px 6px;font-family:Arial,sans-serif;color:#4b5563;font-size:13px;">👤 Tu asesor comercial: <b style="color:#111827;">'+e(d.vendedor)+'</b></td></tr>' : '')+
+        (d.fichaUrl ? '<tr><td style="padding:14px 26px 4px;">'+
+          '<table width="100%" cellpadding="0" cellspacing="0" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;"><tr><td style="padding:14px 16px;font-family:Arial,sans-serif;">'+
+            '<div style="color:#1e3a8a;font-size:14px;font-weight:bold;">📄 Ficha técnica de tu '+e(d.modelo||'vehículo')+'</div>'+
+            '<div style="color:#475569;font-size:12.5px;margin:3px 0 10px;">Te la adjuntamos en este mail para que la tengas siempre a mano.</div>'+
+            '<a href="'+d.fichaUrl+'" style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;font-weight:bold;font-size:13px;padding:9px 18px;border-radius:8px;">Ver ficha técnica</a>'+
+          '</td></tr></table></td></tr>' : '')+
+        '<tr><td align="center" style="padding:20px 30px 30px;font-family:Arial,sans-serif;">'+
+          '<p style="margin:0;color:#111827;font-size:14px;line-height:1.6;font-weight:bold;">'+p(d.cierre)+'</p>'+
+        '</td></tr>'+
+      '</table>'+
+    '</td></tr></table>'+
+    '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="background:#e5e7eb;padding:14px;font-family:Arial,sans-serif;color:#6b7280;font-size:11px;line-height:1.6;">'+
+      '<b>'+e(d.entidad)+'</b>'+(d.recepcion?'<br>Recepción: '+e(d.recepcion):'')+(d.copia?'<br>'+e(d.copia):'')+
+    '</td></tr></table>'+
+  '</div>';
+}
+// Textos por defecto (si la marca no tiene plantilla de bienvenida propia)
+function bienvenidaDefault_(marca){
+  return {
+    asunto: '¡Bienvenido/a a la Postventa de {Entidad}! Tus contactos para tu {Modelo}',
+    titulo: marca==='chevrolet' ? '¡Hola {NombreCompleto}! Chevy te da la bienvenida a la Postventa' : '¡Hola {NombreCompleto}! Te damos la bienvenida a la Postventa',
+    intro: 'La entrega de tu {Modelo} es solo el comienzo. Desde hoy contás con un equipo para acompañarte en cada service, consulta o repuesto que necesites. Te dejamos nuestros números para que los tengas siempre a mano.',
+    cierre: '¡Gracias por elegirnos y que disfrutes tu {Modelo}!'
+  };
+}
+function bienvenidaTextos_(pl, marca){
+  var def = bienvenidaDefault_(marca), c = {};
+  try{ c = pl && pl.cuerpo ? JSON.parse(pl.cuerpo) : {}; }catch(err){ c = {}; }
+  return { asunto: (pl && pl.asunto) || def.asunto, titulo: c.titulo || def.titulo, intro: c.intro || def.intro, cierre: c.cierre || def.cierre };
 }
 
 var toastTimer;
@@ -15203,6 +15573,85 @@ function irAReportes(){
   var tabActual = GRUPO_TABS_REPORTES.indexOf(maestroTabActual)>-1 ? maestroTabActual : 'reportes';
   setMaestroTab(tabActual);
 }
+
+// ---------- Nueva entrega: ¿este VIN o patente ya está programado? ----------
+function normIdVeh_(v){ return String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
+function buscarDuplicadoProgramado_(){
+  var el = document.getElementById('nDuplicadoLegend'); if(!el) return null;
+  var vin = normIdVeh_((document.getElementById('nChasis')||{}).value), dom = normIdVeh_((document.getElementById('nDominio')||{}).value);
+  var coincide = function(x){
+    if(!x || x.usAnulada) return false;
+    var xv = normIdVeh_(x.chasis), xd = normIdVeh_(x.dominio);
+    if(vin.length>=8 && xv.length>=8 && (xv===vin || (vin.length===8 && xv.slice(-8)===vin) || (xv.length===8 && vin.slice(-8)===xv))) return true;
+    if(dom.length>=6 && xd.length>=6 && xd===dom) return true;
+    return false;
+  };
+  var hits = (ENTREGAS||[]).filter(coincide);
+  var pend = hits.filter(function(x){ return !x.entregada; }), ent = hits.filter(function(x){ return x.entregada; });
+  window._dupEntrega = pend[0] || null;
+  if(!hits.length){ el.style.display='none'; el.innerHTML=''; return null; }
+  var etq = function(x){ var b=BRANDS.find(function(y){ return y.id===x.marca; }); return '<b>'+cfgEsc_(x.cliente)+'</b> — '+(b?b.label:x.marca)+' · '+x.fecha+' '+x.hora+(x.sucursal&&x.sucursal!=='default'?' · '+x.sucursal:'')+(x.fechaSinConfirmar?' (fecha a confirmar)':''); };
+  el.style.display='block';
+  if(pend.length){
+    var x = pend[0];
+    el.innerHTML = '<div class="dup-aviso"><span class="material-symbols-outlined">event_busy</span><div><b>Este vehículo ya está programado</b><span>'+etq(x)+'</span>'+(pend.length>1?'<small>Y '+(pend.length-1)+' entrega(s) más con el mismo dato.</small>':'')+'<small>Para no pisarla ni duplicarla, ¿querés reprogramar esa entrega?</small>'+
+      '<div class="dup-acc"><button type="button" class="dup-btn" onclick="irAReprogramar_(\''+x.marca+'\',\''+x.id+'\')"><span class="material-symbols-outlined">event_repeat</span>Reprogramar esa entrega</button><button type="button" class="dup-btn sec" onclick="openDetail(\''+x.marca+'\',\''+x.id+'\')">Ver detalle</button></div></div></div>';
+  } else {
+    var y = ent[0];
+    el.innerHTML = '<div class="dup-aviso info"><span class="material-symbols-outlined">info</span><div><b>Este vehículo ya figura como entregado</b><span>'+etq(y)+'</span><small>Revisá que el VIN o la patente sean los correctos antes de guardar.</small></div></div>';
+  }
+  return window._dupEntrega;
+}
+function irAReprogramar_(marca, id){
+  openDetail(marca, id);
+  setTimeout(function(){
+    var sec = document.getElementById('seccionReprogramar'); if(!sec) return;
+    sec.classList.remove('collapsed');
+    try{ sec.scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){}
+    sec.classList.remove('resaltar-sec'); void sec.offsetWidth; sec.classList.add('resaltar-sec');
+    var f = document.getElementById('rFecha'); if(f) try{ f.focus(); }catch(e){}
+    renderHorariosReprog_();
+  }, 450);
+}
+
+// ---------- Reprogramar: horarios libres del día elegido ----------
+function renderHorariosReprog_(){
+  var cont = document.getElementById('rHorarios'); if(!cont) return;
+  var r = ENTREGAS.find(function(x){ return x.marca===detailMarca && x.id===detailId; }); if(!r){ cont.innerHTML=''; return; }
+  var fv = document.getElementById('rFecha').value;
+  if(!fv){ cont.innerHTML = '<div class="r-h-msg">Elegí una fecha y te muestro los horarios libres.</div>'; return; }
+  var p = fv.split('-'), fechaStr = p[2]+'/'+p[1]+'/'+p[0], fObj = new Date(+p[0], +p[1]-1, +p[2]), dia = DIAS[fObj.getDay()];
+  var suc = document.getElementById('rSucursal').value || r.sucursal;
+  var ctx = {marcas:[r.marca], sucursales:(suc && suc!=='default') ? [suc] : []};
+  var hoy = new Date(); hoy.setHours(0,0,0,0);
+  if(fObj < hoy){ cont.innerHTML = '<div class="r-h-msg danger">Esa fecha ya pasó. Elegí una fecha de hoy en adelante.</div>'; return; }
+  var dc = bloqueoDiaCompleto_(fechaStr, dia, ctx);
+  if(dc){ cont.innerHTML = '<div class="r-h-msg danger">🚫 Ese día no se entrega: '+dc.motivo+'.</div>'; return; }
+  var rangos = rangosBloqueo_(fechaStr, dia, ctx), dur = Number(r.duracionMinutos) || Number(CONFIG.duracionEntrega) || 60;
+  var agenda = marcasCompartenAgenda_(r.marca);
+  var otros = ENTREGAS.filter(function(x){ return agenda.indexOf(x.marca)>-1 && x.sucursal===suc && x.fecha===fechaStr && x.id!==r.id && ocupaHorario_(x); });
+  var esHoy = fObj.getTime()===hoy.getTime(), ahora = new Date(), ahoraMin = ahora.getHours()*60+ahora.getMinutes();
+  var sel = document.getElementById('rHora').value, libres = [];
+  for(var min=horaAMinutos_('09:00'); min+dur<=horaAMinutos_('18:00'); min+=15){
+    if(esHoy && min<=ahoraMin) continue;
+    var bloq = false; for(var k=min; k<min+dur; k+=15){ if(minutoBloqueado_(k, rangos)){ bloq=true; break; } }
+    if(bloq) continue;
+    var h = minutosAHora_(min);
+    if(otros.some(function(x){ return seSuperponenHorarios_(h, dur, x.hora, x.duracionMinutos); })) continue;
+    libres.push(h);
+  }
+  var tit = dia.charAt(0).toUpperCase()+dia.slice(1)+' '+fechaStr+(suc && suc!=='default' ? ' · '+suc : '')+' · turnos de '+dur+' min';
+  if(!libres.length){ cont.innerHTML = '<div class="r-h-tit">'+tit+'</div><div class="r-h-msg danger">No quedan horarios libres ese día. Probá con otra fecha'+(ctx.sucursales.length?' u otra sucursal':'')+'.</div>'; return; }
+  var turnos = {Mañana:[], Tarde:[]};
+  libres.forEach(function(h){ (horaAMinutos_(h)<780 ? turnos.Mañana : turnos.Tarde).push(h); });
+  cont.innerHTML = '<div class="r-h-tit">'+tit+' <span>'+libres.length+' libres'+(otros.length?' · '+otros.length+' ocupada'+(otros.length===1?'':'s'):'')+'</span></div>'+
+    Object.keys(turnos).filter(function(t){ return turnos[t].length; }).map(function(t){
+      return '<div class="r-h-turno"><small>'+t+'</small><div class="r-h-chips">'+turnos[t].map(function(h){ return '<button type="button" class="r-h-chip'+(h===sel?' on':'')+'" onclick="elegirHoraReprog_(\''+h+'\')">'+h+'</button>'; }).join('')+'</div></div>';
+    }).join('')+
+    (sel && libres.indexOf(sel)===-1 && fechaStr!==r.fecha ? '<div class="r-h-msg danger">La hora elegida ('+sel+') no está libre ese día. Tocá uno de los horarios de arriba.</div>' : '');
+}
+function elegirHoraReprog_(h){ document.getElementById('rHora').value = h; var w=document.getElementById('rWarning'); if(w) w.style.display='none'; renderHorariosReprog_(); }
+
 function irAMaestro(){
   if(!esCalidad()){ showToast('Configuración es exclusiva del rol Maestro.'); return; }
   // Las secciones (General, Automatizaciones, Plantillas, Usuarios, Cargas, Historial) se manejan con las pestañas de arriba.
