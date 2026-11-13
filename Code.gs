@@ -108,6 +108,7 @@ else if(action==='eliminarItemCatalogoAccesorios') result = eliminarItemCatalogo
     else if(action==='prepMarcarTraslado') result = prepMarcarTraslado_(p.id, p.datos, p.autor);
     else if(action==='prepCambiarEstado') result = prepCambiarEstado_(p.id, p.estado, p.autor, p.sinChecklist, p.nota);
     else if(action==='prepAgregarNota') result = prepAgregarHistorial_(p.id, p.texto, p.autor);
+    else if(action==='prepCompletarDatos') result = prepCompletarDatos_(p.lista, p.autor);
     else if(action==='prepCambiarPrioridad') result = prepCambiarPrioridad_(p.id, p.prioridad, p.autor);
     else if(action==='prepMarcarChecklistItem') result = prepMarcarChecklistItem_(p.id, p.item, p.hecho, p.observaciones, p.autor);
     else if(action==='prepSincronizarChecklist') result = prepSincronizarChecklist_(p.id, p.checklist, p.autor);
@@ -3172,13 +3173,28 @@ function importarUnidadesPreparacion_(filas, autor){
     crearUnidadPreparacion_({
       cliente:f[0], vin:vin, patente:f[2], modelo:f[3], version:f[4], marca:f[5],
       sucursal:f[6], vendedor:f[7], administrativo:f[8], fechaVenta:f[9], fechaPrometida:f[10],
-      color:f[11], motor:f[12], referencia:referencia
+      color:f[11], motor:f[12], referencia:referencia, prioridad:f[14]||''
     }, autor);
     if(referencia) referenciasExistentes[referencia] = true;
     if(vin) vinsExistentes[vin] = true;
     creadas++;
   });
   return {ok:true, creadas:creadas, saltadas:saltadas};
+}
+// Al volver a subir los listados: completa VIN o patente que le falten a unidades
+// ya cargadas, SIN tocar su estado, notas ni nada de lo que ya se hizo.
+function prepCompletarDatos_(lista, autor){
+  if(!lista || !lista.length) return {ok:true, actualizadas:0};
+  var hoja = getHojaPreparacion_(), datos = hoja.getDataRange().getValues(), n = 0;
+  var porId = {}; for(var i=1;i<datos.length;i++){ if(datos[i][0]) porId[String(datos[i][0])] = i; }
+  lista.forEach(function(x){
+    var i = porId[String(x.id)]; if(i==null) return;
+    var cambios = [];
+    if(x.vin && !String(datos[i][2]||'').trim()){ hoja.getRange(i+1, 3).setValue(x.vin); cambios.push('VIN '+x.vin); }
+    if(x.patente && !String(datos[i][3]||'').trim()){ hoja.getRange(i+1, 4).setValue(x.patente); cambios.push('patente '+x.patente); }
+    if(cambios.length){ prepAgregarHistorial_(x.id, '🔗 Se completó '+cambios.join(' y ')+' al importar el listado', autor); n++; }
+  });
+  return {ok:true, actualizadas:n};
 }
 function prepBuscarFila_(id){
   var hoja = getHojaPreparacion_();
@@ -3299,7 +3315,9 @@ function prepEliminarUnidad_(id){
 function prepVincularEntrega_(id, entregaId, fecha, autor){
   var encontrado = prepBuscarFila_(id);
   if(!encontrado) return {ok:false, error:'No se encontró la unidad.'};
-  encontrado.hoja.getRange(encontrado.fila, 16).setValue('Agendado');
+  // Si todavía no pasó la revisión de Preparación, NO se saltea: sigue en su paso
+  // (por buscar, revisión, chapa, postventa) y aparece como prioridad.
+  if(String(encontrado.datos[15])==='Listo para entregar') encontrado.hoja.getRange(encontrado.fila, 16).setValue('Agendado');
   encontrado.hoja.getRange(encontrado.fila, 22).setValue(entregaId);
   if(fecha) encontrado.hoja.getRange(encontrado.fila, 12).setValue(fecha);
   prepAgregarHistorial_(id, 'Entrega programada en el Planning para el '+(fecha||'—')+' (se le presionó "Programar Entrega" o se cruzó por VIN/dominio)', autor);
