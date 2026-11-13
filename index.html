@@ -4142,9 +4142,20 @@ var CAMPOS_TEXTO_ENTREGA_ = ['cliente','telefono','email','dni','modelo','color'
   'responsableEntrega','observaciones','regaloItems','regaloObservaciones','trasladoObs','trasladoDestino','npsComentario','alertaTempranaComentario','npsFabricaComentario',
   'entregaFallidaMotivo','accesoriosMotivo','kitSeguridadMotivo','manualMotivo','llaveDuplicadaMotivo','alfombrasMotivo','campanaMotivo','responsablePreparacion',
   'sucursal','tipoVenta','lugar','usado','estado','recordatorio','onstar','contactoSofiNombre','contactoSofiComentario','contactoSofiMail','hora','fecha'];
+// Fechas de usado: Sheets las convierte en Date y llegan como "2026-10-30T03:00:00.000Z" (o dd/mm/aaaa).
+// El <input type="date"> solo acepta "aaaa-mm-dd": se normalizan acá para que el campo no quede vacío.
+function usFechaIso_(v){
+  if(v===undefined || v===null || v==='') return '';
+  var s=String(v).trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){ var d=new Date(s); if(!isNaN(d)) return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); return s.slice(0,10); }
+  var m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(m) return m[3]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2);
+  return s;
+}
 function normalizarTextosEntregas_(arr){
   (arr||[]).forEach(function(r){
     if(!r) return;
+    ['usFechaOferta','usFechaCarga','usFechaCompromiso'].forEach(function(k){ if(r[k]) r[k]=usFechaIso_(r[k]); });
     CAMPOS_TEXTO_ENTREGA_.forEach(function(k){
       var v = r[k];
       if(v===undefined || v===null){ if(k!=='hora' && k!=='fecha') r[k] = ''; return; }
@@ -10259,7 +10270,7 @@ function renderUsadoUI_(r){
   // Se abre expandida al entrar a la entrega; después se puede comprimir (no se vuelve a abrir sola).
   if(window._usAbiertoPara !== (r.marca+'|'+r.id)){ sec.classList.remove('collapsed'); window._usAbiertoPara = r.marca+'|'+r.id; }
   var set=function(id,v){ var e=document.getElementById(id); if(e && document.activeElement!==e) e.value=v==null?'':v; };
-  set('dUsFechaOferta', r.usFechaOferta); set('dUsFechaCompromiso', r.usFechaCompromiso);
+  set('dUsFechaOferta', usFechaIso_(r.usFechaOferta)); set('dUsFechaCompromiso', usFechaIso_(r.usFechaCompromiso));
   set('dUsSinGarantia', r.usSinGarantia?'Sí':'No');
   ['usCompServicio','usCompDistribucion','usDupLlave','usEstadoDoc'].forEach(function(k){ var e=document.getElementById('d'+k.charAt(0).toUpperCase()+k.slice(1)); if(e) e.innerHTML=usOpts_(k, r[k]); });
   set('dUsObs', r.usObs);

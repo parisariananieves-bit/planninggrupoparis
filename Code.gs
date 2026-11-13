@@ -750,6 +750,10 @@ function rowToObj_(row, marca){
   CAMPOS.forEach(function(c){ if(c.bool) obj[c.k]=(obj[c.k]===true||obj[c.k]==='true'); });
   obj.fecha = formatFecha_(obj.fecha);
   obj.hora = formatHora_(obj.hora);
+  // Fechas de usado: Sheets las guarda como Date; se devuelven como "aaaa-mm-dd" para el <input type="date">.
+  ['usFechaOferta','usFechaCarga','usFechaCompromiso'].forEach(function(k){
+    if(obj[k] instanceof Date) obj[k] = Utilities.formatDate(obj[k], Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  });
   // Campos de texto que en la planilla quedaron como número (ej. Observaciones = 123): se mandan como texto.
   ['cliente','telefono','email','dni','modelo','color','dominio','chasis','accesorios','campanaTexto','vendedor','administrativo','responsableEntrega',
    'observaciones','regaloItems','regaloObservaciones','trasladoObs','npsComentario','alertaTempranaComentario','npsFabricaComentario','entregaFallidaMotivo',
