@@ -988,6 +988,194 @@
     #maestroHeader.cfg-hdr::before{width:46px;height:46px;font-size:24px;border-radius:13px;}
     #maestroHeader.cfg-hdr h2{font-size:21px;}
   }
+
+  /* --- v3: submódulos de configuración --- */
+  #submenuMaestro{display:none !important;}
+  .cfg-info{display:flex;gap:10px;align-items:flex-start;background:var(--panel);border:1px solid var(--hairline);border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:12.5px;color:var(--text-dim);line-height:1.55;}
+  .cfg-info > .material-symbols-outlined{font-size:20px;color:var(--accent);flex:none;}
+  .cfg-btn{display:inline-flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--hairline);border-radius:9px;padding:7px 12px;color:var(--text);font:600 12px 'Inter',sans-serif;cursor:pointer;white-space:nowrap;}
+  .cfg-btn:hover{border-color:var(--accent);}
+  .cfg-btn.ok{background:var(--accent);border-color:var(--accent);color:#1a1206;}
+  .cfg-btn .material-symbols-outlined{font-size:17px;}
+  .cfg-ibtn{width:30px;height:30px;border-radius:8px;border:1px solid transparent;background:none;color:var(--text-dim);display:grid;place-items:center;cursor:pointer;}
+  .cfg-ibtn:hover{background:var(--panel-2);border-color:var(--hairline);color:var(--text);}
+  .cfg-ibtn.del:hover{color:var(--danger);background:var(--danger-soft);}
+  .cfg-ibtn .material-symbols-outlined{font-size:18px;}
+  .cfg-btn:focus-visible,.cfg-ibtn:focus-visible,.cfg-mtab:focus-visible,.cfg-seg-b:focus-visible,.tpl-item:focus-visible,.cfg-var:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  /* Equipo */
+  .maestro-list.cfg-eq{display:block;max-width:none;border:1px solid var(--hairline);border-radius:12px;overflow:hidden;margin-bottom:18px;}
+  .cfg-eq-head,.cfg-eq-row{display:grid !important;grid-template-columns:minmax(170px,1.3fr) minmax(150px,1.4fr) minmax(110px,1fr) minmax(110px,.9fr) 72px;gap:12px;align-items:center;}
+  .cfg-eq-head{padding:9px 14px;background:var(--panel-2);font-size:11.5px;font-weight:700;color:var(--text-faint);}
+  .maestro-list.cfg-eq .maestro-list-row{background:none;border:none;border-top:1px solid var(--hairline);border-radius:0;padding:9px 14px;}
+  .maestro-list.cfg-eq .maestro-list-row:hover{background:var(--panel-2);}
+  .cfg-eq-nom{display:flex;align-items:center;gap:9px;min-width:0;}
+  .cfg-eq-nom .maestro-tag-avatar{width:28px;height:28px;font-size:10px;}
+  .cfg-eq .maestro-list-name{font-weight:600;font-size:13px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .cfg-eq-c{font-size:12.5px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;}
+  .cfg-falta{color:var(--text-faint);font-style:italic;font-weight:500;}
+  .cfg-badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:3px 10px 3px 8px;border-radius:999px;background:var(--panel-2);border:1px solid var(--hairline);color:var(--text);}
+  .cfg-badge::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--c,var(--text-faint));}
+  .cfg-badge.mono::before{display:none;}
+  .cfg-eq-acc{display:flex;gap:2px;justify-content:flex-end;}
+  .cfg-eq-row.editando{background:var(--accent-soft) !important;grid-template-columns:minmax(170px,1.3fr) minmax(150px,1.4fr) minmax(110px,1fr) minmax(110px,.9fr) auto;}
+  .cfg-eq-row.editando input,.cfg-eq-row.editando select{width:100%;box-sizing:border-box;background:var(--panel);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font:500 12.5px 'Inter',sans-serif;}
+  .cfg-eq-row.editando input:focus,.cfg-eq-row.editando select:focus{outline:none;border-color:var(--accent);}
+  .cfg-eq-row.editando .cfg-eq-acc{gap:6px;}
+  .cfg-add-t{font:700 13.5px 'Space Grotesk',sans-serif;margin:4px 0 8px;}
+  .maestro-add.cfg-addform{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:12px;}
+  .cfg-f{display:flex;flex-direction:column;gap:5px;flex:1 1 120px;min-width:0;}
+  .cfg-f > span{font-size:11.5px;font-weight:600;color:var(--text-dim);}
+  .maestro-add.cfg-addform input,.maestro-add.cfg-addform select{border-radius:9px;background:var(--panel);width:100%;box-sizing:border-box;padding:9px 11px;font-size:12.5px;}
+  .maestro-add.cfg-addform > button{background:var(--accent);color:#1a1206;border:none;border-radius:9px;padding:10px 18px;font:700 12.5px 'Inter',sans-serif;cursor:pointer;flex:none;}
+  #cfgDetalleBody .mini-search-wrap{max-width:320px;margin-bottom:10px;}
+
+  /* Agenda */
+  .cfg-semana{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-bottom:18px;}
+  .cfg-dia{background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:8px;min-height:96px;display:flex;flex-direction:column;gap:6px;}
+  .cfg-dia.cerrado{background:var(--danger-soft);border-color:transparent;}
+  .cfg-dia-t{font:700 13px 'Space Grotesk',sans-serif;display:flex;flex-direction:column;}
+  .cfg-dia-t small{font:500 11px 'Inter',sans-serif;color:var(--text-faint);}
+  .cfg-blq{position:relative;background:var(--panel);border:1px solid var(--hairline);border-left:3px solid var(--danger);border-radius:8px;padding:6px 24px 6px 8px;display:flex;flex-direction:column;}
+  .cfg-blq b{font-size:12px;} .cfg-blq small{font-size:10.5px;color:var(--text-dim);line-height:1.35;}
+  .cfg-blq button{position:absolute;top:3px;right:3px;width:20px;height:20px;border:none;background:none;color:var(--text-faint);cursor:pointer;border-radius:5px;display:grid;place-items:center;}
+  .cfg-blq button:hover{color:var(--danger);background:var(--danger-soft);}
+  .cfg-blq button .material-symbols-outlined{font-size:15px;}
+  .cfg-fechas{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+  .cfg-fecha{display:flex;align-items:center;gap:12px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:8px 10px 8px 8px;}
+  .cfg-fecha-d{width:46px;height:46px;border-radius:10px;background:var(--panel);border:1px solid var(--hairline);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10.5px;color:var(--text-dim);flex:none;line-height:1.1;}
+  .cfg-fecha-d b{font:700 18px 'Space Grotesk',sans-serif;color:var(--text);}
+  .cfg-fecha-t{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .cfg-fecha-t b{font-size:13px;} .cfg-fecha-t small{font-size:11.5px;color:var(--text-dim);}
+  .cfg-pasadas{margin-top:4px;}
+  .cfg-pasadas summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text-dim);padding:6px 2px;}
+  .cfg-pasadas .cfg-fecha{opacity:.65;margin-top:8px;}
+  .cfg-pasadas .cfg-btn{margin-top:10px;}
+
+  /* Direcciones y contacto */
+  .cfg-subt{display:flex;align-items:center;gap:7px;font:700 13.5px 'Space Grotesk',sans-serif;margin:4px 0 10px;}
+  .cfg-subt.full{grid-column:1 / -1;margin-top:14px;}
+  .cfg-subt .material-symbols-outlined{font-size:18px;color:var(--g,var(--accent));}
+  .cfg-mtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+  .cfg-mtab{display:inline-flex;align-items:center;gap:7px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:999px;padding:6px 12px;color:var(--text-dim);font:600 12.5px 'Inter',sans-serif;cursor:pointer;}
+  .cfg-mtab i{width:8px;height:8px;border-radius:50%;background:var(--b);}
+  .cfg-mtab small{font-size:11px;color:var(--warn);font-weight:700;}
+  .cfg-mtab small.ok{color:var(--ok);}
+  .cfg-mtab.on{background:var(--panel);border-color:var(--b);color:var(--text);box-shadow:inset 0 0 0 1px var(--b);}
+  .cfg-dir-panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px;}
+  .cfg-dir-panel[hidden]{display:none;}
+  @media (max-width:640px){.cfg-dir-panel{grid-template-columns:1fr;}}
+  .cfg-dir{display:flex;flex-direction:column;gap:5px;}
+  .cfg-dir > span{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-dim);}
+  .cfg-dir > span i{width:8px;height:8px;border-radius:3px;}
+  .cfg-dir input{background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;color:var(--text);padding:9px 11px;font:500 12.5px 'Inter',sans-serif;}
+  .cfg-dir input:focus{outline:none;border-color:var(--accent);}
+
+  /* Módulos */
+  .cfg-mods{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:16px;}
+  .cfg-mod{display:flex;align-items:center;gap:12px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:12px;cursor:pointer;transition:opacity .15s;}
+  .cfg-mod-ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--ok-soft);color:var(--ok);font-size:20px;flex:none;}
+  .cfg-mod-t{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .cfg-mod-t b{font-size:13px;} .cfg-mod-t small{font-size:11.5px;color:var(--text-dim);line-height:1.4;}
+  .cfg-mod-est{font-style:normal;font-size:11px;font-weight:700;color:var(--ok);margin-top:3px;}
+  .cfg-mod.off .cfg-mod-ic{background:var(--pending-soft);color:var(--text-faint);}
+  .cfg-mod.off .cfg-mod-est{color:var(--text-faint);}
+  .cfg-mod.off b{color:var(--text-dim);}
+
+  /* Datos por marca */
+  .cfg-marcas{display:flex !important;flex-direction:column;gap:0;border:1px solid var(--hairline);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+  .cfg-mrow{display:grid;grid-template-columns:34px 150px 1fr 24px;gap:12px;align-items:center;padding:9px 12px;border-top:1px solid var(--hairline);box-shadow:inset 3px 0 0 var(--b);}
+  .cfg-mrow:first-child{border-top:none;}
+  .cfg-mrow label{font-size:13px;font-weight:600;}
+  .cfg-mrow input{background:var(--panel-2);border:1px solid var(--hairline);border-radius:9px;color:var(--text);padding:9px 11px;font:500 12.5px 'Inter',sans-serif;min-width:0;}
+  .cfg-mrow input:focus{outline:none;border-color:var(--accent);}
+  .cfg-mrow[data-est="mal"] input{border-color:var(--warn);}
+  .cfg-mlogo{width:34px;height:34px;border-radius:9px;background:#fff;border:1px solid var(--hairline);display:grid;place-items:center;overflow:hidden;}
+  .cfg-mlogo img{max-width:26px;max-height:22px;object-fit:contain;}
+  .cfg-mok{font-size:20px;color:var(--text-faint);}
+  .cfg-mrow[data-est="ok"] .cfg-mok{color:var(--ok);} .cfg-mrow[data-est="mal"] .cfg-mok{color:var(--warn);}
+  .cfg-mtools{padding:10px 12px;border-top:1px solid var(--hairline);background:var(--panel-2);}
+
+  /* Automatizaciones */
+  .cfg-autos{display:flex;flex-direction:column;gap:16px;}
+  .cfg-auto-card{background:var(--panel);border:1px solid var(--hairline);border-radius:16px;overflow:hidden;}
+  .cfg-auto-h{display:grid;grid-template-columns:auto 1fr auto auto;gap:14px;align-items:center;padding:16px 18px;border-bottom:1px solid var(--hairline);}
+  .cfg-auto-h .cfg-ic{grid-row:auto;width:46px;height:46px;font-size:24px;border-radius:13px;}
+  .cfg-auto-h h3{margin:0;font:700 17px 'Space Grotesk',sans-serif;}
+  .cfg-auto-h p{margin:3px 0 0;font-size:12.5px;color:var(--text-dim);line-height:1.5;max-width:70ch;}
+  .cfg-auto-sw{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text-dim);}
+  .cfg-auto-body{padding:16px 18px !important;margin:0 !important;background:none !important;border:none !important;}
+  .cfg-auto-body.apagado{opacity:.6;}
+  .cfg-auto-body label{text-transform:none !important;letter-spacing:0 !important;font-size:12px !important;color:var(--text-dim) !important;}
+  #paneMaestroAutomatizaciones .filter-pill input{display:none;}
+  #paneMaestroAutomatizaciones .filter-pill{display:inline-flex;align-items:center;gap:6px;}
+  #paneMaestroAutomatizaciones .filter-pill::before{content:'';width:14px;height:14px;border-radius:4px;border:1.5px solid currentColor;opacity:.5;}
+  #paneMaestroAutomatizaciones .filter-pill.active::before{opacity:1;background:currentColor;box-shadow:inset 0 0 0 2px var(--panel);}
+  .cfg-vars{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0 8px;font-size:11.5px;color:var(--text-faint);}
+  .cfg-vars > span{margin-right:2px;}
+  .cfg-var{background:var(--panel-2);border:1px dashed var(--hairline);border-radius:7px;padding:3px 8px;color:var(--text);font:600 11.5px 'Inter',sans-serif;cursor:pointer;}
+  .cfg-var:hover{border-style:solid;border-color:var(--g,var(--accent));color:var(--g,var(--accent));}
+  .cfg-wa-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,.8fr);gap:16px;align-items:start;}
+  .cfg-wa-prev-t{font-size:12px;font-weight:600;color:var(--text-dim);margin-bottom:6px;}
+  .cfg-wa-prev-t small{font-weight:500;color:var(--text-faint);}
+  .cfg-wa-chat{background:#E9E2D8;border-radius:12px;padding:14px;max-height:420px;overflow:auto;}
+  body:not(.light-mode) .cfg-wa-chat{background:#0B141A;}
+  .cfg-wa-bubble{background:#D9FDD3;color:#111B21;border-radius:10px 2px 10px 10px;padding:9px 11px;font:400 12.5px/1.5 'Inter',sans-serif;margin-left:12%;box-shadow:0 1px 1px rgba(0,0,0,.12);word-wrap:break-word;}
+  body:not(.light-mode) .cfg-wa-bubble{background:#005C4B;color:#E9EDEF;}
+  .cfg-asunto-prev{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px;color:var(--text-dim);}
+  .cfg-asunto-prev .material-symbols-outlined{font-size:16px;}
+
+  /* Plantillas */
+  .tpl-landing{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px;}
+  .tpl-marca{background:var(--panel);border:1px solid var(--hairline);border-radius:14px;overflow:hidden;box-shadow:inset 0 3px 0 var(--b);}
+  .tpl-marca header{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;}
+  .tpl-marca h3{margin:0;font:700 15px 'Space Grotesk',sans-serif;}
+  .tpl-item{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;width:100%;background:none;border:none;border-top:1px solid var(--hairline);padding:11px 14px 11px 16px;color:var(--text);text-align:left;cursor:pointer;font-family:'Inter',sans-serif;}
+  .tpl-item:hover{background:var(--panel-2);}
+  .tpl-item > .material-symbols-outlined:first-child{font-size:20px;color:var(--b);}
+  .tpl-item-t{display:flex;flex-direction:column;min-width:0;}
+  .tpl-item .cfg-card-go{grid-column:4;grid-row:auto;}
+  .tpl-item-t b{font-size:13px;} .tpl-item-t small{font-size:11.5px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  /* Usuarios */
+  .cfg-panel-u{margin-bottom:14px;}
+  .cfg-panel-u header{margin-bottom:12px;}
+  .cfg-u-barra{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+  .cfg-u-barra > div{margin:0 !important;flex:0 1 340px;}
+  .cfg-panel-u .report-wrap{border-radius:10px;}
+  #cfgUFormH #uFormTitulo{font:inherit;}
+
+  /* Cargas */
+  .cfg-seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:14px;}
+  .cfg-seg-b{display:flex;align-items:center;gap:10px;text-align:left;background:var(--panel);border:1px solid var(--hairline);border-radius:12px;padding:10px 12px;color:var(--text);cursor:pointer;font-family:'Inter',sans-serif;}
+  .cfg-seg-b > .material-symbols-outlined{font-size:22px;color:var(--text-faint);}
+  .cfg-seg-b span span,.cfg-seg-b > span:last-child{display:flex;flex-direction:column;}
+  .cfg-seg-b b{font-size:13px;} .cfg-seg-b small{font-size:11.5px;color:var(--text-dim);}
+  .cfg-seg-b:hover{border-color:var(--accent);}
+  .cfg-seg-b.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft);}
+  .cfg-seg-b.on > .material-symbols-outlined{color:var(--accent);}
+  .maestro-block.cfg-carga{border-radius:16px;padding:18px;}
+  .cfg-carga-h{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;margin-bottom:14px;}
+  .cfg-carga-h .cfg-ic{grid-row:auto;width:46px;height:46px;font-size:24px;border-radius:13px;background:var(--accent-soft);color:var(--accent);}
+  .cfg-carga-h h3{margin:0;font:700 17px 'Space Grotesk',sans-serif;}
+  .cfg-carga-h p{margin:3px 0 0;font-size:12.5px;color:var(--text-dim);line-height:1.5;max-width:80ch;}
+  .cfg-carga .save-btn{width:auto;min-width:220px;}
+
+  @media (max-width: 860px){
+    .cfg-eq-head{display:none !important;}
+    .cfg-eq-row,.cfg-eq-row.editando{grid-template-columns:1fr auto !important;gap:4px 10px;}
+    .cfg-eq-row .cfg-eq-c{grid-column:1;padding-left:37px;font-size:12px;}
+    .cfg-eq-row .cfg-eq-acc{grid-row:1;grid-column:2;}
+    .cfg-eq-row.editando > input,.cfg-eq-row.editando > select{grid-column:1 / -1;}
+    .cfg-eq-row.editando .cfg-eq-acc{grid-row:auto;grid-column:1 / -1;justify-content:flex-start;}
+    .cfg-semana{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .cfg-mrow{grid-template-columns:34px 1fr 24px;}
+    .cfg-mrow input{grid-column:1 / -1;}
+    .cfg-mrow .cfg-mok{grid-row:1;grid-column:3;}
+    .cfg-wa-grid{grid-template-columns:1fr;}
+    .cfg-auto-h{grid-template-columns:auto 1fr;}
+    .cfg-auto-h .cfg-auto-st,.cfg-auto-h .cfg-auto-sw{grid-column:1 / -1;justify-self:start;}
+  }
 </style>
 <style>
   .app-shell{display:flex;min-height:100vh;}
@@ -1958,14 +2146,8 @@
           </div>
         </div>
         <button class="nav-item" id="navCasos" title="Reportar Caso" onclick="setAppView('casos')" style="color:var(--caso);"><span class="material-symbols-outlined" style="color:var(--caso);">report</span><span class="nav-label">Reportar Caso</span></button>
-        <button class="nav-item" id="navMaestro" title="Maestro (Config)" onclick="irAMaestro()"><span class="material-symbols-outlined">settings</span><span class="nav-label">Maestro (Config)</span></button>
-        <div class="nav-submenu" id="submenuMaestro" style="display:none;">
-          <button class="nav-subitem" id="subMaestroConfig" onclick="setMaestroTab('config')">Configuración</button>
-          <button class="nav-subitem" id="subMaestroAutomatizaciones" onclick="setMaestroTab('automatizaciones')">Automatizaciones</button>
-          <button class="nav-subitem" id="subMaestroPlantillas" onclick="setMaestroTab('plantillas')">Plantillas de mail</button>
-          <button class="nav-subitem" id="subMaestroPermisos" onclick="setMaestroTab('permisos')">Permisos y usuarios</button>
-          <button class="nav-subitem" id="subMaestroCargas" onclick="setMaestroTab('cargas')">Cargas masivas</button>
-        </div>
+        <button class="nav-item" id="navMaestro" title="Configuración" onclick="irAMaestro()"><span class="material-symbols-outlined">settings</span><span class="nav-label">Configuración</span></button>
+        <div class="nav-submenu" id="submenuMaestro" style="display:none;"></div>
         <button class="nav-item" id="navTv" title="TV Entregas" onclick="abrirModoTV()"><span class="material-symbols-outlined">tv</span><span class="nav-label">TV Entregas</span></button>
         <button class="nav-item" id="navManual" title="Manual de uso" onclick="abrirManualUso_()"><span class="material-symbols-outlined">menu_book</span><span class="nav-label">Manual de uso</span></button>
       </nav>
@@ -2809,8 +2991,9 @@
         <div id="repResultadoResumen" style="display:none"></div><div id="repResultadoWrap" style="display:none"></div><div id="repExportBtns" style="display:none"></div>
       </div>
     </div>
-    <div id="paneMaestroPlantillas" style="display:none;padding:30px 0;text-align:center;">
-      <button class="save-btn" style="max-width:260px;margin:0 auto;" onclick="closeMaestro();openPlantillas();">Abrir editor de plantillas</button>
+    <div id="paneMaestroPlantillas" style="display:none;padding:4px 0 10px;">
+      <div class="cfg-info"><span class="material-symbols-outlined">mail</span><span>Cada marca tiene su propio <b>recordatorio</b> (se manda el día antes) y su propia <b>confirmación</b> (se manda al confirmar día y hora). Si una marca no tiene la suya, se usa la de Peugeot.</span></div>
+      <div id="tplLanding" class="tpl-landing"><div class="cfg-vacio">Cargando plantillas…</div></div>
     </div>
 
     <div id="paneMaestroAutomatizaciones" style="display:none;padding:10px 0;">
@@ -3074,14 +3257,14 @@
 
     <div class="maestro-block" data-cfg="modulos">
       <div class="section-title">Activar / desactivar módulos (para todos los usuarios) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Si apagás un módulo acá, desaparece del menú para todo el mundo, sin importar el rol o los permisos que tenga cada usuario.</span></span></div>
-      <div class="modulos-check-row" id="cfgModulosRow">
-        <label class="switch-field"><span class="switch-label">Dashboard</span><label class="switch"><input type="checkbox" value="dashboard" checked><span class="switch-slider"></span></label></label>
-        <label class="switch-field"><span class="switch-label">Nueva Entrega</span><label class="switch"><input type="checkbox" value="nuevaentrega" checked><span class="switch-slider"></span></label></label>
-        <label class="switch-field"><span class="switch-label">Calendario</span><label class="switch"><input type="checkbox" value="calendario" checked><span class="switch-slider"></span></label></label>
-        <label class="switch-field"><span class="switch-label">Lista</span><label class="switch"><input type="checkbox" value="lista" checked><span class="switch-slider"></span></label></label>
-        <label class="switch-field"><span class="switch-label">Reportes</span><label class="switch"><input type="checkbox" value="reportes" checked><span class="switch-slider"></span></label></label>
-        <label class="switch-field"><span class="switch-label">Maestro</span><label class="switch"><input type="checkbox" value="maestro" checked><span class="switch-slider"></span></label></label>
-        <label class="switch-field"><span class="switch-label">TV</span><label class="switch"><input type="checkbox" value="tv" checked><span class="switch-slider"></span></label></label>
+      <div class="cfg-mods" id="cfgModulosRow">
+        <label class="cfg-mod" data-nombre="Dashboard"><span class="material-symbols-outlined cfg-mod-ic">space_dashboard</span><span class="cfg-mod-t"><b>Dashboard</b><small>Indicadores y resumen del día.</small><em class="cfg-mod-est"></em></span><span class="switch"><input type="checkbox" value="dashboard" checked onchange="cfgModCambio_(this)"><span class="switch-slider"></span></span></label>
+        <label class="cfg-mod" data-nombre="Nueva entrega"><span class="material-symbols-outlined cfg-mod-ic">add_circle</span><span class="cfg-mod-t"><b>Nueva entrega</b><small>Programar una entrega nueva.</small><em class="cfg-mod-est"></em></span><span class="switch"><input type="checkbox" value="nuevaentrega" checked onchange="cfgModCambio_(this)"><span class="switch-slider"></span></span></label>
+        <label class="cfg-mod" data-nombre="Calendario"><span class="material-symbols-outlined cfg-mod-ic">calendar_month</span><span class="cfg-mod-t"><b>Calendario</b><small>Agenda de entregas día por día.</small><em class="cfg-mod-est"></em></span><span class="switch"><input type="checkbox" value="calendario" checked onchange="cfgModCambio_(this)"><span class="switch-slider"></span></span></label>
+        <label class="cfg-mod" data-nombre="Lista de entregas"><span class="material-symbols-outlined cfg-mod-ic">format_list_bulleted</span><span class="cfg-mod-t"><b>Lista de entregas</b><small>Listado completo, con búsqueda y filtros.</small><em class="cfg-mod-est"></em></span><span class="switch"><input type="checkbox" value="lista" checked onchange="cfgModCambio_(this)"><span class="switch-slider"></span></span></label>
+        <label class="cfg-mod" data-nombre="Reportes"><span class="material-symbols-outlined cfg-mod-ic">analytics</span><span class="cfg-mod-t"><b>Reportes</b><small>Reportes, calidad y NPS.</small><em class="cfg-mod-est"></em></span><span class="switch"><input type="checkbox" value="reportes" checked onchange="cfgModCambio_(this)"><span class="switch-slider"></span></span></label>
+        <label class="cfg-mod" data-nombre="Configuración"><span class="material-symbols-outlined cfg-mod-ic">settings</span><span class="cfg-mod-t"><b>Configuración</b><small>Esta sección. Si la apagás, nadie puede entrar acá.</small><em class="cfg-mod-est"></em></span><span class="switch"><input type="checkbox" value="maestro" checked onchange="cfgModCambio_(this)"><span class="switch-slider"></span></span></label>
+        <label class="cfg-mod" data-nombre="TV de entregas"><span class="material-symbols-outlined cfg-mod-ic">tv</span><span class="cfg-mod-t"><b>TV de entregas</b><small>Pantalla para recepción con las entregas del día.</small><em class="cfg-mod-est"></em></span><span class="switch"><input type="checkbox" value="tv" checked onchange="cfgModCambio_(this)"><span class="switch-slider"></span></span></label>
       </div>
       <button class="save-btn" style="margin-top:6px;" onclick="guardarModulosActivos()">Guardar módulos activos</button>
     </div>
@@ -4880,7 +5063,7 @@ var ETIQUETAS_MODULOS_ = {
   dashboard:'Dashboard', nuevaentrega:'Programar Entrega', calendario:'Calendario', lista:'Lista de Entregas',
   traslados:'Traslados', faltantes:'Faltantes', alistamiento:'Alistamiento usados', preparacion:'Centro de Preparación', reportes:'Reportes',
   historialcoms:'Historial de Comunicaciones', casos:'Reportar Caso', notificaciones:'Bandeja de entrada',
-  manual:'Manual', maestro:'Panel Maestro (Config)', tv:'TV Entregas'
+  manual:'Manual', maestro:'Configuración', tv:'TV Entregas'
 };
 var GRUPOS_MODULOS_ = [
   {titulo:'General', modulos:['dashboard','nuevaentrega','calendario','lista','reportes','tv']},
@@ -13767,6 +13950,7 @@ function openConfig(){
   var modActivos = CONFIG.modulosActivos || {};
   document.querySelectorAll('#cfgModulosRow input').forEach(function(c){ c.checked = modActivos[c.value]!==false; });
   document.getElementById('cfgCopiaA').value = CONFIG.copiaSiempreA || '';
+  setTimeout(cfgModPintar_, 0);
   document.getElementById('cfgDuracion').value = CONFIG.duracionEntrega || 60;
   renderAlertaAccesoriosUI();
   renderAlertaCampanasUI();
@@ -13776,6 +13960,7 @@ var _acordeonConfigInicializado_ = false;
 function inicializarAcordeonConfig_(){
   // Antes: acordeón. Ahora: hub de tarjetas + vista de detalle (ver cfgInit_).
   cfgInit_();
+  cfgMejorarFormularios_();
   cfgRenderHub_();
   var pend = window._cfgAbrirPendiente; window._cfgAbrirPendiente = null;
   if(pend){ window._cfgSeccionActual = null; cfgAbrir_(pend, true); }
@@ -13822,7 +14007,7 @@ function cfgInit_(){
   // Cambios sin guardar: solo en las secciones que tienen botón "Guardar".
   var marcar = function(ev){
     var bl = ev.target.closest('.maestro-block'); if(!bl) return;
-    if(ev.target.closest('.mini-search-wrap') || ev.target.closest('.maestro-add')) return;
+    if(ev.target.closest('.mini-search-wrap') || ev.target.closest('.maestro-add') || ev.target.closest('.cfg-eq')) return;
     if(!bl.querySelector('.save-btn')) return;
     cfgSetSucio_(true);
   };
@@ -13835,6 +14020,232 @@ function cfgInit_(){
     if(det && det.style.display!=='none' && !document.querySelector('.modal-overlay.open, .modal.open')) cfgVolver_();
   });
 }
+
+// ---------- Módulos ----------
+function cfgModCambio_(inp){
+  if(inp.value==='maestro' && !inp.checked && !confirm('Si apagás Configuración, desaparece del menú para todos y nadie va a poder volver a entrar acá desde la app. ¿Apagarla igual?')){ inp.checked = true; }
+  cfgModPintar_();
+}
+function cfgModPintar_(){
+  document.querySelectorAll('#cfgModulosRow .cfg-mod').forEach(function(l){
+    var on = l.querySelector('input').checked;
+    l.classList.toggle('off', !on);
+    l.querySelector('.cfg-mod-est').textContent = on ? 'Encendido' : 'Apagado';
+  });
+}
+
+// ---------- Formularios de "agregar": etiquetas visibles y "todo el día" ----------
+var CFG_ETIQ_ = {
+  inVendedorNombre:'Nombre y apellido', inVendedorSucursal:'Sucursal', inVendedorTelefono:'Teléfono', inVendedorEmail:'Email',
+  inAdministrativo:'Nombre y apellido', inAdministrativoFlota:'N° de flota', inAdministrativoEmail:'Email', inAdministrativoTelefono:'Teléfono',
+  inResponsableNombre:'Nombre y apellido', inResponsableSucursal:'Sucursal', inResponsableTelefono:'Teléfono', inResponsableEmail:'Email',
+  inDiaSemana:'Día', inDesdeHora:'Desde', inHastaHora:'Hasta', inBloqSemMarca:'Marca', inBloqSemSucursal:'Sucursal',
+  inFechaFeriado:'Fecha', inFerDesde:'Desde', inFerHasta:'Hasta', inFerMarca:'Marca', inFerSucursal:'Sucursal', inMotivoFeriado:'Motivo'
+};
+var CFG_ADD_T_ = {vendedores:'Agregar vendedor', administrativos:'Agregar administrativo', responsables:'Agregar responsable', semanales:'Agregar bloqueo semanal', fechas:'Bloquear una fecha'};
+function cfgMejorarFormularios_(){
+  Object.keys(CFG_ETIQ_).forEach(function(id){
+    var el = document.getElementById(id); if(!el || el.parentNode.classList.contains('cfg-f')) return;
+    var l = document.createElement('label'); l.className='cfg-f'; l.setAttribute('data-for', id);
+    var sp = document.createElement('span'); sp.textContent = CFG_ETIQ_[id];
+    el.parentNode.insertBefore(l, el); l.appendChild(sp); l.appendChild(el);
+    if(el.tagName==='INPUT' && el.placeholder && /opcional|\.\.\.$/i.test(el.placeholder)) el.placeholder = el.placeholder.replace(/\s*\(opcional\)/i,'').replace(/\.\.\.$/,'') + (/(Nombre|Fecha|Motivo)/.test(CFG_ETIQ_[id])?'':' (opcional)');
+    if(el.style && el.style.maxWidth) el.style.maxWidth='';
+  });
+  Object.keys(CFG_ADD_T_).forEach(function(sec){
+    var b = document.querySelector('#cfgDetalleBody .maestro-block[data-cfg="'+sec+'"] .maestro-add');
+    if(b && !b.previousElementSibling.classList.contains('cfg-add-t')){ var t=document.createElement('div'); t.className='cfg-add-t'; t.textContent=CFG_ADD_T_[sec]; b.parentNode.insertBefore(t,b); }
+    if(b) b.classList.add('cfg-addform');
+  });
+  // "Hasta" solo tiene sentido si no es todo el día
+  var d = document.getElementById('inDesdeHora'), h = document.getElementById('inHastaHora');
+  if(d && h && !d._cfg){ d._cfg=true; var f=function(){ h.closest('.cfg-f').style.display = d.value==='00:00' ? 'none' : ''; }; d.addEventListener('change', f); f(); }
+  var fd = document.getElementById('inFerDesde'), fh = document.getElementById('inFerHasta');
+  if(fd && fh && !fd._cfg){ fd._cfg=true; var g=function(){ fh.style.display=''; fh.closest('.cfg-f').style.display = fd.value==='00:00' ? 'none' : ''; }; fd.addEventListener('change', g); g(); }
+  // Direcciones y contacto: subtítulos
+  var dc = document.getElementById('direccionesContainer');
+  if(dc && !document.getElementById('cfgSubDir')){
+    var t1 = document.createElement('div'); t1.id='cfgSubDir'; t1.className='cfg-subt'; t1.innerHTML='<span class="material-symbols-outlined">location_on</span>Dirección de cada local, por marca';
+    dc.parentNode.insertBefore(t1, dc);
+    var tel = document.getElementById('cfgTelefono'), grid = tel && tel.closest('.form-grid');
+    if(grid){
+      var t2 = document.createElement('div'); t2.className='cfg-subt full'; t2.innerHTML='<span class="material-symbols-outlined">mail</span>Datos que usan todos los mails';
+      grid.insertBefore(t2, grid.firstChild);
+      var al = document.getElementById('cfgAccesoLibreRequierePassword'), fal = al && al.closest('.form-field');
+      if(fal){ var t3 = document.createElement('div'); t3.className='cfg-subt full'; t3.innerHTML='<span class="material-symbols-outlined">lock_open</span>Acceso para vendedores sin usuario'; grid.insertBefore(t3, fal); fal.querySelector('label').style.display='none'; }
+      var lbl = document.getElementById('cfgDuracion'); if(lbl) lbl.closest('.form-field').querySelector('label').textContent='Duración estimada de la entrega (minutos)';
+      var cc = document.getElementById('cfgCopiaA'); if(cc){ cc.closest('.form-field').querySelector('label').textContent='Copia de todas las confirmaciones y recordatorios a'; cc.placeholder='calidad@parisautos.com.ar'; }
+      var tt = document.getElementById('cfgTelefono'); if(tt){ tt.closest('.form-field').querySelector('label').textContent='Teléfono de contacto que figura en los mails'; tt.placeholder='Ej: 2664001040'; }
+    }
+    var sb = document.querySelector('#cfgDetalleBody .maestro-block[data-cfg="contacto"] .save-btn'); if(sb) sb.textContent='Guardar direcciones y contacto';
+  }
+}
+
+// ---------- Automatizaciones ----------
+var CFG_MUESTRA_ = {cliente:'Martina López', marca:'chevrolet', modelo:'Tracker', version:'LTZ', dominio:'AF 123 BC', chasis:'9BGEP76B0RB123456', fecha:'14/11/2026', vendedor:'Juan Pérez', sucursal:'San Luis', telefono:'2664 111222', email:'martina@mail.com'};
+function cfgMejorarAutomatizaciones_(){
+  var pane = document.getElementById('paneMaestroAutomatizaciones'); if(!pane) return;
+  if(!pane._cfg){
+    pane._cfg = true;
+    var tits = pane.querySelectorAll(':scope > .section-title'), secs = pane.querySelectorAll(':scope > .section');
+    var defs = [
+      {ic:'chat', c:'--ok', cs:'--ok-soft', t:'Mensaje de WhatsApp post-entrega', d:'No se manda solo: en el detalle de cada entrega aparece un botón con el mensaje ya armado para enviarlo desde tu WhatsApp.', id:'cfgAutoWa'},
+      {ic:'mail', c:'--peugeot', cs:'--peugeot-soft', t:'Encuesta por mail después de la entrega', d:'Se envía sola, con el diseño aprobado de cada marca. Desde acá cambiás cuándo sale, el asunto y el link de cada encuesta.', id:'cfgAutoEm'}
+    ];
+    var wrap = document.createElement('div'); wrap.className='cfg-autos';
+    defs.forEach(function(df, k){
+      var card = document.createElement('section'); card.className='cfg-auto-card'; card.id=df.id;
+      card.style.setProperty('--g','var('+df.c+')'); card.style.setProperty('--gs','var('+df.cs+')');
+      card.innerHTML = '<header class="cfg-auto-h"><span class="cfg-ic material-symbols-outlined">'+df.ic+'</span><div><h3>'+df.t+'</h3><p>'+df.d+'</p></div><span class="cfg-auto-st"></span></header>';
+      if(tits[k]) tits[k].style.display='none';
+      if(secs[k]){ secs[k].classList.add('cfg-auto-body'); card.appendChild(secs[k]); }
+      wrap.appendChild(card);
+    });
+    pane.insertBefore(wrap, pane.firstChild);
+    // Texto de ayuda viejo de WhatsApp (ya está en el encabezado)
+    var vieja = document.querySelector('#cfgAutoWa .cfg-auto-body > div:first-child'); if(vieja && /no se manda solo/i.test(vieja.textContent)) vieja.remove();
+    // Interruptor del mail en el encabezado
+    var chk = document.getElementById('autoEmailActivo'), viejoLbl = chk && chk.closest('label');
+    if(chk){
+      var sw = document.createElement('label'); sw.className='cfg-auto-sw'; sw.innerHTML='<span class="cfg-auto-sw-t"></span><span class="switch"></span>';
+      sw.querySelector('.switch').appendChild(chk); var sl=document.createElement('span'); sl.className='switch-slider'; sw.querySelector('.switch').appendChild(sl);
+      document.querySelector('#cfgAutoEm .cfg-auto-h').appendChild(sw);
+      chk.style.width=''; chk.style.height='';
+      chk.addEventListener('change', cfgAutoEstados_);
+      if(viejoLbl) viejoLbl.remove();
+    }
+    // Etiquetas más claras + variables como botones
+    var ta = document.getElementById('autoWhatsappTemplate'), as = document.getElementById('autoEmailAsunto');
+    [[ta,'Texto del mensaje'],[as,'Asunto del mail']].forEach(function(par){
+      var campo = par[0]; if(!campo) return;
+      var ff = campo.closest('.form-field'), lab = ff && ff.querySelector('label'); if(!lab) return;
+      var vars = (lab.textContent.match(/\{[^}]+\}/g)||[]);
+      lab.textContent = par[1];
+      var box = document.createElement('div'); box.className='cfg-vars';
+      box.innerHTML = '<span>Tocá un dato para insertarlo:</span>'+vars.map(function(v){ return '<button type="button" class="cfg-var" data-v="'+v+'">'+v.slice(1,-1)+'</button>'; }).join('');
+      box.addEventListener('click', function(ev){ var b=ev.target.closest('.cfg-var'); if(b) cfgInsertarVar_(campo, b.getAttribute('data-v')); });
+      lab.after(box);
+    });
+    // Vista previa de WhatsApp
+    if(ta){
+      var ff = ta.closest('.form-field'); ff.classList.add('cfg-wa-edit');
+      var grid = document.createElement('div'); grid.className='cfg-wa-grid';
+      ff.parentNode.insertBefore(grid, ff); grid.appendChild(ff);
+      var pv = document.createElement('div'); pv.className='cfg-wa-prev';
+      pv.innerHTML = '<div class="cfg-wa-prev-t">Así lo ve el cliente <small>(con datos de ejemplo)</small></div><div class="cfg-wa-chat"><div class="cfg-wa-bubble" id="cfgWaPrev"></div></div>';
+      grid.appendChild(pv);
+      ta.addEventListener('input', cfgWaPreview_);
+      ta.rows = 16; ta.style.minHeight = '400px';
+    }
+    if(as){ var ap=document.createElement('div'); ap.className='cfg-asunto-prev'; ap.id='cfgAsuntoPrev'; as.after(ap); as.addEventListener('input', cfgAsuntoPreview_); }
+    // Títulos de bloques internos sin MAYÚSCULAS forzadas
+    pane.querySelectorAll('.cfg-auto-body label').forEach(function(l){ var t=l.textContent; if(/^Marcas en las que aparece/i.test(t)) l.textContent='Marcas en las que aparece el botón'; if(/^Marcas habilitadas/i.test(t)) l.textContent='Marcas en las que se envía'; if(/^Link de la encuesta/i.test(t)) l.textContent='Link de la encuesta de cada marca (Google Forms, Typeform…)'; if(/^Horas después/i.test(t)) l.textContent='Se envía a las … horas de la entrega'; if(/^Máx\. reintentos/i.test(t)) l.textContent='Reintentos si falla el envío'; });
+  }
+  cfgAutoEstados_(); cfgWaPreview_(); cfgAsuntoPreview_();
+}
+function cfgInsertarVar_(campo, v){
+  var ini = campo.selectionStart==null ? campo.value.length : campo.selectionStart, fin = campo.selectionEnd==null ? ini : campo.selectionEnd;
+  campo.value = campo.value.slice(0,ini) + v + campo.value.slice(fin);
+  campo.focus(); campo.selectionStart = campo.selectionEnd = ini + v.length;
+  campo.dispatchEvent(new Event('input',{bubbles:true}));
+  guardarAutomatizaciones_();
+}
+function cfgWaPreview_(){
+  var ta = document.getElementById('autoWhatsappTemplate'), pv = document.getElementById('cfgWaPrev'); if(!ta||!pv) return;
+  var txt = reemplazarVariables_(ta.value||'', CFG_MUESTRA_);
+  pv.innerHTML = cfgEsc_(txt).replace(/\n/g,'<br>') || '<span style="opacity:.6">El mensaje está vacío.</span>';
+}
+function cfgAsuntoPreview_(){
+  var as = document.getElementById('autoEmailAsunto'), pv = document.getElementById('cfgAsuntoPrev'); if(!as||!pv) return;
+  pv.innerHTML = '<span class="material-symbols-outlined">visibility</span>Ejemplo: <b>'+cfgEsc_(reemplazarVariables_(as.value||as.placeholder||'', CFG_MUESTRA_))+'</b>';
+}
+function cfgAutoEstados_(){
+  var a = CONFIG.automatizaciones || {}, tot = BRANDS.length;
+  var pinta = function(sel, txt, cls){ var e=document.querySelector(sel); if(e){ e.className='cfg-auto-st cfg-pill '+cls; e.textContent=txt; } };
+  var nw = ((a.whatsapp||{}).marcas||[]).length;
+  pinta('#cfgAutoWa .cfg-auto-st', nw ? (nw===tot?'Visible en todas las marcas':'Visible en '+nw+' de '+tot+' marcas') : 'Oculto en todas', nw===tot?'on':(nw?'parcial':'off'));
+  var chk = document.getElementById('autoEmailActivo'), on = chk ? chk.checked : !!(a.email||{}).activo, ne = ((a.email||{}).marcas||[]).length;
+  pinta('#cfgAutoEm .cfg-auto-st', on ? (ne===tot?'Activa en todas':'Activa en '+ne+' de '+tot+' marcas') : 'Apagada', on?(ne===tot?'on':'parcial'):'off');
+  var t = document.querySelector('#cfgAutoEm .cfg-auto-sw-t'); if(t) t.textContent = on ? 'Envío automático encendido' : 'Envío automático apagado';
+  var body = document.querySelector('#cfgAutoEm .cfg-auto-body'); if(body) body.classList.toggle('apagado', !on);
+}
+
+// ---------- Plantillas ----------
+var CFG_TPL_TIPOS_ = [{id:'confirmacion', t:'Confirmación de entrega', d:'Se manda al confirmar día y hora.', ic:'event_available'},{id:'recordatorio', t:'Recordatorio', d:'Se manda el día antes de la entrega.', ic:'notifications'}];
+function cfgRenderPlantillasLanding_(){
+  var cont = document.getElementById('tplLanding'); if(!cont) return;
+  var pinta = function(pl){
+    cont.innerHTML = BRANDS.map(function(b){
+      return '<section class="tpl-marca" style="--b:var('+b.color+');--bs:var('+b.soft+');"><header><span class="cfg-mlogo"><img src="'+b.logo+'" alt="" onerror="this.remove()"></span><h3>'+b.label+'</h3></header>'+
+        CFG_TPL_TIPOS_.map(function(tp){
+          var x = pl && pl[b.id] && pl[b.id][tp.id];
+          return '<button type="button" class="tpl-item" onclick="openPlantillas(\''+b.id+'\',\''+tp.id+'\')"><span class="material-symbols-outlined">'+tp.ic+'</span><span class="tpl-item-t"><b>'+tp.t+'</b><small>'+(x && x.asunto ? cfgEsc_(String(x.asunto).slice(0,70)) : tp.d)+'</small></span><span class="cfg-pill '+(x?'on':'off')+'">'+(x?'Propia':(b.id==='peugeot'?'Sin cargar':'Usa la de Peugeot'))+'</span><span class="material-symbols-outlined cfg-card-go">chevron_right</span></button>';
+        }).join('')+'</section>';
+    }).join('');
+  };
+  pinta(window.PLANTILLAS && Object.keys(PLANTILLAS).length ? PLANTILLAS : null);
+  try{ gasGet('plantillas').then(function(pl){ PLANTILLAS = pl || {}; if(maestroTabActual==='plantillas') pinta(PLANTILLAS); }).catch(function(){}); }catch(e){}
+}
+
+// ---------- Usuarios y permisos ----------
+function cfgMejorarPermisos_(){
+  var pane = document.getElementById('paneMaestroPermisos'); if(!pane || pane._cfg) return; pane._cfg = true;
+  var intro = pane.firstElementChild;
+  if(intro && !intro.id){ intro.className='cfg-info'; intro.removeAttribute('style'); intro.innerHTML='<span class="material-symbols-outlined">badge</span><span>'+intro.innerHTML.replace('este Panel Maestro','esta Configuración').replace('no entra al Maestro','no entra a Configuración')+'</span>'; }
+  var buscar = document.getElementById('buscarUsuarioInput'), cont = document.getElementById('uContadorOnline'), tabla = document.getElementById('tablaUsuarios');
+  var p1 = document.createElement('section'); p1.className='cfg-panel cfg-panel-u';
+  p1.innerHTML = '<header><span class="material-symbols-outlined cfg-panel-ic">group</span><div><h3>Usuarios</h3><p>Tocá un usuario para editarlo, cambiarle la contraseña o darle acceso a módulos.</p></div></header>';
+  var barra = document.createElement('div'); barra.className='cfg-u-barra';
+  if(buscar) barra.appendChild(buscar.parentNode);
+  if(cont) barra.appendChild(cont);
+  p1.appendChild(barra);
+  if(tabla) p1.appendChild(tabla.closest('.report-wrap'));
+  pane.insertBefore(p1, intro ? intro.nextSibling : pane.firstChild);
+  var tit = document.getElementById('uFormTitulo');
+  if(tit){
+    var p2 = document.createElement('section'); p2.className='cfg-panel cfg-panel-u'; p2.id='cfgUForm';
+    p2.innerHTML = '<header><span class="material-symbols-outlined cfg-panel-ic">person_add</span><div><h3 id="cfgUFormH"></h3><p>Si le cargás el email, le llega un mail con su usuario y contraseña. Después elegís a qué módulos entra.</p></div></header>';
+    var nodos = []; var n = tit.nextSibling; while(n){ nodos.push(n); n = n.nextSibling; }
+    pane.insertBefore(p2, tit); p2.querySelector('#cfgUFormH').appendChild(tit);
+    tit.removeAttribute('style');
+    nodos.forEach(function(x){ p2.appendChild(x); });
+    var nota = p2.lastElementChild; if(nota && /mail automático/.test(nota.textContent)) nota.style.display='none';
+  }
+}
+
+// ---------- Cargas masivas ----------
+function cfgMejorarCargas_(){
+  var pane = document.getElementById('paneMaestroCargas'); if(!pane) return;
+  if(!pane._cfg){
+    pane._cfg = true;
+    var intro = pane.firstElementChild;
+    if(intro && !intro.classList.contains('maestro-block')){ intro.className='cfg-info'; intro.removeAttribute('style'); intro.innerHTML='<span class="material-symbols-outlined">sync</span><span>Estas herramientas no crean entregas nuevas: cruzan los datos con las entregas que ya existen y las actualizan.</span>'; }
+    var defs = [{ic:'satellite_alt',t:'Base OnStar',d:'Pegá las filas del dashboard de OnStar.'},{ic:'build_circle',t:'Accesorios del taller',d:'Listado del taller, pegado o en Excel.'},{ic:'sell',t:'Catálogo de accesorios',d:'Accesorios y precios que se ofrecen.'},{ic:'checklist',t:'Checklist de preparación',d:'Ítems que se revisan antes de entregar.'}];
+    var bloques = pane.querySelectorAll(':scope > .maestro-block');
+    var nav = document.createElement('div'); nav.className='cfg-seg'; nav.setAttribute('role','tablist');
+    bloques.forEach(function(bl, k){
+      var df = defs[k] || {ic:'upload_file', t:'Carga '+(k+1), d:''};
+      bl.classList.remove('collapsed'); bl.classList.add('cfg-carga'); bl.setAttribute('data-k', k);
+      var tit = bl.querySelector(':scope > .section-title'), tip = tit && tit.querySelector('.ayuda-tip-texto');
+      var h = document.createElement('header'); h.className='cfg-carga-h';
+      h.innerHTML = '<span class="cfg-ic material-symbols-outlined">'+df.ic+'</span><div><h3>'+df.t+'</h3><p>'+(tip?cfgEsc_(tip.textContent):df.d)+'</p></div>';
+      if(tit) tit.style.display='none';
+      bl.insertBefore(h, bl.firstChild);
+      var b = document.createElement('button'); b.type='button'; b.className='cfg-seg-b'; b.setAttribute('data-k',k);
+      b.innerHTML = '<span class="material-symbols-outlined">'+df.ic+'</span><span><b>'+df.t+'</b><small>'+df.d+'</small></span>';
+      b.onclick = function(){ cfgCargaVer_(k); };
+      nav.appendChild(b);
+    });
+    pane.insertBefore(nav, bloques[0]);
+  }
+  cfgCargaVer_(window._cfgCargaK || 0);
+}
+function cfgCargaVer_(k){
+  window._cfgCargaK = k;
+  document.querySelectorAll('#paneMaestroCargas .cfg-seg-b').forEach(function(b){ var on=+b.getAttribute('data-k')===k; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+  document.querySelectorAll('#paneMaestroCargas .cfg-carga').forEach(function(b){ b.style.display = +b.getAttribute('data-k')===k ? '' : 'none'; });
+}
+
 function cfgSetSucio_(v){
   _cfgSucio_ = !!v;
   var e = document.getElementById('cfgDetEstado'); if(!e) return;
@@ -13877,7 +14288,7 @@ function cfgEstado_(id){
       return {txt: car+' de '+tot+' direcciones cargadas', est: faltaTel?'warn':'ok', nota: faltaTel ? 'Falta el teléfono de contacto' : (CONFIG.accesoLibrePassword ? 'Acceso libre con contraseña' : 'Acceso libre sin contraseña'), notaNeutra: !faltaTel};
     case 'modulos':
       var act = CONFIG.modulosActivos||{}, off=[];
-      document.querySelectorAll('#cfgModulosRow input').forEach(function(c){ if(act[c.value]===false){ var l=c.closest('.switch-field'); off.push(l?l.querySelector('.switch-label').textContent:c.value); } });
+      document.querySelectorAll('#cfgModulosRow input').forEach(function(c){ if(act[c.value]===false){ var l=c.closest('[data-nombre]'); off.push(l?l.getAttribute('data-nombre'):c.value); } });
       return {txt: (CFG_MODULOS_TOTAL_-off.length)+' de '+CFG_MODULOS_TOTAL_+' encendidos', est: off.length?'off':'ok', nota: off.length ? 'Apagado: '+off.join(', ') : '', notaNeutra:true};
     case 'whatsapp': case 'repuestos': case 'alertaacc': case 'alertacamp':
       var obj = {whatsapp:CONFIG.postventaWhatsapp, repuestos:CONFIG.repuestosServicio, alertaacc:CONFIG.alertaAccesoriosEmails, alertacamp:CONFIG.alertaCampanasEmails}[id];
@@ -14036,11 +14447,12 @@ function cfgAbrir_(id, sinScroll){
   var ay = document.getElementById('cfgDetAyuda'), tip = bloque && bloque.querySelector('.ayuda-tip-texto');
   if(tip){ ay.style.display='flex'; ay.innerHTML='<span class="material-symbols-outlined">info</span><span>'+cfgEsc_(tip.textContent)+'</span>'; } else { ay.style.display='none'; }
   cfgPintarEstadoDetalle_(id); _cfgSucio_ = false;
+  if(window._cfgEdit){ var te=window._cfgEdit.tipo; window._cfgEdit=null; cfgRenderPersonas_(te); }
   // Riel lateral
   document.getElementById('cfgRail').innerHTML = CFG_GRUPOS_.map(function(gr){
     return '<h5>'+gr.t+'</h5>'+CFG_SECC_.filter(function(x){ return x.g===gr.id; }).map(function(x){
       var e = cfgEstado_(x.id);
-      return '<button type="button" class="'+(x.id===id?'on':'')+'" style="--g:var('+gr.c+');--gs:var('+gr.cs+');" onclick="cfgAbrir_(\''+x.id+'\')" '+(x.id===id?'aria-current="page"':'')+'><span class="material-symbols-outlined">'+x.ic+'</span><span class="t">'+x.t+'</span>'+(e.est==='warn'?'<span class="cfg-dot warn" title="Para revisar"></span>':'')+'</button>';
+      return '<button type="button" data-sec="'+x.id+'" class="'+(x.id===id?'on':'')+'" style="--g:var('+gr.c+');--gs:var('+gr.cs+');" onclick="cfgAbrir_(\''+x.id+'\')" '+(x.id===id?'aria-current="page"':'')+'><span class="material-symbols-outlined">'+x.ic+'</span><span class="t">'+x.t+'</span>'+(e.est==='warn'?'<span class="cfg-dot warn" title="Para revisar"></span>':'')+'</button>';
     }).join('');
   }).join('');
   // Anterior / siguiente
@@ -14051,6 +14463,13 @@ function cfgAbrir_(id, sinScroll){
   var main = det.querySelector('.cfg-detalle-main');
   main.classList.remove('cfg-entrar'); void main.offsetWidth; main.classList.add('cfg-entrar');
   if(!sinScroll){ try{ det.scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){} }
+}
+function cfgRefrescarRail_(){
+  document.querySelectorAll('#cfgRail button[data-sec]').forEach(function(b){
+    var warn = cfgEstado_(b.getAttribute('data-sec')).est==='warn', d = b.querySelector('.cfg-dot');
+    if(warn && !d){ b.insertAdjacentHTML('beforeend','<span class="cfg-dot warn" title="Para revisar"></span>'); }
+    if(!warn && d) d.remove();
+  });
 }
 function cfgVolver_(){
   if(!cfgPuedeSalir_()) return;
@@ -14063,12 +14482,8 @@ function cfgVolver_(){
 }
 function closeConfig(){ /* ya no es modal — no hace falta cerrar nada */ }
 function renderAlertaAccesoriosUI(){
-  var cont = document.getElementById('alertaAccesoriosContainer');
-  if(!cont) return;
   if(!CONFIG.alertaAccesoriosEmails) CONFIG.alertaAccesoriosEmails = {};
-  cont.innerHTML = BRANDS.map(function(b){
-    return '<div class="form-field"><label>'+b.label+'</label><input type="text" id="alertaEmail_'+b.id+'" placeholder="mail1@parisautos.com.ar, mail2@..." value="'+(CONFIG.alertaAccesoriosEmails[b.id]||'').replace(/"/g,'&quot;')+'"></div>';
-  }).join('');
+  cfgFilasMarca_('alertaAccesoriosContainer', 'alertaEmail_', CONFIG.alertaAccesoriosEmails, 'email');
 }
 function guardarAlertaAccesorios(){
   if(!CONFIG.alertaAccesoriosEmails) CONFIG.alertaAccesoriosEmails = {};
@@ -14079,12 +14494,8 @@ function guardarAlertaAccesorios(){
   persistirConfig('Emails de alerta de accesorios guardados');
 }
 function renderAlertaCampanasUI(){
-  var cont = document.getElementById('alertaCampanasContainer');
-  if(!cont) return;
   if(!CONFIG.alertaCampanasEmails) CONFIG.alertaCampanasEmails = {};
-  cont.innerHTML = BRANDS.map(function(b){
-    return '<div class="form-field"><label>'+b.label+'</label><input type="text" id="alertaCampEmail_'+b.id+'" placeholder="mail1@parisautos.com.ar, mail2@..." value="'+(CONFIG.alertaCampanasEmails[b.id]||'').replace(/"/g,'&quot;')+'"></div>';
-  }).join('');
+  cfgFilasMarca_('alertaCampanasContainer', 'alertaCampEmail_', CONFIG.alertaCampanasEmails, 'email');
 }
 function guardarAlertaCampanas(){
   if(!CONFIG.alertaCampanasEmails) CONFIG.alertaCampanasEmails = {};
@@ -14123,72 +14534,70 @@ function filtrarMaestroLista(inputEl, containerId){
     vacio.style.display = 'none';
   }
 }
-function renderMaestroTags(tipo, elId){
-  var el = document.getElementById(elId);
-  el.classList.add('maestro-list');
+function renderMaestroTags(tipo, elId){ cfgRenderPersonas_(tipo); }
+function editarMaestroTag(tipo, i){ cfgEditarPersona_(tipo, i); }
+function renderAdministrativosTags(){ cfgRenderPersonas_('administrativos'); }
+function editarAdministrativoTag(i){ cfgEditarPersona_('administrativos', i); }
+// ---------- Equipo: lista con edición en la misma fila (sin ventanitas) ----------
+var CFG_SUC_COLOR_ = {'San Juan':'--suc-sanjuan','San Luis':'--suc-sanluis','Villa Mercedes':'--suc-villamercedes','Merlo':'--suc-merlo'};
+function cfgPersonasEl_(tipo){ return document.getElementById({vendedores:'tagsVendedores', administrativos:'tagsAdministrativos', responsables:'tagsResponsables'}[tipo]); }
+function cfgPersonaObj_(entry){ return (entry && typeof entry==='object') ? entry : {nombre:entry||''}; }
+function cfgEmailOk_(v){ return !v || /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(String(v).trim()); }
+function cfgRenderPersonas_(tipo){
+  var el = cfgPersonasEl_(tipo); if(!el) return;
+  el.classList.add('maestro-list','cfg-eq');
+  var lista = (CONFIG.maestros||{})[tipo] || [];
+  var esAdm = tipo==='administrativos';
+  var ed = window._cfgEdit && window._cfgEdit.tipo===tipo ? window._cfgEdit.i : -1;
+  var cab = '<div class="cfg-eq-head"><span>Nombre</span><span>Email</span><span>Teléfono</span><span>'+(esAdm?'Flota':'Sucursal')+'</span><span></span></div>';
+  if(!lista.length){ el.innerHTML = '<div class="cfg-vacio" style="margin:0;">Todavía no hay nadie cargado. Agregá la primera persona con el formulario de abajo.</div>'; return; }
+  el.innerHTML = cab + lista.map(function(entry,i){
+    var e = cfgPersonaObj_(entry);
+    if(i===ed){
+      var k = 'onkeydown="if(event.key===\'Enter\'){cfgGuardarPersona_(\''+tipo+'\','+i+');} if(event.key===\'Escape\'){event.stopPropagation();cfgCancelarPersona_(\''+tipo+'\');}"';
+      var ultimo = esAdm
+        ? '<input id="eqE_flota" value="'+cfgEsc_(e.flota||'')+'" placeholder="N° de flota" '+k+'>'
+        : '<select id="eqE_sucursal" '+k+'><option value="">Sin sucursal</option>'+SUCURSALES.map(function(sc){ return '<option'+(sc===e.sucursal?' selected':'')+'>'+sc+'</option>'; }).join('')+'</select>';
+      return '<div class="maestro-list-row cfg-eq-row editando">'+
+        '<input id="eqE_nombre" value="'+cfgEsc_(e.nombre||'')+'" placeholder="Nombre y apellido" '+k+'>'+
+        '<input id="eqE_email" type="email" value="'+cfgEsc_(e.email||'')+'" placeholder="Email" '+k+'>'+
+        '<input id="eqE_telefono" type="tel" value="'+cfgEsc_(e.telefono||'')+'" placeholder="Teléfono" '+k+'>'+
+        ultimo+
+        '<div class="cfg-eq-acc"><button type="button" class="cfg-btn ok" onclick="cfgGuardarPersona_(\''+tipo+'\','+i+')">Guardar</button><button type="button" class="cfg-btn" onclick="cfgCancelarPersona_(\''+tipo+'\')">Cancelar</button></div>'+
+      '</div>';
+    }
+    var badge = esAdm ? (e.flota ? '<span class="cfg-badge mono">Flota '+cfgEsc_(e.flota)+'</span>' : '<span class="cfg-falta">Sin flota</span>')
+                      : (e.sucursal ? '<span class="cfg-badge" style="--c:var('+(CFG_SUC_COLOR_[e.sucursal]||'--text-dim')+')">'+cfgEsc_(e.sucursal)+'</span>' : '<span class="cfg-falta">Sin sucursal</span>');
+    var ed2 = 'cfgEditarPersona_(\''+tipo+'\','+i+')';
+    return '<div class="maestro-list-row cfg-eq-row">'+
+      '<span class="cfg-eq-nom"><span class="maestro-tag-avatar">'+iniciales_(e.nombre)+'</span><span class="maestro-list-name" onclick="'+ed2+'">'+cfgEsc_(e.nombre)+'</span></span>'+
+      '<span class="cfg-eq-c" onclick="'+ed2+'">'+(e.email ? cfgEsc_(e.email)+(cfgEmailOk_(e.email)?'':' <b class="cfg-falta">(revisar)</b>') : '<span class="cfg-falta">'+(esAdm?'Falta email':'Sin email')+'</span>')+'</span>'+
+      '<span class="cfg-eq-c" onclick="'+ed2+'">'+(e.telefono ? cfgEsc_(e.telefono) : '<span class="cfg-falta">Sin teléfono</span>')+'</span>'+
+      '<span class="cfg-eq-c" onclick="'+ed2+'">'+badge+'</span>'+
+      '<div class="cfg-eq-acc"><button type="button" class="cfg-ibtn" title="Editar" aria-label="Editar a '+cfgEsc_(e.nombre)+'" onclick="'+ed2+'"><span class="material-symbols-outlined">edit</span></button><button type="button" class="cfg-ibtn del" title="Eliminar" aria-label="Eliminar a '+cfgEsc_(e.nombre)+'" onclick="'+(esAdm?'removeAdministrativo('+i+')':'removeMaestro(\''+tipo+'\','+i+')')+'"><span class="material-symbols-outlined">delete</span></button></div>'+
+    '</div>';
+  }).join('');
+  var q = el.parentNode && el.parentNode.querySelector('.mini-search-input'); if(q && q.value) filtrarMaestroLista(q, el.id);
+}
+function cfgEditarPersona_(tipo, i){
+  window._cfgEdit = {tipo:tipo, i:i};
+  cfgRenderPersonas_(tipo);
+  var n = document.getElementById('eqE_nombre'); if(n){ n.focus(); n.select(); }
+}
+function cfgCancelarPersona_(tipo){ window._cfgEdit = null; cfgRenderPersonas_(tipo); }
+function cfgGuardarPersona_(tipo, i){
+  var v = function(id){ var e=document.getElementById(id); return e ? String(e.value||'').trim() : ''; };
+  var nombre = v('eqE_nombre');
+  if(!nombre){ showToast('El nombre no puede quedar vacío'); return; }
   var lista = CONFIG.maestros[tipo];
-  var cabecera = '';
-  el.innerHTML = cabecera + lista.map(function(entry,i){
-    var e = (entry && typeof entry==='object') ? entry : {nombre:entry};
-    return '<div class="maestro-list-row">'+
-      '<span class="maestro-tag-avatar">'+iniciales_(e.nombre)+'</span>'+
-      '<span class="maestro-list-name" onclick="editarMaestroTag(\''+tipo+'\','+i+')" title="Tocar para editar">'+e.nombre+'</span>'+
-      '<span class="maestro-list-field'+(e.email?'':' empty')+'" onclick="editarMaestroTag(\''+tipo+'\','+i+')" title="Tocar para editar">'+(e.email||'Sin email')+'</span>'+
-      '<span class="maestro-list-field'+(e.telefono?'':' empty')+'" onclick="editarMaestroTag(\''+tipo+'\','+i+')" title="Tocar para editar">'+(e.telefono||'Sin teléfono')+'</span>'+
-      '<span class="maestro-list-flota" onclick="editarMaestroTag(\''+tipo+'\','+i+')" title="Tocar para editar">'+(e.sucursal||'—')+'</span>'+
-      '<div class="user-actions" style="flex-wrap:nowrap;gap:4px;">'+
-        '<button class="maestro-list-del" style="background:var(--accent-soft);color:var(--accent);" onclick="editarMaestroTag(\''+tipo+'\','+i+')" title="Editar"><span class="material-symbols-outlined">edit</span></button>'+
-        '<button class="maestro-list-del" onclick="removeMaestro(\''+tipo+'\','+i+')" title="Eliminar"><span class="material-symbols-outlined">delete</span></button>'+
-      '</div>'+
-    '</div>';
-  }).join('') || '<span style="color:var(--text-faint);font-size:12px;">Sin cargar todavía.</span>';
-}
-function editarMaestroTag(tipo, i){
-  var entry = CONFIG.maestros[tipo][i];
-  var e = (entry && typeof entry==='object') ? entry : {nombre:entry};
-  var nombre = prompt('Nombre:', e.nombre||'');
-  if(nombre===null) return;
-  nombre = nombre.trim();
-  if(!nombre) return;
-  var sucursal = prompt('Sucursal (vacío si no aplica). Opciones: '+SUCURSALES.join(', ')+':', e.sucursal||'');
-  if(sucursal===null) return;
-  var telefono = prompt('Teléfono (vacío si no tiene):', e.telefono||'');
-  if(telefono===null) return;
-  var email = prompt('Email (vacío si no tiene):', e.email||'');
-  if(email===null) return;
-  CONFIG.maestros[tipo][i] = {nombre:nombre, sucursal:sucursal.trim(), telefono:telefono.trim(), email:email.trim()};
-  renderMaestroTags(tipo, tipo==='vendedores'?'tagsVendedores':'tagsResponsables');
-  persistirConfig('"'+nombre+'" actualizado');
-}
-function renderAdministrativosTags(){
-  var el = document.getElementById('tagsAdministrativos');
-  el.classList.add('maestro-list');
-  var cabecera = '';
-  el.innerHTML = cabecera + CONFIG.maestros.administrativos.map(function(a,i){
-    return '<div class="maestro-list-row">'+
-      '<span class="maestro-tag-avatar">'+iniciales_(a.nombre)+'</span>'+
-      '<span class="maestro-list-name" onclick="editarAdministrativoTag('+i+')" title="Tocar para editar">'+a.nombre+'</span>'+
-      '<span class="maestro-list-field'+(a.email?'':' empty')+'" onclick="editarAdministrativoTag('+i+')" title="Tocar para editar">'+(a.email||'Sin email')+'</span>'+
-      '<span class="maestro-list-field'+(a.telefono?'':' empty')+'" onclick="editarAdministrativoTag('+i+')" title="Tocar para editar">'+(a.telefono||'Sin teléfono')+'</span>'+
-      '<span class="maestro-list-flota" onclick="editarAdministrativoTag('+i+')" title="Tocar para editar">'+(a.flota?'Flota '+a.flota:'—')+'</span>'+
-      '<button class="maestro-list-del" onclick="removeAdministrativo('+i+')" title="Eliminar"><span class="material-symbols-outlined">delete</span></button>'+
-    '</div>';
-  }).join('') || '<span style="color:var(--text-faint);font-size:12px;">Sin cargar todavía.</span>';
-}
-function editarAdministrativoTag(i){
-  var a = CONFIG.maestros.administrativos[i];
-  var nombre = prompt('Nombre:', a.nombre);
-  if(nombre===null) return;
-  nombre = nombre.trim();
-  if(!nombre) return;
-  var flota = prompt('N° de flota (vacío si no tiene):', a.flota||'');
-  if(flota===null) return;
-  var email = prompt('Email (vacío si no tiene):', a.email||'');
-  if(email===null) return;
-  var telefono = prompt('Teléfono (vacío si no tiene):', a.telefono||'');
-  if(telefono===null) return;
-  CONFIG.maestros.administrativos[i] = {nombre:nombre, flota:flota.trim(), email:email.trim(), telefono:telefono.trim()};
-  renderAdministrativosTags();
+  if(lista.some(function(x,k){ return k!==i && nombreDeMaestro_(x).toLowerCase()===nombre.toLowerCase(); })){ showToast('Ya hay otra persona con ese nombre'); return; }
+  var email = v('eqE_email');
+  if(!cfgEmailOk_(email)){ showToast('Revisá el email: no tiene el formato nombre@dominio'); document.getElementById('eqE_email').focus(); return; }
+  lista[i] = tipo==='administrativos'
+    ? {nombre:nombre, flota:v('eqE_flota'), email:email, telefono:v('eqE_telefono')}
+    : {nombre:nombre, sucursal:v('eqE_sucursal'), telefono:v('eqE_telefono'), email:email};
+  window._cfgEdit = null;
+  cfgRenderPersonas_(tipo);
   persistirConfig('"'+nombre+'" actualizado');
 }
 function renderUsuariosAutorizadosTags(){
@@ -14213,34 +14622,78 @@ function removeUsuarioAutorizado(i){
   persistirConfig('Eliminado');
 }
 function renderBloqueoTags(){
-  document.getElementById('tagsBloqueosSemana').innerHTML = CONFIG.bloqueos.semanales.map(function(b,i){
-    var texto = b.desde==='00:00' ? ' · todo el día' : ' · '+b.desde+' a '+(b.hasta||'18:00');
-    return '<span class="maestro-tag block">'+b.dia+texto+(alcanceBloq_(b)||' (todas)')+'<button onclick="removeBloqueoSemanal('+i+')">✕</button></span>';
-  }).join('') || '<span style="color:var(--text-faint);font-size:12px;">Sin bloqueos.</span>';
-  document.getElementById('tagsFeriados').innerHTML = CONFIG.bloqueos.feriados.map(function(f,i){
-    var hor = (f.desde && f.desde!=='00:00') ? ' · '+f.desde+' a '+(f.hasta||'18:00') : ' · todo el día';
-    return '<span class="maestro-tag block">'+f.fecha+hor+' · '+f.motivo+(alcanceBloq_(f)||' (todas)')+'<button onclick="removeFeriado('+i+')">✕</button></span>';
-  }).join('') || '<span style="color:var(--text-faint);font-size:12px;">Sin feriados.</span>';
+  var DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  var sem = (CONFIG.bloqueos.semanales||[]).map(function(b,i){ return {b:b,i:i}; });
+  var elS = document.getElementById('tagsBloqueosSemana');
+  if(elS){
+    elS.className = 'cfg-semana';
+    elS.innerHTML = DIAS.map(function(d){
+      var del = sem.filter(function(x){ return x.b.dia===d; }).sort(function(a,b){ return String(a.b.desde).localeCompare(String(b.b.desde)); });
+      var todo = del.some(function(x){ return x.b.desde==='00:00' && !x.b.marca && !x.b.sucursal; });
+      return '<div class="cfg-dia'+(todo?' cerrado':'')+'"><div class="cfg-dia-t">'+d.slice(0,3)+'<small>'+(todo?'Cerrado':(del.length?'Con bloqueos':'Se entrega'))+'</small></div>'+
+        del.map(function(x){
+          var h = x.b.desde==='00:00' ? 'Todo el día' : x.b.desde+' a '+(x.b.hasta||'18:00');
+          var al = alcanceBloq_(x.b).replace(/^ \(|\)$/g,'');
+          return '<div class="cfg-blq"><b>'+h+'</b><small>'+(al||'Todas')+'</small><button type="button" title="Quitar" aria-label="Quitar bloqueo del '+d+'" onclick="removeBloqueoSemanal('+x.i+')"><span class="material-symbols-outlined">close</span></button></div>';
+        }).join('')+'</div>';
+    }).join('');
+  }
+  var elF = document.getElementById('tagsFeriados');
+  if(elF){
+    var hoy = new Date(); hoy.setHours(0,0,0,0);
+    var MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'], DS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+    var fs = (CONFIG.bloqueos.feriados||[]).map(function(f,i){ var p=String(f.fecha||'').split('/'); return {f:f,i:i,d:p.length===3?new Date(+p[2],+p[1]-1,+p[0]):null}; });
+    var fut = fs.filter(function(x){ return !x.d || x.d>=hoy; }).sort(function(a,b){ return (a.d||0)-(b.d||0); });
+    var pas = fs.filter(function(x){ return x.d && x.d<hoy; }).sort(function(a,b){ return b.d-a.d; });
+    var fila = function(x){
+      var h = (x.f.desde && x.f.desde!=='00:00') ? x.f.desde+' a '+(x.f.hasta||'18:00') : 'Todo el día';
+      var al = alcanceBloq_(x.f).replace(/^ \(|\)$/g,'') || 'Todas las marcas y sucursales';
+      return '<div class="cfg-fecha"><span class="cfg-fecha-d">'+(x.d?'<b>'+x.d.getDate()+'</b>'+MES[x.d.getMonth()]:'?')+'</span><span class="cfg-fecha-t"><b>'+cfgEsc_(x.f.motivo||'Bloqueado')+'</b><small>'+(x.d?DS[x.d.getDay()]+' · ':'')+h+' · '+cfgEsc_(al)+'</small></span><button type="button" class="cfg-ibtn del" title="Quitar" aria-label="Quitar '+cfgEsc_(x.f.motivo||'fecha')+'" onclick="removeFeriado('+x.i+')"><span class="material-symbols-outlined">delete</span></button></div>';
+    };
+    elF.className = 'cfg-fechas';
+    elF.innerHTML = (fut.length ? fut.map(fila).join('') : '<div class="cfg-vacio" style="margin:0;">No hay fechas próximas bloqueadas.</div>') +
+      (pas.length ? '<details class="cfg-pasadas"><summary>Fechas que ya pasaron ('+pas.length+')</summary>'+pas.map(fila).join('')+'<button type="button" class="cfg-btn" onclick="cfgBorrarFeriadosPasados_()"><span class="material-symbols-outlined">delete_sweep</span>Borrar las que ya pasaron</button></details>' : '');
+  }
+}
+function cfgBorrarFeriadosPasados_(){
+  var hoy = new Date(); hoy.setHours(0,0,0,0);
+  var antes = CONFIG.bloqueos.feriados.length;
+  var quedan = CONFIG.bloqueos.feriados.filter(function(f){ var p=String(f.fecha||'').split('/'); return !(p.length===3 && new Date(+p[2],+p[1]-1,+p[0])<hoy); });
+  var n = antes-quedan.length; if(!n) return;
+  if(!confirm('¿Borrar '+n+(n===1?' fecha que ya pasó?':' fechas que ya pasaron?'))) return;
+  CONFIG.bloqueos.feriados = quedan;
+  renderBloqueoTags(); checkBloqueado();
+  persistirConfig('Se borraron '+n+(n===1?' fecha pasada':' fechas pasadas'));
 }
 function renderDireccionesUI(){
-  var html='';
+  var act = window._cfgDirMarca || BRANDS[0].id;
+  var tabs = '', paneles = '';
   BRANDS.forEach(function(b){
     if(!CONFIG.direcciones[b.id]) CONFIG.direcciones[b.id] = {SJ:'',SL:'',VM:'',ML:''};
-    html += '<div style="margin-bottom:14px;">';
-    html += '<div style="font-size:11.5px;font-weight:700;color:var('+b.color+');margin-bottom:6px;">'+b.label+'</div>';
-    html += '<div class="form-grid">';
-    SUCURSALES.forEach(function(suc){
+    tabs += '<button type="button" class="cfg-mtab'+(b.id===act?' on':'')+'" data-b="'+b.id+'" style="--b:var('+b.color+');" onclick="cfgDirMarca_(\''+b.id+'\')"><i></i>'+b.label+'<small id="cfgDirCnt_'+b.id+'"></small></button>';
+    paneles += '<div class="cfg-dir-panel" data-b="'+b.id+'"'+(b.id===act?'':' hidden')+'>'+SUCURSALES.map(function(suc){
       var cod = BRANCH_ABBR[suc];
-      html += '<div class="form-field"><label>'+suc+' ('+cod+')</label><input id="cfgDir_'+b.id+'_'+cod+'" value="'+(CONFIG.direcciones[b.id][cod]||'').replace(/"/g,'&quot;')+'"></div>';
-    });
-    html += '</div></div>';
+      return '<label class="cfg-dir"><span><i style="background:var('+(CFG_SUC_COLOR_[suc]||'--text-dim')+')"></i>'+suc+'</span><input id="cfgDir_'+b.id+'_'+cod+'" placeholder="Calle, número y localidad" value="'+(CONFIG.direcciones[b.id][cod]||'').replace(/"/g,'&quot;')+'" oninput="cfgDirContar_()"></label>';
+    }).join('')+'</div>';
   });
-  document.getElementById('direccionesContainer').innerHTML = html;
+  document.getElementById('direccionesContainer').innerHTML = '<div class="cfg-mtabs" role="tablist">'+tabs+'</div>'+paneles;
+  cfgDirContar_();
+}
+function cfgDirMarca_(id){
+  window._cfgDirMarca = id;
+  document.querySelectorAll('#direccionesContainer .cfg-mtab').forEach(function(t){ t.classList.toggle('on', t.getAttribute('data-b')===id); });
+  document.querySelectorAll('#direccionesContainer .cfg-dir-panel').forEach(function(pn){ pn.hidden = pn.getAttribute('data-b')!==id; });
+}
+function cfgDirContar_(){
+  BRANDS.forEach(function(b){
+    var n = SUCURSALES.filter(function(suc){ var e=document.getElementById('cfgDir_'+b.id+'_'+BRANCH_ABBR[suc]); return e && e.value.trim(); }).length;
+    var c = document.getElementById('cfgDirCnt_'+b.id); if(c){ c.textContent = n+'/'+SUCURSALES.length; c.className = n===SUCURSALES.length?'ok':''; }
+  });
 }
 function persistirConfig(mensaje){
   registrarCambioConfig_(mensaje);
   renderDatalists();
-  if(typeof cfgRenderHub_==='function' && maestroTabActual==='config'){ cfgRenderHub_(); if(window._cfgSeccionActual && !_cfgSucio_) cfgPintarEstadoDetalle_(window._cfgSeccionActual); }
+  if(typeof cfgRenderHub_==='function' && maestroTabActual==='config'){ cfgRenderHub_(); if(window._cfgSeccionActual && !_cfgSucio_) cfgPintarEstadoDetalle_(window._cfgSeccionActual); cfgRefrescarRail_(); }
   gasPost('guardarConfig',{config:CONFIG}).then(function(){ showToast(mensaje||'Configuración guardada'); });
 }
 function addMaestro(tipo, prefix){
@@ -14248,7 +14701,8 @@ function addMaestro(tipo, prefix){
   var sucursal = document.getElementById(prefix+'Sucursal').value.trim();
   var telefono = document.getElementById(prefix+'Telefono').value.trim();
   var email = document.getElementById(prefix+'Email').value.trim();
-  if(!nombre) return;
+  if(!nombre){ showToast('Escribí el nombre para agregarlo'); return; }
+  if(!cfgEmailOk_(email)){ showToast('Revisá el email: no tiene el formato nombre@dominio'); return; }
   if(CONFIG.maestros[tipo].some(function(x){ return nombreDeMaestro_(x)===nombre; })){ showToast('Ya está en la lista'); return; }
   CONFIG.maestros[tipo].push({nombre:nombre, sucursal:sucursal, telefono:telefono, email:email});
   document.getElementById(prefix+'Nombre').value='';
@@ -14259,6 +14713,8 @@ function addMaestro(tipo, prefix){
   persistirConfig('"'+nombre+'" agregado');
 }
 function removeMaestro(tipo, i){
+  if(!confirm('¿Eliminar a "'+nombreDeMaestro_(CONFIG.maestros[tipo][i])+'" de la lista?')) return;
+  window._cfgEdit = null;
   CONFIG.maestros[tipo].splice(i,1);
   renderMaestroTags(tipo, tipo==='vendedores'?'tagsVendedores':'tagsResponsables');
   persistirConfig('Eliminado');
@@ -14268,7 +14724,8 @@ function addAdministrativo(){
   var flota=document.getElementById('inAdministrativoFlota').value.trim();
   var email=document.getElementById('inAdministrativoEmail').value.trim();
   var telefono=document.getElementById('inAdministrativoTelefono').value.trim();
-  if(!nombre) return;
+  if(!nombre){ showToast('Escribí el nombre para agregarlo'); return; }
+  if(!cfgEmailOk_(email)){ showToast('Revisá el email: no tiene el formato nombre@dominio'); return; }
   if(CONFIG.maestros.administrativos.some(function(a){return a.nombre===nombre;})){ showToast('Ya está en la lista'); return; }
   CONFIG.maestros.administrativos.push({nombre:nombre, flota:flota, email:email, telefono:telefono});
   document.getElementById('inAdministrativo').value='';
@@ -14279,6 +14736,8 @@ function addAdministrativo(){
   persistirConfig('"'+nombre+'" agregado');
 }
 function removeAdministrativo(i){
+  if(!confirm('¿Eliminar a "'+nombreDeMaestro_(CONFIG.maestros.administrativos[i])+'" de la lista?')) return;
+  window._cfgEdit = null;
   CONFIG.maestros.administrativos.splice(i,1);
   renderAdministrativosTags();
   persistirConfig('Eliminado');
@@ -14295,7 +14754,7 @@ function addBloqueoSemanal(){
   checkBloqueado();
   persistirConfig('Bloqueo agregado');
 }
-function removeBloqueoSemanal(i){ CONFIG.bloqueos.semanales.splice(i,1); renderBloqueoTags(); checkBloqueado(); persistirConfig('Eliminado'); }
+function removeBloqueoSemanal(i){ if(!confirm('¿Quitar este bloqueo semanal?')) return; CONFIG.bloqueos.semanales.splice(i,1); renderBloqueoTags(); checkBloqueado(); persistirConfig('Eliminado'); }
 function addFeriado(){
   var fechaInput=document.getElementById('inFechaFeriado').value;
   var motivo=document.getElementById('inMotivoFeriado').value.trim();
@@ -14310,7 +14769,7 @@ function addFeriado(){
   checkBloqueado();
   persistirConfig('Feriado agregado');
 }
-function removeFeriado(i){ CONFIG.bloqueos.feriados.splice(i,1); renderBloqueoTags(); checkBloqueado(); persistirConfig('Eliminado'); }
+function removeFeriado(i){ if(!confirm('¿Quitar "'+(CONFIG.bloqueos.feriados[i].motivo||'esta fecha')+'" del '+CONFIG.bloqueos.feriados[i].fecha+'?')) return; CONFIG.bloqueos.feriados.splice(i,1); renderBloqueoTags(); checkBloqueado(); persistirConfig('Eliminado'); }
 function actualizarUIAccesoLibreSwitch_(requierePass){
   document.getElementById('cfgAccesoLibreSwitchTexto').textContent = requierePass ? 'Pedir contraseña para entrar' : 'Acceso libre sin contraseña';
   document.getElementById('cfgAccesoLibrePassword').style.display = requierePass ? '' : 'none';
@@ -14320,12 +14779,35 @@ function onCambioAccesoLibreSwitch(){
   actualizarUIAccesoLibreSwitch_(on);
 }
 function renderPostventaWhatsappInputs_(){
-  var cont = document.getElementById('postventaWhatsappContainer');
-  if(!cont) return;
-  var actuales = CONFIG.postventaWhatsapp || {};
+  cfgFilasMarca_('postventaWhatsappContainer', 'cfgPostventa_', CONFIG.postventaWhatsapp||{}, 'tel');
+}
+// Una fila por marca: logo, dato y si está completo. Sirve para WhatsApp, Repuestos y los avisos por mail.
+function cfgFilasMarca_(contId, prefijo, valores, tipo){
+  var cont = document.getElementById(contId); if(!cont) return;
+  cont.className = 'cfg-marcas';
+  var ph = tipo==='email' ? 'mail1@parisautos.com.ar, mail2@…' : 'Ej: 2664001040';
   cont.innerHTML = BRANDS.map(function(b){
-    return '<div class="form-field"><label>'+b.label+'</label><input id="cfgPostventa_'+b.id+'" value="'+(actuales[b.id]||'')+'" placeholder="Ej: 2664001040"></div>';
-  }).join('');
+    return '<div class="cfg-mrow" style="--b:var('+b.color+');"><span class="cfg-mlogo"><img src="'+b.logo+'" alt="" onerror="this.remove()"></span><label for="'+prefijo+b.id+'">'+b.label+'</label>'+
+      '<input id="'+prefijo+b.id+'" '+(tipo==='tel'?'type="tel" inputmode="tel"':'type="text" inputmode="email"')+' placeholder="'+ph+'" value="'+cfgEsc_(valores[b.id]||'')+'" oninput="cfgMarcaFila_(this,\''+tipo+'\')">'+
+      '<span class="cfg-mok material-symbols-outlined"></span></div>';
+  }).join('') + '<div class="cfg-mtools"><button type="button" class="cfg-btn" onclick="cfgCompletarVacias_(\''+contId+'\')"><span class="material-symbols-outlined">content_copy</span>Copiar el primero a las marcas vacías</button></div>';
+  cont.querySelectorAll('input').forEach(function(inp){ cfgMarcaFila_(inp, tipo, true); });
+}
+function cfgMarcaFila_(inp, tipo, inicial){
+  var fila = inp.closest('.cfg-mrow'), ic = fila.querySelector('.cfg-mok'), v = inp.value.trim(), est;
+  if(!v) est = 'vacio';
+  else if(tipo==='email') est = v.split(/[,;]/).map(function(x){ return x.trim(); }).filter(Boolean).every(cfgEmailOk_) ? 'ok' : 'mal';
+  else est = /\d{6,}/.test(v.replace(/[\s\-()+]/g,'')) ? 'ok' : 'mal';
+  fila.setAttribute('data-est', est);
+  ic.textContent = est==='ok' ? 'check_circle' : (est==='mal' ? 'error' : 'radio_button_unchecked');
+  ic.title = est==='ok' ? 'Completo' : (est==='mal' ? (tipo==='email'?'Algún email no tiene el formato correcto':'El número parece incompleto') : 'Sin cargar');
+}
+function cfgCompletarVacias_(contId){
+  var ins = Array.prototype.slice.call(document.querySelectorAll('#'+contId+' input'));
+  var base = ins.find(function(x){ return x.value.trim(); });
+  if(!base){ showToast('Primero cargá el dato en alguna marca'); return; }
+  var n = 0; ins.forEach(function(x){ if(!x.value.trim()){ x.value = base.value.trim(); x.dispatchEvent(new Event('input',{bubbles:true})); n++; } });
+  showToast(n ? 'Se completaron '+n+(n===1?' marca':' marcas')+'. Revisá y tocá Guardar.' : 'No había marcas vacías');
 }
 function guardarPostventaWhatsapp(){
   var nuevo = {};
@@ -14337,12 +14819,7 @@ function guardarPostventaWhatsapp(){
   persistirConfig('Números de Postventa actualizados');
 }
 function renderRepuestosServicioInputs_(){
-  var cont = document.getElementById('repuestosServicioContainer');
-  if(!cont) return;
-  var actuales = CONFIG.repuestosServicio || {};
-  cont.innerHTML = BRANDS.map(function(b){
-    return '<div class="form-field"><label>'+b.label+'</label><input id="cfgRepuestosServicio_'+b.id+'" value="'+(actuales[b.id]||'')+'" placeholder="Ej: 2664001040"></div>';
-  }).join('');
+  cfgFilasMarca_('repuestosServicioContainer', 'cfgRepuestosServicio_', CONFIG.repuestosServicio||{}, 'tel');
 }
 function guardarRepuestosServicio(){
   var nuevo = {};
@@ -14377,14 +14854,15 @@ function guardarDirecciones(){
   persistirConfig('Direcciones, teléfono y acceso libre guardados');
 }
 
-function openPlantillas(){
+function openPlantillas(marcaIni, tipoIni){
   gasGet('plantillas').then(function(pl){
     PLANTILLAS=pl;
-    tplMarcaActual='chevrolet'; tplTabActual='recordatorio';
+    tplMarcaActual=marcaIni||'chevrolet'; tplTabActual=tipoIni||'recordatorio';
     document.getElementById('tplMarcaTabs').innerHTML = BRANDS.map(function(b){
       return '<button class="tpl-tab" id="tplMarca_'+b.id+'" onclick="setTplMarca(\''+b.id+'\')" style="--accent:var('+b.color+');--accent-soft:var('+b.soft+')">'+b.label+'</button>';
     }).join('');
-    setTplMarca('chevrolet');
+    setTplMarca(marcaIni||'chevrolet');
+    setTplTab(tipoIni||'recordatorio');
     document.getElementById('overlay').classList.add('show'); document.getElementById('plantillasModal').classList.add('show');
   });
 }
@@ -14516,7 +14994,7 @@ function mostrarSubmenu_(grupo){
   var subReportes = document.getElementById('submenuReportes');
   var subMaestro = document.getElementById('submenuMaestro');
   if(subReportes) subReportes.style.display = grupo==='reportes' ? 'flex' : 'none';
-  if(subMaestro) subMaestro.style.display = grupo==='maestro' ? 'flex' : 'none';
+  if(subMaestro) subMaestro.style.display = 'none';
   var navReportes = document.getElementById('navReportes');
   var navMaestro = document.getElementById('navMaestro');
   if(navReportes) navReportes.classList.toggle('expanded', grupo==='reportes');
@@ -14549,17 +15027,11 @@ function irAReportes(){
   setMaestroTab(tabActual);
 }
 function irAMaestro(){
-  if(!esCalidad()){ showToast('El Panel Maestro es exclusivo del rol Maestro.'); return; }
-  var yaAbierto = currentAppView==='maestro' && document.getElementById('submenuMaestro').style.display==='flex';
-  if(yaAbierto){
-    mostrarSubmenu_(null);
-    setAppView('dashboard');
-    return;
-  }
+  if(!esCalidad()){ showToast('Configuración es exclusiva del rol Maestro.'); return; }
+  // Las secciones (General, Automatizaciones, Plantillas, Usuarios, Cargas, Historial) se manejan con las pestañas de arriba.
   setAppView('maestro');
-  mostrarSubmenu_('maestro');
-  var tabActual = GRUPO_TABS_MAESTRO.indexOf(maestroTabActual)>-1 ? maestroTabActual : 'config';
-  setMaestroTab(tabActual);
+  mostrarSubmenu_(null);
+  setMaestroTab('config');
 }
 function closeMaestro(){ /* ya no es modal — no hace falta cerrar nada */ }
 
@@ -14594,6 +15066,7 @@ function renderAutomatizacionesUI_(){
     var on = a.email.marcas.indexOf(b.id)>-1;
     return '<label class="filter-pill'+(on?' active':'')+'" style="cursor:pointer;"><input type="checkbox" data-canal="email" data-marca="'+b.id+'" '+(on?'checked':'')+' onchange="toggleMarcaAutomatizacion_(this)" style="margin-right:5px;">'+b.label+'</label>';
   }).join('');
+  cfgMejorarAutomatizaciones_();
 }
 function toggleMarcaAutomatizacion_(chk){
   var canal = chk.getAttribute('data-canal'), marca = chk.getAttribute('data-marca');
@@ -14603,6 +15076,7 @@ function toggleMarcaAutomatizacion_(chk){
   if(!chk.checked && idx>-1) a[canal].marcas.splice(idx,1);
   chk.closest('label').classList.toggle('active', chk.checked);
   guardarAutomatizaciones_(true);
+  cfgAutoEstados_();
 }
 function guardarAutomatizaciones_(yaActualizado){
   var a = CONFIG.automatizaciones;
@@ -14702,6 +15176,9 @@ function setMaestroTab(tab){
   if(tab==='config') openConfig();
   if(tab==='cargas'){ renderCatalogoAccesoriosTabla_(); renderChecklistPrepTabla_(); }
   if(tab==='automatizaciones') renderAutomatizacionesUI_();
+  if(tab==='plantillas') cfgRenderPlantillasLanding_();
+  if(tab==='permisos') cfgMejorarPermisos_();
+  if(tab==='cargas') cfgMejorarCargas_();
   if(tab==='alertatemprana') renderAlertaTempranaReporte_();
   if(tab==='npsgeneral') renderNpsGeneralPanel_();
   if(tab==='npscontactoposterior') renderNpsContactoPosteriorPanel_();
