@@ -923,7 +923,7 @@
   #cfgDetalleBody{margin-top:16px;}
   #cfgDetalleBody .maestro-block{display:none;background:none;border:none;padding:0;margin:0;}
   #cfgDetalleBody .maestro-block.cfg-activo{display:block;}
-  #cfgDetalleBody .maestro-block > .section-title{display:none;}
+  #cfgDetalleBody .maestro-block > .section-title{display:none !important;}
   #cfgDetalleBody .save-btn{width:auto;min-width:220px;}
   .cfg-pie{display:flex;justify-content:space-between;gap:10px;margin-top:20px;padding-top:14px;border-top:1px solid var(--hairline);}
   .cfg-pie button{display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid var(--hairline);border-radius:9px;padding:7px 12px;color:var(--text-dim);font:600 12px 'Inter',sans-serif;cursor:pointer;max-width:48%;}
@@ -944,6 +944,49 @@
     .cfg-detalle-head .cfg-estado{grid-column:1 / -1;justify-self:start;}
     .cfg-buscar{flex:1 1 100%;}
     #cfgDetalleBody .save-btn{width:100%;}
+  }
+
+  /* --- v2 (inspo): encabezado con ícono, pestañas tipo píldora, tarjetas por categoría --- */
+  #maestroHeader.cfg-hdr{display:grid;grid-template-columns:auto 1fr;column-gap:16px;align-items:center;margin-bottom:18px;}
+  #maestroHeader.cfg-hdr::before{content:'settings';font-family:'Material Symbols Outlined';font-feature-settings:'liga';font-size:30px;line-height:1;width:60px;height:60px;border-radius:16px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);grid-row:span 2;}
+  #maestroHeader.cfg-hdr h2{font-size:26px;margin:0 0 2px;}
+  #maestroHeader.cfg-hdr p{font-size:13.5px;}
+  .cfg-tabs{gap:6px;margin-bottom:18px;}
+  .cfg-tab{padding:11px 18px 12px;border-radius:10px 10px 0 0;font-size:13.5px;}
+  .cfg-tab.on{background:var(--accent-soft);}
+  .cfg-salud{flex-wrap:nowrap;gap:16px;padding:14px 18px;margin-bottom:14px;background:var(--panel);}
+  .cfg-salud.hay{background:linear-gradient(90deg,var(--warn-soft),transparent 75%),var(--panel);}
+  .cfg-salud-ic{font-size:30px;color:var(--ok);flex:none;}
+  .cfg-salud.hay .cfg-salud-ic{color:var(--warn);}
+  .cfg-salud .cfg-chips{flex:1;justify-content:flex-end;}
+  .cfg-chip{background:var(--panel);border-color:var(--warn);padding:6px 12px;}
+  .cfg-chip:hover{background:var(--warn-soft);}
+  .cfg-salud-go{flex:none;background:none;border:none;color:var(--text-dim);cursor:pointer;border-radius:8px;padding:4px;display:grid;place-items:center;}
+  .cfg-salud-go:hover{color:var(--text);background:var(--panel-2);}
+  .cfg-buscar{display:flex;max-width:none;width:100%;margin-bottom:16px;box-sizing:border-box;}
+  .cfg-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px;margin-bottom:22px;}
+  .cfg-cat{display:grid;grid-template-columns:auto 1fr auto;gap:3px 16px;align-items:start;text-align:left;width:100%;background:var(--panel);border:1px solid var(--hairline);border-radius:16px;padding:20px 18px 18px 20px;color:var(--text);cursor:pointer;font-family:'Inter',sans-serif;transition:border-color .15s,box-shadow .15s;}
+  .cfg-cat:hover{border-color:var(--g);box-shadow:0 10px 28px -18px var(--g);}
+  .cfg-cat:hover .cfg-card-go{color:var(--g);transform:translateX(3px);}
+  .cfg-cat:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .cfg-cat .cfg-ic{width:54px;height:54px;border-radius:14px;font-size:28px;grid-row:span 3;}
+  .cfg-cat-t{font:700 18px 'Space Grotesk',sans-serif;line-height:1.25;}
+  .cfg-cat-d{grid-column:2;font-size:13px;color:var(--text-dim);line-height:1.5;}
+  .cfg-cat .cfg-card-go{grid-column:3;grid-row:1 / span 3;align-self:center;font-size:24px;width:24px;}
+  .cfg-cat-st{grid-column:2;display:flex;align-items:center;gap:7px;margin-top:8px;font-size:12px;font-weight:600;color:var(--text-dim);}
+  .cfg-cat-st.warn{color:var(--warn);}
+  .cfg-resultados{background:var(--panel);border:1px solid var(--hairline);border-radius:14px;overflow:hidden;margin-bottom:22px;}
+  .cfg-resultados .cfg-card:first-child{border-top:none;}
+  .cfg-res-grupo{font-size:11px;font-weight:600;color:var(--g);}
+  .cfg-link{margin-left:auto;background:none;border:none;color:var(--accent);font:600 12.5px 'Inter',sans-serif;cursor:pointer;padding:4px 2px;white-space:nowrap;}
+  .cfg-link:hover{text-decoration:underline;}
+  .cfg-historial{max-width:860px;}
+  @media (max-width: 860px){
+    .cfg-salud{flex-wrap:wrap;}
+    .cfg-salud .cfg-chips{justify-content:flex-start;flex-basis:100%;}
+    .cfg-salud-go{display:none;}
+    #maestroHeader.cfg-hdr::before{width:46px;height:46px;font-size:24px;border-radius:13px;}
+    #maestroHeader.cfg-hdr h2{font-size:21px;}
   }
 </style>
 <style>
@@ -2418,7 +2461,7 @@
 
 
         <div class="app-view" id="viewMaestro">
-  <div class="view-header"><h2 id="maestroTituloPagina">Panel Maestro</h2><p id="maestroSubtituloPagina">Dashboard, Reportes, Configuración y Permisos.</p></div>
+  <div class="view-header" id="maestroHeader"><h2 id="maestroTituloPagina">Panel Maestro</h2><p id="maestroSubtituloPagina">Dashboard, Reportes, Configuración y Permisos.</p></div>
   <div class="modal-body" style="padding:0;">
     <div class="tpl-tabs" style="margin-bottom:16px;display:none;">
       <button class="tpl-tab active" id="tabMaestroDashboard" onclick="setMaestroTab('dashboard')"><span class="material-symbols-outlined" style="font-size:15px;vertical-align:-3px;">bar_chart</span> Dashboard</button>
@@ -2440,6 +2483,7 @@
       <button type="button" class="cfg-tab" data-t="plantillas" onclick="setMaestroTab('plantillas')"><span class="material-symbols-outlined">mail</span>Plantillas de mail</button>
       <button type="button" class="cfg-tab" data-t="permisos" onclick="setMaestroTab('permisos')"><span class="material-symbols-outlined">group</span>Usuarios y permisos</button>
       <button type="button" class="cfg-tab" data-t="cargas" onclick="setMaestroTab('cargas')"><span class="material-symbols-outlined">upload_file</span>Cargas masivas</button>
+      <button type="button" class="cfg-tab" data-t="historial" onclick="cfgAbrirHistorial_()"><span class="material-symbols-outlined">history</span>Historial</button>
     </nav>
 
     <div id="maestroMarcaFiltroWrap" class="filter-pills" style="margin-bottom:14px;">
@@ -2905,22 +2949,26 @@
     <div id="paneMaestroConfig" style="display:none;padding:10px 0;">
     <div id="cfgShell">
       <div id="cfgHub">
-        <div class="cfg-head">
-          <div id="cfgSalud" class="cfg-salud"></div>
-          <label class="cfg-buscar"><span class="material-symbols-outlined">search</span><input id="cfgBuscar" type="search" placeholder="Buscar un ajuste (ej: feriado, WhatsApp, flota)" oninput="cfgFiltrar_(this.value)" onkeydown="if(event.key==='Enter'){cfgAbrirPrimero_();}" autocomplete="off"></label>
-        </div>
-        <div id="cfgGrupos"></div>
-        <div id="cfgSinResultados" class="cfg-vacio" style="display:none;"></div>
+        <div id="cfgSalud" class="cfg-salud"></div>
+        <label class="cfg-buscar"><span class="material-symbols-outlined">search</span><input id="cfgBuscar" type="search" placeholder="Buscar un ajuste: feriado, flota, WhatsApp, dirección…" oninput="cfgFiltrar_(this.value)" onkeydown="if(event.key==='Enter'){cfgAbrirPrimero_();} if(event.key==='Escape'){this.value='';cfgFiltrar_('');}" autocomplete="off"></label>
+        <div id="cfgResultados" class="cfg-resultados" style="display:none;"></div>
+        <div id="cfgGrupos" class="cfg-cats"></div>
         <div class="cfg-bajo">
           <section class="cfg-panel">
             <header><span class="material-symbols-outlined cfg-panel-ic">bolt</span><div><h3>Automatizaciones y avisos</h3><p>Qué se está enviando solo hoy y en cuántas marcas.</p></div></header>
             <div id="cfgAutoLista"></div>
           </section>
           <section class="cfg-panel">
-            <header><span class="material-symbols-outlined cfg-panel-ic">history</span><div><h3>Últimos cambios</h3><p>Quién tocó la configuración y qué guardó.</p></div></header>
+            <header><span class="material-symbols-outlined cfg-panel-ic">history</span><div><h3>Últimos cambios</h3><p>Quién tocó la configuración y qué guardó.</p></div><button type="button" class="cfg-link" onclick="cfgAbrirHistorial_()">Ver historial</button></header>
             <div id="cfgCambiosLista"></div>
           </section>
         </div>
+      </div>
+      <div id="cfgHistorialVista" style="display:none;">
+        <section class="cfg-panel cfg-historial">
+          <header><span class="material-symbols-outlined cfg-panel-ic">history</span><div><h3>Historial de cambios</h3><p>Los últimos 15 ajustes guardados en la configuración, del más nuevo al más viejo.</p></div></header>
+          <div id="cfgHistorialLista"></div>
+        </section>
       </div>
       <div id="cfgDetalle" style="display:none;">
         <nav class="cfg-miga"><button type="button" onclick="cfgVolver_()"><span class="material-symbols-outlined">arrow_back</span>Configuración</button><span class="material-symbols-outlined cfg-miga-sep">chevron_right</span><span id="cfgMigaGrupo"></span><span class="material-symbols-outlined cfg-miga-sep">chevron_right</span><b id="cfgMigaTitulo"></b></nav>
@@ -13731,6 +13779,7 @@ function inicializarAcordeonConfig_(){
   cfgRenderHub_();
   var pend = window._cfgAbrirPendiente; window._cfgAbrirPendiente = null;
   if(pend){ window._cfgSeccionActual = null; cfgAbrir_(pend, true); }
+  else if(window._cfgVerHistorial){ window._cfgVerHistorial = false; cfgAbrirHistorial_(); }
 }
 // ============================================================
 // CONFIGURACIÓN — hub de tarjetas, detalle con riel lateral, buscador,
@@ -13738,11 +13787,12 @@ function inicializarAcordeonConfig_(){
 // No cambia cómo se guarda nada: reutiliza los bloques y botones de siempre.
 // ============================================================
 var CFG_GRUPOS_ = [
-  {id:'equipo', t:'Equipo', d:'las personas que aparecen en las entregas', c:'--peugeot', cs:'--peugeot-soft'},
-  {id:'agenda', t:'Agenda', d:'cuándo no se puede entregar', c:'--usados', cs:'--usados-soft'},
-  {id:'sucursales', t:'Sucursales y sistema', d:'datos de cada local y del menú', c:'--dfsk', cs:'--dfsk-soft'},
-  {id:'postventa', t:'Postventa', d:'lo que va en el mensaje de bienvenida', c:'--ok', cs:'--ok-soft'},
-  {id:'avisos', t:'Avisos por mail', d:'a quién avisar el día antes', c:'--chevrolet', cs:'--chevrolet-soft'}
+  {id:'equipo', t:'Equipo', ic:'groups', d:'Vendedores, administrativos y responsables de entrega.', c:'--peugeot', cs:'--peugeot-soft'},
+  {id:'agenda', t:'Agenda', ic:'calendar_month', d:'Bloqueos semanales, feriados y horarios puntuales.', c:'--usados', cs:'--usados-soft'},
+  {id:'sucursales', t:'Sucursales y sistema', ic:'storefront', d:'Direcciones por marca, contacto y módulos habilitados.', c:'--dfsk', cs:'--dfsk-soft'},
+  {id:'comunicaciones', t:'Comunicaciones', ic:'forum', d:'WhatsApp de postventa y avisos de campañas pendientes.', c:'--ok', cs:'--ok-soft'},
+  {id:'repuestos', t:'Repuestos y servicios', ic:'build', d:'Teléfono de repuestos y taller de cada marca.', c:'--caso', cs:'--caso-soft'},
+  {id:'accesorios', t:'Accesorios', ic:'directions_car', d:'A quién avisar si falta colocar un accesorio.', c:'--chevrolet', cs:'--chevrolet-soft'}
 ];
 var CFG_SECC_ = [
   {id:'vendedores', g:'equipo', ic:'badge', t:'Vendedores', d:'Quiénes venden, en qué sucursal y cómo contactarlos.', kw:'vendedor vendedores equipo telefono email sucursal'},
@@ -13750,12 +13800,12 @@ var CFG_SECC_ = [
   {id:'responsables', g:'equipo', ic:'local_shipping', t:'Responsables de entrega', d:'El equipo de Logística que entrega las unidades.', kw:'responsable logistica entrega'},
   {id:'semanales', g:'agenda', ic:'event_repeat', t:'Bloqueos semanales', d:'Días y horarios que se repiten todas las semanas.', kw:'bloqueo semanal sabado domingo horario'},
   {id:'fechas', g:'agenda', ic:'event_busy', t:'Fechas bloqueadas', d:'Feriados, inventarios o capacitaciones en un día puntual.', kw:'feriado inventario capacitacion fecha bloqueada'},
-  {id:'contacto', g:'sucursales', ic:'storefront', t:'Direcciones y contacto', d:'Dirección por marca y sucursal, teléfono, copia de mails, duración y acceso libre.', kw:'direccion telefono copia duracion minutos acceso libre contraseña'},
+  {id:'contacto', g:'sucursales', ic:'location_on', t:'Direcciones y contacto', d:'Dirección por marca y sucursal, teléfono, copia de mails, duración y acceso libre.', kw:'direccion telefono copia duracion minutos acceso libre contraseña'},
   {id:'modulos', g:'sucursales', ic:'toggle_on', t:'Módulos del sistema', d:'Qué secciones del menú están encendidas para todos.', kw:'modulo modulos menu tv calendario lista reportes'},
-  {id:'whatsapp', g:'postventa', ic:'chat', t:'WhatsApp de postventa', d:'El número de cada marca que va en el mensaje de bienvenida.', kw:'whatsapp postventa bienvenida numero'},
-  {id:'repuestos', g:'postventa', ic:'build', t:'Repuestos y servicio', d:'El teléfono de repuestos y taller de cada marca.', kw:'repuestos servicio taller telefono'},
-  {id:'alertaacc', g:'avisos', ic:'inventory_2', t:'Accesorios pendientes', d:'A quién avisar 24 hs antes si todavía falta colocar un accesorio.', kw:'alerta aviso accesorio accesorios mail email'},
-  {id:'alertacamp', g:'avisos', ic:'campaign', t:'Campañas pendientes', d:'A quién avisar 24 hs antes si todavía falta controlar una campaña.', kw:'alerta aviso campaña campañas mail email'}
+  {id:'whatsapp', g:'comunicaciones', ic:'chat', t:'WhatsApp de postventa', d:'El número de cada marca que va en el mensaje de bienvenida.', kw:'whatsapp postventa bienvenida numero'},
+  {id:'alertacamp', g:'comunicaciones', ic:'campaign', t:'Campañas pendientes', d:'A quién avisar 24 hs antes si todavía falta controlar una campaña.', kw:'alerta aviso campaña campañas mail email'},
+  {id:'repuestos', g:'repuestos', ic:'build', t:'Repuestos y servicio', d:'El teléfono de repuestos y taller de cada marca.', kw:'repuestos servicio taller telefono'},
+  {id:'alertaacc', g:'accesorios', ic:'inventory_2', t:'Accesorios pendientes', d:'A quién avisar 24 hs antes si todavía falta colocar un accesorio.', kw:'alerta aviso accesorio accesorios mail email'}
 ];
 var CFG_MODULOS_TOTAL_ = 7;
 var _cfgIniciado_ = false, _cfgSucio_ = false;
@@ -13843,46 +13893,70 @@ function cfgRenderHub_(){
   var est = {}; CFG_SECC_.forEach(function(s){ est[s.id]=cfgEstado_(s.id); });
   cont.innerHTML = CFG_GRUPOS_.map(function(g){
     var secs = CFG_SECC_.filter(function(s){ return s.g===g.id; });
-    return '<section class="cfg-grupo" data-grupo="'+g.id+'" style="--g:var('+g.c+');--gs:var('+g.cs+');"><h4><i></i>'+g.t+' <small>'+g.d.charAt(0).toUpperCase()+g.d.slice(1)+'</small></h4><div class="cfg-lista">'+
-      secs.map(function(s){ var e=est[s.id];
-        return '<button type="button" class="cfg-card" data-sec="'+s.id+'" data-q="'+cfgEsc_(cfgNorm_(s.t+' '+s.d+' '+s.kw+' '+g.t))+'" onclick="cfgAbrir_(\''+s.id+'\')">'+
-          '<span class="cfg-ic material-symbols-outlined">'+s.ic+'</span>'+
-          '<span class="cfg-card-t">'+s.t+'</span>'+
-          '<span class="cfg-card-go material-symbols-outlined">chevron_right</span>'+
-          '<span class="cfg-card-d">'+s.d+'</span>'+
-          '<span class="cfg-card-st"><span class="cfg-dot '+e.est+'"></span><b>'+cfgEsc_(e.txt)+'</b>'+(e.nota?'<span class="cfg-nota"'+(e.notaNeutra?' style="color:var(--text-faint);font-weight:500;"':'')+'>'+cfgEsc_(e.nota)+'</span>':'')+'</span>'+
-        '</button>';
-      }).join('')+'</div></section>';
+    var rev = secs.filter(function(s){ return est[s.id].est==='warn'; });
+    var st = rev.length ? '<span class="cfg-dot warn"></span>'+(rev.length===1 ? rev[0].t+': revisar' : rev.length+' ajustes para revisar')
+                        : '<span class="cfg-dot"></span>'+(secs.length===1 ? est[secs[0].id].txt : 'Completo · '+secs.length+' ajustes');
+    return '<button type="button" class="cfg-cat" style="--g:var('+g.c+');--gs:var('+g.cs+');" onclick="cfgAbrirGrupo_(\''+g.id+'\')">'+
+      '<span class="cfg-ic material-symbols-outlined">'+g.ic+'</span>'+
+      '<span class="cfg-cat-t">'+g.t+'</span>'+
+      '<span class="cfg-card-go material-symbols-outlined">chevron_right</span>'+
+      '<span class="cfg-cat-d">'+g.d+'</span>'+
+      '<span class="cfg-cat-st'+(rev.length?' warn':'')+'">'+st+'</span>'+
+    '</button>';
   }).join('');
-  // Franja de salud: qué conviene revisar
-  var rev = CFG_SECC_.filter(function(s){ return est[s.id].est==='warn'; });
+  var rv = CFG_SECC_.filter(function(s){ return est[s.id].est==='warn'; });
   var sal = document.getElementById('cfgSalud');
   if(sal){
-    sal.classList.toggle('hay', rev.length>0);
-    sal.innerHTML = '<div class="cfg-salud-txt"><b>'+(rev.length ? (rev.length===1?'1 ajuste para revisar':rev.length+' ajustes para revisar') : 'Todo en orden')+'</b><span>'+(rev.length ? 'Faltan datos que usan los mails y los avisos.' : 'Los datos que usan los mails y los avisos están completos.')+'</span></div>'+
-      (rev.length ? '<div class="cfg-chips">'+rev.map(function(s){ return '<button type="button" class="cfg-chip" onclick="cfgAbrir_(\''+s.id+'\')"><span class="material-symbols-outlined">error</span>'+s.t+'</button>'; }).join('')+'</div>' : '');
+    sal.classList.toggle('hay', rv.length>0);
+    sal.innerHTML = '<span class="material-symbols-outlined cfg-salud-ic">'+(rv.length?'warning':'task_alt')+'</span>'+
+      '<div class="cfg-salud-txt"><b>'+(rv.length ? (rv.length===1?'1 ajuste para revisar':rv.length+' ajustes para revisar') : 'Todo en orden')+'</b><span>'+(rv.length ? 'Faltan datos que usan los mails y los avisos.' : 'Los datos que usan los mails y los avisos están completos.')+'</span></div>'+
+      (rv.length ? '<div class="cfg-chips">'+rv.map(function(s){ return '<button type="button" class="cfg-chip" onclick="cfgAbrir_(\''+s.id+'\')"><span class="material-symbols-outlined">error</span>'+s.t+'</button>'; }).join('')+'</div>'+
+        '<button type="button" class="cfg-salud-go" title="Revisar el primero" aria-label="Revisar el primer ajuste pendiente" onclick="cfgAbrir_(\''+rv[0].id+'\')"><span class="material-symbols-outlined">chevron_right</span></button>' : '');
   }
   cfgRenderAuto_();
   cfgRenderCambios_();
   var q = document.getElementById('cfgBuscar'); if(q && q.value) cfgFiltrar_(q.value);
 }
+function cfgAbrirGrupo_(gid){
+  var secs = CFG_SECC_.filter(function(s){ return s.g===gid; });
+  if(!secs.length) return;
+  var pend = secs.find(function(s){ return cfgEstado_(s.id).est==='warn'; });
+  cfgAbrir_((pend||secs[0]).id);
+}
 function cfgFiltrar_(q){
-  var n = cfgNorm_(q).trim(), vis = 0;
-  document.querySelectorAll('#cfgGrupos .cfg-card').forEach(function(c){
-    var ok = !n || n.split(/\s+/).every(function(p){ return c.getAttribute('data-q').indexOf(p)>-1; });
-    c.style.display = ok ? '' : 'none'; if(ok) vis++;
-  });
-  document.querySelectorAll('#cfgGrupos .cfg-grupo').forEach(function(g){
-    g.style.display = g.querySelector('.cfg-card:not([style*="none"])') ? '' : 'none';
-  });
-  var v = document.getElementById('cfgSinResultados');
-  if(v){ v.style.display = vis ? 'none' : ''; v.innerHTML = 'No hay ningún ajuste que coincida con “'+cfgEsc_(q)+'”. Probá con otra palabra, por ejemplo: feriado, flota o WhatsApp.'; }
+  var n = cfgNorm_(q).trim();
+  var res = document.getElementById('cfgResultados'), cats = document.getElementById('cfgGrupos');
+  if(!res || !cats) return;
+  if(!n){ res.style.display='none'; cats.style.display=''; return; }
+  var partes = n.split(/\s+/);
+  var hits = CFG_SECC_.filter(function(s){ var g=cfgGrupo_(s.g); var txt=cfgNorm_(s.t+' '+s.d+' '+s.kw+' '+g.t); return partes.every(function(p){ return txt.indexOf(p)>-1; }); });
+  cats.style.display='none'; res.style.display='';
+  if(!hits.length){ res.innerHTML = '<div class="cfg-vacio" style="margin:0;border:none;">No hay ningún ajuste que coincida con “'+cfgEsc_(q)+'”. Probá con otra palabra, por ejemplo: feriado, flota o WhatsApp.</div>'; return; }
+  res.innerHTML = hits.map(function(s){
+    var g = cfgGrupo_(s.g), e = cfgEstado_(s.id);
+    return '<button type="button" class="cfg-card" data-sec="'+s.id+'" style="--g:var('+g.c+');--gs:var('+g.cs+');" onclick="cfgAbrir_(\''+s.id+'\')">'+
+      '<span class="cfg-ic material-symbols-outlined">'+s.ic+'</span>'+
+      '<span class="cfg-card-t">'+s.t+' <span class="cfg-res-grupo">· '+g.t+'</span></span>'+
+      '<span class="cfg-card-go material-symbols-outlined">chevron_right</span>'+
+      '<span class="cfg-card-d">'+s.d+'</span>'+
+      '<span class="cfg-card-st"><span class="cfg-dot '+e.est+'"></span><b>'+cfgEsc_(e.txt)+'</b>'+(e.nota?'<span class="cfg-nota"'+(e.notaNeutra?' style="color:var(--text-faint);font-weight:500;"':'')+'>'+cfgEsc_(e.nota)+'</span>':'')+'</span>'+
+    '</button>';
+  }).join('');
 }
 function cfgAbrirPrimero_(){
-  var c = document.querySelector('#cfgGrupos .cfg-card:not([style*="none"])');
+  var c = document.querySelector('#cfgResultados .cfg-card');
   if(c) cfgAbrir_(c.getAttribute('data-sec'));
 }
-
+function cfgAbrirHistorial_(){
+  if(maestroTabActual!=='config'){ window._cfgVerHistorial = true; setMaestroTab('config'); return; }
+  if(window._cfgSeccionActual && !cfgPuedeSalir_()) return;
+  window._cfgSeccionActual = null;
+  document.getElementById('cfgHub').style.display='none';
+  document.getElementById('cfgDetalle').style.display='none';
+  document.getElementById('cfgHistorialVista').style.display='';
+  cfgRenderCambios_('cfgHistorialLista', 15);
+  document.querySelectorAll('#cfgTabsMaestro .cfg-tab').forEach(function(b){ var on=b.getAttribute('data-t')==='historial'; b.classList.toggle('on', on); if(on) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
+}
 // ---------- Automatizaciones y avisos ----------
 function cfgRenderAuto_(){
   var cont = document.getElementById('cfgAutoLista'); if(!cont) return;
@@ -13923,9 +13997,9 @@ function cfgCuando_(iso){
   if(d.toDateString()===ay.toDateString()) return 'Ayer, '+hh;
   return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+', '+hh;
 }
-function cfgRenderCambios_(){
-  var cont = document.getElementById('cfgCambiosLista'); if(!cont) return;
-  var h = (CONFIG.historialConfig||[]).slice(0,5);
+function cfgRenderCambios_(destino, max){
+  var cont = document.getElementById(destino||'cfgCambiosLista'); if(!cont) return;
+  var h = (CONFIG.historialConfig||[]).slice(0,max||4);
   if(!h.length){ cont.innerHTML = '<div class="cfg-cambios-vacio">Todavía no hay cambios anotados. Desde ahora, cada ajuste que se guarde queda registrado acá con quién lo hizo y cuándo.</div>'; return; }
   cont.innerHTML = h.map(function(c){
     var ini = String(c.u||'?').trim().split(/\s+/).slice(0,2).map(function(p){ return p.charAt(0).toUpperCase(); }).join('');
@@ -13947,7 +14021,7 @@ function cfgAbrir_(id, sinScroll){
   window._cfgSeccionActual = id;
   var g = cfgGrupo_(s.g);
   var det = document.getElementById('cfgDetalle'), hub = document.getElementById('cfgHub');
-  hub.style.display = 'none'; det.style.display = '';
+  hub.style.display = 'none'; det.style.display = ''; document.getElementById('cfgHistorialVista').style.display='none';
   det.style.setProperty('--g','var('+g.c+')'); det.style.setProperty('--gs','var('+g.cs+')');
   document.getElementById('cfgMigaGrupo').textContent = g.t;
   document.getElementById('cfgMigaTitulo').textContent = s.t;
@@ -13982,7 +14056,9 @@ function cfgVolver_(){
   if(!cfgPuedeSalir_()) return;
   window._cfgSeccionActual = null;
   document.getElementById('cfgDetalle').style.display = 'none';
+  document.getElementById('cfgHistorialVista').style.display = 'none';
   document.getElementById('cfgHub').style.display = '';
+  document.querySelectorAll('#cfgTabsMaestro .cfg-tab').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-t')==='config'); });
   cfgRenderHub_();
 }
 function closeConfig(){ /* ya no es modal — no hace falta cerrar nada */ }
@@ -14597,7 +14673,7 @@ function setMaestroTab(tab){
     regalos:['Stock de kit y regalos', 'Proyección, stock y distribución — Regalos corporativos.'],
     kit:['Stock de kit y regalos', 'Proyección, stock y distribución — Kit de seguridad.'],
     reportes:['Reportes', 'Consultá, analizá y exportá la información del Planning.'],
-    config:['Configuración', 'Equipo, agenda, sucursales, postventa y avisos del Planning.'],
+    config:['Configuración', 'Equipo, agenda, sucursales, comunicaciones y avisos del Planning.'],
     automatizaciones:['Configuración', 'Automatizaciones: comunicaciones post-entrega, sin tocar código.'],
     alertatemprana:['Alerta Temprana', 'Reporte de la encuesta de satisfacción post-entrega (Chevrolet).'],
     plantillas:['Configuración', 'Plantillas de mail: una por marca y por tipo de mail.'],
@@ -14612,8 +14688,9 @@ function setMaestroTab(tab){
     rankingvendedor:['Ranking Vendedor / Sucursal', 'NPS combinado (sistema + archivos importados) por vendedor y por sucursal.']
   };
   var tm = document.getElementById('cfgTabsMaestro');
+  var mh = document.getElementById('maestroHeader'); if(mh) mh.classList.toggle('cfg-hdr', GRUPO_TABS_MAESTRO.indexOf(tab)>-1);
   if(tm){ tm.style.display = GRUPO_TABS_MAESTRO.indexOf(tab)>-1 ? 'flex' : 'none'; tm.querySelectorAll('.cfg-tab').forEach(function(b){ var on=b.getAttribute('data-t')===tab; b.classList.toggle('on', on); if(on) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); }); }
-  if(tab==='config' && !window._cfgAbrirPendiente){ window._cfgSeccionActual = null; var _h=document.getElementById('cfgHub'), _d=document.getElementById('cfgDetalle'); if(_h) _h.style.display=''; if(_d) _d.style.display='none'; }
+  if(tab==='config' && !window._cfgAbrirPendiente){ window._cfgSeccionActual = null; var _h=document.getElementById('cfgHub'), _d=document.getElementById('cfgDetalle'); if(_h) _h.style.display=''; if(_d) _d.style.display='none'; var _hv=document.getElementById('cfgHistorialVista'); if(_hv) _hv.style.display='none'; }
   var t = TITULOS_MAESTRO[tab];
   if(t){
     document.getElementById('maestroTituloPagina').textContent = t[0];
