@@ -1504,6 +1504,64 @@
     .aud-c3{flex-direction:column;align-items:stretch;}
     .aud-lugar label{grid-template-columns:20px 90px 1fr;}
   }
+
+  /* --- Preparación: tarjeta clara (rediseño) --- */
+  .aud-card.ac{border-left:5px solid var(--c);}
+  .aud-card.ac.prio{border-color:var(--danger);border-left-color:var(--danger);}
+  .ac-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 46px 10px 18px;position:relative;}
+  .ac-tit{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;min-width:0;flex:1;}
+  .ac-tit b{font:700 17px 'Space Grotesk',sans-serif;}
+  .ac-tit span{font-size:12.5px;color:var(--text-dim);}
+  .ac-pills{display:flex;gap:6px;flex-wrap:wrap;}
+  .ac-pill{display:inline-flex;align-items:center;gap:5px;font:700 12px 'Inter',sans-serif;border-radius:999px;padding:4px 10px;background:var(--panel-2);color:var(--text-dim);white-space:nowrap;}
+  .ac-pill .material-symbols-outlined{font-size:16px;}
+  .ac-pill.ent{background:var(--dfsk-soft);color:var(--text);}
+  .ac-pill.ent.prio{background:var(--danger);color:#fff;}
+  .ac-pill.ent.venc{background:var(--text);color:var(--panel);}
+  .ac-pill.dias b{font-size:13px;color:var(--text);}
+  .ac-pill.dias.medio b{color:var(--warn);} .ac-pill.dias.alto b{color:var(--danger);}
+  .ac .aud-sel{top:12px;right:14px;}
+  .ac-body{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:20px;padding:2px 18px 14px;align-items:start;}
+  .ac-info{display:flex;flex-direction:column;gap:9px;min-width:0;}
+  .ac-cli{display:flex;align-items:center;gap:7px;font-size:14.5px;font-weight:700;}
+  .ac-cli .material-symbols-outlined{font-size:19px;color:var(--text-faint);}
+  .ac-ids{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12.5px;color:var(--text-dim);}
+  .ac-ids b{color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12.5px;}
+  .ac-ids .falta b{color:var(--text-faint);}
+  .ac-pasos{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:2px;}
+  .ac-paso{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-faint);}
+  .ac-paso i{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font:700 11px 'Inter',sans-serif;font-style:normal;background:var(--panel-2);border:1px solid var(--hairline);}
+  .ac-paso.hecho{color:var(--text-dim);} .ac-paso.hecho i{background:var(--ok);border-color:var(--ok);color:#fff;}
+  .ac-paso.actual{color:var(--text);} .ac-paso.actual i{background:var(--c);border-color:var(--c);color:#fff;box-shadow:0 0 0 3px var(--cs);}
+  .ac-linea{width:22px;height:2px;background:var(--hairline);border-radius:2px;}
+  .ac-ruta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--panel-2);border-radius:10px;padding:7px 10px;}
+  .ac-lugar{display:inline-flex;align-items:center;gap:5px;}
+  .ac-lugar > .material-symbols-outlined{font-size:18px;color:var(--text-faint);}
+  .ac-lugar select{appearance:none;-webkit-appearance:none;background:var(--panel) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E") no-repeat right 8px center;border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:5px 24px 5px 9px;font:700 13px 'Inter',sans-serif;cursor:pointer;}
+  .ac-lugar select.falta{border-color:var(--warn);color:var(--warn);font-weight:600;}
+  .ac-lugar-fijo{font:700 13px 'Inter',sans-serif;padding:5px 2px;}
+  .ac-flecha .material-symbols-outlined{font-size:18px;color:var(--text-faint);}
+  .ac-flecha.mueve .material-symbols-outlined{color:var(--warn);}
+  .ac-est{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;margin-left:auto;}
+  .ac-est .material-symbols-outlined{font-size:17px;}
+  .ac-est.ok{color:var(--ok);} .ac-est.falta{color:var(--warn);}
+  .ac-est.tras{color:var(--warn);}
+  .ac-est.tras button{margin-left:4px;border:1px solid var(--warn);background:var(--panel);color:var(--text);border-radius:7px;padding:3px 10px;font:700 11.5px 'Inter',sans-serif;cursor:pointer;}
+  .ac-nota{display:flex;gap:7px;align-items:flex-start;font-size:12.5px;color:var(--text);}
+  .ac-nota .material-symbols-outlined{font-size:17px;color:var(--warn);}
+  .ac-nota small{color:var(--text-faint);font-size:11.5px;}
+  .ac-acc{display:flex;flex-direction:column;gap:8px;}
+  .aud-btn.grande{justify-content:center;padding:11px 14px;font-size:13.5px;width:100%;}
+  .ac-sec{display:flex;gap:6px;}
+  .ac-sec .aud-btn{flex:1;justify-content:center;padding:7px 8px;}
+  .ac-pie{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 14px;border-top:1px solid var(--hairline);background:var(--panel-2);}
+  .ac-pie-d{display:flex;gap:2px;flex-wrap:wrap;margin-left:auto;}
+  .aud-hist-btn:disabled{opacity:.45;cursor:not-allowed;}
+  @media (max-width: 900px){
+    .ac-body{grid-template-columns:1fr;}
+    .ac-acc{flex-direction:row;flex-wrap:wrap;} .ac-acc .aud-btn.grande{width:auto;flex:1 1 200px;}
+    .ac-est{margin-left:0;}
+  }
 </style>
 <style>
   .app-shell{display:flex;min-height:100vh;}
@@ -1864,12 +1922,6 @@
   .us-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px 14px;}
   .us-grid .full{grid-column:1/-1;}
   .us-anulada{background:var(--panel-2);border:1px dashed var(--hairline);border-radius:10px;padding:8px 12px;font-weight:700;color:var(--text-dim);margin-bottom:10px;}
-  .alist-kpis{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 12px;}
-  .alist-kpi{background:var(--panel);border:1px solid var(--hairline);border-radius:16px;padding:10px 16px;min-width:120px;text-align:left;cursor:pointer;color:var(--text);}
-  .alist-kpi b{display:block;font-family:'Space Grotesk',sans-serif;font-size:26px;line-height:1.1;}
-  .alist-kpi span{font-size:11.5px;color:var(--text-dim);}
-  .alist-kpi.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);}
-  .alist-kpi.bad b{color:var(--danger);} .alist-kpi.ok b{color:var(--ok);} .alist-kpi.dim b{color:var(--text-faint);}
   .us-tabla-wrap{overflow-x:auto;border:1px solid var(--hairline);border-radius:14px;background:var(--panel);}
   .us-tabla{width:100%;border-collapse:collapse;font-size:12.5px;min-width:1400px;}
   .us-tabla th{position:sticky;top:0;background:var(--panel-2);text-align:left;padding:9px 10px;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);border-bottom:1px solid var(--hairline);white-space:nowrap;}
@@ -2442,13 +2494,12 @@
         <button class="nav-item active" id="navDashboard" title="Inicio" onclick="setAppView('dashboard')"><span class="material-symbols-outlined">home</span><span class="nav-label">Inicio</span></button>
         <button class="nav-item nav-item-highlight" id="navNuevaentrega" title="Programar Entrega" onclick="abrirElegirTipoEntrega_()"><span class="material-symbols-outlined">add_circle</span><span class="nav-label">Programar Entrega</span></button>
         <button class="nav-item" id="navCalendario" title="Calendario" onclick="setAppView('calendario')"><span class="material-symbols-outlined">calendar_today</span><span class="nav-label">Calendario</span></button>
-        <button class="nav-item" id="navLista" title="Lista de Entregas" onclick="setAppView('lista')"><span class="material-symbols-outlined">list_alt</span><span class="nav-label">Lista de Entregas</span></button>
+        
         <button class="nav-item" id="navSeccionLogistica" title="Logística" onclick="irALogistica()"><span class="material-symbols-outlined">local_shipping</span><span class="nav-label">Logística</span></button>
         <div class="nav-submenu" id="submenuLogistica" style="display:none;">
           <button class="nav-subitem" id="subLogisticaPreparacion" onclick="setAppView('auditoria')">Preparación</button>
           <button class="nav-subitem" id="subLogisticaTraslado" onclick="setAppView('traslados')">Traslado</button>
           <button class="nav-subitem" id="subLogisticaFaltantes" onclick="setAppView('faltantes')">Faltantes</button>
-          <button class="nav-subitem" id="subLogisticaAlistamiento" onclick="setAppView('alistamiento')">Alistamiento usados</button>
         </div>
         <button class="nav-item" id="navReportes" title="Reportes" onclick="irAReportes()"><span class="material-symbols-outlined">analytics</span><span class="nav-label">Reportes</span></button>
         <div class="nav-submenu" id="submenuReportes" style="display:none;">
@@ -2513,7 +2564,6 @@
       <button class="bn-item" id="bnDashboard" onclick="setAppView('dashboard')"><span class="material-symbols-outlined">dashboard</span><span>Inicio</span></button>
       <button class="bn-item" id="bnNuevaentrega" onclick="abrirElegirTipoEntrega_()"><span class="material-symbols-outlined">add_circle</span><span>Programar</span></button>
       <button class="bn-item" id="bnCalendario" onclick="setAppView('calendario')"><span class="material-symbols-outlined">calendar_today</span><span>Agenda</span></button>
-      <button class="bn-item" id="bnLista" onclick="setAppView('lista')"><span class="material-symbols-outlined">list_alt</span><span>Lista</span></button>
       <button class="bn-item" id="bnMas" onclick="toggleSidebarPin()"><span class="material-symbols-outlined">menu</span><span>Más</span></button>
     </nav>
 
@@ -2747,70 +2797,6 @@
           </div>
         </div>
 
-        <div class="app-view" id="viewLista">
-          <div class="view-header"><h2>Lista de Entregas</h2><p>Filtrá por día, rango de fechas, canal o estado.</p></div>
-          <div class="list-filters-bar">
-            <div class="list-filter-field">
-              <label>Canal</label>
-              <div id="canalToggle" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
-            </div>
-            <div class="list-filter-field">
-              <label>Día</label>
-              <div class="day-nav" style="height:34px;">
-                <button onclick="shiftDay(-1)">‹</button>
-                <div class="day-label" id="dayLabel">—</div>
-                <button onclick="shiftDay(1)">›</button>
-              </div>
-            </div>
-            <div class="list-filter-field">
-              <label>Desde</label>
-              <input type="date" id="rangoDesde" onchange="aplicarRangoFecha()">
-            </div>
-            <div class="list-filter-field">
-              <label>Hasta</label>
-              <input type="date" id="rangoHasta" onchange="aplicarRangoFecha()">
-            </div>
-            <div class="list-filter-field">
-              <label>Estado</label>
-              <select id="filtroEstadoSelect" onchange="setFiltroEstado(this.value)">
-                <option value="">Todos los estados</option>
-                <option value="pendiente">Pendientes</option>
-                <option value="entregada">Entregadas</option>
-                <option value="ok">OK para entregar</option>
-                <option value="warn">Riesgo de retraso</option>
-                <option value="danger">Retrasadas</option>
-              </select>
-            </div>
-            <div class="list-filter-field" style="justify-content:flex-end;">
-              <label>&nbsp;</label>
-              <button class="view-btn" onclick="quitarRangoFecha()">Todo el período</button>
-            </div>
-          </div>
-          <div class="lista-resumen-grid" id="listaResumenCards" style="margin-top:0;margin-bottom:16px;"></div>
-          <div class="blocked-banner" id="blockedBanner" style="display:none;"></div>
-          <div class="board" id="boardWrap">
-            <table>
-              <colgroup>
-                <col style="width:7%"><col style="width:6%"><col style="width:21%"><col style="width:8%">
-                <col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:6%">
-                <col style="width:7%"><col style="width:6%"><col style="width:12%">
-              </colgroup>
-              <thead>
-                <tr>
-                  <th>Fecha</th><th>Hora</th><th>Cliente / Vehículo</th><th>Dominio</th><th>Vendedor</th><th>Admin.</th>
-                  <th>Resp. entrega</th><th>Lugar</th><th>OnStar</th><th>Estado</th><th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="tbody"></tbody>
-            </table>
-          </div>
-
-          <div class="section-title" style="margin-top:24px;display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--invertido);">insights</span>Predicción y desempeño del mes</div>
-          <div class="costos-grid" id="dashPrediccionCards" style="margin-bottom:18px;"></div>
-          <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">military_tech</span>Ranking de vendedores del mes</div>
-          <div id="dashRankingVendedores" style="margin-bottom:10px;"></div>
-        </div>
-
         <div class="app-view" id="viewKanban">
           <div class="view-header"><h2>Asignación Logística</h2><p>Arrastrá — o usá el botón "Asignar a..." — para repartir cada entrega entre los responsables de logística.</p></div>
           <div class="filter-bar" id="kanbanCanalToggle" style="margin-bottom:14px;"></div>
@@ -2843,18 +2829,6 @@
             </select>
           </div>
           <div id="faltantesLista" style="margin-top:14px;"></div>
-        </div>
-
-        <div class="app-view" id="viewAlistamiento">
-          <div class="view-header"><h2>Alistamiento usados</h2><p>Usados vendidos que hay que preparar. Lo carga el <b>administrativo</b> al programar la entrega (<b>Tipo de venta: Usado</b>); acá Logística ve qué alistar y qué está trabado. Tocá una fila para abrir la entrega.</p></div>
-          <div id="alistKpis" class="alist-kpis"></div>
-          <div class="filter-bar" style="flex-wrap:wrap;gap:10px;">
-            <select id="alistFiltro" onchange="renderAlistamiento()"><option value="activas" selected>En proceso</option><option value="urgentes">Compromiso hoy, mañana o vencido</option><option value="falta">Con algo pendiente</option><option value="listo">Listos para alistar</option><option value="entregada">Entregados</option><option value="anulada">Anuladas</option><option value="todas">Todas</option></select>
-            <select id="alistAdm" onchange="renderAlistamiento()"><option value="">Todos los administrativos</option></select>
-            <input id="alistBuscar" placeholder="Buscar cliente, dominio, modelo…" oninput="renderAlistamiento()" style="min-width:220px;">
-            <button class="view-btn" onclick="exportarAlistamientoExcel_()"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:-3px;">download</span> Excel</button>
-          </div>
-          <div id="alistLista" style="margin-top:12px;"></div>
         </div>
 
         <div class="app-view" id="viewAuditoria">
@@ -5110,8 +5084,8 @@ function olvidePasswordUI(){
 }
 // Oculta/deshabilita lo que el rol actual no puede tocar. Se llama al loguearse
 // y cada vez que se renderiza la tabla o se abre el detalle de una entrega.
-var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','traslados','faltantes','alistamiento','preparacion','reportes','historialcoms','casos','notificaciones','maestro','tv'];
-var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', alistamiento:'subLogisticaAlistamiento', preparacion:'subLogisticaPreparacion', reportes:'navReportes', historialcoms:'subCalidadHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', maestro:'navMaestro', tv:'navTv'};
+var MODULOS_LIST = ['dashboard','nuevaentrega','calendario','lista','traslados','faltantes','preparacion','reportes','historialcoms','casos','notificaciones','maestro','tv'];
+var MODULOS_NAV_ID = {dashboard:'navDashboard', nuevaentrega:'navNuevaentrega', calendario:'navCalendario', lista:'navLista', traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', preparacion:'subLogisticaPreparacion', reportes:'navReportes', historialcoms:'subCalidadHistorialComs', casos:'navCasos', notificaciones:'navNotificaciones', maestro:'navMaestro', tv:'navTv'};
 function aplicarPermisosUI(){
   var puede = puedeEditar();
   var modulosDelUsuario = modulosUsuarioActual();
@@ -5139,11 +5113,6 @@ function aplicarPermisosUI(){
     // sacó a pedido explícito, para que la configuración de permisos sea
     // la única fuente de verdad (igual que ya se hizo con puedeEditarModulo_).
     if(mod==='maestro') visible = esCalidad();
-    else if(mod==='alistamiento'){
-      // Alistamiento usados: lo ven quienes tienen Logística (Preparación) o el módulo asignado a mano.
-      visible = modulosUsuario ? (modulosUsuario.indexOf('alistamiento')>-1 || modulosUsuario.indexOf('preparacion')>-1) : (ROLES_CON_PREPARACION_POR_DEFECTO_.concat(['administrativo','supervisor']).indexOf(rolActual())>-1);
-      if(modulosGlobales[mod]===false) visible = false;
-    }
     else if(mod==='preparacion'){
       // Mismo criterio: por defecto lo ven Logística/Supervisor/Maestro,
       // pero si hay una lista explícita en Permisos, esa lista manda —
@@ -5351,18 +5320,18 @@ function mostrarUltimoIngreso_(nombre, ultimoIngreso){
 // Nombres legibles + agrupación por tema, para la pantalla de Permisos
 // (antes se mostraban solo los íconos, todos amontonados en una fila).
 var ETIQUETAS_MODULOS_ = {
-  dashboard:'Inicio', nuevaentrega:'Programar Entrega', calendario:'Calendario', lista:'Lista de Entregas',
-  traslados:'Traslados', faltantes:'Faltantes', alistamiento:'Alistamiento usados', preparacion:'Preparación', reportes:'Reportes',
+  dashboard:'Inicio', nuevaentrega:'Programar Entrega', calendario:'Calendario', lista:'Entregas (detalle y edición)',
+  traslados:'Traslados', faltantes:'Faltantes', preparacion:'Preparación', reportes:'Reportes',
   historialcoms:'Historial de Comunicaciones', casos:'Reportar Caso', notificaciones:'Bandeja de entrada',
   manual:'Manual', maestro:'Configuración', tv:'TV Entregas'
 };
 var GRUPOS_MODULOS_ = [
   {titulo:'General', modulos:['dashboard','nuevaentrega','calendario','lista','reportes','tv']},
-  {titulo:'Logística', modulos:['preparacion','traslados','faltantes','alistamiento']},
+  {titulo:'Logística', modulos:['preparacion','traslados','faltantes']},
   {titulo:'Comunicación y casos', modulos:['historialcoms','casos','notificaciones']},
   {titulo:'Administración', modulos:['maestro']}
 ];
-var iconos = {dashboard:'dashboard', nuevaentrega:'add_circle', calendario:'calendar_today', lista:'list_alt', traslados:'local_shipping', faltantes:'assignment_late', alistamiento:'car_repair', preparacion:'checklist', reportes:'analytics', historialcoms:'forum', casos:'report', notificaciones:'notifications', manual:'menu_book', maestro:'settings', tv:'tv'};
+var iconos = {dashboard:'dashboard', nuevaentrega:'add_circle', calendario:'calendar_today', lista:'list_alt', traslados:'local_shipping', faltantes:'assignment_late', preparacion:'checklist', reportes:'analytics', historialcoms:'forum', casos:'report', notificaciones:'notifications', manual:'menu_book', maestro:'settings', tv:'tv'};
 function abrirModalPermisos_(usuario){
   var u = (window._usuariosCache||[]).find(function(x){return x.usuario===usuario;});
   if(!u) return;
@@ -5820,7 +5789,7 @@ function activarVistaPrevia(){
 // ============================================================
 // NAVEGACIÓN POR VISTAS (Dashboard / Calendario / Lista / Maestro)
 // ============================================================
-var VISTAS_APP = ['dashboard','calendario','lista','historialcoms','casos','notificaciones','traslados','faltantes','alistamiento','preparacion','auditoria','maestro','nuevaentrega','tv'];
+var VISTAS_APP = ['dashboard','calendario','lista','historialcoms','casos','notificaciones','traslados','faltantes','preparacion','auditoria','maestro','nuevaentrega','tv'];
 // ============================================================
 // MODO TV — pantalla de solo lectura para monitor de la concesionaria.
 // Se actualiza sola (usa el mismo refresco silencioso de cada 25s que
@@ -6176,7 +6145,8 @@ document.addEventListener('DOMContentLoaded', function(){
 var currentAppView = 'dashboard';
 var primeraCargaApp_ = true;
 function setAppView(view){
-  if(view==='preparacion') view = 'auditoria'; // el Centro de Preparación se reemplazó por Preparación
+  if(view==='preparacion') view = 'auditoria';
+  if(view==='lista') view = 'calendario'; // la Lista de Entregas se sacó: se usa el Calendario // el Centro de Preparación se reemplazó por Preparación
   currentAppView = view;
   VISTAS_APP.forEach(function(v){
     var el = document.getElementById('view'+v.charAt(0).toUpperCase()+v.slice(1));
@@ -6193,7 +6163,7 @@ function setAppView(view){
     var navMaestro = document.getElementById('navMaestro'); if(navMaestro) navMaestro.classList.remove('expanded');
     if(window._intervalUsuariosTabla){ clearInterval(window._intervalUsuariosTabla); window._intervalUsuariosTabla = null; }
   }
-  var VISTAS_LOGISTICA_ = {traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', alistamiento:'subLogisticaAlistamiento', preparacion:'subLogisticaPreparacion', auditoria:'subLogisticaPreparacion'};
+  var VISTAS_LOGISTICA_ = {traslados:'subLogisticaTraslado', faltantes:'subLogisticaFaltantes', preparacion:'subLogisticaPreparacion', auditoria:'subLogisticaPreparacion'};
   var subL = document.getElementById('submenuLogistica');
   var navL = document.getElementById('navSeccionLogistica');
   if(VISTAS_LOGISTICA_[view]){
@@ -6221,7 +6191,6 @@ function setAppView(view){
   if(view==='notificaciones'){ renderNotificaciones(); }
   if(view==='traslados'){ trasAbrir_(); }
   if(view==='faltantes'){ renderFaltantes(); }
-  if(view==='alistamiento'){ renderAlistamiento(); }
   if(view==='auditoria'){ audAbrir_(); }
   if(typeof audBarraSel_==='function') audBarraSel_();
 }
@@ -6316,8 +6285,8 @@ function sincronizarInputsRangoFecha_(){
 }
 function aplicarRangoFecha(){
   mostrarTodosLosDias = false;
-  var desdeVal=document.getElementById('rangoDesde').value; // yyyy-mm-dd o ''
-  var hastaVal=document.getElementById('rangoHasta').value;
+  var desdeVal=(document.getElementById('rangoDesde')||{}).value||''; // yyyy-mm-dd o ''
+  var hastaVal=(document.getElementById('rangoHasta')||{}).value||'';
   rangoFechaDesde = desdeVal ? new Date(Number(desdeVal.slice(0,4)), Number(desdeVal.slice(5,7))-1, Number(desdeVal.slice(8,10))) : null;
   rangoFechaHasta = hastaVal ? new Date(Number(hastaVal.slice(0,4)), Number(hastaVal.slice(5,7))-1, Number(hastaVal.slice(8,10))) : null;
   sincronizarInputsRangoFecha_();
@@ -6385,37 +6354,6 @@ function tienePendienteSinResolver_(r){
   if(r.kitSeguridad && !r.kitSeguridadColocado) return true;
   if(r.marca==='chevrolet' && r.onstar==='pending') return true;
   return false;
-}
-function renderListaResumenCards(){
-  var el = document.getElementById('listaResumenCards');
-  if(!el) return;
-  var rows = filasVisibles();
-  var completadas = rows.filter(function(r){ return r.entregada; }).length;
-  var pendientes = rows.filter(function(r){ return !r.entregada; }).length;
-  var horaPico = null, conteoHora = {};
-  rows.forEach(function(r){ conteoHora[r.hora]=(conteoHora[r.hora]||0)+1; });
-  Object.keys(conteoHora).forEach(function(h){ if(!horaPico || conteoHora[h]>conteoHora[horaPico]) horaPico=h; });
-  var eficiencia = rows.length>0 ? Math.round((completadas/rows.length)*100) : 100;
-
-  el.innerHTML =
-    '<div class="lista-resumen-card">'+
-      '<div class="icon-badge" style="background:var(--ok-soft);"><span class="material-symbols-outlined" style="color:var(--ok);">check_circle</span></div>'+
-      '<div class="n">'+completadas+'<span class="u">unidades</span></div>'+
-      '<div class="l">Entregas completadas (filtro actual)</div>'+
-    '</div>'+
-    '<div class="lista-resumen-card">'+
-      '<div class="icon-badge" style="background:var(--pending-soft);"><span class="material-symbols-outlined" style="color:var(--pending);">schedule</span></div>'+
-      (horaPico?'<div class="top-tag" style="color:var(--pending);">Pico: '+horaPico+'hs</div>':'')+
-      '<div class="n">'+pendientes+'<span class="u">unidades</span></div>'+
-      '<div class="l">Pendientes (filtro actual)</div>'+
-    '</div>'+
-    '<div class="lista-resumen-card highlight">'+
-      '<div class="icon-badge"><span class="material-symbols-outlined">speed</span></div>'+
-      '<div class="l" style="margin-top:0;">Eficiencia (filtro actual)</div>'+
-      '<div class="n">'+eficiencia+'%</div>'+
-      '<div class="l">Entregas completadas sobre el total filtrado</div>'+
-      '<div class="barra-fondo"><div class="barra-fill" style="width:'+eficiencia+'%;background:#fff;"></div></div>'+
-    '</div>';
 }
 function filasVisibles(){
   var rows;
@@ -6565,7 +6503,7 @@ function updateDayLabel(){
   } else {
     texto = DIAS[currentDate.getDay()].toUpperCase()+' · '+fmtFecha(currentDate);
   }
-  document.getElementById('dayLabel').textContent = texto;
+  var _dl = document.getElementById('dayLabel'); if(_dl) _dl.textContent = texto;
 }
 // ===== Bloqueos por marca y sucursal =====
 // Cada bloqueo puede tener marca y/o sucursal (vacío = todas). Los puntuales (fecha) pueden ser
@@ -6600,7 +6538,7 @@ function minutoBloqueado_(min, rangos){
 function esFeriado(f, ctx){ var d = bloqueoDiaCompleto_(f, DIAS[(function(p){ return new Date(+p[2], +p[1]-1, +p[0]); })(f.split('/')).getDay()], ctx || ctxActual_()); return d ? {motivo:d.motivo} : null; }
 function reglaDia(d, ctx){ var w=(CONFIG.bloqueos.semanales||[]).find(function(x){ return x.dia===d && bloqAplica_(x, ctx || ctxActual_()); }); return w || null; }
 function checkBloqueado(){
-  var banner=document.getElementById('blockedBanner');
+  var banner=document.getElementById('blockedBanner') || {style:{}};
   var addBtn=document.getElementById('navNuevaentrega');
   var fs_=fmtFecha(currentDate), ds_=DIAS[currentDate.getDay()], cx_=ctxActual_();
   var f=bloqueoDiaCompleto_(fs_, ds_, cx_), rg=rangosBloqueo_(fs_, ds_, cx_);
@@ -6627,46 +6565,6 @@ function onstarTag(o){
   var map={ok:['ok','Activado'],warn:['pending','Sin activar'],pending:['pending','Sin activar']};
   var m=map[o]; return '<span class="tag '+m[0]+'">'+m[1]+'</span>';
 }
-function renderTable(){
-  var rows=filasVisibles();
-  var tbody=document.getElementById('tbody');
-  if(rows.length===0){ tbody.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--text-faint);padding:24px;">'+((rangoFechaDesde||rangoFechaHasta)?'Sin entregas cargadas en ese rango de fechas.':'Sin entregas cargadas para este día.')+'</td></tr>'; return; }
-  tbody.innerHTML=rows.map(function(r){
-    var rowKey = r.marca+'_'+r.id;
-    return '<tr class="'+(r.entregada?'is-entregada':'')+'">'+
-      '<td class="hora" data-label="Fecha">'+r.fecha+'</td>'+
-      '<td class="hora" data-label="Hora">'+r.hora+'</td>'+
-      '<td class="cliente" data-label="Cliente" tabindex="0" role="button" aria-label="Ver detalle de '+r.cliente+'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openDetail(\''+r.marca+'\',\''+r.id+'\');}" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
-        '<div style="display:flex;align-items:flex-start;gap:8px;">'+
-          '<span class="material-symbols-outlined" style="font-size:18px;color:var(--text-faint);margin-top:1px;flex-shrink:0;">directions_car</span>'+
-          '<span>'+r.cliente+'<span class="veh">'+r.modelo+' · '+r.color+' <span class="usado-badge">· '+(r.usado==='Sí'?'USADO':'0KM')+'</span></span>'+(accHayAlgo_(r)?'<span class="acc-badge '+(accTodosColocados_(r)?'done':'')+'">'+accResumenTexto_(r)+' — '+accCantidadColocados_(r)+'/'+r.accesoriosItems.length+' colocados</span>':'')+'</span>'+
-        '</div>'+
-      '</td>'+
-      '<td class="dominio" data-label="Dominio"><span class="dominio-badge">'+r.dominio+'</span>'+(r.chasis&&r.chasis!=='—'?'<span style="display:block;font-size:9.5px;color:var(--text-faint);margin-top:3px;">VIN '+r.chasis+'</span>':'')+'</td>'+
-      '<td data-label="Vendedor">'+r.vendedor+'</td>'+
-      '<td data-label="Admin.">'+r.administrativo+'</td>'+
-      '<td data-label="Resp.">'+r.responsableEntrega+'</td>'+
-      '<td data-label="Lugar">'+r.lugar+'</td>'+
-      '<td data-label="OnStar">'+onstarTag(r.onstar)+'</td>'+
-      '<td data-label="Estado">'+estadoTag(r)+'</td>'+
-      '<td class="actions">'+
-        '<div class="user-actions" style="flex-wrap:nowrap;justify-content:flex-end;">'+
-          '<button class="pill-btn edit" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">visibility</span>Detalle</button>'+
-          (puedeEditar() ?
-            '<div class="user-menu-wrap">'+
-              '<button class="user-menu-btn" onclick="toggleUserMenu(\'rm_'+rowKey+'\',event)"><span class="material-symbols-outlined">more_vert</span></button>'+
-              '<div class="user-menu-dropdown" id="rm_'+rowKey+'">'+
-                '<button onclick="openEmailPreview(\'confirmacion\',\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">mail</span>'+(r.confirmado?'Ya confirmada — reenviar':'Confirmar entrega')+'</button>'+
-                '<button onclick="toggleEntregadaId(\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">'+(r.entregada?'undo':'check_circle')+'</span>'+(r.entregada?'Marcar como pendiente':'Marcar como entregada')+'</button>'+
-                '<button class="danger" onclick="deleteRow(\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">delete</span>Eliminar</button>'+
-              '</div>'+
-            '</div>'
-            : '')+
-        '</div>'+
-      '</td></tr>';
-  }).join('');
-}
-
 // --- Predicción de ventas del mes + Ranking de vendedores (Dashboard) ---
 function editarObjetivoMensual_(){
   var actual = (CONFIG.objetivoMensualVentas!=null) ? CONFIG.objetivoMensualVentas : '';
@@ -7050,7 +6948,6 @@ function renderResumenHoyManana(){
 
 function renderAll(){
   renderCanalToggle(); renderFiltroAdministrativo();
-  if(currentAppView==='lista'){ renderTable(); renderListaResumenCards(); }
   if(currentAppView==='dashboard'){ renderStats(); renderResumenHoyManana(); renderPrediccionVentas_(); renderRankingVendedores_(); renderVentasFuturasWidget_(); }
   if(currentView==='mes' || currentAppView==='calendario') renderCalendar();
   if(currentAppView==='calendario' && calVistaActual==='linea') renderTimelineActiva_();
@@ -8346,50 +8243,68 @@ function audRender_(){
 function audUltimaNota_(u){ return (u.historial||[]).slice().reverse().find(function(x){ return /^📝|^🔎|^🎨|^🔧|^✅/.test(x.texto||''); }) || null; }
 function audCard_(u, col, ent){
   var c = AUD_COLS_.find(function(x){ return x.id===col; }) || AUD_COLS_[0];
-  var dias = audDias_(u.fechaVenta);
-  var ids = '<span class="aud-id'+(u.patente?'':' falta')+'">Patente <b>'+(u.patente ? cfgEsc_(String(u.patente).toUpperCase()) : 'sin patente')+'</b></span>'+
-            '<span class="aud-id'+(u.vin?'':' falta')+'">VIN <b>'+(u.vin ? cfgEsc_(u.vin) : 'sin VIN')+'</b></span>';
+  var dias = audDias_(u.fechaVenta), tipo = audTipo_(u, ent);
   var nota = audUltimaNota_(u), puede = puedeEditarModulo_('preparacion'), uid = "'"+u.id+"'";
+  var sel = _aud.sel[u.id], prio = !!ent && col!=='ok';
   var b = function(cls, ic, txt, js){ return '<button type="button" class="aud-btn '+cls+'" onclick="'+js+'"'+(puede?'':' disabled')+'><span class="material-symbols-outlined">'+ic+'</span>'+txt+'</button>'; };
-  var acc = '';
-  if(col==='buscar') acc = b('pri','location_searching','La encontramos','audMover_('+uid+',\'revision\')');
-  else if(col==='revision') acc = b('ok','verified','OK para entregar','audMover_('+uid+',\'ok\')')+b('chapa','format_paint','A chapa','audMover_('+uid+',\'chapa\')')+b('pv','build','A postventa','audMover_('+uid+',\'postventa\')');
-  else if(col==='chapa' || col==='postventa') acc = b('ok','verified','Ya quedó OK','audMover_('+uid+',\'ok\')')+b('sec','swap_horiz', col==='chapa'?'Pasar a postventa':'Pasar a chapa','audMover_('+uid+',\''+(col==='chapa'?'postventa':'chapa')+'\')');
-  else if(col==='ok') acc = (ent ? '' : b('pri','event','Programar entrega','audProgramar_('+uid+')'))+b('sec','undo','Volver a revisión','audMover_('+uid+',\'revision\')');
-  if(ent) acc += '<button type="button" class="aud-btn sec" onclick="openDetail(\''+ent.marca+'\',\''+ent.id+'\')"><span class="material-symbols-outlined">open_in_new</span>Ver entrega</button>';
-  acc += b('sec','edit_note','Nota','audNota_('+uid+')');
-  var lugar = audLugar_(u, ent, puede);
-  var check = (col==='revision' || col==='ok' || col==='chapa' || col==='postventa') ? audChecklistHtml_(u, puede) : '';
-  var sel = _aud.sel[u.id];
-  var tipo = audTipo_(u, ent);
-  var fechaEnt = '';
+  // Acción principal (la que sigue) y secundarias
+  var pri = '', sec = '';
+  if(col==='buscar') pri = b('pri grande','location_searching','La encontramos','audMover_('+uid+',\'revision\')');
+  else if(col==='revision'){ pri = b('ok grande','verified','OK para entregar','audMover_('+uid+',\'ok\')'); sec = b('chapa','format_paint','A chapa','audMover_('+uid+',\'chapa\')')+b('pv','build','A postventa','audMover_('+uid+',\'postventa\')'); }
+  else if(col==='chapa' || col==='postventa'){ pri = b('ok grande','verified','Ya quedó OK','audMover_('+uid+',\'ok\')'); sec = b('sec','swap_horiz', col==='chapa'?'Pasar a postventa':'Pasar a chapa','audMover_('+uid+',\''+(col==='chapa'?'postventa':'chapa')+'\')'); }
+  else if(col==='ok'){ pri = ent ? '<button type="button" class="aud-btn pri grande" onclick="openDetail(\''+ent.marca+'\',\''+ent.id+'\')"><span class="material-symbols-outlined">open_in_new</span>Ver entrega</button>' : b('pri grande','event','Programar entrega','audProgramar_('+uid+')'); sec = b('sec','undo','Volver a revisión','audMover_('+uid+',\'revision\')'); }
+  // Fecha de entrega (si ya está en el Planning)
+  var entPill = '';
   if(ent){
     var d = audFechaEnt_(ent), hoy = new Date(); hoy.setHours(0,0,0,0);
     var falta = d ? Math.round((d-hoy)/86400000) : null;
-    var DS = ['dom','lun','mar','mié','jue','vie','sáb'];
-    fechaEnt = (d?DS[d.getDay()]+' ':'')+String(ent.fecha).slice(0,5)+' · '+ent.hora+(ent.sucursal&&ent.sucursal!=='default'?' · '+ent.sucursal:'')+
-      (falta!=null ? ' <span class="aud-falta">'+(falta<0?'vencida':falta===0?'¡es hoy!':falta===1?'es mañana':'faltan '+falta+' días')+'</span>' : '');
+    var DS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+    var cuando = falta===0 ? 'Hoy' : falta===1 ? 'Mañana' : (d ? DS[d.getDay()]+' '+String(ent.fecha).slice(0,5) : ent.fecha);
+    entPill = '<span class="ac-pill ent'+(prio?' prio':'')+(falta!=null&&falta<0?' venc':'')+'" title="Entrega programada en el Planning"><span class="material-symbols-outlined">'+(prio?'priority_high':'event_available')+'</span>'+(falta!=null&&falta<0?'Vencida · ':'')+'Entrega '+cuando+' '+cfgEsc_(ent.hora||'')+(ent.sucursal&&ent.sucursal!=='default'?' · '+cfgEsc_(ent.sucursal):'')+'</span>';
   }
-  return '<article class="aud-card'+(ent&&col!=='ok'?' prio':'')+(sel?' sel':'')+'" style="--c:var('+c.c+');--cs:var('+c.cs+');">'+
-    (puede ? '<label class="aud-sel" title="Seleccionar"><input type="checkbox" '+(sel?'checked':'')+' onchange="audSel_('+uid+',this.checked)"></label>' : '')+
-    (ent ? '<div class="aud-prio"><span class="material-symbols-outlined">'+(col==='ok'?'event_available':'priority_high')+'</span>'+(col==='ok'?'Entrega programada':'Prioridad — ya tiene entrega programada')+': <b>'+fechaEnt+'</b></div>' : '')+
-    '<div class="aud-card-in">'+
-    '<div class="aud-c1">'+
-      '<div class="aud-mod"><span class="aud-tipo '+tipo.k+'">'+tipo.t+'</span><b>'+cfgEsc_(u.modelo||'Modelo sin cargar')+'</b>'+(u.version?' <span>'+cfgEsc_(u.version)+'</span>':'')+(u.color?'<span class="aud-color">'+cfgEsc_(u.color)+'</span>':'')+'</div>'+
-      '<div class="aud-cli"><span class="material-symbols-outlined">person</span>'+cfgEsc_(u.cliente||'—')+'</div>'+
-      '<div class="aud-ids">'+ids+(u.referencia && /^OF-/.test(u.referencia)?'<span class="aud-id">Oferta <b>'+cfgEsc_(String(u.referencia).replace(/^OF-?/,''))+'</b></span>':'')+(u.vendedor?'<span class="aud-id">Vend. <b style="font-family:Inter,sans-serif;">'+cfgEsc_(u.vendedor)+'</b></span>':'')+'</div>'+
+  var diasPill = dias!=null ? '<span class="ac-pill dias'+(dias>=15?' alto':dias>=7?' medio':'')+'" title="Días desde la venta"><b>'+dias+'</b> '+(dias===1?'día':'días')+'</span>' : '';
+  // Identificación
+  var vinCorto = u.vin ? String(u.vin).slice(-8) : '';
+  var ids = '<span'+(u.patente?'':' class="falta"')+'>Patente <b>'+(u.patente ? cfgEsc_(String(u.patente).toUpperCase()) : '—')+'</b></span>'+
+            '<span'+(u.vin?'':' class="falta"')+' title="'+cfgEsc_(u.vin||'Sin VIN')+'">VIN <b>'+(u.vin ? '…'+cfgEsc_(vinCorto) : '—')+'</b></span>'+
+            (u.referencia && /^OF-/.test(u.referencia) ? '<span>Oferta <b>'+cfgEsc_(String(u.referencia).replace(/^OF-?/,''))+'</b></span>' : '')+
+            (u.vendedor ? '<span>Vend. <b>'+cfgEsc_(u.vendedor)+'</b></span>' : '');
+  // Pasos
+  var pasos = [{k:'buscar',t:'Buscar'},{k:'revision',t:'Revisión'}];
+  if(col==='chapa') pasos.push({k:'chapa',t:'Chapa'}); if(col==='postventa') pasos.push({k:'postventa',t:'Postventa'});
+  pasos.push({k:'ok',t:'OK'});
+  var iAct = pasos.findIndex(function(p){ return p.k===col; });
+  var stepper = '<div class="ac-pasos" aria-label="Paso actual: '+c.t+'">'+pasos.map(function(p, i){
+    var est = i<iAct ? 'hecho' : i===iAct ? 'actual' : '';
+    return '<span class="ac-paso '+est+' k-'+p.k+'"><i>'+(i<iAct?'✓':(i+1))+'</i>'+p.t+'</span>';
+  }).join('<span class="ac-linea"></span>')+'</div>';
+  var check = (col==='revision' || col==='ok' || col==='chapa' || col==='postventa') ? audChecklistHtml_(u, puede) : null;
+  return '<article class="aud-card ac'+(prio?' prio':'')+(sel?' sel':'')+'" style="--c:var('+c.c+');--cs:var('+c.cs+');">'+
+    '<header class="ac-top">'+
+      '<span class="aud-tipo '+tipo.k+'">'+tipo.t+'</span>'+
+      '<div class="ac-tit"><b>'+cfgEsc_(u.modelo||'Modelo sin cargar')+'</b>'+(u.color?'<span>'+cfgEsc_(u.color)+'</span>':'')+'</div>'+
+      '<div class="ac-pills">'+entPill+diasPill+'</div>'+
+      (puede ? '<label class="aud-sel" title="Seleccionar"><input type="checkbox" '+(sel?'checked':'')+' onchange="audSel_('+uid+',this.checked)"></label>' : '')+
+    '</header>'+
+    '<div class="ac-body">'+
+      '<div class="ac-info">'+
+        '<div class="ac-cli"><span class="material-symbols-outlined">person</span>'+cfgEsc_(u.cliente||'—')+'</div>'+
+        '<div class="ac-ids">'+ids+'</div>'+
+        stepper+
+        audLugar_(u, ent, puede)+
+        (nota ? '<div class="ac-nota"><span class="material-symbols-outlined">sticky_note_2</span><span>'+cfgEsc_(nota.texto.replace(/^(🔎|🎨|🔧|✅|📝)\s*/,''))+' <small>· '+cfgEsc_(nota.autor||'')+', '+cfgEsc_(String(nota.fecha||'').slice(0,17))+'</small></span></div>' : '')+
+      '</div>'+
+      '<div class="ac-acc">'+pri+(sec?'<div class="ac-sec">'+sec+'</div>':'')+'</div>'+
     '</div>'+
-    '<div class="aud-c2">'+lugar+
-      (nota ? '<div class="aud-nota"><span class="material-symbols-outlined">sticky_note_2</span><span>'+cfgEsc_(nota.texto)+'<small>'+cfgEsc_(nota.autor||'')+' · '+cfgEsc_(nota.fecha||'')+'</small></span></div>' : '')+
-    '</div>'+
-    '<div class="aud-c3">'+
-      (dias!=null ? '<div class="aud-dias'+(dias>=15?' alto':dias>=7?' medio':'')+'"><b>'+dias+'</b><small>'+(dias===1?'día':'días')+' de vendida</small></div>' : '')+
-      '<div class="aud-acc">'+acc+'</div>'+
-    '</div></div>'+
-    audPieCard_(u, check)+
+    '<footer class="ac-pie">'+(check ? check.boton : '<span></span>')+
+      '<div class="ac-pie-d">'+
+        (ent && col!=='ok' ? '<button type="button" class="aud-hist-btn" onclick="openDetail(\''+ent.marca+'\',\''+ent.id+'\')"><span class="material-symbols-outlined">open_in_new</span>Ver entrega</button>' : '')+
+        '<button type="button" class="aud-hist-btn" onclick="audNota_('+uid+')"'+(puede?'':' disabled')+'><span class="material-symbols-outlined">edit_note</span>Nota</button>'+
+        '<button type="button" class="aud-hist-btn" onclick="audHistorial_('+uid+')"><span class="material-symbols-outlined">history</span>Historial'+((u.historial||[]).length?' <small>'+(u.historial||[]).length+'</small>':'')+'</button>'+
+      '</div></footer>'+
+    (check ? check.grilla : '')+
   '</article>';
 }
-
 // ---------- Tipo de venta: Directa / Plan de ahorro ----------
 function audTipo_(u, ent){
   var ref = String(u.referencia||'');
@@ -8503,21 +8418,21 @@ var AUD_UBIC_ = SUCURSALES.concat(['Depósito','En tránsito']);
 function audDestino_(u, ent){ return (ent && ent.sucursal && ent.sucursal!=='default') ? ent.sucursal : (u.sucursal||''); }
 function audLugar_(u, ent, puede){
   var t = u.traslado || {}, ubic = t.ubicacion || '', dest = audDestino_(u, ent);
-  var opc = function(lista, val, vacio){ return '<option value="">'+vacio+'</option>'+lista.map(function(x){ return '<option'+(x===val?' selected':'')+'>'+x+'</option>'; }).join(''); };
   var dis = puede ? '' : ' disabled';
-  var destHtml = (ent && ent.sucursal && ent.sucursal!=='default')
-    ? '<span class="aud-lugar-v" title="Sale de la entrega programada">'+cfgEsc_(dest)+'</span>'
-    : '<select'+dis+' onchange="audSetDestino_(\''+u.id+'\',this.value)" class="'+(dest?'':'falta')+'">'+opc(SUCURSALES, dest, 'Elegir…')+'</select>';
-  var traslado = '';
-  if(ubic && dest && ubic!==dest && !t.completado){
-    traslado = '<span class="aud-tras"><span class="material-symbols-outlined">local_shipping</span>Hay que trasladarla de <b>'+cfgEsc_(ubic)+'</b> a <b>'+cfgEsc_(dest)+'</b>'+(puede?'<button type="button" onclick="audLlego_(\''+u.id+'\')">Ya llegó</button>':'')+'</span>';
-  } else if(ubic && dest && ubic===dest){
-    traslado = '<span class="aud-tras ok"><span class="material-symbols-outlined">check_circle</span>Ya está en la sucursal de entrega</span>';
-  }
-  return '<div class="aud-lugar">'+
-    '<label><span class="material-symbols-outlined">location_on</span><span class="aud-lugar-l">Está en</span><select'+dis+' onchange="audSetUbic_(\''+u.id+'\',this.value)" class="'+(ubic?'':'falta')+'">'+opc(AUD_UBIC_, ubic, '¿Dónde está?')+'</select></label>'+
-    '<label><span class="material-symbols-outlined">flag</span><span class="aud-lugar-l">Se entrega en</span>'+destHtml+'</label>'+
-    traslado+'</div>';
+  var opc = function(lista, val, vacio){ return '<option value="">'+vacio+'</option>'+lista.map(function(x){ return '<option'+(x===val?' selected':'')+'>'+x+'</option>'; }).join(''); };
+  var fijo = !!(ent && ent.sucursal && ent.sucursal!=='default');
+  var estado = '';
+  if(!ubic) estado = '<span class="ac-est falta">Falta saber dónde está</span>';
+  else if(!dest) estado = '<span class="ac-est falta">Falta la sucursal de entrega</span>';
+  else if(ubic!==dest && !t.completado) estado = '<span class="ac-est tras"><span class="material-symbols-outlined">local_shipping</span>Hay que trasladarla'+(puede?'<button type="button" onclick="audLlego_(\''+u.id+'\')">Ya llegó</button>':'')+'</span>';
+  else estado = '<span class="ac-est ok"><span class="material-symbols-outlined">check_circle</span>Ya está donde se entrega</span>';
+  return '<div class="ac-ruta">'+
+    '<label class="ac-lugar" title="Dónde está la unidad"><span class="material-symbols-outlined">location_on</span><select'+dis+' onchange="audSetUbic_(\''+u.id+'\',this.value)" class="'+(ubic?'':'falta')+'" aria-label="Dónde está">'+opc(AUD_UBIC_, ubic, '¿Dónde está?')+'</select></label>'+
+    '<span class="ac-flecha'+(ubic && dest && ubic!==dest && !t.completado ? ' mueve' : '')+'"><span class="material-symbols-outlined">arrow_forward</span></span>'+
+    '<label class="ac-lugar" title="Sucursal donde se entrega"><span class="material-symbols-outlined">flag</span>'+
+      (fijo ? '<span class="ac-lugar-fijo" title="Sale de la entrega programada">'+cfgEsc_(dest)+'</span>' : '<select'+dis+' onchange="audSetDestino_(\''+u.id+'\',this.value)" class="'+(dest?'':'falta')+'" aria-label="Se entrega en">'+opc(SUCURSALES, dest, '¿Dónde se entrega?')+'</select>')+
+    '</label>'+estado+
+  '</div>';
 }
 function audGuardarCampos_(u, campos, nota){
   gasPost('prepActualizar', {id:u.id, campos:campos, nota:nota, autor:usuarioActual()}).then(function(res){ if(!res || !res.ok) showToast((res&&res.error)||'No se pudo guardar'); });
@@ -8559,18 +8474,29 @@ function audChecklistHtml_(u, puede){
   return {boton:boton, grilla:grilla};
 }
 function audToggleCheck_(id){ _aud.abierto[id] = !_aud.abierto[id]; audRender_(); }
-function audPieCard_(u, check){
-  var n = (u.historial||[]).length;
-  return '<div class="aud-pie-card">'+(check ? check.boton : '<span></span>')+
-    '<button type="button" class="aud-hist-btn" onclick="audHistorial_(\''+u.id+'\')"><span class="material-symbols-outlined">history</span>Historial'+(n?' <small>'+n+'</small>':'')+'</button></div>'+
-    (check ? check.grilla : '');
-}
 // ---------- Historial completo de la unidad ----------
 function audHistorial_(id){
   var u = PREP_UNIDADES.find(function(x){ return x.id===id; }); if(!u) return;
   var items = (u.historial||[]).map(function(h, i){ return {f:String(h.fecha||''), t:String(h.texto||''), a:h.autor||'', i:i}; });
   var e = audEntregaDe_(u);
-  if(e) items.push({f:'', t:(e.entregada?'🚗 Entregada al cliente':'📅 Entrega programada para el '+e.fecha+' a las '+e.hora)+(e.sucursal&&e.sucursal!=='default'?' en '+e.sucursal:''), a:'Planning', i:9999, sint:true});
+  if(e){
+    // Lo que pasó con la entrega en el Planning: quién la programó, reprogramaciones, confirmación y entrega.
+    var autorDe = function(t){ var m = String(t).match(/\(por ([^)]+)\)\s*$/); return m ? m[1] : ''; };
+    var sinAutor = function(t){ return String(t).replace(/\s*\(por [^)]+\)\s*$/,''); };
+    var hist = e.historial || [], reprog = hist.some(function(h){ return /reprogram/i.test(h.texto||''); });
+    hist.forEach(function(h){
+      var t = String(h.texto||''), a = autorDe(t), base = sinAutor(t);
+      if(/Entrega creada/i.test(t)) items.push({f:String(h.fecha||''), t:'📅 '+(a||'Alguien')+' programó la entrega'+(reprog?'':' para el '+e.fecha+' a las '+e.hora+(e.sucursal&&e.sucursal!=='default'?' en '+e.sucursal:'')), a:a||'Planning', i:5000});
+      else if(/reprogram/i.test(t)) items.push({f:String(h.fecha||''), t:'📅 '+base.replace(/^[^\wÁÉÍÓÚáéíóúÑñ]+/,''), a:a||'Planning', i:5001});
+      else if(/fecha confirmada|confirmó la fecha|confirmar fecha/i.test(t)) items.push({f:String(h.fecha||''), t:'📅 '+base.replace(/^[^\wÁÉÍÓÚáéíóúÑñ]+/,''), a:a||'Planning', i:5002});
+      else if(/marcada como entregada|unidad marcada como entregada/i.test(t)) items.push({f:String(h.fecha||''), t:'🚗 Se entregó al cliente', a:a||'Planning', i:5003});
+    });
+    items.push({f:'', t:(e.entregada?'🚗 Entregada al cliente':'📅 Entrega programada para el '+e.fecha+' a las '+e.hora)+(e.sucursal&&e.sucursal!=='default'?' en '+e.sucursal:''), a:'Planning', i:9999, sint:true});
+  }
+  // Orden cronológico (las fechas vienen como "13/11/2026, 10:05" o "13/11/2026 10:05")
+  var aFecha = function(f){ var m = String(f).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\D+(\d{1,2}):(\d{2})(?:\s*([ap])\.?\s*m)?/i); if(!m) return null; var h = +m[4]; if(m[6]){ if(/p/i.test(m[6]) && h<12) h+=12; if(/a/i.test(m[6]) && h===12) h=0; } return new Date(+m[3], +m[2]-1, +m[1], h, +m[5]).getTime(); };
+  items.forEach(function(x){ x.ts = x.sint ? Infinity : (aFecha(x.f) || 0); });
+  items.sort(function(a,b){ return (a.ts-b.ts) || (a.i-b.i); });
   var icono = function(t){
     if(/^🔎|encontramos/i.test(t)) return ['location_searching','--peugeot'];
     if(/^🎨|chapa/i.test(t)) return ['format_paint','--warn'];
@@ -10839,7 +10765,7 @@ function guardarUsado_(campo, valor){
   if(!puedeEditarModulo_('lista')){ showToast('Tenés acceso de solo lectura a las entregas.'); return; }
   guardarCampo(campo, valor);
   var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;});
-  if(r){ renderAlertaUsado_(r); renderAlertaCompromiso_(r); renderFechaSinConfirmarUI_(r); if(currentAppView==='alistamiento') renderAlistamiento(); }
+  if(r){ renderAlertaUsado_(r); renderAlertaCompromiso_(r); renderFechaSinConfirmarUI_(r); }
 }
 // Lleva a la sección Usado — Alistamiento, la abre y pone el foco en lo primero que falta.
 function autoAjustarTexto_(ta){ if(!ta) return; ta.style.height='auto'; ta.style.height=Math.max(64, ta.scrollHeight+2)+'px'; }
@@ -10891,7 +10817,7 @@ function anularUsado_(){
     r.usAnulada=false;
     gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{usAnulada:false}});
     logHistorial_(detailMarca, detailId, '↺ Usado: operación reactivada');
-    renderUsadoUI_(r); renderAll(); if(currentAppView==='alistamiento') renderAlistamiento(); return;
+    renderUsadoUI_(r); renderAll(); return;
   }
   pedirTexto_('Anular operación', '¿Por qué se anula? (queda registrado)', 'Ej: el cliente desistió de la compra').then(function(mot){
     if(mot===null) return;
@@ -10899,7 +10825,7 @@ function anularUsado_(){
     r.usAnulada=true; r.usAnuladaMotivo=mot.trim(); r.usAnuladaPor=usuarioActual(); r.usAnuladaFecha=fechaHoraAhora_();
     gasPost('updateEntregaFields',{marca:detailMarca,id:detailId,fields:{usAnulada:true, usAnuladaMotivo:r.usAnuladaMotivo, usAnuladaPor:r.usAnuladaPor, usAnuladaFecha:r.usAnuladaFecha}});
     logHistorial_(detailMarca, detailId, '⛔ Usado: operación anulada — '+r.usAnuladaMotivo);
-    renderUsadoUI_(r); renderAll(); if(currentAppView==='alistamiento') renderAlistamiento();
+    renderUsadoUI_(r); renderAll();
   });
 }
 // Ventana propia para pedir un texto (en vez del cuadro del navegador)
@@ -10914,75 +10840,6 @@ function pedirTexto_(titulo, texto, placeholder){
     fondo.querySelector('.pw-cancelar').onclick=function(){ fin(null); };
     setTimeout(function(){ ta.focus(); }, 30);
   });
-}
-// ---------- Logística → Alistamiento usados ----------
-function usadosLista_(){
-  return ENTREGAS.filter(function(r){
-    if(!esUsadoVenta_(r)) return false;
-    if(currentBranches.length>0 && currentBranches.indexOf(r.sucursal)===-1) return false;
-    return true;
-  });
-}
-function usEstadoFila_(r){
-  if(r.usAnulada) return 'anulada';
-  if(r.entregada) return 'entregada';
-  return usFaltantes_(r).length ? 'falta' : 'listo';
-}
-function renderAlistamiento(){
-  var cont=document.getElementById('alistLista'); if(!cont) return;
-  var filtro=(document.getElementById('alistFiltro')||{}).value||'activas';
-  var adm=(document.getElementById('alistAdm')||{}).value||'';
-  var q=((document.getElementById('alistBuscar')||{}).value||'').toLowerCase().trim();
-  var todas=usadosLista_();
-  var cuenta={activas:0,falta:0,listo:0,entregada:0,anulada:0,urgentes:0};
-  todas.forEach(function(r){ var e=usEstadoFila_(r); cuenta[e]=(cuenta[e]||0)+1; if(e==='falta'||e==='listo'){ cuenta.activas++; var c=cuentaRegresiva_(r.usFechaCompromiso); if(c && c.dias<=1) cuenta.urgentes++; } });
-  var kp=document.getElementById('alistKpis');
-  if(kp) kp.innerHTML=[['activas','En proceso',''],['urgentes','Compromiso hoy, mañana o vencido','bad'],['falta','Con algo pendiente','bad'],['listo','Listos para alistar','ok'],['entregada','Entregados',''],['anulada','Anuladas','dim']].map(function(k){
-    return '<button class="alist-kpi '+k[2]+(filtro===k[0]?' on':'')+'" onclick="document.getElementById(\'alistFiltro\').value=\''+k[0]+'\';renderAlistamiento()"><b>'+(cuenta[k[0]]||0)+'</b><span>'+k[1]+'</span></button>';
-  }).join('');
-  var adms={}; todas.forEach(function(r){ if(r.administrativo) adms[r.administrativo]=1; });
-  var sel=document.getElementById('alistAdm');
-  if(sel){ var act=sel.value; sel.innerHTML='<option value="">Todos los administrativos</option>'+Object.keys(adms).sort().map(function(a){ return '<option'+(a===act?' selected':'')+'>'+usEsc_(a)+'</option>'; }).join(''); }
-  var filas=todas.filter(function(r){
-    var e=usEstadoFila_(r);
-    if(filtro==='activas' && !(e==='falta'||e==='listo')) return false;
-    if(filtro==='urgentes'){ var cu=cuentaRegresiva_(r.usFechaCompromiso); if(!((e==='falta'||e==='listo') && cu && cu.dias<=1)) return false; return true; }
-    if(filtro!=='activas' && filtro!=='todas' && e!==filtro) return false;
-    if(adm && r.administrativo!==adm) return false;
-    if(q && [r.cliente,r.dominio,r.modelo,r.vendedor,r.administrativo,r.chasis].join(' ').toLowerCase().indexOf(q)===-1) return false;
-    return true;
-  }).sort(function(a,b){ return String(a.usFechaCompromiso||'9999').localeCompare(String(b.usFechaCompromiso||'9999')) || String(a.fecha||'').localeCompare(String(b.fecha||'')); });
-  window._alistFilas=filas;
-  if(!filas.length){ cont.innerHTML='<div class="empty-state" style="padding:30px;text-align:center;color:var(--text-faint);">No hay usados en este filtro. Aparecen acá las entregas con <b>Tipo de venta: Usado</b>.</div>'; return; }
-  var chip=function(v, malos, buenos){ if(!v) return '<span class="us-chip">—</span>'; var c=malos.indexOf(v)>-1?'bad':buenos.indexOf(v)>-1?'ok':'mid'; return '<span class="us-chip '+c+'">'+usEsc_(v)+'</span>'; };
-  var hoyStr=fmtFecha(new Date()).split('/').reverse().join('-');
-  cont.innerHTML='<div class="us-tabla-wrap"><table class="us-tabla"><thead><tr><th>Oferta</th><th>Carga</th><th>Cliente</th><th>Modelo</th><th>Dominio</th><th>Compromiso taller</th><th>Sin garantía</th><th>Adm.</th><th>Sucursal</th><th>Comp. servicio</th><th>Comp. distribución</th><th>Dup. llave</th><th>Documentación</th><th>Entrega</th><th>Observaciones</th><th>Vendedor</th></tr></thead><tbody>'+
-    filas.map(function(r){
-      var e=usEstadoFila_(r), venc = r.usFechaCompromiso && r.usFechaCompromiso<hoyStr && e!=='entregada' && e!=='anulada';
-      var bq = usadoBloqueadoHasta_(r);
-      var ent = r.entregada ? '<span class="us-chip ok">✓ Entregado</span>'
-        : r.fechaSinConfirmar ? '<span class="us-chip mid">⏳ '+usEsc_(r.fecha||'')+' '+usEsc_(r.hora||'')+' · a confirmar</span>'
-        : (r.fecha ? usEsc_(r.fecha)+' '+usEsc_(r.hora||'') : '—');
-      return '<tr class="us-'+e+'" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')">'+
-        '<td>'+usEsc_(usFecha_(r.usFechaOferta))+'</td><td>'+usEsc_(usFecha_(r.usFechaCarga))+'</td>'+
-        '<td><b>'+usEsc_(r.cliente)+'</b>'+(r.usAnulada?'<div class="us-anul">Anulada'+(r.usAnuladaMotivo?': '+usEsc_(r.usAnuladaMotivo):'')+'</div>':'')+'</td>'+
-        '<td>'+usEsc_(r.modelo)+'</td><td class="mono">'+usEsc_(r.dominio)+'</td>'+
-        '<td>'+usEsc_(usFecha_(r.usFechaCompromiso))+(function(){ var c=(e==='falta'||e==='listo')?cuentaRegresiva_(r.usFechaCompromiso):null; return c ? '<div><span class="us-cd '+c.nivel+'">⏱ '+usEsc_(c.txt)+'</span></div>' : ''; })()+'</td>'+
-        '<td>'+(r.usSinGarantia?'<span class="us-chip mid">Sin garantía</span>':'')+'</td>'+
-        '<td>'+usEsc_(r.administrativo)+'</td><td>'+usEsc_(r.sucursal)+'</td>'+
-        '<td>'+chip(r.usCompServicio,['Vencido'],['Tiene'])+'</td><td>'+chip(r.usCompDistribucion,[],['Tiene','No corresponde'])+'</td>'+
-        '<td>'+chip(r.usDupLlave,['No'],['Sí'])+'</td><td>'+chip(r.usEstadoDoc,['Falta verificación policial'],['Listo'])+'</td>'+
-        '<td>'+ent+'</td><td class="us-obs">'+usEsc_(r.usObs)+'</td><td>'+usEsc_(r.vendedor)+'</td></tr>';
-    }).join('')+'</tbody></table></div>';
-}
-function exportarAlistamientoExcel_(){
-  var filas=window._alistFilas||[]; if(!filas.length){ showToast('No hay filas para exportar'); return; }
-  var aoa=[['FECHA DE OFERTA','FECHA DE CARGA','CLIENTE','MODELO','DOMINIO','FECHA DE COMPROMISO DE TALLER','SIN GARANTIA','ADM','SUCURSAL','COMPROBANTES DE SERVICIO','COMPROBANTE DE DISTRIBUCION','TIENE DUP DE LLAVE','ESTADO DE DOCUMENTACION','ENTREGA','OBSERVACIONES','VENDEDOR','ESTADO']];
-  filas.forEach(function(r){ aoa.push([usFecha_(r.usFechaOferta),usFecha_(r.usFechaCarga),r.cliente||'',r.modelo||'',r.dominio||'',usFecha_(r.usFechaCompromiso),r.usSinGarantia?'SI':'NO',r.administrativo||'',r.sucursal||'',r.usCompServicio||'',r.usCompDistribucion||'',r.usDupLlave||'',r.usEstadoDoc||'',r.entregada?'ENTREGADO':(usFecha_(r.fecha)+' '+(r.hora||'')).trim(),r.usObs||'',r.vendedor||'',{anulada:'ANULADA',entregada:'ENTREGADA',falta:'PENDIENTE',listo:'LISTO'}[usEstadoFila_(r)]]); });
-  var ws=XLSX.utils.aoa_to_sheet(aoa); ws['!cols']=aoa[0].map(function(h,i){ return {wch:[12,12,28,30,10,14,10,12,14,14,16,10,24,16,40,18,12][i]||14}; });
-  ws['!autofilter']={ref:'A1:Q'+aoa.length};
-  var wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Alistamiento usados');
-  XLSX.writeFile(wb, 'Alistamiento usados '+fmtFecha(new Date()).replace(/\//g,'-')+'.xlsx');
 }
 function toggleDrawerAncho_(forzar){
   var d = document.getElementById('drawer'); if(!d) return;
@@ -11820,7 +11677,6 @@ function usadoBloqueadoHasta_(r){
 function renderFechaSinConfirmarUI_(r){
   // el aviso del compromiso de taller muestra si la fecha está a confirmar: se refresca junto con este botón
   if(r && typeof renderAlertaCompromiso_==='function') renderAlertaCompromiso_(r);
-  if(typeof currentAppView!=='undefined' && currentAppView==='alistamiento' && typeof renderAlistamiento==='function') renderAlistamiento();
   var btn = document.getElementById('dSinConfirmarBtn'), al = document.getElementById('dSinConfirmarAlerta');
   var on = !!(r && r.fechaSinConfirmar && !r.entregada);
   var bloq = r ? usadoBloqueadoHasta_(r) : null;
@@ -15675,7 +15531,7 @@ function mostrarSubmenu_(grupo){
 
 function irALogistica(){
   var abierto = document.getElementById('submenuLogistica').style.display==='flex';
-  var enLogistica = ['traslados','faltantes','alistamiento','preparacion'].indexOf(currentAppView)>-1;
+  var enLogistica = ['traslados','faltantes','preparacion','auditoria'].indexOf(currentAppView)>-1;
   if(abierto && enLogistica){
     // Ya estabas en Logística con el submenú abierto: un segundo click lo cierra y vuelve al dashboard.
     document.getElementById('submenuLogistica').style.display='none';
