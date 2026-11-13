@@ -1417,6 +1417,37 @@
   .aud-modal-ayuda{display:block;font-size:11.5px;color:var(--text-faint);margin-top:5px;min-height:14px;}
   .aud-modal footer{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;}
   .aud-tabs{grid-template-columns:repeat(5,minmax(0,1fr));}
+
+  /* --- Preparación: lugar, traslado, checklist y selección --- */
+  .aud-card{position:relative;}
+  .aud-card.sel{box-shadow:0 0 0 2px var(--accent);}
+  .aud-sel{position:absolute;top:10px;right:10px;z-index:2;width:22px;height:22px;display:grid;place-items:center;cursor:pointer;}
+  .aud-card.prio .aud-sel{top:7px;}
+  .aud-sel input{width:17px;height:17px;accent-color:var(--accent);cursor:pointer;}
+  .aud-card-der{padding-right:22px;}
+  .aud-lugar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--text-dim);}
+  .aud-lugar label{display:inline-flex;align-items:center;gap:5px;}
+  .aud-lugar label > .material-symbols-outlined{font-size:17px;color:var(--text-faint);}
+  .aud-lugar select{background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:4px 8px;font:600 12.5px 'Inter',sans-serif;}
+  .aud-lugar select.falta{border-color:var(--warn);color:var(--warn);}
+  .aud-lugar-v{font-weight:700;color:var(--text);}
+  .aud-flecha{font-size:16px;color:var(--text-faint);}
+  .aud-tras{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;background:var(--warn-soft);color:var(--text);border-radius:8px;padding:4px 6px 4px 9px;font-size:12px;}
+  .aud-tras .material-symbols-outlined{font-size:17px;color:var(--warn);}
+  .aud-tras button{border:none;background:var(--panel);border-radius:6px;padding:3px 9px;font:700 11.5px 'Inter',sans-serif;cursor:pointer;color:var(--text);}
+  .aud-tras.ok{background:var(--ok-soft);} .aud-tras.ok .material-symbols-outlined{color:var(--ok);}
+  .aud-check{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .aud-check-t{font-size:12px;color:var(--text-dim);margin-right:2px;} .aud-check-t b{color:var(--text);}
+  .aud-ck{display:inline-flex;align-items:center;gap:4px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:999px;padding:4px 10px 4px 6px;font:600 12px 'Inter',sans-serif;color:var(--text-dim);cursor:pointer;}
+  .aud-ck .material-symbols-outlined{font-size:17px;color:var(--text-faint);}
+  .aud-ck.on{background:var(--ok-soft);border-color:transparent;color:var(--text);}
+  .aud-ck.on .material-symbols-outlined{color:var(--ok);}
+  .aud-ck:disabled{cursor:default;}
+  .aud-barra{position:fixed;left:50%;bottom:18px;transform:translate(-50%,140%);display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--hairline);border-radius:14px;padding:10px 12px;box-shadow:0 14px 40px -12px rgba(0,0,0,.45);z-index:900;transition:transform .2s ease;max-width:calc(100vw - 24px);}
+  .aud-barra.show{transform:translate(-50%,0);}
+  .aud-barra > b{font-size:13px;margin:0 4px;}
+  .aud-x{border:none;background:none;color:var(--text-dim);cursor:pointer;display:grid;place-items:center;}
+  @media (prefers-reduced-motion: reduce){ .aud-barra{transition:none;} }
 </style>
 <style>
   .app-shell{display:flex;min-height:100vh;}
@@ -3617,7 +3648,7 @@
       <div id="catalogoAccesoriosTabla"></div>
     </div>
     <div class="maestro-block">
-      <div class="section-title">Checklist del Centro de Preparación <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Estos son los ítems que se revisan antes de que una unidad quede "Lista para entregar" — es la revisión pre-entrega para verificar que el auto esté en condiciones. Sacar o agregar un ítem acá no afecta a las unidades que ya tenían su checklist cargado, solo a las nuevas de acá en adelante.</span></span></div>
+      <div class="section-title">Checklist de preparación <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Estos son los ítems que se revisan antes de que una unidad quede "Lista para entregar" — es la revisión pre-entrega para verificar que el auto esté en condiciones. Sacar o agregar un ítem acá no afecta a las unidades que ya tenían su checklist cargado, solo a las nuevas de acá en adelante.</span></span></div>
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
         <input id="checklistPrepNombre" placeholder="Nombre del ítem (ej: Fusible)" style="flex:1;min-width:160px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12px;">
         <button class="save-btn" style="width:auto;margin:0;" onclick="agregarItemChecklistPrepUI_()">+ Agregar</button>
@@ -6217,6 +6248,7 @@ function setAppView(view){
   if(view==='alistamiento'){ renderAlistamiento(); }
   if(view==='preparacion'){ cargarPreparacionSiHaceFalta_().then(function(){ renderPrepPantallaCompleta_(); }); }
   if(view==='auditoria'){ audAbrir_(); }
+  if(typeof audBarraSel_==='function') audBarraSel_();
 }
 
 function fmtFecha(d){ var dd=String(d.getDate()).padStart(2,'0'), mm=String(d.getMonth()+1).padStart(2,'0'); return dd+'/'+mm+'/'+d.getFullYear(); }
@@ -9029,6 +9061,9 @@ function audCard_(u, col, ent){
   else if(col==='ok') acc = (ent ? '' : b('pri','event','Programar entrega','audProgramar_('+uid+')'))+b('sec','undo','Volver a revisión','audMover_('+uid+',\'revision\')');
   if(ent) acc += '<button type="button" class="aud-btn sec" onclick="openDetail(\''+ent.marca+'\',\''+ent.id+'\')"><span class="material-symbols-outlined">open_in_new</span>Ver entrega</button>';
   acc += b('sec','edit_note','Nota','audNota_('+uid+')');
+  var lugar = audLugar_(u, ent, puede);
+  var check = (col==='revision' || col==='ok' || col==='chapa' || col==='postventa') ? audChecklistHtml_(u, puede) : '';
+  var sel = _aud.sel[u.id];
   var fechaEnt = '';
   if(ent){
     var d = audFechaEnt_(ent), hoy = new Date(); hoy.setHours(0,0,0,0);
@@ -9037,13 +9072,15 @@ function audCard_(u, col, ent){
     fechaEnt = (d?DS[d.getDay()]+' ':'')+String(ent.fecha).slice(0,5)+' · '+ent.hora+(ent.sucursal&&ent.sucursal!=='default'?' · '+ent.sucursal:'')+
       (falta!=null ? ' <span class="aud-falta">'+(falta<0?'vencida':falta===0?'¡es hoy!':falta===1?'es mañana':'faltan '+falta+' días')+'</span>' : '');
   }
-  return '<article class="aud-card'+(ent&&col!=='ok'?' prio':'')+'" style="--c:var('+c.c+');--cs:var('+c.cs+');">'+
+  return '<article class="aud-card'+(ent&&col!=='ok'?' prio':'')+(sel?' sel':'')+'" style="--c:var('+c.c+');--cs:var('+c.cs+');">'+
+    (puede ? '<label class="aud-sel" title="Seleccionar"><input type="checkbox" '+(sel?'checked':'')+' onchange="audSel_('+uid+',this.checked)"></label>' : '')+
     (ent ? '<div class="aud-prio"><span class="material-symbols-outlined">'+(col==='ok'?'event_available':'priority_high')+'</span>'+(col==='ok'?'Entrega programada':'Prioridad — ya tiene entrega programada')+': <b>'+fechaEnt+'</b></div>' : '')+
     '<div class="aud-card-in">'+
     '<div class="aud-card-main">'+
       '<div class="aud-mod"><b>'+cfgEsc_(u.modelo||'Modelo sin cargar')+'</b>'+(u.version?' <span>'+cfgEsc_(u.version)+'</span>':'')+(u.color?'<span class="aud-color">'+cfgEsc_(u.color)+'</span>':'')+'</div>'+
       '<div class="aud-cli"><span class="material-symbols-outlined">person</span>'+cfgEsc_(u.cliente||'—')+(u.sucursal?'<span class="cfg-badge" style="--c:var('+(CFG_SUC_COLOR_[u.sucursal]||'--text-dim')+')">'+cfgEsc_(u.sucursal)+'</span>':'')+'</div>'+
       '<div class="aud-ids">'+ids+(u.referencia?'<span class="aud-id">Oferta <b>'+cfgEsc_(String(u.referencia).replace(/^OF-?/,''))+'</b></span>':'')+'</div>'+
+      lugar+check+
       (nota ? '<div class="aud-nota"><span class="material-symbols-outlined">sticky_note_2</span><span>'+cfgEsc_(nota.texto)+'<small>'+cfgEsc_(nota.autor||'')+' · '+cfgEsc_(nota.fecha||'')+'</small></span></div>' : '')+
     '</div>'+
     '<div class="aud-card-der">'+
@@ -9088,8 +9125,20 @@ function audMover_(id, destino){
   var quien = (u.cliente||'')+(u.modelo?' · '+u.modelo:'');
   var seguir = function(nota){ audGuardarMovimiento_(u, destino, nota); };
   if(destino==='chapa') return audPedir_({ic:'format_paint', color:'--warn', titulo:'¿Qué hay que hacerle en chapa y pintura?', sub:quien, placeholder:'Ej: rayón en la puerta trasera derecha', chips:['Rayón','Golpe','Retoque de pintura','Paragolpes','Pulido'], boton:'Mandar a chapa', opcional:true}, seguir);
+  if(destino==='ok'){
+    var faltan = audFaltanChecklist_(u);
+    var ubic = (u.traslado||{}).ubicacion, dest = audDestino_(u, audEntregaDe_(u));
+    var avisos = [];
+    if(faltan.length) avisos.push('Falta de la preparación: '+faltan.join(', ')+'.');
+    if(ubic && dest && ubic!==dest && !(u.traslado||{}).completado) avisos.push('Todavía está en '+ubic+' y se entrega en '+dest+'.');
+    if(avisos.length && !confirm(avisos.join('\n')+'\n\n¿Marcarla OK para entregar igual?')) return;
+  }
   if(destino==='postventa') return audPedir_({ic:'build', color:'--usados', titulo:'¿Qué necesita en el taller?', sub:quien, placeholder:'Ej: testigo de motor encendido', chips:['Service de preentrega','Testigo encendido','Batería','Ruido','Instalar accesorio'], boton:'Mandar a postventa', opcional:true}, seguir);
-  if(destino==='revision' && audColDe_(u)==='buscar') return audPedir_({ic:'location_on', color:'--peugeot', titulo:'¿Dónde estaba?', sub:quien, placeholder:'Ej: playa de San Luis, fila 3', chips:['Playa San Luis','Playa San Juan','Villa Mercedes','Merlo','Depósito','En tránsito'], boton:'Pasar a revisión', opcional:true}, seguir);
+  if(destino==='revision' && audColDe_(u)==='buscar') return audPedir_({ic:'location_on', color:'--peugeot', titulo:'¿Dónde estaba?', sub:quien, placeholder:'Tocá la sucursal y si querés agregá el detalle (ej: fila 3)', chips:AUD_UBIC_, boton:'Pasar a revisión', opcional:true}, function(nota){
+    var lugar = AUD_UBIC_.find(function(x){ return nota.toLowerCase().indexOf(x.toLowerCase())===0; });
+    if(lugar){ var t = Object.assign({}, u.traslado||{}); t.ubicacion = lugar; t.completado = false; t.fecha = fechaHoraAhora_(); t.usuario = usuarioActual(); u.traslado = t; audGuardarCampos_(u, {traslado:t}, ''); }
+    seguir(nota);
+  });
   seguir('');
 }
 function audGuardarMovimiento_(u, destino, nota){
@@ -9113,6 +9162,115 @@ function audNota_(id){
   });
 }
 function audProgramar_(id){ abrirNuevaEntregaDesdePreparacion_(id); }
+
+// ---------- Preparación: dónde está, a dónde va y traslado ----------
+_aud.sel = _aud.sel || {};
+var AUD_UBIC_ = SUCURSALES.concat(['Depósito','En tránsito']);
+function audDestino_(u, ent){ return (ent && ent.sucursal && ent.sucursal!=='default') ? ent.sucursal : (u.sucursal||''); }
+function audLugar_(u, ent, puede){
+  var t = u.traslado || {}, ubic = t.ubicacion || '', dest = audDestino_(u, ent);
+  var opc = function(lista, val, vacio){ return '<option value="">'+vacio+'</option>'+lista.map(function(x){ return '<option'+(x===val?' selected':'')+'>'+x+'</option>'; }).join(''); };
+  var dis = puede ? '' : ' disabled';
+  var destHtml = (ent && ent.sucursal && ent.sucursal!=='default')
+    ? '<span class="aud-lugar-v" title="Sale de la entrega programada">'+cfgEsc_(dest)+'</span>'
+    : '<select'+dis+' onchange="audSetDestino_(\''+u.id+'\',this.value)" class="'+(dest?'':'falta')+'">'+opc(SUCURSALES, dest, 'Elegir…')+'</select>';
+  var traslado = '';
+  if(ubic && dest && ubic!==dest && !t.completado){
+    traslado = '<span class="aud-tras"><span class="material-symbols-outlined">local_shipping</span>Hay que trasladarla de <b>'+cfgEsc_(ubic)+'</b> a <b>'+cfgEsc_(dest)+'</b>'+(puede?'<button type="button" onclick="audLlego_(\''+u.id+'\')">Ya llegó</button>':'')+'</span>';
+  } else if(ubic && dest && ubic===dest){
+    traslado = '<span class="aud-tras ok"><span class="material-symbols-outlined">check_circle</span>Ya está en la sucursal de entrega</span>';
+  }
+  return '<div class="aud-lugar">'+
+    '<label><span class="material-symbols-outlined">location_on</span>Está en <select'+dis+' onchange="audSetUbic_(\''+u.id+'\',this.value)" class="'+(ubic?'':'falta')+'">'+opc(AUD_UBIC_, ubic, '¿Dónde está?')+'</select></label>'+
+    '<span class="material-symbols-outlined aud-flecha">arrow_forward</span>'+
+    '<label><span class="material-symbols-outlined">flag</span>Se entrega en '+destHtml+'</label>'+
+    traslado+'</div>';
+}
+function audGuardarCampos_(u, campos, nota){
+  gasPost('prepActualizar', {id:u.id, campos:campos, nota:nota, autor:usuarioActual()}).then(function(res){ if(!res || !res.ok) showToast((res&&res.error)||'No se pudo guardar'); });
+  if(nota) (u.historial = u.historial||[]).push({fecha: fechaHoraAhora_(), texto: nota, autor: usuarioActual()});
+}
+function audSetUbic_(id, val){
+  var u = PREP_UNIDADES.find(function(x){ return x.id===id; }); if(!u) return;
+  var t = Object.assign({}, u.traslado||{}); t.ubicacion = val; t.completado = false; t.fecha = fechaHoraAhora_(); t.usuario = usuarioActual();
+  u.traslado = t; audGuardarCampos_(u, {traslado:t}, '📍 Ubicación: '+(val||'sin dato')); audRender_();
+}
+function audSetDestino_(id, val){
+  var u = PREP_UNIDADES.find(function(x){ return x.id===id; }); if(!u) return;
+  u.sucursal = val; audGuardarCampos_(u, {sucursal:val}, '🏁 Se entrega en: '+(val||'sin definir')); audRender_();
+}
+function audLlego_(id){
+  var u = PREP_UNIDADES.find(function(x){ return x.id===id; }); if(!u) return;
+  var dest = audDestino_(u, audEntregaDe_(u));
+  var t = Object.assign({}, u.traslado||{}); var desde = t.ubicacion; t.ubicacion = dest; t.destino = dest; t.completado = true; t.fecha = fechaHoraAhora_(); t.usuario = usuarioActual();
+  u.traslado = t; audGuardarCampos_(u, {traslado:t}, '🚚 Llegó a '+dest+(desde?' (venía de '+desde+')':'')); audRender_();
+  showToast('Traslado listo: ya está en '+dest);
+}
+// ---------- Checklist de preparación (lo que se le hace a la unidad) ----------
+var AUD_CHECK_DEF_ = ['Lavado','Combustible','Kit de seguridad','Manual y llaves','Revisión final'];
+function audItemsChecklist_(){
+  var cfg = (PREP_CHECKLIST_CONFIG||[]).map(function(x){ return x.item; }).filter(function(x){ return x && x!=='Auto Eléctrico'; });
+  return cfg.length ? cfg : AUD_CHECK_DEF_;
+}
+function audChecklistHtml_(u, puede){
+  var items = audItemsChecklist_(), ck = u.checklist||[];
+  var hechos = items.filter(function(it){ var x = ck.find(function(c){ return c.item===it; }); return x && x.hecho; }).length;
+  return '<div class="aud-check"><span class="aud-check-t">Preparación <b>'+hechos+'/'+items.length+'</b></span>'+items.map(function(it){
+    var x = ck.find(function(c){ return c.item===it; }), on = !!(x && x.hecho);
+    return '<button type="button" class="aud-ck'+(on?' on':'')+'"'+(puede?'':' disabled')+' title="'+(on && x.usuario ? cfgEsc_('Hecho por '+x.usuario+' · '+x.fecha) : 'Marcar como hecho')+'" onclick="audCheck_(\''+u.id+'\',\''+cfgEsc_(it).replace(/'/g,"\\'")+'\')"><span class="material-symbols-outlined">'+(on?'check_circle':'radio_button_unchecked')+'</span>'+cfgEsc_(it)+'</button>';
+  }).join('')+'</div>';
+}
+function audCheck_(id, item){
+  var u = PREP_UNIDADES.find(function(x){ return x.id===id; }); if(!u) return;
+  u.checklist = u.checklist||[];
+  var x = u.checklist.find(function(c){ return c.item===item; });
+  if(!x){ x = {item:item, hecho:false}; u.checklist.push(x); }
+  x.hecho = !x.hecho; x.usuario = x.hecho ? usuarioActual() : ''; x.fecha = x.hecho ? fechaHoraAhora_() : '';
+  audRender_();
+  gasPost('prepMarcarChecklistItem', {id:id, item:item, hecho:x.hecho, autor:usuarioActual()}).then(function(res){ if(!res || !res.ok){ x.hecho = !x.hecho; audRender_(); showToast('No se pudo guardar'); } });
+}
+function audFaltanChecklist_(u){
+  var ck = u.checklist||[];
+  return audItemsChecklist_().filter(function(it){ var x = ck.find(function(c){ return c.item===it; }); return !(x && x.hecho); });
+}
+// ---------- Selección: marcar entregadas o descartar varias juntas ----------
+function audSel_(id, on){ if(on) _aud.sel[id] = true; else delete _aud.sel[id]; audBarraSel_(); var card = document.querySelector('.aud-sel input[onchange*="\''+id+'\'"]'); if(card) card.closest('.aud-card').classList.toggle('sel', on); }
+function audBarraSel_(){
+  var n = Object.keys(_aud.sel).length, bar = document.getElementById('audBarra');
+  if(!bar){ bar = document.createElement('div'); bar.id='audBarra'; bar.className='aud-barra'; document.body.appendChild(bar); }
+  if(!n || currentAppView!=='auditoria'){ bar.classList.remove('show'); return; }
+  bar.innerHTML = '<b>'+n+' seleccionada'+(n===1?'':'s')+'</b>'+
+    '<button type="button" class="aud-btn ok" onclick="audMasivo_(\'entregada\')"><span class="material-symbols-outlined">task_alt</span>Ya se entregaron</button>'+
+    '<button type="button" class="aud-btn sec" onclick="audMasivo_(\'descartar\')"><span class="material-symbols-outlined">delete_sweep</span>Descartar</button>'+
+    '<button type="button" class="aud-btn sec" onclick="audSelTodas_()">Elegir todas las de esta pestaña</button>'+
+    '<button type="button" class="aud-x" title="Cancelar" onclick="_aud.sel={};audBarraSel_();audRender_()"><span class="material-symbols-outlined">close</span></button>';
+  bar.classList.add('show');
+}
+function audSelTodas_(){
+  document.querySelectorAll('#audLista .aud-sel input').forEach(function(c){ var m = c.getAttribute('onchange').match(/audSel_\('([^']+)'/); if(m) _aud.sel[m[1]] = true; });
+  audRender_(); audBarraSel_();
+}
+function audMasivo_(accion){
+  var ids = Object.keys(_aud.sel); if(!ids.length) return;
+  var esEnt = accion==='entregada';
+  var txt = esEnt ? '¿Marcar '+ids.length+(ids.length===1?' unidad':' unidades')+' como YA ENTREGADA'+(ids.length===1?'':'S')+'?\n\nSalen de la lista y no vuelven a aparecer aunque subas otra vez los listados.'
+                  : '¿Descartar '+ids.length+(ids.length===1?' unidad':' unidades')+'?\n\nSalen de la lista (por ejemplo si no corresponde prepararlas) y no vuelven a aparecer al subir otra vez los listados.';
+  if(!confirm(txt)) return;
+  var estado = esEnt ? 'Entregado' : 'Venta caída', nota = esEnt ? '📦 Marcada como ya entregada desde Preparación' : '🗑 Descartada de Preparación';
+  var pend = ids.length, errores = 0;
+  ids.forEach(function(id){
+    var u = PREP_UNIDADES.find(function(x){ return x.id===id; }); if(!u){ pend--; return; }
+    var antes = u.estado; u.estado = estado;
+    (u.historial = u.historial||[]).push({fecha: fechaHoraAhora_(), texto: nota, autor: usuarioActual()});
+    gasPost('prepCambiarEstado', {id:id, estado:estado, autor:usuarioActual(), sinChecklist:true, nota:nota}).then(function(res){
+      if(!res || !res.ok){ u.estado = antes; errores++; }
+    }).catch(function(){ u.estado = antes; errores++; }).then(function(){
+      if(--pend===0){ audRender_(); showToast(errores ? 'No se pudieron guardar '+errores : (esEnt?'✓ Marcadas como entregadas: ':'✓ Descartadas: ')+ids.length); }
+    });
+  });
+  _aud.sel = {}; audBarraSel_(); audRender_();
+}
+
 // Si la unidad ya tiene entrega en el Planning, le pasa la patente (o el VIN) que falte.
 function audSincronizarPlanning_(){
   (PREP_UNIDADES||[]).forEach(function(u){

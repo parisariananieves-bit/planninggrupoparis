@@ -109,6 +109,7 @@ else if(action==='eliminarItemCatalogoAccesorios') result = eliminarItemCatalogo
     else if(action==='prepCambiarEstado') result = prepCambiarEstado_(p.id, p.estado, p.autor, p.sinChecklist, p.nota);
     else if(action==='prepAgregarNota') result = prepAgregarHistorial_(p.id, p.texto, p.autor);
     else if(action==='prepCompletarDatos') result = prepCompletarDatos_(p.lista, p.autor);
+    else if(action==='prepActualizar') result = prepActualizar_(p.id, p.campos, p.nota, p.autor);
     else if(action==='prepCambiarPrioridad') result = prepCambiarPrioridad_(p.id, p.prioridad, p.autor);
     else if(action==='prepMarcarChecklistItem') result = prepMarcarChecklistItem_(p.id, p.item, p.hecho, p.observaciones, p.autor);
     else if(action==='prepSincronizarChecklist') result = prepSincronizarChecklist_(p.id, p.checklist, p.autor);
@@ -3195,6 +3196,16 @@ function prepCompletarDatos_(lista, autor){
     if(cambios.length){ prepAgregarHistorial_(x.id, '🔗 Se completó '+cambios.join(' y ')+' al importar el listado', autor); n++; }
   });
   return {ok:true, actualizadas:n};
+}
+// Preparación: guarda la sucursal de entrega y/o dónde está la unidad (y su traslado).
+function prepActualizar_(id, campos, nota, autor){
+  var encontrado = prepBuscarFila_(id);
+  if(!encontrado) return {ok:false, error:'No se encontró la unidad.'};
+  campos = campos || {};
+  if(campos.sucursal!==undefined) encontrado.hoja.getRange(encontrado.fila, 8).setValue(campos.sucursal||'');
+  if(campos.traslado!==undefined) encontrado.hoja.getRange(encontrado.fila, 24).setValue(campos.traslado ? JSON.stringify(campos.traslado) : '');
+  if(nota) prepAgregarHistorial_(id, nota, autor);
+  return {ok:true};
 }
 function prepBuscarFila_(id){
   var hoja = getHojaPreparacion_();
