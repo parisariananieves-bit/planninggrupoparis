@@ -6696,7 +6696,7 @@ function renderProximasHoras_(resto, etiquetaDia, tituloSeccion){
           '<div class="info">'+
             '<div class="cli">'+r.cliente+'</div>'+
             '<div class="mod"><span class="dot" style="background:var('+b.color+');"></span>'+b.label+' '+r.modelo+'</div>'+
-            '<div class="manana-extra">'+(r.chasis?'VIN '+r.chasis:'')+(r.chasis&&r.administrativo?' · ':'')+(r.administrativo?'Adm: '+r.administrativo:'')+'</div>'+
+            '<div class="manana-extra">'+(idVehiculo_(r)||'')+(idVehiculo_(r)&&r.administrativo?' · ':'')+(r.administrativo?'Adm: '+r.administrativo:'')+'</div>'+
           '</div>'+
           '<span class="material-symbols-outlined chev">chevron_right</span>'+
         '</div>';
@@ -6789,7 +6789,7 @@ function renderResumenHoyManana(){
         '<div class="info">'+
           '<div class="cli">'+r.cliente+'</div>'+
           '<div class="mod"><span class="dot" style="background:var('+b.color+');"></span>'+b.label+' '+r.modelo+'</div>'+
-          '<div class="manana-extra">'+(r.chasis?'VIN '+r.chasis:'')+(r.chasis&&r.administrativo?' · ':'')+(r.administrativo?'Adm: '+r.administrativo:'')+'</div>'+
+          '<div class="manana-extra">'+(idVehiculo_(r)||'')+(idVehiculo_(r)&&r.administrativo?' · ':'')+(r.administrativo?'Adm: '+r.administrativo:'')+'</div>'+
         '</div>'+
         '<span class="material-symbols-outlined chev">chevron_right</span>'+
       '</div>';
@@ -9717,7 +9717,7 @@ function renderKanban(){
         '<span style="font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var('+b.color+');">'+b.label+'</span>'+
       '</div>'+
       '<div class="cli" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')" style="cursor:pointer;">'+r.cliente+'</div>'+
-      '<div class="veh" style="color:var('+b.color+');font-weight:700;">'+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+'</div>'+
+      '<div class="veh" style="color:var('+b.color+');font-weight:700;">'+r.modelo+(idVehiculo_(r)?' · '+idVehiculo_(r):'')+'</div>'+
       '<div class="fecha">'+r.fecha+' · '+r.hora+' hs · '+r.sucursal+'</div>'+
       '<select onchange="asignarResponsableKanban(\''+r.marca+'\',\''+r.id+'\',this.value)"'+(puedeEditarModulo_('kanban')?'':' disabled title="Solo lectura"')+'>'+opcionesSelect.replace('value="'+(r.responsableEntrega||'\u0000')+'"','value="'+(r.responsableEntrega||'')+'" selected')+'</select>'+
     '</div>';
@@ -9920,7 +9920,7 @@ function renderListaClientesDia_(rows){
     ? rowsOrdenadas.map(function(r){
         var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
         return '<div class="horario-slot ocupado" onclick="openDetail(\''+r.marca+'\',\''+r.id+'\')" style="border-left:4px solid var('+b.color+');background:var('+b.soft+');">'+
-          '<span class="hora" style="color:var('+b.color+');">'+r.hora+'</span><span class="info">'+r.cliente+' · '+b.label+' '+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+'</span></div>';
+          '<span class="hora" style="color:var('+b.color+');">'+r.hora+'</span><span class="info">'+r.cliente+' · '+b.label+' '+r.modelo+(idVehiculo_(r)?' · '+idVehiculo_(r):'')+'</span></div>';
       }).join('')
     : '<div style="color:var(--text-faint);font-size:12.5px;padding:14px;text-align:center;">No hay clientes agendados para este día.</div>';
 }
@@ -10621,6 +10621,14 @@ function usEsc_(x){ return String(x==null?'':x).replace(/[&<>"]/g,function(c){re
 function usFecha_(v){ if(!v) return ''; var m=String(v).match(/^(\d{4})-(\d{2})-(\d{2})/); if(m) return m[3]+'/'+m[2]+'/'+m[1]; return String(v); }
 function usOpts_(campo, valor){ return '<option value="">—</option>'+US_OPC[campo].map(function(o){ return '<option'+(o===valor?' selected':'')+'>'+o+'</option>'; }).join(''); }
 function esUsadoVenta_(r){ return r && String(r.tipoVenta||'').toUpperCase()==='USADO'; }
+// Cómo identificar el vehículo en pantalla: los usados se reconocen por la PATENTE; los 0km por el VIN.
+function esUsadoEntrega_(r){ return !!r && (r.marca==='usados' || esUsadoVenta_(r)); }
+function idVehiculo_(r){
+  if(!r) return '';
+  var vacio = function(v){ v=String(v||'').trim(); return !v || v==='—' || v==='-'; };
+  if(esUsadoEntrega_(r)) return vacio(r.dominio) ? 'Patente sin cargar' : 'Patente '+String(r.dominio).trim().toUpperCase();
+  return vacio(r.chasis) ? '' : 'VIN '+r.chasis;
+}
 // Cuenta regresiva hasta la fecha de compromiso de taller
 function cuentaRegresiva_(iso){
   if(!iso) return null;
@@ -11935,7 +11943,7 @@ function openDetailCore_(marca, id){
   (function(){ var bm = BRANDS.find(function(x){ return x.id===r.marca; }); var dr = document.getElementById('drawer');
     if(dr && bm){ dr.style.setProperty('--drb', 'var('+bm.color+')'); }
     try{ toggleDrawerAncho_(localStorage.getItem('drawerAncho')==='1'); }catch(e){} })();
-  document.getElementById('dHeadSub').textContent=r.fecha+' · '+r.hora+' · '+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+(r.sucursal?' · '+r.sucursal:'')+(r.vendedor?' · Vend: '+r.vendedor:'')+(r.administrativo?' · Adm: '+r.administrativo:'');
+  document.getElementById('dHeadSub').textContent=r.fecha+' · '+r.hora+' · '+r.modelo+(idVehiculo_(r)?' · '+idVehiculo_(r):'')+(r.sucursal?' · '+r.sucursal:'')+(r.vendedor?' · Vend: '+r.vendedor:'')+(r.administrativo?' · Adm: '+r.administrativo:'');
   renderColorVehiculoHeader_(r);
   updateEntregaToggleUI(r);
   cargarAuditoriaDetalle_(r);
@@ -13093,7 +13101,7 @@ function reprogramar(){
   }});
   logHistorial_(detailMarca, detailId, texto);
   renderEstadoComunicaciones(r);
-  document.getElementById('dHeadSub').textContent=r.fecha+' · '+r.hora+' · '+r.modelo+(r.chasis?' · VIN '+r.chasis:'')+(r.sucursal?' · '+r.sucursal:'')+(r.vendedor?' · Vend: '+r.vendedor:'')+(r.administrativo?' · Adm: '+r.administrativo:'');
+  document.getElementById('dHeadSub').textContent=r.fecha+' · '+r.hora+' · '+r.modelo+(idVehiculo_(r)?' · '+idVehiculo_(r):'')+(r.sucursal?' · '+r.sucursal:'')+(r.vendedor?' · Vend: '+r.vendedor:'')+(r.administrativo?' · Adm: '+r.administrativo:'');
   document.getElementById('dFechaTexto').textContent=r.fecha;
   document.getElementById('dHoraTexto').textContent=r.hora;
   var selLugarPost = document.getElementById('dLugar');
