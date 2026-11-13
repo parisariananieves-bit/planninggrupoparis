@@ -1735,19 +1735,38 @@ function alertaAccesoriosPendientes24h(){
 }
 
 // ------------------------------------------------------------
-// Igual que alertaAccesoriosPendientes24h, pero para Campañas — revisa
-// las entregas de mañana; si la campaña está pendiente de controlar,
-// avisa por mail. El destinatario se configura por marca desde
-// Maestro > Configuración (CONFIG.alertaCampanasEmails).
+// ALERTA DE CAMPAÑAS, 24hs antes de la entrega.
+// Revisa las entregas de mañana (sin entregar ni anuladas) y avisa por mail
+// en dos situaciones:
+//   1) SIN DEFINIR: nadie cargó si tiene campaña ni tildó "No corresponde".
+//   2) PENDIENTE: tiene campaña cargada y todavía no se marcó como controlada
+//      (si quedó con motivo o pendiente por falta de stock, igual avisa,
+//      mostrando ese motivo).
+// No avisa si se tildó "No corresponde" o si la campaña ya está controlada.
+// El destinatario se configura por marca desde Configuración
+// (CONFIG.alertaCampanasEmails); si una marca no tiene, se usa el default.
 // ------------------------------------------------------------
+function estadoCampanaAlerta_(r){
+  if(r.campanaNoAplica) return null;                       // tildaron "No corresponde"
+  var texto = String(r.campanaTexto||'').trim();
+  if(!texto) return {tipo:'sin', txt:'No se cargó si tiene campaña ni se tildó "No corresponde"'};
+  if(r.campanaControlada) return null;                     // ya controlada
+  var det = 'Pendiente de controlar';
+  if(r.campanaPendienteStock) det += ' (sin stock)';
+  if(r.campanaMotivo) det += ' — '+r.campanaMotivo;
+  return {tipo:'pend', txt:det};
+}
 function alertaCampanasPendientes24h(){
   var manana = new Date();
   manana.setDate(manana.getDate()+1);
   var mananaStr = Utilities.formatDate(manana, Session.getScriptTimeZone(), 'dd/MM/yyyy');
 
   var entregas = getEntregas();
-  var pendientes = entregas.filter(function(r){
-    return r.fecha === mananaStr && r.campanaTexto && !r.campanaControlada;
+  var pendientes = [];
+  entregas.forEach(function(r){
+    if(r.fecha !== mananaStr || r.entregada || r.usAnulada) return;
+    var est = estadoCampanaAlerta_(r);
+    if(est){ r._estCamp = est; pendientes.push(r); }
   });
   if(pendientes.length===0) return;
 
@@ -1761,50 +1780,49 @@ function alertaCampanasPendientes24h(){
     porMarca[r.marca].push(r);
   });
 
+  var esc = function(x){ return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
+  var td = 'padding:6px 10px;border-bottom:1px solid #ddd;vertical-align:top;';
+  var th = 'text-align:left;padding:6px 10px;';
+  var tabla = function(filas, conCampana){
+    return '<table style="border-collapse:collapse;width:100%;margin-bottom:6px;">'+
+      '<tr style="background:#f4f4f4;"><th style="'+th+'">Hora</th><th style="'+th+'">Cliente</th><th style="'+th+'">Modelo</th><th style="'+th+'">Dominio</th><th style="'+th+'">VIN</th>'+
+      (conCampana?'<th style="'+th+'">Campaña</th><th style="'+th+'">Situación</th>':'')+'<th style="'+th+'">Vendedor</th><th style="'+th+'">Sucursal</th></tr>'+
+      filas.map(function(r){
+        return '<tr><td style="'+td+'">'+esc(r.hora)+'</td><td style="'+td+'">'+esc(r.cliente)+'</td><td style="'+td+'">'+esc(r.modelo)+'</td><td style="'+td+'">'+esc(r.dominio||'—')+'</td><td style="'+td+'">'+esc(r.chasis||'—')+'</td>'+
+          (conCampana?'<td style="'+td+'">'+esc(r.campanaTexto)+'</td><td style="'+td+'">'+esc(r._estCamp.txt)+'</td>':'')+
+          '<td style="'+td+'">'+esc(r.vendedor||'—')+'</td><td style="'+td+'">'+esc(r.sucursal||'—')+'</td></tr>';
+      }).join('')+'</table>';
+  };
+
   Object.keys(porMarca).forEach(function(marca){
     var filas = porMarca[marca];
     var destinatarios = (emailsPorMarca[marca] || MAIL_ALERTA_ACCESORIOS_DEFAULT).trim();
     if(!destinatarios) return;
+    var sinDef = filas.filter(function(r){ return r._estCamp.tipo==='sin'; });
+    var pend = filas.filter(function(r){ return r._estCamp.tipo==='pend'; });
+    var etq = MARCA_LABEL[marca]||marca;
 
-    var filasHtml = filas.map(function(r){
-      return '<tr>'+
-        '<td style="padding:6px 10px;border-bottom:1px solid #ddd;">'+r.hora+'</td>'+
-        '<td style="padding:6px 10px;border-bottom:1px solid #ddd;">'+r.cliente+'</td>'+
-        '<td style="padding:6px 10px;border-bottom:1px solid #ddd;">'+r.modelo+'</td>'+
-        '<td style="padding:6px 10px;border-bottom:1px solid #ddd;">'+(r.dominio||'—')+'</td>'+
-        '<td style="padding:6px 10px;border-bottom:1px solid #ddd;">'+(r.chasis||'—')+'</td>'+
-        '<td style="padding:6px 10px;border-bottom:1px solid #ddd;">'+r.campanaTexto+'</td>'+
-        '<td style="padding:6px 10px;border-bottom:1px solid #ddd;">'+(r.sucursal||'—')+'</td>'+
-      '</tr>';
-    }).join('');
-
-    var cuerpo =
-      '<div style="font-family:Arial,sans-serif;font-size:14px;color:#222;">'+
-      '<p>Hay '+filas.length+' entrega(s) de <b>'+(MARCA_LABEL[marca]||marca)+'</b> programadas para <b>mañana ('+mananaStr+')</b> con la campaña todavía <b>pendiente de controlar</b>:</p>'+
-      '<table style="border-collapse:collapse;width:100%;">'+
-        '<tr style="background:#f4f4f4;">'+
-          '<th style="text-align:left;padding:6px 10px;">Hora</th>'+
-          '<th style="text-align:left;padding:6px 10px;">Cliente</th>'+
-          '<th style="text-align:left;padding:6px 10px;">Modelo</th>'+
-          '<th style="text-align:left;padding:6px 10px;">Dominio</th>'+
-          '<th style="text-align:left;padding:6px 10px;">VIN</th>'+
-          '<th style="text-align:left;padding:6px 10px;">Campaña</th>'+
-          '<th style="text-align:left;padding:6px 10px;">Sucursal</th>'+
-        '</tr>'+
-        filasHtml+
-      '</table>'+
+    var cuerpo = '<div style="font-family:Arial,sans-serif;font-size:14px;color:#222;">'+
+      '<p>Entregas de <b>'+esc(etq)+'</b> programadas para <b>mañana ('+mananaStr+')</b> con la campaña sin resolver:</p>'+
+      (pend.length ? '<h3 style="font-size:15px;margin:18px 0 6px;color:#B4232C;">Tienen campaña y todavía no se controló ('+pend.length+')</h3>'+tabla(pend, true) : '')+
+      (sinDef.length ? '<h3 style="font-size:15px;margin:18px 0 6px;color:#9A6400;">No se indicó si tienen campaña ('+sinDef.length+')</h3>'+
+        '<p style="margin:0 0 6px;color:#555;">Hay que revisar si corresponde alguna campaña: si tiene, cargarla en la entrega; si no, tildar <b>"No corresponde"</b>.</p>'+tabla(sinDef, false) : '')+
       '<p style="margin-top:16px;"><a href="'+LINK_SERVICEBOX+'" style="background:#E8A33D;color:#1a1a1a;padding:10px 16px;border-radius:8px;text-decoration:none;font-weight:bold;">Abrir ServiceBox</a></p>'+
       '</div>';
 
+    var partes = [];
+    if(pend.length) partes.push(pend.length+' sin controlar');
+    if(sinDef.length) partes.push(sinDef.length+' sin definir');
     MailApp.sendEmail({
       to: destinatarios,
-      subject: '⚠ Campaña pendiente — '+(MARCA_LABEL[marca]||marca)+' — entregas de mañana ('+mananaStr+')',
+      subject: '⚠ Campañas — '+etq+' — entregas de mañana ('+mananaStr+'): '+partes.join(' · '),
       htmlBody: cuerpo,
       name: 'Grupo París — Planning de Entregas'
     });
 
     filas.forEach(function(r){
-      try{ agregarHistorial(r.marca, r.id, '📧 Aviso de campaña pendiente (24hs antes) enviado a '+destinatarios+' — '+fechaHoraEnvio); }catch(e){}
+      var que = r._estCamp.tipo==='sin' ? 'campaña sin definir' : 'campaña pendiente de controlar';
+      try{ agregarHistorial(r.marca, r.id, '📧 Aviso de '+que+' (24hs antes) enviado a '+destinatarios+' — '+fechaHoraEnvio); }catch(e){}
     });
   });
 }
@@ -3888,7 +3906,8 @@ function bienvenidaHtml_(r, config, ficha){
           '<div style="border-top:1px solid #e5e7eb;padding-top:16px;color:#111827;font-size:13.5px;font-weight:bold;margin-bottom:6px;">Tus contactos</div>'+
           '<div style="color:#374151;font-size:13px;line-height:1.7;">'+
             '👤 Asesor comercial: <b>'+escHtmlMail_(r.vendedor||'—')+'</b><br>'+
-            (repuestos ? '🔧 Repuestos y servicio: <b>'+escHtmlMail_(repuestos)+'</b><br>' : '')+
+            (postventa ? '🔧 Postventa (WhatsApp): <b>'+escHtmlMail_(postventa)+'</b><br>' : '')+
+            (repuestos ? '🔩 Repuestos: <b>'+escHtmlMail_(repuestos)+'</b><br>' : '')+
             (config.telefonoContacto ? '📞 Recepción: <b>'+escHtmlMail_(config.telefonoContacto)+'</b><br>' : '')+
             (config.telefonoCalidad ? '⭐ Calidad: <b>'+escHtmlMail_(config.telefonoCalidad)+'</b>' : '')+
           '</div>'+

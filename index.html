@@ -1176,6 +1176,60 @@
     .cfg-auto-h{grid-template-columns:auto 1fr;}
     .cfg-auto-h .cfg-auto-st,.cfg-auto-h .cfg-auto-sw{grid-column:1 / -1;justify-self:start;}
   }
+
+  /* --- Permisos por rol o sector --- */
+  .cfg-pg-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+  .cfg-pg-modo{display:inline-flex;background:var(--panel-2);border:1px solid var(--hairline);border-radius:10px;padding:3px;}
+  .cfg-pg-modo button{background:none;border:none;border-radius:8px;padding:7px 14px;font:600 12.5px 'Inter',sans-serif;color:var(--text-dim);cursor:pointer;}
+  .cfg-pg-modo button.on{background:var(--panel);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.12);}
+  .cfg-pg-grupos{display:flex;gap:6px;flex-wrap:wrap;}
+  .cfg-pg-g{display:inline-flex;align-items:center;gap:7px;background:var(--panel-2);border:1px solid var(--hairline);border-radius:999px;padding:6px 8px 6px 13px;color:var(--text);font:600 12.5px 'Inter',sans-serif;cursor:pointer;}
+  .cfg-pg-g small{background:var(--panel);border:1px solid var(--hairline);border-radius:999px;padding:1px 7px;font-size:11px;color:var(--text-dim);}
+  .cfg-pg-g:hover{border-color:var(--accent);}
+  .cfg-pg-g.on{background:var(--accent-soft);border-color:var(--accent);}
+  .cfg-pg-elegi{display:flex;align-items:center;gap:8px;padding:18px;border:1px dashed var(--hairline);border-radius:12px;color:var(--text-dim);font-size:13px;}
+  .cfg-pg-main{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px;align-items:start;}
+  .cfg-pg-acc{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-size:12px;color:var(--text-faint);}
+  .cfg-pg-acc select{background:var(--panel);border:1px solid var(--hairline);border-radius:9px;color:var(--text);padding:7px 10px;font:600 12px 'Inter',sans-serif;}
+  .cfg-pg-sec{border:1px solid var(--hairline);border-radius:12px;overflow:hidden;margin-bottom:10px;}
+  .cfg-pg-sec h5{margin:0;padding:8px 12px;background:var(--panel-2);font:700 12px 'Inter',sans-serif;color:var(--text-dim);}
+  .cfg-pg-fila{display:grid;grid-template-columns:22px minmax(0,1fr) auto 76px;gap:10px;align-items:center;padding:9px 12px;border-top:1px solid var(--hairline);}
+  .cfg-pg-fila > .material-symbols-outlined{font-size:19px;color:var(--text-faint);}
+  .cfg-pg-fila.cambia{background:var(--accent-soft);}
+  .cfg-pg-fila.cambia > .material-symbols-outlined{color:var(--accent);}
+  .cfg-pg-mod{display:flex;flex-direction:column;min-width:0;}
+  .cfg-pg-mod b{font-size:13px;} .cfg-pg-mod small{font-size:11.5px;color:var(--text-dim);}
+  .cfg-pg-seg{display:inline-flex;border:1px solid var(--hairline);border-radius:9px;overflow:hidden;background:var(--panel);}
+  .cfg-pg-seg button{border:none;border-left:1px solid var(--hairline);background:none;padding:6px 10px;font:600 11.5px 'Inter',sans-serif;color:var(--text-dim);cursor:pointer;white-space:nowrap;}
+  .cfg-pg-seg button:first-child{border-left:none;}
+  .cfg-pg-seg button:hover{color:var(--text);background:var(--panel-2);}
+  .cfg-pg-seg button.on.off{background:var(--danger-soft);color:var(--danger);}
+  .cfg-pg-seg button.on.ver{background:var(--warn-soft);color:var(--warn);}
+  .cfg-pg-seg button.on.editar{background:var(--ok-soft);color:var(--ok);}
+  .cfg-pg-seg.actual button.on{opacity:.75;}
+  .cfg-pg-sc{font-size:11px;color:var(--text-faint);text-align:center;}
+  .cfg-pg-fila .cfg-ibtn{justify-self:center;}
+  .cfg-pg-der{position:sticky;top:12px;border:1px solid var(--hairline);border-radius:12px;overflow:hidden;}
+  .cfg-pg-der h5{margin:0;padding:10px 12px;background:var(--panel-2);font:700 12.5px 'Inter',sans-serif;}
+  .cfg-pg-us{max-height:440px;overflow:auto;}
+  .cfg-pg-u{display:flex;align-items:center;gap:9px;padding:8px 12px;border-top:1px solid var(--hairline);cursor:pointer;}
+  .cfg-pg-u:hover{background:var(--panel-2);}
+  .cfg-pg-u.fuera{opacity:.5;}
+  .cfg-pg-u input{accent-color:var(--accent);}
+  .cfg-pg-u .maestro-tag-avatar{width:26px;height:26px;font-size:9.5px;}
+  .cfg-pg-un{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .cfg-pg-un b{font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} .cfg-pg-un small{font-size:11px;color:var(--text-faint);}
+  .cfg-pg-uc{font-size:11px;color:var(--text-faint);white-space:nowrap;}
+  .cfg-pg-pie{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--hairline);font-size:12.5px;color:var(--text-dim);}
+  .cfg-pg-pie .save-btn{width:auto;min-width:220px;margin:0;}
+  .cfg-pg-pie .save-btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;}
+  @media (max-width: 960px){
+    .cfg-pg-main{grid-template-columns:1fr;}
+    .cfg-pg-der{position:static;}
+    .cfg-pg-fila{grid-template-columns:22px minmax(0,1fr) 40px;}
+    .cfg-pg-fila .cfg-pg-seg{grid-column:1 / -1;grid-row:2;justify-self:start;}
+    .cfg-pg-sc{grid-row:1;grid-column:3;}
+  }
 </style>
 <style>
   .app-shell{display:flex;min-height:100vh;}
@@ -3255,30 +3309,16 @@
       <button class="save-btn" onclick="guardarDirecciones()">Guardar direcciones, teléfono y acceso libre</button>
     </div>
 
-    <div class="maestro-block" data-cfg="modulos">
-      <div class="section-title">Activar / desactivar módulos (para todos los usuarios) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Si apagás un módulo acá, desaparece del menú para todo el mundo, sin importar el rol o los permisos que tenga cada usuario.</span></span></div>
-      <div class="cfg-mods" id="cfgModulosRow">
-        <label class="cfg-mod" data-nombre="Dashboard"><span class="material-symbols-outlined cfg-mod-ic">space_dashboard</span><span class="cfg-mod-t"><b>Dashboard</b><small>Indicadores y resumen del día.</small><em class="cfg-mod-est"></em></span><span class="switch"><input type="checkbox" value="dashboard" checked onchange="cfgModCambio_(this)"><span class="switch-slider"></span></span></label>
-        <label class="cfg-mod" data-nombre="Nueva entrega"><span class="material-symbols-outlined cfg-mod-ic">add_circle</span><span class="cfg-mod-t"><b>Nueva entrega</b><small>Programar una entrega nueva.</small><em class="cfg-mod-est"></em></span><span class="switch"><input type="checkbox" value="nuevaentrega" checked onchange="cfgModCambio_(this)"><span class="switch-slider"></span></span></label>
-        <label class="cfg-mod" data-nombre="Calendario"><span class="material-symbols-outlined cfg-mod-ic">calendar_month</span><span class="cfg-mod-t"><b>Calendario</b><small>Agenda de entregas día por día.</small><em class="cfg-mod-est"></em></span><span class="switch"><input type="checkbox" value="calendario" checked onchange="cfgModCambio_(this)"><span class="switch-slider"></span></span></label>
-        <label class="cfg-mod" data-nombre="Lista de entregas"><span class="material-symbols-outlined cfg-mod-ic">format_list_bulleted</span><span class="cfg-mod-t"><b>Lista de entregas</b><small>Listado completo, con búsqueda y filtros.</small><em class="cfg-mod-est"></em></span><span class="switch"><input type="checkbox" value="lista" checked onchange="cfgModCambio_(this)"><span class="switch-slider"></span></span></label>
-        <label class="cfg-mod" data-nombre="Reportes"><span class="material-symbols-outlined cfg-mod-ic">analytics</span><span class="cfg-mod-t"><b>Reportes</b><small>Reportes, calidad y NPS.</small><em class="cfg-mod-est"></em></span><span class="switch"><input type="checkbox" value="reportes" checked onchange="cfgModCambio_(this)"><span class="switch-slider"></span></span></label>
-        <label class="cfg-mod" data-nombre="Configuración"><span class="material-symbols-outlined cfg-mod-ic">settings</span><span class="cfg-mod-t"><b>Configuración</b><small>Esta sección. Si la apagás, nadie puede entrar acá.</small><em class="cfg-mod-est"></em></span><span class="switch"><input type="checkbox" value="maestro" checked onchange="cfgModCambio_(this)"><span class="switch-slider"></span></span></label>
-        <label class="cfg-mod" data-nombre="TV de entregas"><span class="material-symbols-outlined cfg-mod-ic">tv</span><span class="cfg-mod-t"><b>TV de entregas</b><small>Pantalla para recepción con las entregas del día.</small><em class="cfg-mod-est"></em></span><span class="switch"><input type="checkbox" value="tv" checked onchange="cfgModCambio_(this)"><span class="switch-slider"></span></span></label>
-      </div>
-      <button class="save-btn" style="margin-top:6px;" onclick="guardarModulosActivos()">Guardar módulos activos</button>
-    </div>
-
     <div class="maestro-block" data-cfg="whatsapp">
-      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><svg width="14" height="14" viewBox="0 0 24 24" style="flex-shrink:0;"><path fill="#25D366" d="M12 0C5.373 0 0 5.373 0 12c0 2.121.554 4.113 1.523 5.842L0 24l6.335-1.492A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>WhatsApp de Postventa por marca <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Se usa en el mensaje de bienvenida que se manda cuando se entrega el vehículo.</span></span></div>
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><svg width="14" height="14" viewBox="0 0 24 24" style="flex-shrink:0;"><path fill="#25D366" d="M12 0C5.373 0 0 5.373 0 12c0 2.121.554 4.113 1.523 5.842L0 24l6.335-1.492A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>WhatsApp de Postventa por marca <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Es el número de Postventa de cada marca (turnos, services, garantía). En el mensaje y el mail de bienvenida aparece destacado, con el botón para escribir por WhatsApp.</span></span></div>
       <div class="form-grid" id="postventaWhatsappContainer"></div>
       <button class="save-btn" style="margin-top:10px;" onclick="guardarPostventaWhatsapp()">Guardar números de Postventa</button>
     </div>
 
     <div class="maestro-block" data-cfg="repuestos">
-      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">build</span>Repuestos y Servicio por marca <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Se usa en el mensaje de bienvenida que se manda cuando se entrega el vehículo.</span></span></div>
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">build</span>Repuestos por marca <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Es solo el número de Repuestos de cada marca. Aparece en "Tus contactos" del mensaje y del mail de bienvenida que recibe el cliente al entregarle el vehículo.</span></span></div>
       <div class="form-grid" id="repuestosServicioContainer"></div>
-      <button class="save-btn" style="margin-top:10px;" onclick="guardarRepuestosServicio()">Guardar números de Repuestos y Servicio</button>
+      <button class="save-btn" style="margin-top:10px;" onclick="guardarRepuestosServicio()">Guardar números de Repuestos</button>
     </div>
 
     <div class="maestro-block" data-cfg="alertaacc">
@@ -3288,7 +3328,7 @@
     </div>
 
     <div class="maestro-block" data-cfg="alertacamp">
-      <div class="section-title">Emails de alerta de campañas pendientes (24hs antes) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">A quién avisar por marca cuando hay una entrega de mañana con la campaña todavía pendiente de controlar. Podés poner uno o varios emails separados por coma.</span></span></div>
+      <div class="section-title">Emails de alerta de campañas pendientes (24hs antes) <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">El día antes de cada entrega avisa por marca en dos casos: si nadie indicó si tiene campaña (no se cargó ninguna ni se tildó "No corresponde"), o si tiene campaña y todavía no se marcó como controlada. Podés poner uno o varios emails separados por coma.</span></span></div>
       <div class="form-grid" id="alertaCampanasContainer"></div>
       <button class="save-btn" style="margin-top:10px;" onclick="guardarAlertaCampanas()">Guardar emails de alerta</button>
     </div>
@@ -4827,7 +4867,8 @@ function aplicarPermisosUI(){
   var puede = puedeEditar();
   var modulosDelUsuario = modulosUsuarioActual();
   var modulosUsuario = modulosDelUsuario.length ? modulosDelUsuario : null;
-  var modulosGlobales = (typeof CONFIG!=='undefined' && CONFIG && CONFIG.modulosActivos) || {};
+  // Ya no hay apagado global de módulos: lo único que decide qué ve cada uno son sus Permisos.
+  var modulosGlobales = {};
   // Módulos que SOLO ve el admin (Calidad/Maestro) por defecto — para todos
   // los demás, ni por rol ni por defecto: hay que dárselos a mano, uno por
   // uno, desde Maestro → Permisos. Nada de esto aparece solo.
@@ -5037,6 +5078,7 @@ function renderUsuariosTabla_(onDone){
     });
     tabla.innerHTML = html;
     filtrarUsuariosTabla_();
+    if(typeof cfgPgRender_==='function') cfgPgRender_(true);
     if(onDone) onDone();
   }).catch(function(){
     tabla.innerHTML = '<tr><th colspan="6" style="text-align:center;color:var(--danger);">No se pudo conectar.</th></tr>';
@@ -13624,8 +13666,8 @@ function construirMensajeBienvenida_(r){
     '✔️ Coordinar revisiones y asistencia cuando lo necesites.\n\n'+
     'Tus contactos\n'+
     '🚗 Asesor de Ventas: '+asesor+'\n'+
-    '🔩 Repuestos y Servicio: '+(repuestosServicio||'—')+'\n'+
-    '🔧 Postventa: '+(postventa||'—')+'\n'+
+    '🔧 Postventa (WhatsApp): '+(postventa||'—')+'\n'+
+    '🔩 Repuestos: '+(repuestosServicio||'—')+'\n'+
     '⭐ Calidad: '+(calidad||'—')+'\n\n'+
     'Gracias por confiar en Grupo París. Esperamos seguir acompañándote en cada etapa para que disfrutes tu vehículo con la tranquilidad de contar siempre con nuestro equipo.'+
     (r._fichaTecnica && r._fichaTecnica.url ? '\n\n📄 Ficha técnica de tu '+(r.modelo||'vehículo')+': '+r._fichaTecnica.url : '');
@@ -13974,9 +14016,9 @@ function inicializarAcordeonConfig_(){
 var CFG_GRUPOS_ = [
   {id:'equipo', t:'Equipo', ic:'groups', d:'Vendedores, administrativos y responsables de entrega.', c:'--peugeot', cs:'--peugeot-soft'},
   {id:'agenda', t:'Agenda', ic:'calendar_month', d:'Bloqueos semanales, feriados y horarios puntuales.', c:'--usados', cs:'--usados-soft'},
-  {id:'sucursales', t:'Sucursales y sistema', ic:'storefront', d:'Direcciones por marca, contacto y módulos habilitados.', c:'--dfsk', cs:'--dfsk-soft'},
-  {id:'comunicaciones', t:'Comunicaciones', ic:'forum', d:'WhatsApp de postventa y avisos de campañas pendientes.', c:'--ok', cs:'--ok-soft'},
-  {id:'repuestos', t:'Repuestos y servicios', ic:'build', d:'Teléfono de repuestos y taller de cada marca.', c:'--caso', cs:'--caso-soft'},
+  {id:'sucursales', t:'Sucursales y contacto', ic:'storefront', d:'Direcciones por marca, teléfono, copia de mails y acceso libre.', c:'--dfsk', cs:'--dfsk-soft'},
+  {id:'comunicaciones', t:'Comunicaciones', ic:'forum', d:'Número de Postventa por WhatsApp y avisos de campañas pendientes.', c:'--ok', cs:'--ok-soft'},
+  {id:'repuestos', t:'Repuestos', ic:'build', d:'Teléfono de repuestos de cada marca.', c:'--caso', cs:'--caso-soft'},
   {id:'accesorios', t:'Accesorios', ic:'directions_car', d:'A quién avisar si falta colocar un accesorio.', c:'--chevrolet', cs:'--chevrolet-soft'}
 ];
 var CFG_SECC_ = [
@@ -13986,10 +14028,9 @@ var CFG_SECC_ = [
   {id:'semanales', g:'agenda', ic:'event_repeat', t:'Bloqueos semanales', d:'Días y horarios que se repiten todas las semanas.', kw:'bloqueo semanal sabado domingo horario'},
   {id:'fechas', g:'agenda', ic:'event_busy', t:'Fechas bloqueadas', d:'Feriados, inventarios o capacitaciones en un día puntual.', kw:'feriado inventario capacitacion fecha bloqueada'},
   {id:'contacto', g:'sucursales', ic:'location_on', t:'Direcciones y contacto', d:'Dirección por marca y sucursal, teléfono, copia de mails, duración y acceso libre.', kw:'direccion telefono copia duracion minutos acceso libre contraseña'},
-  {id:'modulos', g:'sucursales', ic:'toggle_on', t:'Módulos del sistema', d:'Qué secciones del menú están encendidas para todos.', kw:'modulo modulos menu tv calendario lista reportes'},
-  {id:'whatsapp', g:'comunicaciones', ic:'chat', t:'WhatsApp de postventa', d:'El número de cada marca que va en el mensaje de bienvenida.', kw:'whatsapp postventa bienvenida numero'},
-  {id:'alertacamp', g:'comunicaciones', ic:'campaign', t:'Campañas pendientes', d:'A quién avisar 24 hs antes si todavía falta controlar una campaña.', kw:'alerta aviso campaña campañas mail email'},
-  {id:'repuestos', g:'repuestos', ic:'build', t:'Repuestos y servicio', d:'El teléfono de repuestos y taller de cada marca.', kw:'repuestos servicio taller telefono'},
+  {id:'whatsapp', g:'comunicaciones', ic:'chat', t:'Postventa (WhatsApp)', d:'El número de Postventa de cada marca: el cliente lo guarda y escribe por WhatsApp.', kw:'whatsapp postventa bienvenida numero turnos service'},
+  {id:'alertacamp', g:'comunicaciones', ic:'campaign', t:'Campañas pendientes', d:'A quién avisar 24 hs antes si la campaña no se definió o todavía no se controló.', kw:'alerta aviso campaña campañas mail email'},
+  {id:'repuestos', g:'repuestos', ic:'build', t:'Repuestos', d:'El teléfono de Repuestos de cada marca, que va en el mensaje de bienvenida.', kw:'repuestos telefono numero bienvenida'},
   {id:'alertaacc', g:'accesorios', ic:'inventory_2', t:'Accesorios pendientes', d:'A quién avisar 24 hs antes si todavía falta colocar un accesorio.', kw:'alerta aviso accesorio accesorios mail email'}
 ];
 var CFG_MODULOS_TOTAL_ = 7;
@@ -14191,7 +14232,10 @@ function cfgRenderPlantillasLanding_(){
 function cfgMejorarPermisos_(){
   var pane = document.getElementById('paneMaestroPermisos'); if(!pane || pane._cfg) return; pane._cfg = true;
   var intro = pane.firstElementChild;
-  if(intro && !intro.id){ intro.className='cfg-info'; intro.removeAttribute('style'); intro.innerHTML='<span class="material-symbols-outlined">badge</span><span>'+intro.innerHTML.replace('este Panel Maestro','esta Configuración').replace('no entra al Maestro','no entra a Configuración')+'</span>'; }
+  if(intro && !intro.id){ intro.className='cfg-info'; intro.removeAttribute('style'); intro.innerHTML='<span class="material-symbols-outlined">badge</span><span>Lo que cada persona ve y puede hacer se define <b>solo</b> con sus permisos: <b>sin acceso</b>, <b>solo ver</b> o <b>editar</b>, módulo por módulo. Podés darlos de a una persona (botón de módulos en la tabla) o a todo un rol o sector de una sola vez.</span>'; }
+  var pg = document.createElement('section'); pg.className='cfg-panel cfg-panel-u'; pg.id='cfgPg';
+  pg.innerHTML = '<header><span class="material-symbols-outlined cfg-panel-ic">groups</span><div><h3>Permisos por rol o sector</h3><p>Elegí un grupo, marcá cómo querés cada módulo y aplicalo a todos juntos. Lo que dejes en “sin cambiar” se respeta como lo tiene cada uno.</p></div></header><div id="cfgPgBody"><div class="cfg-vacio" style="margin:0;">Cargando usuarios…</div></div>';
+  pane.insertBefore(pg, intro ? intro.nextSibling : pane.firstChild);
   var buscar = document.getElementById('buscarUsuarioInput'), cont = document.getElementById('uContadorOnline'), tabla = document.getElementById('tablaUsuarios');
   var p1 = document.createElement('section'); p1.className='cfg-panel cfg-panel-u';
   p1.innerHTML = '<header><span class="material-symbols-outlined cfg-panel-ic">group</span><div><h3>Usuarios</h3><p>Tocá un usuario para editarlo, cambiarle la contraseña o darle acceso a módulos.</p></div></header>';
@@ -14200,7 +14244,7 @@ function cfgMejorarPermisos_(){
   if(cont) barra.appendChild(cont);
   p1.appendChild(barra);
   if(tabla) p1.appendChild(tabla.closest('.report-wrap'));
-  pane.insertBefore(p1, intro ? intro.nextSibling : pane.firstChild);
+  pane.insertBefore(p1, pg.nextSibling);
   var tit = document.getElementById('uFormTitulo');
   if(tit){
     var p2 = document.createElement('section'); p2.className='cfg-panel cfg-panel-u'; p2.id='cfgUForm';
@@ -14211,6 +14255,130 @@ function cfgMejorarPermisos_(){
     nodos.forEach(function(x){ p2.appendChild(x); });
     var nota = p2.lastElementChild; if(nota && /mail automático/.test(nota.textContent)) nota.style.display='none';
   }
+}
+
+
+// ---------- Permisos en grupo (por rol o por sector) ----------
+var _pg = {modo:'rol', grupo:null, cambios:{}, fuera:{}, aplicando:false};
+function cfgPgUsuarios_(){ return window._usuariosCache || []; }
+function cfgPgClave_(u){ return _pg.modo==='rol' ? (u.rol||'') : (String(u.sector||'').trim().toLowerCase() || '__sin'); }
+function cfgPgEtiq_(k){
+  if(_pg.modo==='rol') return etiquetaRol_(k) || 'Sin rol';
+  if(k==='__sin') return 'Sin sector';
+  var u = cfgPgUsuarios_().find(function(x){ return cfgPgClave_(x)===k; });
+  return u ? String(u.sector).trim() : k;
+}
+function cfgPgEstadoU_(u, m){ var on=(u.modulos||[]).indexOf(m)>-1; return !on ? 'off' : ((u.modulosSoloVer||[]).indexOf(m)>-1 ? 'ver' : 'editar'); }
+function cfgPgMiembros_(){ return cfgPgUsuarios_().filter(function(u){ return cfgPgClave_(u)===_pg.grupo; }); }
+function cfgPgDestino_(){ return cfgPgMiembros_().filter(function(u){ return !_pg.fuera[u.usuario]; }); }
+var CFG_PG_EST_ = {off:'Sin acceso', ver:'Solo ver', editar:'Editar'};
+function cfgPgRender_(desdeRefresco){
+  var body = document.getElementById('cfgPgBody'); if(!body || _pg.aplicando) return;
+  var us = cfgPgUsuarios_();
+  if(desdeRefresco && _pg.grupo && Object.keys(_pg.cambios).length) { cfgPgPintarGrupos_(); return; } // no pisar lo que se está armando
+  if(!us.length){ body.innerHTML = '<div class="cfg-vacio" style="margin:0;">Todavía no hay usuarios para agrupar.</div>'; return; }
+  var claves = {}; us.forEach(function(u){ var k=cfgPgClave_(u); claves[k]=(claves[k]||0)+1; });
+  if(_pg.grupo && !claves[_pg.grupo]) _pg.grupo = null;
+  var html = '<div class="cfg-pg-top"><div class="cfg-pg-modo" role="tablist">'+
+      ['rol','sector'].map(function(m){ return '<button type="button" class="'+(_pg.modo===m?'on':'')+'" onclick="cfgPgModo_(\''+m+'\')">'+(m==='rol'?'Por rol':'Por sector')+'</button>'; }).join('')+
+    '</div><div class="cfg-pg-grupos" id="cfgPgGrupos"></div></div>';
+  if(!_pg.grupo){
+    html += '<div class="cfg-pg-elegi"><span class="material-symbols-outlined">touch_app</span>Elegí un '+(_pg.modo==='rol'?'rol':'sector')+' para ver y cambiar sus permisos.</div>';
+    body.innerHTML = html; cfgPgPintarGrupos_(); return;
+  }
+  var mi = cfgPgMiembros_(), dest = cfgPgDestino_();
+  // Matriz de módulos
+  var matriz = GRUPOS_MODULOS_.map(function(gr){
+    return '<div class="cfg-pg-sec"><h5>'+gr.titulo+'</h5>'+gr.modulos.map(function(m){
+      var cuenta = {off:0, ver:0, editar:0}; mi.forEach(function(u){ cuenta[cfgPgEstadoU_(u,m)]++; });
+      var actual = ['off','ver','editar'].filter(function(e){ return cuenta[e]; });
+      var resumen = actual.length===1 ? 'Hoy: todos “'+CFG_PG_EST_[actual[0]].toLowerCase()+'”' : 'Hoy: '+actual.map(function(e){ return cuenta[e]+' '+CFG_PG_EST_[e].toLowerCase(); }).join(' · ');
+      var cambio = _pg.cambios[m];
+      var marcado = cambio || (actual.length===1 ? actual[0] : null);
+      return '<div class="cfg-pg-fila'+(cambio?' cambia':'')+'"><span class="material-symbols-outlined">'+(iconos[m]||'apps')+'</span><span class="cfg-pg-mod"><b>'+ETIQUETAS_MODULOS_[m]+'</b><small>'+(cambio?'Va a quedar: '+CFG_PG_EST_[cambio].toLowerCase():resumen)+'</small></span>'+
+        '<div class="cfg-pg-seg'+(cambio?'':' actual')+'">'+['off','ver','editar'].map(function(e){ return '<button type="button" class="'+(marcado===e?'on '+e:'')+'" onclick="cfgPgSet_(\''+m+'\',\''+e+'\')">'+CFG_PG_EST_[e]+'</button>'; }).join('')+'</div>'+
+        (cambio ? '<button type="button" class="cfg-ibtn" title="Dejar sin cambiar" aria-label="Dejar '+ETIQUETAS_MODULOS_[m]+' sin cambiar" onclick="cfgPgSet_(\''+m+'\',null)"><span class="material-symbols-outlined">undo</span></button>' : '<span class="cfg-pg-sc">sin cambiar</span>')+
+      '</div>';
+    }).join('')+'</div>';
+  }).join('');
+  var modelo = '<select onchange="cfgPgModelo_(this.value);this.value=\'\'"><option value="">Copiar los permisos de…</option>'+mi.map(function(u){ return '<option value="'+cfgEsc_(u.usuario)+'">'+cfgEsc_(u.nombre)+'</option>'; }).join('')+'</select>';
+  var personas = mi.map(function(u){
+    var fuera = !!_pg.fuera[u.usuario];
+    return '<label class="cfg-pg-u'+(fuera?' fuera':'')+'"><input type="checkbox" '+(fuera?'':'checked')+' onchange="cfgPgFuera_(\''+cfgEsc_(u.usuario)+'\',!this.checked)"><span class="maestro-tag-avatar">'+iniciales_(u.nombre)+'</span><span class="cfg-pg-un"><b>'+cfgEsc_(u.nombre)+'</b><small>@'+cfgEsc_(u.usuario)+(u.activo?'':' · inactivo')+'</small></span><span class="cfg-pg-uc">'+(u.modulos||[]).length+' mód.</span></label>';
+  }).join('');
+  var nCambios = Object.keys(_pg.cambios).length;
+  html += '<div class="cfg-pg-main"><div class="cfg-pg-izq">'+
+      '<div class="cfg-pg-acc"><span>Rápido:</span><button type="button" class="cfg-btn" onclick="cfgPgTodos_(\'ver\')">Todo solo ver</button><button type="button" class="cfg-btn" onclick="cfgPgTodos_(\'off\')">Todo sin acceso</button>'+modelo+(nCambios?'<button type="button" class="cfg-link" onclick="cfgPgLimpiar_()">Deshacer todo</button>':'')+'</div>'+
+      matriz+'</div>'+
+    '<aside class="cfg-pg-der"><h5>Se aplica a '+dest.length+' de '+mi.length+(mi.length===1?' persona':' personas')+'</h5><div class="cfg-pg-us">'+personas+'</div></aside></div>'+
+    '<div class="cfg-pg-pie"><span id="cfgPgResumen">'+(nCambios ? 'Vas a cambiar <b>'+nCambios+(nCambios===1?' módulo':' módulos')+'</b> a <b>'+dest.length+(dest.length===1?' persona':' personas')+'</b> de '+cfgEsc_(cfgPgEtiq_(_pg.grupo))+'.' : 'Todavía no cambiaste nada. Tocá “Sin acceso”, “Solo ver” o “Editar” en los módulos que quieras cambiar.')+'</span>'+
+    '<button type="button" class="save-btn" id="cfgPgAplicar" '+(nCambios && dest.length?'':'disabled')+' onclick="cfgPgAplicar_()">Aplicar a '+dest.length+(dest.length===1?' persona':' personas')+'</button></div>';
+  body.innerHTML = html;
+  cfgPgPintarGrupos_();
+}
+function cfgPgPintarGrupos_(){
+  var c = document.getElementById('cfgPgGrupos'); if(!c) return;
+  var claves = {}; cfgPgUsuarios_().forEach(function(u){ var k=cfgPgClave_(u); claves[k]=(claves[k]||0)+1; });
+  c.innerHTML = Object.keys(claves).sort(function(a,b){ return cfgPgEtiq_(a).localeCompare(cfgPgEtiq_(b)); }).map(function(k){
+    return '<button type="button" class="cfg-pg-g'+(k===_pg.grupo?' on':'')+'" onclick="cfgPgGrupo_(\''+cfgEsc_(k).replace(/'/g,"\\'")+'\')">'+cfgEsc_(cfgPgEtiq_(k))+'<small>'+claves[k]+'</small></button>';
+  }).join('');
+}
+function cfgPgHayCambios_(){ return Object.keys(_pg.cambios).length && !confirm('Tenés cambios sin aplicar en este grupo. ¿Descartarlos?'); }
+function cfgPgModo_(m){ if(m===_pg.modo || cfgPgHayCambios_()) return; _pg = {modo:m, grupo:null, cambios:{}, fuera:{}}; cfgPgRender_(); }
+function cfgPgGrupo_(k){ if(k===_pg.grupo || cfgPgHayCambios_()) return; _pg.grupo=k; _pg.cambios={}; _pg.fuera={}; cfgPgUsuarios_().forEach(function(u){ if(cfgPgClave_(u)===k && !u.activo) _pg.fuera[u.usuario]=true; }); cfgPgRender_(); }
+function cfgPgSet_(m, e){
+  if(e===null){ delete _pg.cambios[m]; cfgPgRender_(); return; }
+  var mi = cfgPgMiembros_(), todos = mi.length && mi.every(function(u){ return cfgPgEstadoU_(u,m)===e; });
+  if(todos && !_pg.cambios[m]) { showToast('Ya lo tienen todos así'); return; }
+  if(todos) delete _pg.cambios[m]; else _pg.cambios[m] = e;
+  cfgPgRender_();
+}
+function cfgPgTodos_(e){ var mi=cfgPgMiembros_(); MODULOS_PG_().forEach(function(m){ if(!mi.every(function(u){ return cfgPgEstadoU_(u,m)===e; })) _pg.cambios[m]=e; else delete _pg.cambios[m]; }); cfgPgRender_(); }
+function cfgPgModelo_(usuario){
+  var u = cfgPgUsuarios_().find(function(x){ return x.usuario===usuario; }); if(!u) return;
+  var mi = cfgPgMiembros_(); _pg.cambios = {};
+  MODULOS_PG_().forEach(function(m){ var e=cfgPgEstadoU_(u,m); if(!mi.every(function(x){ return cfgPgEstadoU_(x,m)===e; })) _pg.cambios[m]=e; });
+  showToast(Object.keys(_pg.cambios).length ? 'Se copiaron los permisos de '+u.nombre+'. Revisá y aplicá.' : 'Todos ya tienen los mismos permisos que '+u.nombre);
+  cfgPgRender_();
+}
+function cfgPgLimpiar_(){ _pg.cambios = {}; cfgPgRender_(); }
+function cfgPgFuera_(usuario, fuera){ if(fuera) _pg.fuera[usuario]=true; else delete _pg.fuera[usuario]; cfgPgRender_(); }
+function MODULOS_PG_(){ var out=[]; GRUPOS_MODULOS_.forEach(function(g){ out=out.concat(g.modulos); }); return out; }
+function cfgPgAplicar_(){
+  var dest = cfgPgDestino_(), cambios = _pg.cambios, mods = Object.keys(cambios);
+  if(!dest.length || !mods.length) return;
+  var detalle = mods.map(function(m){ return '• '+ETIQUETAS_MODULOS_[m]+': '+CFG_PG_EST_[cambios[m]].toLowerCase(); }).join('\n');
+  if(!confirm('Vas a aplicar a '+dest.length+(dest.length===1?' persona':' personas')+' de '+cfgPgEtiq_(_pg.grupo)+':\n\n'+detalle+'\n\n¿Confirmás?')) return;
+  var s = sesionActual(), pass = window._ultimaPasswordActor || credencialesActor_();
+  if(!s || pass===null) return;
+  _pg.aplicando = true;
+  var btn = document.getElementById('cfgPgAplicar'), ok = 0, errores = [];
+  var paso = function(k){
+    if(k>=dest.length){
+      _pg.aplicando = false;
+      var etq = cfgPgEtiq_(_pg.grupo);
+      _pg.cambios = {};
+      registrarCambioConfig_('Permisos de '+etq+': '+mods.length+(mods.length===1?' módulo':' módulos')+' a '+ok+(ok===1?' persona':' personas'));
+      gasPost('guardarConfig',{config:CONFIG}).catch(function(){});
+      showToast(errores.length ? 'Se aplicó a '+ok+'. No se pudo con: '+errores.join(', ') : 'Permisos aplicados a '+ok+(ok===1?' persona':' personas')+' de '+etq);
+      renderUsuariosTabla_();
+      cfgPgRender_();
+      return;
+    }
+    var u = dest[k];
+    if(btn){ btn.disabled = true; btn.textContent = 'Guardando '+(k+1)+' de '+dest.length+'…'; }
+    var modulos = (u.modulos||[]).slice(), soloVer = (u.modulosSoloVer||[]).slice();
+    mods.forEach(function(m){
+      var e = cambios[m], im = modulos.indexOf(m), iv = soloVer.indexOf(m);
+      if(e==='off'){ if(im>-1) modulos.splice(im,1); if(iv>-1) soloVer.splice(iv,1); }
+      else { if(im===-1) modulos.push(m); if(e==='ver'){ if(iv===-1) soloVer.push(m); } else if(iv>-1) soloVer.splice(iv,1); }
+    });
+    gasPost('editarUsuario',{actorUsuario:s.usuario, actorPassword:pass, usuarioObjetivo:u.usuario, nombre:u.nombre, email:u.email||'', rol:u.rol, modulos:modulos, sector:u.sector||'', modulosSoloVer:soloVer}).then(function(res){
+      if(res && res.error){ errores.push(u.nombre); } else { u.modulos = modulos; u.modulosSoloVer = soloVer; ok++; }
+      paso(k+1);
+    }).catch(function(){ errores.push(u.nombre); paso(k+1); });
+  };
+  paso(0);
 }
 
 // ---------- Cargas masivas ----------
@@ -14383,7 +14551,7 @@ function cfgRenderAuto_(){
     {ic:'mail', t:'Encuesta por mail después de la entrega', s: em.activo ? ('Se envía '+(em.horas||48)+' hs después') : 'No se está enviando', p: pill((em.marcas||[]).length, BRANDS.length, !!em.activo), go:"setMaestroTab('automatizaciones')"},
     {ic:'chat', t:'Mensaje de WhatsApp post-entrega', s:'Botón listo en el detalle de cada entrega', p: pill((wa.marcas||[]).length, BRANDS.length, true), go:"setMaestroTab('automatizaciones')"},
     {ic:'inventory_2', t:'Aviso de accesorios pendientes', s:'Mail 24 hs antes de la entrega', p: pill(cuenta(CONFIG.alertaAccesoriosEmails), BRANDS.length, true), go:"cfgAbrir_('alertaacc')"},
-    {ic:'campaign', t:'Aviso de campañas pendientes', s:'Mail 24 hs antes de la entrega', p: pill(cuenta(CONFIG.alertaCampanasEmails), BRANDS.length, true), go:"cfgAbrir_('alertacamp')"}
+    {ic:'campaign', t:'Aviso de campañas pendientes', s:'Sin definir o sin controlar · mail 24 hs antes', p: pill(cuenta(CONFIG.alertaCampanasEmails), BRANDS.length, true), go:"cfgAbrir_('alertacamp')"}
   ];
   cont.innerHTML = filas.map(function(f){
     return '<button type="button" class="cfg-auto-row" onclick="'+f.go+'"><span class="material-symbols-outlined">'+f.ic+'</span><span class="cfg-auto-t">'+f.t+'<small>'+f.s+'</small></span>'+f.p+'</button>';
@@ -14691,6 +14859,7 @@ function cfgDirContar_(){
   });
 }
 function persistirConfig(mensaje){
+  if(CONFIG.modulosActivos) delete CONFIG.modulosActivos; // ajuste viejo, reemplazado por Permisos
   registrarCambioConfig_(mensaje);
   renderDatalists();
   if(typeof cfgRenderHub_==='function' && maestroTabActual==='config'){ cfgRenderHub_(); if(window._cfgSeccionActual && !_cfgSucio_) cfgPintarEstadoDetalle_(window._cfgSeccionActual); cfgRefrescarRail_(); }
@@ -14828,7 +14997,7 @@ function guardarRepuestosServicio(){
     if(el) nuevo[b.id] = el.value.trim();
   });
   CONFIG.repuestosServicio = nuevo;
-  persistirConfig('Números de Repuestos y Servicio actualizados');
+  persistirConfig('Números de Repuestos actualizados');
 }
 function guardarModulosActivos(){
   var activos = {};
