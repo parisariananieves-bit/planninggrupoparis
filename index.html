@@ -2463,6 +2463,14 @@
   /* Filas de botones-filtro: se acomodan en varias líneas en vez de salirse de la pantalla */
   .filter-pills{flex-wrap:wrap;row-gap:6px;}
   /* Celular: la ficha de una entrega ocupa toda la pantalla (sin franja suelta al costado) */
+  /* Ficha y ventanas: se desplazan solas, sin arrastrar la página de atrás */
+  .drawer,.modal{-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+  body.scroll-bloqueado{position:fixed;left:0;right:0;width:100%;overflow:hidden;}
+  @media(max-width:900px){
+    /* el vidrio esmerilado traba el desplazamiento en celulares: fondo sólido */
+    .drawer,.drawer-head{backdrop-filter:none !important;-webkit-backdrop-filter:none !important;}
+    .drawer{background:var(--bg) !important;}
+  }
   @media(max-width:640px){
     .drawer{width:100vw !important;max-width:100vw !important;border-left:none !important;}
     .modal{width:calc(100vw - 20px) !important;max-height:calc(100dvh - 30px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)) !important;}
@@ -21072,6 +21080,45 @@ function aplicarVistaDeUrl_(){
   }
   document.addEventListener('touchend', soltar, {passive:true});
   document.addEventListener('touchcancel', function(){ inicioY = null; tirando = false; esconder(); }, {passive:true});
+})();
+
+// ---- Con la ficha o una ventana abierta, la página de atrás queda quieta ----
+// (en iPhone, si la página de atrás también se puede mover, el dedo a veces la mueve a
+// ella en vez de la ficha, y parece que la ficha "no deja bajar")
+(function(){
+  var bloqueado = false, guardadoY = 0, pendiente = false;
+  function hayAbierto(){
+    var dr = document.getElementById('drawer');
+    return !!(document.querySelector('.modal.show') || (dr && dr.classList.contains('show')));
+  }
+  function revisar(){
+    pendiente = false;
+    if(!(typeof esPantallaTactil_ === 'function' && esPantallaTactil_())) return;
+    var abierto = hayAbierto();
+    if(abierto && !bloqueado){
+      guardadoY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      document.body.style.top = (-guardadoY) + 'px';
+      document.body.classList.add('scroll-bloqueado');
+      bloqueado = true;
+    } else if(!abierto && bloqueado){
+      document.body.classList.remove('scroll-bloqueado');
+      document.body.style.top = '';
+      window.scrollTo(0, guardadoY);
+      bloqueado = false;
+    }
+  }
+  function programar(){ if(pendiente) return; pendiente = true; requestAnimationFrame(revisar); }
+  function iniciar(){
+    try{
+      new MutationObserver(function(muts){
+        for(var i = 0; i < muts.length; i++){
+          var t = muts[i].target;
+          if(t.id === 'drawer' || (t.classList && t.classList.contains('modal'))){ programar(); return; }
+        }
+      }).observe(document.body, {attributes:true, attributeFilter:['class'], subtree:true});
+    }catch(e){}
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
 })();
 
 (function iniciarModoApp_(){
