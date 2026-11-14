@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#1D2330">
+<meta name="theme-color" content="#1D2330" id="metaThemeColor">
 <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
 <link rel="apple-touch-icon" href="/icons/icon-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Planning Entregas">
@@ -1445,7 +1446,10 @@
   .aud-ck.on .material-symbols-outlined{color:var(--ok);}
   .aud-ck:disabled{cursor:default;}
   .aud-barra{position:fixed;left:50%;bottom:18px;transform:translate(-50%,140%);display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--hairline);border-radius:14px;padding:10px 12px;box-shadow:0 14px 40px -12px rgba(0,0,0,.45);z-index:900;transition:transform .2s ease;max-width:calc(100vw - 24px);}
-  .aud-barra.show{transform:translate(-50%,0);}
+  .aud-barra:not(.show){visibility:hidden;opacity:0;pointer-events:none;}
+  .aud-barra.show{transform:translate(-50%,0);visibility:visible;opacity:1;}
+  .aud-barra{bottom:calc(18px + env(safe-area-inset-bottom,0px)) !important;max-width:calc(100vw - 24px);}
+  @media(max-width:640px){ .aud-barra{bottom:calc(70px + env(safe-area-inset-bottom,0px)) !important;} }
   .aud-barra > b{font-size:13px;margin:0 4px;}
   .aud-x{border:none;background:none;color:var(--text-dim);cursor:pointer;display:grid;place-items:center;}
   @media (prefers-reduced-motion: reduce){ .aud-barra{transition:none;} }
@@ -2424,9 +2428,38 @@
   body.role-tv .tv-filtros-row{display:none;}
   .tv-logout-mini{background:transparent;border:none;color:#4a5063;font-size:10.5px;cursor:pointer;padding:6px 8px;}
   .tv-logout-mini:hover{color:#8890a0;}
+<style>
+  /* ===== Modo app (instalada en el celular / compu) ===== */
+  /* Franja detrás del reloj/batería del iPhone (barra de estado transparente) */
+  .app-statusbar{position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:#0A0D16;z-index:300;pointer-events:none;}
+  .main-shell{padding-top:env(safe-area-inset-top,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);}
+  .topbar{top:env(safe-area-inset-top,0px) !important;}
+  .sidebar{padding-top:calc(16px + env(safe-area-inset-top,0px)) !important;}
+  .drawer{padding-top:env(safe-area-inset-top,0px);}
+  .modal{max-height:calc(82vh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));}
+  .bottom-nav{height:calc(58px + env(safe-area-inset-bottom,0px)) !important;box-sizing:border-box;}
+  @media(max-width:640px){ .main-shell{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px)) !important;} }
+  #rolPreviewBanner{padding-top:calc(7px + env(safe-area-inset-top,0px)) !important;}
+  body.app-standalone{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}
+  body.app-standalone .main-shell{-webkit-user-select:auto;}
+  .app-aviso{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:400;display:flex;align-items:center;gap:10px;background:#1D2330;color:#EAEDF3;border:1px solid #2A303D;border-radius:12px;padding:10px 12px 10px 14px;box-shadow:0 14px 34px -12px rgba(0,0,0,.6);font-size:13px;font-weight:600;width:max-content;max-width:calc(100vw - 24px);box-sizing:border-box;}
+  .app-aviso > span:nth-child(2){flex:1;min-width:0;}
+  .app-aviso .material-symbols-outlined{font-size:19px;color:#E8A33D;}
+  .app-aviso button{background:#E8A33D;color:#1D2330;border:none;border-radius:8px;padding:7px 12px;font-weight:800;font-size:12.5px;cursor:pointer;white-space:nowrap;}
+  .app-aviso button.sec{background:transparent;color:#A3ABBD;padding:7px 6px;}
+  @media(max-width:640px){ .app-aviso{bottom:calc(70px + env(safe-area-inset-bottom,0px));left:12px;right:12px;transform:none;width:auto;} }
+  .app-offline{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;height:28px;line-height:28px;z-index:290;background:#E85D5D;color:#fff;text-align:center;font-size:12px;font-weight:700;padding:0 10px;display:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  body.sin-conexion .main-shell{padding-top:calc(28px + env(safe-area-inset-top,0px));}
+  body.sin-conexion .topbar{top:calc(28px + env(safe-area-inset-top,0px)) !important;}
+  body.sin-conexion .app-offline{display:block;}
+  .ios-inst-paso{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--hairline);font-size:13.5px;color:var(--text);}
+  .ios-inst-paso:last-child{border-bottom:none;}
+  .ios-inst-paso b.n{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;}
 </style>
 </head>
 <body>
+<div class="app-statusbar" aria-hidden="true"></div>
+<div class="app-offline" id="appOffline">Sin conexión · estás viendo los últimos datos guardados</div>
 <div class="app-shell" id="app">
   <div class="loading" id="loadingMsg">Cargando entregas...</div>
 
@@ -2542,6 +2575,7 @@
         <div class="sidebar-user-menu" id="menuUsuario" style="display:none;">
           <button onclick="toggleTheme()" id="themeToggleBtn"><span class="material-symbols-outlined">dark_mode</span>Modo oscuro/claro</button>
           <button onclick="cargarTodo()"><span class="material-symbols-outlined">refresh</span>Actualizar datos</button>
+          <button onclick="instalarApp_()" id="btnInstalarApp" style="display:none;"><span class="material-symbols-outlined">install_mobile</span>Instalar la app</button>
           <button onclick="crearCopiaSeguridadUI_()" id="btnCopiaSeguridad" style="display:none;"><span class="material-symbols-outlined">backup</span>Copia de seguridad completa</button>
           <div id="rolPreviewMenuWrap" style="display:none;">
             <div style="padding:8px 12px 2px;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-faint);font-weight:700;">Vista previa (solo vos ves esto)</div>
@@ -4834,6 +4868,13 @@ function aplicarTema(modo){
   var btn=document.getElementById('themeToggleBtn');
   if(btn) btn.innerHTML = '<span class="material-symbols-outlined">'+(modo==='claro'?'dark_mode':'light_mode')+'</span>'+(modo==='claro' ? 'Modo oscuro' : 'Modo claro');
   localStorage.setItem('tema', modo);
+  actualizarColorBarraApp_();
+}
+// Color de la barra de estado (Android / compu) según el tema y la pantalla.
+function actualizarColorBarraApp_(){
+  var m = document.getElementById('metaThemeColor'); if(!m) return;
+  var enApp = document.getElementById('mainShell') && document.getElementById('mainShell').style.display !== 'none' && document.getElementById('loginUI') && document.getElementById('loginUI').style.display !== 'block';
+  m.setAttribute('content', (enApp && document.body.classList.contains('light-mode')) ? '#F2F3F5' : '#1D2330');
 }
 function toggleTheme(){
   var actual = localStorage.getItem('tema')==='claro' ? 'claro' : 'oscuro';
@@ -5606,7 +5647,7 @@ function init(){
       mostrarPantallaElegirPassword_(usuarioUrl, tokenUrl);
     }).catch(function(){
       document.getElementById('loadingMsg').style.display='none';
-      document.getElementById('setupUI').style.display='block';
+      mostrarSetupUI_();
     });
     return;
   }
@@ -5620,8 +5661,19 @@ function init(){
     cargarTodo();
   }).catch(function(){
     document.getElementById('loadingMsg').style.display='none';
-    document.getElementById('setupUI').style.display='block';
+    mostrarSetupUI_();
   });
+}
+// Si falla el arranque: sin internet mostramos un mensaje claro en lugar del de configuración.
+function mostrarSetupUI_(){
+  var box = document.getElementById('setupUI');
+  if(navigator.onLine === false){
+    var h = box.querySelector('h3'), p = box.querySelector('p');
+    if(h) h.textContent = 'Sin conexión a internet';
+    if(p) p.textContent = 'Para abrir la app por primera vez en este dispositivo hace falta internet. Apenas vuelva la conexión, se carga sola.';
+    window.addEventListener('online', function(){ location.reload(); }, {once:true});
+  }
+  box.style.display = 'block';
 }
 function mostrarPantallaElegirPassword_(usuario, token){
   window._tokenPasswordUsuario = usuario;
@@ -5707,8 +5759,9 @@ function pintarDatosCargados_(esPrimeraVezReal){
   renderSwitcher(); updateDayLabel(); checkBloqueado(); renderAll(); renderDatalists();
   aplicarPermisosUI();
   if(esTvRecepcion() && primeraCargaApp_){ abrirModoTV(); }
-  else if(primeraCargaApp_){ setAppView('dashboard'); }
+  else if(primeraCargaApp_){ setAppView('dashboard'); aplicarVistaDeUrl_(); }
   else if(!esPrimeraVezReal){ setAppView(currentAppView); }
+  actualizarColorBarraApp_();
 }
 function cargarTodo(omitirRefrescoInicial){
   document.getElementById('setupUI').style.display='none';
@@ -10541,8 +10594,9 @@ function hayModalAbierto(){
   return document.querySelector('.modal.show') || document.getElementById('drawer').classList.contains('show');
 }
 function actualizacionSilenciosa(){
-  if(!GAS_URL || hayModalAbierto()) return;
+  if(!GAS_URL || hayModalAbierto() || MODO_VISTA_PREVIA || navigator.onLine === false || document.visibilityState === 'hidden') return;
   gasGet('entregas').then(function(data){
+    if(!Array.isArray(data)) return;
     ENTREGAS=normalizarTextosEntregas_(data);
     renderAll();
     guardarDatosCache_(ENTREGAS, CONFIG); // mantiene la caché fresca para la próxima apertura
@@ -20749,21 +20803,159 @@ function exportarProyeccionExcel(){
 
 // --- Módulo de Reportes (filtros) ---
 
-// Se saca el Service Worker: estaba guardando versiones viejas en caché y
-// haciendo que la app pareciera "trabada" o desactualizada aunque ya se
-// hubiera subido una versión nueva a Vercel. Esto desinstala cualquier
-// Service Worker que haya quedado activo en el navegador de cada persona
-// (una sola vez, la próxima vez que entren) y borra sus cachés viejas.
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.getRegistrations().then(function(regs){
-    regs.forEach(function(reg){ reg.unregister(); });
-  }).catch(function(){});
-  if(window.caches && caches.keys){
-    caches.keys().then(function(keys){
-      keys.forEach(function(k){ caches.delete(k); });
-    }).catch(function(){});
-  }
+// ============================================================
+// MODO APP (PWA): instalación, service worker, actualizaciones y sin conexión
+// ============================================================
+function esModoApp_(){
+  return !!((window.navigator && navigator.standalone) || (window.matchMedia && (matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: minimal-ui)').matches)));
 }
+function esIOS_(){
+  var ua = navigator.userAgent || '';
+  return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+var _promptInstalar = null;
+function actualizarBotonInstalar_(){
+  var b = document.getElementById('btnInstalarApp'); if(!b) return;
+  b.style.display = (!esModoApp_() && (_promptInstalar || esIOS_())) ? '' : 'none';
+}
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();               // lo mostramos nosotros desde el menú del usuario
+  _promptInstalar = e;
+  actualizarBotonInstalar_();
+});
+window.addEventListener('appinstalled', function(){
+  _promptInstalar = null;
+  actualizarBotonInstalar_();
+  try{ showToast('¡Listo! La app quedó instalada.'); }catch(e){}
+});
+function instalarApp_(){
+  var mu = document.getElementById('menuUsuario'); if(mu) mu.style.display = 'none';
+  if(_promptInstalar){
+    _promptInstalar.prompt();
+    _promptInstalar.userChoice.then(function(){ _promptInstalar = null; actualizarBotonInstalar_(); }).catch(function(){});
+    return;
+  }
+  if(esIOS_()){ mostrarAvisoInstalarIOS_(); return; }
+  showToast('Abrí el menú del navegador (⋮) y elegí "Instalar app" o "Agregar a la pantalla principal".');
+}
+function mostrarAvisoInstalarIOS_(){
+  var prev = document.getElementById('iosInstalarBg'); if(prev) prev.remove();
+  var bg = document.createElement('div');
+  bg.id = 'iosInstalarBg';
+  bg.style.cssText = 'position:fixed;inset:0;background:rgba(6,8,12,.6);z-index:500;display:flex;align-items:flex-end;justify-content:center;padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));';
+  bg.innerHTML = '<div style="background:var(--panel);color:var(--text);border:1px solid var(--hairline);border-radius:16px;width:min(420px,100%);padding:18px 18px 12px;box-shadow:0 20px 50px -10px rgba(0,0,0,.6);">'+
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;"><img src="/icons/icon-180.png" alt="" style="width:44px;height:44px;border-radius:10px;"><div><div style="font-weight:800;font-size:15px;">Instalar Planning en el iPhone</div><div style="font-size:12px;color:var(--text-dim);">Hay que hacerlo desde Safari</div></div></div>'+
+    '<div class="ios-inst-paso"><b class="n">1</b><div>Tocá el botón <b>Compartir</b> <span class="material-symbols-outlined" style="font-size:17px;vertical-align:-3px;">ios_share</span> abajo (o arriba) en Safari.</div></div>'+
+    '<div class="ios-inst-paso"><b class="n">2</b><div>Bajá y elegí <b>Agregar a inicio</b> <span class="material-symbols-outlined" style="font-size:17px;vertical-align:-3px;">add_box</span>.</div></div>'+
+    '<div class="ios-inst-paso"><b class="n">3</b><div>Tocá <b>Agregar</b>. El ícono de Planning queda en la pantalla de inicio y se abre como app.</div></div>'+
+    '<button class="save-btn" style="width:100%;margin-top:10px;" onclick="document.getElementById(\'iosInstalarBg\').remove()">Entendido</button></div>';
+  bg.addEventListener('click', function(ev){ if(ev.target === bg) bg.remove(); });
+  document.body.appendChild(bg);
+}
+
+// Aviso flotante (nueva versión, etc.)
+function mostrarAvisoApp_(id, icono, texto, boton, accion){
+  if(document.getElementById(id)) return;
+  var d = document.createElement('div');
+  d.className = 'app-aviso'; d.id = id;
+  d.innerHTML = '<span class="material-symbols-outlined">'+icono+'</span><span>'+texto+'</span>';
+  var b = document.createElement('button'); b.textContent = boton; b.onclick = accion; d.appendChild(b);
+  var x = document.createElement('button'); x.className = 'sec'; x.innerHTML = '<span class="material-symbols-outlined" style="font-size:17px;color:inherit;">close</span>'; x.onclick = function(){ d.remove(); }; d.appendChild(x);
+  document.body.appendChild(d);
+}
+
+// Detecta si se subió una versión nueva a Vercel mientras la app quedó abierta
+// (en el celu la app instalada puede quedar abierta días sin recargarse).
+var _firmaVersionApp = null;
+function firmaVersionApp_(){
+  return fetch('/', {method:'HEAD', cache:'no-store'}).then(function(r){
+    if(!r.ok) return null;
+    return r.headers.get('etag') || r.headers.get('last-modified') || null;
+  }).catch(function(){ return null; });
+}
+function revisarVersionNueva_(){
+  if(MODO_VISTA_PREVIA || location.protocol === 'file:' || !navigator.onLine) return;
+  firmaVersionApp_().then(function(f){
+    if(!f) return;
+    if(!_firmaVersionApp){ _firmaVersionApp = f; return; }
+    if(f !== _firmaVersionApp){
+      mostrarAvisoApp_('avisoVersionNueva', 'system_update', 'Hay una versión nueva de la app', 'Actualizar', function(){ location.reload(); });
+    }
+  });
+}
+var _ocultaDesde = 0;
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'hidden'){ _ocultaDesde = Date.now(); return; }
+  // Al volver a la app: si estuvo un rato en segundo plano, revisamos versión y refrescamos datos.
+  var fuera = _ocultaDesde ? (Date.now() - _ocultaDesde) : 0;
+  _ocultaDesde = 0;
+  if(fuera > 60*1000) revisarVersionNueva_();
+  if(fuera > 20*1000 && fuera <= 5*60*1000){ try{ actualizacionSilenciosa(); }catch(e){} }
+  if(fuera > 5*60*1000 && typeof sesionActual === 'function' && sesionActual() && !MODO_VISTA_PREVIA && document.getElementById('mainShell') && document.getElementById('mainShell').style.display === 'block' && navigator.onLine){
+    try{ refrescarDatosSilencioso_(); }catch(e){}
+  }
+});
+setInterval(revisarVersionNueva_, 30*60*1000);
+// Refresco silencioso de datos (sin pantalla de "Cargando...")
+function refrescarDatosSilencioso_(){
+  // si hay una ficha o ventana abierta no repintamos, para no interrumpir lo que se está cargando
+  if(document.querySelector('.modal.show') || (document.getElementById('drawer') && document.getElementById('drawer').classList.contains('show'))) return Promise.resolve();
+  return Promise.all([gasGet('entregas'), gasGet('config')]).then(function(res){
+    if(!res || !Array.isArray(res[0]) || !res[1] || res[1].error) return;
+    ENTREGAS = normalizarTextosEntregas_(res[0]);
+    CONFIG = res[1];
+    guardarDatosCache_(ENTREGAS, CONFIG);
+    renderAll(); renderDatalists(); aplicarPermisosUI();
+  }).catch(function(){});
+}
+
+// Sin conexión: barra roja arriba; al volver internet, se refresca solo.
+function actualizarEstadoConexion_(){
+  document.body.classList.toggle('sin-conexion', !navigator.onLine);
+}
+window.addEventListener('offline', actualizarEstadoConexion_);
+window.addEventListener('online', function(){
+  actualizarEstadoConexion_();
+  if(typeof sesionActual === 'function' && sesionActual() && !MODO_VISTA_PREVIA && document.getElementById('mainShell') && document.getElementById('mainShell').style.display === 'block'){
+    refrescarDatosSilencioso_();
+  }
+});
+
+// Atajos del ícono de la app (mantener apretado el ícono): ?vista=programar|calendario|auditoria
+function aplicarVistaDeUrl_(){
+  try{
+    var p = new URLSearchParams(location.search);
+    var v = p.get('vista');
+    if(p.has('app') || v){
+      p.delete('app'); p.delete('vista');
+      var q = p.toString();
+      history.replaceState(null, '', location.pathname + (q ? '?'+q : '') + location.hash);
+    }
+    if(!v) return;
+    setTimeout(function(){
+      if(v === 'programar'){ if(typeof abrirElegirTipoEntrega_ === 'function') abrirElegirTipoEntrega_(); }
+      else if(VISTAS_APP.indexOf(v) > -1){ setAppView(v); }
+    }, 50);
+  }catch(e){}
+}
+
+(function iniciarModoApp_(){
+  if(esModoApp_()) document.body.classList.add('app-standalone');
+  actualizarEstadoConexion_();
+  actualizarBotonInstalar_();
+  if(window.matchMedia){
+    try{ matchMedia('(display-mode: standalone)').addEventListener('change', function(){ document.body.classList.toggle('app-standalone', esModoApp_()); actualizarBotonInstalar_(); }); }catch(e){}
+  }
+  if('serviceWorker' in navigator && location.protocol !== 'file:'){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/sw.js', {updateViaCache:'none'}).then(function(reg){
+        // buscamos actualizaciones del service worker cada vez que se vuelve a la app
+        document.addEventListener('visibilitychange', function(){ if(document.visibilityState === 'visible') reg.update().catch(function(){}); });
+      }).catch(function(){});
+    });
+  }
+  setTimeout(revisarVersionNueva_, 4000); // guarda la "firma" de la versión que se abrió
+})();
 init();
 </script>
 </body>
