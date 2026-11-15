@@ -2484,6 +2484,21 @@
   /* Ficha y ventanas: se desplazan solas, sin arrastrar la página de atrás */
   .drawer,.modal{-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
   body.scroll-bloqueado{position:fixed;left:0;right:0;width:100%;overflow:hidden;}
+  /* Celular: la ficha de la entrega se muestra como una página más y se desplaza con el
+     desplazamiento propio del teléfono (el más fluido, sobre todo en iPhone), en vez de
+     ser una ventana con su propio desplazamiento adentro. */
+  body.ficha-movil .main-shell,body.ficha-movil .sidebar,body.ficha-movil .bottom-nav,body.ficha-movil #overlay{display:none !important;}
+  body.ficha-movil .drawer.show{position:absolute !important;top:0 !important;left:0 !important;right:0 !important;bottom:auto !important;width:100% !important;max-width:100% !important;
+    min-height:100vh;min-height:100dvh;overflow:visible !important;transform:none !important;transition:none !important;box-shadow:none !important;}
+  body.ficha-movil .drawer.show .drawer-head{padding-top:calc(18px + env(safe-area-inset-top,0px));}
+  body.ficha-movil .drawer.show .drawer-body{padding-bottom:calc(40px + env(safe-area-inset-bottom,0px));}
+  /* la cruz para cerrar queda siempre a mano, aunque bajes en la ficha */
+  body.ficha-movil .drawer.show .drawer-head .close{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:10px;z-index:80;width:38px;height:38px;border-radius:50%;
+    background:var(--panel) !important;border:1px solid var(--hairline) !important;box-shadow:0 6px 18px -6px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--text) !important;}
+  body.ficha-movil .drawer.show .drawer-head .d-ancho{display:none !important;}
+  body.ficha-movil .drawer.show .drawer-head h3{padding-right:48px !important;}
+  /* sin animaciones que se repintan todo el tiempo mientras se desplaza */
+  body.menu-tactil #drawer .drawer-head .d-alerta-roja{animation:none !important;}
   @media(max-width:900px){
     /* el vidrio esmerilado traba el desplazamiento en celulares: fondo sólido */
     .drawer,.drawer-head{backdrop-filter:none !important;-webkit-backdrop-filter:none !important;}
@@ -21169,30 +21184,48 @@ function aplicarVistaDeUrl_(){
 
 // ---- Con la ficha o una ventana abierta, la página de atrás queda quieta ----
 // (en iPhone, si la página de atrás también se puede mover, el dedo a veces la mueve a
-// ella en vez de la ficha, y parece que la ficha "no deja bajar")
+// ella en vez de la ficha, y parece que la ficha "no deja bajar").
+// En celular la ficha directamente pasa a ser "la página": se oculta lo de atrás y se
+// desplaza con el desplazamiento nativo del teléfono. Al cerrarla, se vuelve al mismo lugar.
 (function(){
   var bloqueado = false, guardadoY = 0, pendiente = false;
-  function hayAbierto(){
-    var dr = document.getElementById('drawer');
-    return !!(document.querySelector('.modal.show') || (dr && dr.classList.contains('show')));
-  }
+  var fichaMovil = false, yAntesFicha = 0;
   function revisar(){
     pendiente = false;
     if(!(typeof esPantallaTactil_ === 'function' && esPantallaTactil_())) return;
-    var abierto = hayAbierto();
-    if(abierto && !bloqueado){
-      guardadoY = window.pageYOffset || document.documentElement.scrollTop || 0;
-      document.body.style.top = (-guardadoY) + 'px';
-      document.body.classList.add('scroll-bloqueado');
-      bloqueado = true;
-    } else if(!abierto && bloqueado){
+    var dr = document.getElementById('drawer');
+    var fichaAbierta = !!(dr && dr.classList.contains('show'));
+    var modalAbierto = !!document.querySelector('.modal.show');
+    var movil = window.innerWidth <= 640;
+    var debeBloquear = modalAbierto || (fichaAbierta && !movil);
+    // 1) se libera el bloqueo si ya no hace falta
+    if(!debeBloquear && bloqueado){
       document.body.classList.remove('scroll-bloqueado');
       document.body.style.top = '';
       window.scrollTo(0, guardadoY);
       bloqueado = false;
     }
+    // 2) ficha en celular
+    if(fichaAbierta && movil && !fichaMovil && !bloqueado){
+      yAntesFicha = window.pageYOffset || document.documentElement.scrollTop || 0;
+      document.body.classList.add('ficha-movil');
+      fichaMovil = true;
+      window.scrollTo(0, 0);
+    } else if((!fichaAbierta || !movil) && fichaMovil){
+      document.body.classList.remove('ficha-movil');
+      fichaMovil = false;
+      if(!bloqueado) window.scrollTo(0, yAntesFicha); else guardadoY = yAntesFicha;
+    }
+    // 3) se bloquea la página de atrás (ventanas, o la ficha en tablet)
+    if(debeBloquear && !bloqueado){
+      guardadoY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      document.body.style.top = (-guardadoY) + 'px';
+      document.body.classList.add('scroll-bloqueado');
+      bloqueado = true;
+    }
   }
   function programar(){ if(pendiente) return; pendiente = true; requestAnimationFrame(revisar); }
+  window.__fichaMovilRevisar = programar;
   function iniciar(){
     try{
       new MutationObserver(function(muts){
@@ -21202,6 +21235,7 @@ function aplicarVistaDeUrl_(){
         }
       }).observe(document.body, {attributes:true, attributeFilter:['class'], subtree:true});
     }catch(e){}
+    window.addEventListener('resize', programar);
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
 })();
