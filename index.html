@@ -2527,9 +2527,9 @@
   .nps-seg small{display:block;font-size:10.5px;color:var(--text-dim);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .nps-seg .p b{color:var(--ok);} .nps-seg .n b{color:var(--text-dim);} .nps-seg .d b{color:var(--danger);}
   /* modal de respuestas */
-  #npsRespBg{position:fixed;inset:0;background:rgba(6,8,12,.55);z-index:75;display:none;}
+  #npsRespBg{position:fixed;inset:0;background:rgba(6,8,12,.55);z-index:95;display:none;}
   #npsRespBg.show{display:block;}
-  #npsRespModal{width:min(680px,94vw);}
+  #npsRespModal{width:min(680px,94vw);z-index:96;}
   .nps-chips{display:flex;gap:6px;flex-wrap:wrap;padding:12px 18px 6px;}
   .nps-chips button{border:1px solid var(--hairline);background:var(--panel);border-radius:20px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--text-dim);}
   .nps-chips button.on{background:var(--text);color:var(--bg);border-color:var(--text);}
@@ -3027,6 +3027,7 @@
           <div class="aud-head">
             <div><h2>Preparación</h2><p>Buscamos, revisamos y decidimos cada unidad vendida <b>antes</b> de entregarla: OK para entregar, a chapa o a postventa. Las que ya tienen fecha en el Planning van primero.</p></div>
             <div class="aud-head-acc">
+              <button type="button" class="aud-btn sec" onclick="audAbrirExportar_()"><span class="material-symbols-outlined">ios_share</span>Exportar listado</button>
               <button type="button" class="aud-btn sec" onclick="audToggleImport_()"><span class="material-symbols-outlined">upload_file</span>Importar listados</button>
             </div>
           </div>
@@ -8458,6 +8459,7 @@ function audRender_(){
     if(a.ent && b.ent) return (audFechaEnt_(a.ent)||0)-(audFechaEnt_(b.ent)||0) || String(a.ent.hora).localeCompare(String(b.ent.hora));
     return (audDias_(b.u.fechaVenta)||0)-(audDias_(a.u.fechaVenta)||0);
   });
+  window._audVisibles = lista; window._audTodas = us;
   var el = document.getElementById('audLista');
   var extra = (cuenta.entregada||cuenta.caida) ? '<div class="aud-pie">No se muestran '+(cuenta.entregada?cuenta.entregada+' ya entregada'+(cuenta.entregada===1?'':'s'):'')+(cuenta.entregada&&cuenta.caida?' ni ':'')+(cuenta.caida?cuenta.caida+' venta'+(cuenta.caida===1?'':'s')+' caída'+(cuenta.caida===1?'':'s'):'')+'.</div>' : '';
   if(!lista.length){
@@ -8532,6 +8534,109 @@ function audCard_(u, col, ent){
   '</article>';
 }
 // ---------- Tipo de venta: Directa / Plan de ahorro ----------
+// ---------- Exportar listado (Excel, WhatsApp o copiar) ----------
+var _audExp = {alcance:'vista'};
+function audFilasExport_(alcance){
+  var base = alcance === 'todas'
+    ? (window._audTodas || []).filter(function(x){ return x.col!=='entregada' && x.col!=='caida'; })
+    : (window._audVisibles || []);
+  var orden = {}; AUD_COLS_.forEach(function(c, i){ orden[c.id] = i; });
+  base = base.slice().sort(function(a, b){
+    if(alcance === 'todas' && orden[a.col] !== orden[b.col]) return orden[a.col] - orden[b.col];
+    if(!!a.ent !== !!b.ent) return a.ent ? -1 : 1;
+    if(a.ent && b.ent) return (audFechaEnt_(a.ent)||0) - (audFechaEnt_(b.ent)||0) || String(a.ent.hora).localeCompare(String(b.ent.hora));
+    return 0;
+  });
+  return base.map(function(x){
+    var u = x.u, ent = x.ent, col = AUD_COLS_.find(function(c){ return c.id===x.col; });
+    var t = u.traslado || {}, dest = audDestino_(u, ent), ubic = t.ubicacion || '';
+    return {
+      estado: col ? col.t : '', tipo: audTipo_(u, ent).t,
+      modelo: [u.modelo, u.version].filter(Boolean).join(' '), color: u.color || '',
+      vin: u.vin || '', patente: u.patente || '', cliente: u.cliente || '', vendedor: u.vendedor || '',
+      sucursalVenta: u.sucursal || '', estaEn: ubic, seEntregaEn: dest,
+      traslado: (ubic && dest && ubic !== dest && !t.completado) ? 'Hay que trasladarla' : (ubic && dest ? 'Ya está donde se entrega' : ''),
+      fechaEntrega: ent ? (ent.fecha || '') : '', horaEntrega: ent ? (ent.hora || '') : '',
+      diasVenta: audDias_(u.fechaVenta)
+    };
+  });
+}
+function audAbrirExportar_(){
+  var nVista = (window._audVisibles || []).length;
+  var nTodas = (window._audTodas || []).filter(function(x){ return x.col!=='entregada' && x.col!=='caida'; }).length;
+  var col = AUD_COLS_.find(function(c){ return c.id===_aud.col; });
+  var bg = document.getElementById('audExpBg');
+  if(!bg){ bg = document.createElement('div'); bg.id = 'audExpBg'; bg.style.cssText = 'position:fixed;inset:0;background:rgba(6,8,12,.55);z-index:95;'; bg.onclick = audCerrarExportar_; document.body.appendChild(bg); }
+  var m = document.getElementById('audExpModal');
+  if(!m){ m = document.createElement('div'); m.className = 'modal'; m.id = 'audExpModal'; m.style.zIndex = '96'; document.body.appendChild(m); }
+  var opt = function(k, titulo, sub){ return '<label style="display:flex;gap:10px;align-items:flex-start;border:1.5px solid '+(_audExp.alcance===k?'var(--accent)':'var(--hairline)')+';border-radius:12px;padding:11px 12px;cursor:pointer;margin-bottom:8px;">'+
+    '<input type="radio" name="audExpAlc" '+(_audExp.alcance===k?'checked':'')+' onchange="_audExp.alcance=\''+k+'\';audAbrirExportar_()" style="margin-top:3px;"><span><b style="display:block;font-size:13.5px;">'+titulo+'</b><span style="font-size:12px;color:var(--text-dim);">'+sub+'</span></span></label>'; };
+  var btn = function(ic, txt, fn, prim){ return '<button type="button" class="'+(prim?'save-btn':'view-btn')+'" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:0 0 8px;min-height:44px;" onclick="'+fn+'"><span class="material-symbols-outlined" style="font-size:19px;">'+ic+'</span>'+txt+'</button>'; };
+  m.innerHTML = '<div class="modal-head"><div><h3>Exportar listado de Preparación</h3><div class="sub">Modelo, VIN, cliente, de qué sucursal es, dónde está y fecha de entrega.</div></div><button class="close" onclick="audCerrarExportar_()">✕</button></div>'+
+    '<div style="padding:16px 18px 10px;">'+
+      opt('vista', 'Lo que estoy viendo ('+nVista+')', (col?col.t:'')+' con los filtros y la búsqueda de ahora')+
+      opt('todas', 'Todas las unidades pendientes ('+nTodas+')', 'Por buscar, en revisión, en chapa, en postventa y OK, agrupadas por etapa')+
+      '<div style="height:6px;"></div>'+
+      btn('table_view', 'Descargar Excel', 'audExportarExcel_()', true)+
+      btn('chat', 'Enviar por WhatsApp', 'audExportarWhatsApp_()')+
+      btn('content_copy', 'Copiar como texto', 'audExportarCopiar_()')+
+    '</div>';
+  bg.style.display = 'block'; m.classList.add('show');
+}
+function audCerrarExportar_(){
+  var bg = document.getElementById('audExpBg'), m = document.getElementById('audExpModal');
+  if(bg) bg.style.display = 'none'; if(m) m.classList.remove('show');
+}
+function audExportarExcel_(){
+  var filas = audFilasExport_(_audExp.alcance);
+  if(!filas.length){ showToast('No hay unidades para exportar'); return; }
+  if(typeof XLSX === 'undefined'){ showToast('No se pudo cargar el generador de Excel. Revisá la conexión.'); return; }
+  var H = ['Etapa','Tipo','Modelo','Color','VIN','Patente','Cliente','Vendedor','Sucursal de venta','Está en','Se entrega en','Traslado','Fecha de entrega','Hora','Días desde la venta'];
+  var aFecha = function(f){ var p = String(f||'').split('/'); return p.length===3 ? new Date(+p[2], +p[1]-1, +p[0]) : (f||''); };
+  var data = filas.map(function(f){ return [f.estado, f.tipo, f.modelo, f.color, f.vin, f.patente, f.cliente, f.vendedor, f.sucursalVenta, f.estaEn, f.seEntregaEn, f.traslado, aFecha(f.fechaEntrega), f.horaEntrega, f.diasVenta==null?'':f.diasVenta]; });
+  var ws = XLSX.utils.aoa_to_sheet([H].concat(data), {cellDates:true});
+  for(var r=1; r<=data.length; r++){ var c = ws[XLSX.utils.encode_cell({r:r, c:12})]; if(c && c.v instanceof Date){ c.t = 'd'; c.z = 'dd/mm/yyyy'; } }
+  ws['!cols'] = [16,14,30,14,20,10,30,20,16,16,16,22,14,8,10].map(function(w){ return {wch:w}; });
+  ws['!autofilter'] = {ref: XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:data.length, c:H.length-1}})};
+  var libro = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(libro, ws, 'Preparación');
+  var hoy = new Date();
+  XLSX.writeFile(libro, 'Preparacion_'+hoy.getFullYear()+('0'+(hoy.getMonth()+1)).slice(-2)+('0'+hoy.getDate()).slice(-2)+'.xlsx', {cellDates:true});
+  audCerrarExportar_();
+}
+function audTextoListado_(){
+  var filas = audFilasExport_(_audExp.alcance);
+  var hoy = new Date();
+  var col = AUD_COLS_.find(function(c){ return c.id===_aud.col; });
+  var titulo = _audExp.alcance==='todas' ? 'Unidades pendientes' : (col ? col.t : 'Preparación');
+  var txt = '*Preparación · '+titulo+'* ('+filas.length+')\n_'+fmtFechaHora_(('0'+hoy.getDate()).slice(-2)+'/'+('0'+(hoy.getMonth()+1)).slice(-2)+'/'+hoy.getFullYear(), '')+'_\n';
+  var etapaActual = '';
+  filas.forEach(function(f, i){
+    if(_audExp.alcance==='todas' && f.estado !== etapaActual){ etapaActual = f.estado; txt += '\n*— '+etapaActual.toUpperCase()+' —*\n'; }
+    var vin = f.vin || 'sin VIN';
+    var donde = f.estaEn ? (f.seEntregaEn && f.estaEn!==f.seEntregaEn ? 'Está en '+f.estaEn+' → se entrega en '+f.seEntregaEn : 'Está en '+f.estaEn) : (f.seEntregaEn ? 'Se entrega en '+f.seEntregaEn+' (falta saber dónde está)' : 'Falta saber dónde está');
+    txt += '\n'+(i+1)+'. *'+(f.modelo||'Sin modelo')+'*'+(f.color?' · '+f.color:'')+'\n'+
+      '   VIN '+vin+(f.patente?' · '+f.patente:'')+'\n'+
+      '   👤 '+(f.cliente||'—')+(f.sucursalVenta?' · venta '+f.sucursalVenta:'')+'\n'+
+      '   📍 '+donde+'\n'+
+      '   📅 '+(f.fechaEntrega ? fmtFechaHora_(f.fechaEntrega, f.horaEntrega) : 'Sin fecha de entrega')+'\n';
+  });
+  return txt;
+}
+function audExportarWhatsApp_(){
+  var filas = audFilasExport_(_audExp.alcance);
+  if(!filas.length){ showToast('No hay unidades para enviar'); return; }
+  var txt = audTextoListado_();
+  if(txt.length > 6000) showToast('El listado es largo: si WhatsApp lo corta, usá "Copiar como texto" o el Excel');
+  window.open('https://wa.me/?text='+encodeURIComponent(txt), '_blank', 'noopener');
+  audCerrarExportar_();
+}
+function audExportarCopiar_(){
+  var filas = audFilasExport_(_audExp.alcance);
+  if(!filas.length){ showToast('No hay unidades para copiar'); return; }
+  var txt = audTextoListado_();
+  (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(function(){ showToast('Listado copiado: pegalo donde quieras'); audCerrarExportar_(); })
+    .catch(function(){ prompt('Copiá el listado:', txt); });
+}
 function audTipo_(u, ent){
   var ref = String(u.referencia||'');
   var e = ent || audEntregaDe_(u);
