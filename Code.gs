@@ -4152,28 +4152,54 @@ function paginaEncuestaUsado_(p){
   return pagina('Gracias por tu respuesta',
     '<div class="top"><small>'+entidad.toUpperCase()+'</small><h1>¡Gracias por tu respuesta!</h1></div>'+
     '<div class="card">'+notaHtml+'<p style="text-align:center;margin:0 0 14px;color:#6B7280">Guardamos tu calificación. Si te equivocaste, volvé al mail y tocá otro número.</p>'+
-    '<div id="formCom"><p style="font-weight:bold;margin:6px 0 8px">¿Querés contarnos algo más? (opcional)</p>'+
-      '<textarea id="c" placeholder="Contanos qué te gustó o qué podemos mejorar…">'+esc(comentario)+'</textarea>'+
-      '<button id="b" type="button">Enviar comentario</button><p id="err" style="color:#DC2626;display:none;margin-top:8px"></p></div>'+
-      '<div id="ok" style="display:none;text-align:center"><p style="font-size:18px;font-weight:bold;margin:8px 0 4px">¡Muchas gracias!</p><p style="color:#6B7280;margin:0">Recibimos tu comentario. Nos ayuda mucho a mejorar.</p></div>'+
+    '<style>.q{margin:4px 0 16px}.q p{font-weight:bold;margin:0 0 8px;font-size:15px}.ops{display:flex;flex-wrap:wrap;gap:6px}'+
+      '.ops button{width:auto;margin:0;flex:1 1 auto;min-width:84px;background:#fff;color:#111827;border:1.5px solid #D1D5DB;border-radius:12px;padding:11px 8px;font-size:14px;font-weight:bold;cursor:pointer}'+
+      '.ops button.on{background:#0A0F1E;color:#fff;border-color:#0A0F1E}</style>'+
+    '<div id="formCom">'+
+      '<p style="text-align:center;font-weight:bold;margin:4px 0 14px;font-size:16px">Contanos un poco más (opcional)</p>'+
+      PREGUNTAS_ENCUESTA_USADO_.map(function(q){
+        return '<div class="q"><p>'+esc(q.t)+'</p><div class="ops" data-k="'+q.k+'">'+
+          OPCIONES_ENCUESTA_USADO_.map(function(o){ return '<button type="button" data-v="'+esc(o)+'" class="'+(prev[q.k]===o?'on':'')+'">'+esc(o)+'</button>'; }).join('')+
+        '</div></div>';
+      }).join('')+
+      '<div class="q"><p>¿Algo más que quieras contarnos?</p><textarea id="c" placeholder="Contanos qué te gustó o qué podemos mejorar…">'+esc(comentario)+'</textarea></div>'+
+      '<button id="b" type="button">Enviar mis respuestas</button><p id="err" style="color:#DC2626;display:none;margin-top:8px"></p></div>'+
+      '<div id="ok" style="display:none;text-align:center"><p style="font-size:18px;font-weight:bold;margin:8px 0 4px">¡Muchas gracias!</p><p style="color:#6B7280;margin:0">Recibimos tus respuestas. Nos ayudan mucho a mejorar.</p></div>'+
     '</div>'+
-    '<script>(function(){var b=document.getElementById("b");b.onclick=function(){var c=document.getElementById("c").value;b.disabled=true;b.textContent="Enviando…";'+
-      'google.script.run.withSuccessHandler(function(r){if(r&&r.ok){document.getElementById("formCom").style.display="none";document.getElementById("ok").style.display="block";}else{b.disabled=false;b.textContent="Enviar comentario";var e=document.getElementById("err");e.textContent="No se pudo guardar. Probá de nuevo.";e.style.display="block";}})'+
-      '.withFailureHandler(function(){b.disabled=false;b.textContent="Enviar comentario";var e=document.getElementById("err");e.textContent="No se pudo guardar. Probá de nuevo.";e.style.display="block";})'+
-      '.guardarComentarioEncuestaUsado('+JSON.stringify(String(r.marca))+','+JSON.stringify(String(r.id))+','+JSON.stringify(String(p.t))+','+n+',c);};})();</script>');
+    '<script>(function(){var sel='+JSON.stringify({atencionAsesor:prev.atencionAsesor||'',gestionAdmin:prev.gestionAdmin||'',experienciaEntrega:prev.experienciaEntrega||''})+';'+
+      'Array.prototype.forEach.call(document.querySelectorAll(".ops"),function(g){Array.prototype.forEach.call(g.querySelectorAll("button"),function(bt){bt.onclick=function(){'+
+        'Array.prototype.forEach.call(g.querySelectorAll("button"),function(x){x.className="";});bt.className="on";sel[g.getAttribute("data-k")]=bt.getAttribute("data-v");};});});'+
+      'var b=document.getElementById("b");b.onclick=function(){var c=document.getElementById("c").value;b.disabled=true;b.textContent="Enviando…";'+
+      'google.script.run.withSuccessHandler(function(r){if(r&&r.ok){document.getElementById("formCom").style.display="none";document.getElementById("ok").style.display="block";}else{b.disabled=false;b.textContent="Enviar mis respuestas";var e=document.getElementById("err");e.textContent="No se pudo guardar. Probá de nuevo.";e.style.display="block";}})'+
+      '.withFailureHandler(function(){b.disabled=false;b.textContent="Enviar mis respuestas";var e=document.getElementById("err");e.textContent="No se pudo guardar. Probá de nuevo.";e.style.display="block";})'+
+      '.guardarComentarioEncuestaUsado('+JSON.stringify(String(r.marca))+','+JSON.stringify(String(r.id))+','+JSON.stringify(String(p.t))+','+n+',c,JSON.stringify(sel));};})();</script>');
 }
+// Preguntas extra de la encuesta de usados (las mismas que la encuesta de 0km de GM)
+var PREGUNTAS_ENCUESTA_USADO_ = [
+  {k:'atencionAsesor', t:'¿Cómo fue la atención de tu asesor de ventas?'},
+  {k:'gestionAdmin', t:'¿Cómo fue la gestión administrativa (papeles, transferencia, pagos)?'},
+  {k:'experienciaEntrega', t:'¿Cómo fue la experiencia el día de la entrega?'}
+];
+var OPCIONES_ENCUESTA_USADO_ = ['Excelente','Muy buena','Buena','Regular','Mala'];
 
 // Lo llama la página de la encuesta (google.script.run) para guardar el comentario del cliente
-function guardarComentarioEncuestaUsado(marca, id, token, nota, comentario){
+function guardarComentarioEncuestaUsado(marca, id, token, nota, comentario, extrasJson){
   if(!marca || !id || token !== tokenEncuestaUsado_(marca, id)) return {ok:false};
   var r = buscarEntrega_(marca, id); if(!r) return {ok:false};
   var cache = {}; try{ cache = r.contactoPosteriorData ? JSON.parse(r.contactoPosteriorData) : {}; }catch(e){ cache = {}; }
   var resp = (cache && cache.respuesta) || {};
   var n = parseInt(nota,10); if(!(n>=1 && n<=10)) n = parseInt(resp.recomienda,10);
   resp.recomienda = n; resp.comentario = String(comentario||'').slice(0,2000);
+  var extras = {}; try{ extras = extrasJson ? JSON.parse(extrasJson) : {}; }catch(eX){ extras = {}; }
+  var respondioExtras = [];
+  PREGUNTAS_ENCUESTA_USADO_.forEach(function(q){
+    var v = String(extras[q.k]||'');
+    if(OPCIONES_ENCUESTA_USADO_.indexOf(v) > -1){ resp[q.k] = v; respondioExtras.push(v); }
+  });
   resp.origen = 'Encuesta por mail (usado)'; resp.email = resp.email || r.email || ''; resp.nombre = resp.nombre || r.cliente || ''; resp.vinPatente = resp.vinPatente || r.dominio || r.chasis || '';
   resp.fecha = resp.fecha || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
   updateEntregaFields(r.marca, r.id, {contactoPosteriorData: JSON.stringify({buscado:true, encontrado:true, respuesta:resp, fechaUltimoIntento: Date.now()})});
+  if(respondioExtras.length) agregarHistorialInterno_(r.marca, r.id, '📋 Encuesta de usado — asesor: '+(resp.atencionAsesor||'—')+' · gestión: '+(resp.gestionAdmin||'—')+' · entrega: '+(resp.experienciaEntrega||'—'));
   if(resp.comentario) agregarHistorialInterno_(r.marca, r.id, '💬 Encuesta de usado — comentario del cliente: “'+resp.comentario.slice(0,120)+'”');
   return {ok:true};
 }

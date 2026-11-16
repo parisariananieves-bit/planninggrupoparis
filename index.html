@@ -2509,6 +2509,44 @@
   .d-barra-accion button{flex:1;min-height:46px;border-radius:12px;border:none;font:inherit;font-weight:800;font-size:14.5px;cursor:pointer;background:var(--accent);color:#1D2330;}
   .d-barra-accion[hidden]{display:none;}
   body.ficha-movil .d-barra-accion{margin-bottom:calc(-40px - env(safe-area-inset-bottom,0px));}
+  /* ===== Tarjeta de NPS con promotores / neutrales / detractores ===== */
+  .nps-card{grid-column:span 1;background:linear-gradient(160deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid var(--hairline);border-radius:14px;padding:14px 16px;cursor:pointer;transition:border-color .15s, box-shadow .15s;text-align:left;font:inherit;color:inherit;min-width:0;}
+  .nps-card:hover{border-color:color-mix(in srgb, var(--accent) 55%, var(--hairline));box-shadow:0 8px 22px -14px rgba(0,0,0,.4);}
+  @media(min-width:900px){ .costos-grid > .nps-card{grid-column:span 2;} }
+  .nps-card .nps-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .nps-card .nps-num{font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:800;line-height:1;}
+  .nps-card .nps-num.ok{color:var(--ok);} .nps-card .nps-num.warn{color:var(--warn);} .nps-card .nps-num.danger{color:var(--danger);} .nps-card .nps-num.pending{color:var(--text-faint);}
+  .nps-card .nps-lbl{font-size:12px;font-weight:700;color:var(--text-dim);}
+  .nps-card .nps-ver{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--accent);white-space:nowrap;}
+  .nps-barra{display:flex;height:8px;border-radius:6px;overflow:hidden;background:var(--panel-2);margin:12px 0 10px;}
+  .nps-barra span{display:block;height:100%;}
+  .nps-seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
+  .nps-seg button{border:1px solid var(--hairline);background:var(--panel);border-radius:10px;padding:7px 8px;text-align:left;font:inherit;color:inherit;cursor:pointer;min-width:0;}
+  .nps-seg button:hover{border-color:var(--text-faint);}
+  .nps-seg b{display:block;font-size:17px;font-family:'Space Grotesk',sans-serif;}
+  .nps-seg small{display:block;font-size:10.5px;color:var(--text-dim);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .nps-seg .p b{color:var(--ok);} .nps-seg .n b{color:var(--text-dim);} .nps-seg .d b{color:var(--danger);}
+  /* modal de respuestas */
+  #npsRespBg{position:fixed;inset:0;background:rgba(6,8,12,.55);z-index:75;display:none;}
+  #npsRespBg.show{display:block;}
+  #npsRespModal{width:min(680px,94vw);}
+  .nps-chips{display:flex;gap:6px;flex-wrap:wrap;padding:12px 18px 6px;}
+  .nps-chips button{border:1px solid var(--hairline);background:var(--panel);border-radius:20px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--text-dim);}
+  .nps-chips button.on{background:var(--text);color:var(--bg);border-color:var(--text);}
+  .nps-lista{padding:4px 18px 18px;}
+  .nps-item{border:1px solid var(--hairline);border-radius:12px;margin-bottom:8px;background:var(--panel);}
+  .nps-item-h{display:flex;gap:12px;align-items:center;padding:10px 12px;cursor:pointer;}
+  .nps-score{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0;font-family:'Space Grotesk',sans-serif;}
+  .nps-score.p{background:var(--ok-soft, #dcfce7);color:var(--ok);} .nps-score.n{background:var(--panel-2);color:var(--text-dim);} .nps-score.d{background:var(--danger-soft, #fee2e2);color:var(--danger);}
+  .nps-item-t{flex:1;min-width:0;}
+  .nps-item-t b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .nps-item-t span{display:block;font-size:12px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .nps-item-d{display:none;padding:0 12px 12px 62px;font-size:12.5px;color:var(--text-dim);line-height:1.55;}
+  .nps-item.abierto .nps-item-d{display:block;}
+  .nps-item-d .fila{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--hairline);padding:4px 0;}
+  .nps-item-d .fila b{color:var(--text);}
+  .nps-item-d .com{margin-top:8px;color:var(--text);font-style:italic;}
+  @media(max-width:640px){ .nps-item-d{padding-left:12px;} }
   /* ===== Aviso con "Deshacer" ===== */
   .aviso-deshacer{width:max-content;position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:600;display:flex;align-items:center;gap:12px;background:#1D2330;color:#EAEDF3;border-radius:12px;padding:10px 10px 10px 16px;font-size:13.5px;font-weight:600;box-shadow:0 14px 34px -10px rgba(0,0,0,.55);max-width:calc(100vw - 24px);}
   .aviso-deshacer.show{opacity:1;transform:translate(-50%,0);pointer-events:auto;}
@@ -3876,7 +3914,6 @@
         <span style="font-size:10.5px;color:var(--text-faint);font-weight:600;">Ocultar / mostrar resumen</span>
       </div>
       <div class="costos-grid" id="cpResumen" style="margin:0 0 14px;"></div>
-      <div id="cpAvisoSoloSistema" class="cfg-info" style="display:none;margin-bottom:14px;"><span class="material-symbols-outlined">info</span><span>Estás viendo solo las respuestas cargadas en el sistema para las marcas elegidas. El archivo de GM, las encuestas sin VIN y el Puntaje GM son de <b>Chevrolet 0km</b>, así que no se suman acá.</span></div>
 
       <div id="cpResumenArchivo" style="display:none;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
       <div class="chart-panel" style="margin-bottom:16px;">
@@ -3962,7 +3999,6 @@
         <span class="ayuda-tip" style="flex-shrink:0;" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Solo entran acá las entregas que ya tienen garantía cargada — son las únicas elegibles para esta encuesta. Si querés el NPS tal cual sale de la planilla que manda Fábrica (sin cruzar con las entregas), subila con el botón de arriba.</span></span>
       </div>
       <div id="fabReporteImagen">
-      <div id="fabAvisoSoloSistema" class="cfg-info" style="display:none;margin-bottom:14px;"><span class="material-symbols-outlined">info</span><span>Estás viendo solo las respuestas cargadas en el sistema para las marcas elegidas. El archivo de GM, las encuestas anónimas y el Puntaje GM son de <b>Chevrolet 0km</b>, así que no se suman acá.</span></div>
       <div id="fabResumenArchivo" style="display:none;background:var(--panel-2);border:1px solid var(--hairline);border-radius:12px;padding:14px;margin-bottom:16px;"></div>
       <div class="chart-panel" style="margin-bottom:16px;">
         <div class="chart-panel-title" style="display:flex;align-items:center;gap:6px;"><span class="chart-icon ambar"><span class="material-symbols-outlined">show_chart</span></span>Evolución mensual <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Suma el archivo importado + lo cargado en el sistema. Respeta el filtro de canal (Todos/PDA/Tradicional) de arriba de la página.</span></span></div>
@@ -17395,6 +17431,108 @@ function coberturaEntrega_(r){
 // ============================================================
 // NPS — Contacto Posterior (su propia página)
 // ============================================================
+// ---- Tarjeta grande de NPS: número en %, barra y cuántos promotores / neutrales / detractores ----
+function npsTarjetaHTML_(conteo, nps, titulo, onclickFn){
+  conteo = conteo || {promotores:0, pasivos:0, detractores:0, total:0};
+  var t = conteo.total || 0;
+  var pc = function(n){ return t ? Math.round(n/t*100) : 0; };
+  var cls = nps===null ? 'pending' : (nps>=50 ? 'ok' : (nps>=0 ? 'warn' : 'danger'));
+  var numTxt = nps===null ? '—' : (Math.round(nps*10)/10).toString().replace('.',',')+'%';
+  return '<div class="nps-card" role="button" tabindex="0" onclick="'+onclickFn+'(\'\')">'+
+    '<div class="nps-top"><span class="nps-num '+cls+'">'+numTxt+'</span><span class="nps-lbl">'+titulo+'</span>'+
+      (t ? '<span class="nps-ver">Ver las '+t+' respuestas ›</span>' : '')+'</div>'+
+    '<div class="nps-barra" title="Promotores '+pc(conteo.promotores)+'% · Neutrales '+pc(conteo.pasivos)+'% · Detractores '+pc(conteo.detractores)+'%">'+
+      '<span style="width:'+pc(conteo.promotores)+'%;background:var(--ok);"></span>'+
+      '<span style="width:'+pc(conteo.pasivos)+'%;background:var(--text-faint);opacity:.55;"></span>'+
+      '<span style="width:'+pc(conteo.detractores)+'%;background:var(--danger);"></span></div>'+
+    '<div class="nps-seg">'+
+      '<button type="button" class="p" onclick="event.stopPropagation();'+onclickFn+'(\'p\')"><b>'+conteo.promotores+'</b><small>Promotores · '+pc(conteo.promotores)+'%</small></button>'+
+      '<button type="button" class="n" onclick="event.stopPropagation();'+onclickFn+'(\'n\')"><b>'+conteo.pasivos+'</b><small>Neutrales · '+pc(conteo.pasivos)+'%</small></button>'+
+      '<button type="button" class="d" onclick="event.stopPropagation();'+onclickFn+'(\'d\')"><b>'+conteo.detractores+'</b><small>Detractores · '+pc(conteo.detractores)+'%</small></button>'+
+    '</div></div>';
+}
+// Todas las respuestas que suman en el NPS de Contacto Posterior con los filtros actuales
+// (las mismas que cuenta la tarjeta: archivo + sistema + anónimas)
+function cpRespuestasLista_(){
+  var conDato = window._cpConDato || [];
+  var canales = filterCanal==='tradicional' ? ['directa'] : (filterCanal==='pda' ? ['pda'] : ['directa','pda']);
+  var out = [];
+  var porVin = {}; ENTREGAS.forEach(function(r){ var v = String(r.chasis||'').toUpperCase().replace(/[^A-Z0-9]/g,''); if(v.length>=8) porVin[v.slice(-8)] = r; });
+  canales.forEach(function(ck){
+    var lista = conDato.filter(function(x){ return ck==='pda' ? esCanalPDA_(x.r) : !esCanalPDA_(x.r); });
+    var ac = conteoAcumuladoCp_(ck, lista);
+    var canalTxt = ck==='pda' ? 'PDA' : 'Directa';
+    if(ac.entrada){
+      filtrarPuntosPorFecha_(ac.entrada.puntos).forEach(function(p){
+        var v = String(p.vin||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+        var r = v.length>=8 ? porVin[v.slice(-8)] : null;
+        out.push({origen:'Archivo de GM', score:Number(p.score), fecha:p.fecha||'', cliente:(r?r.cliente:(p.cliente||'')), vin:p.vin||'', vendedor:p.vendedor||(r?r.vendedor:''), sucursal:p.sucursal||(r?r.sucursal:''), canal:canalTxt, comentario:p.comentario||'', r:r});
+      });
+    }
+    ac.nuevas.forEach(function(x){
+      out.push({origen:'Cargada en el sistema', score:Number(x.d.recomienda), fecha:x.d.fecha||'', cliente:x.r.cliente, vin:x.r.chasis||x.r.dominio||'', vendedor:x.r.vendedor||'', sucursal:x.r.sucursal||'', canal:canalTxt, comentario:x.d.comentario||'', r:x.r, d:x.d});
+    });
+    ac.anonimasCanal.forEach(function(a){
+      out.push({origen:'Anónima (sin VIN)', score:Number(a.puntaje), fecha:a.fecha||'', cliente:'', vin:'', vendedor:'', sucursal:'', canal:canalTxt, comentario:a.comentario||''});
+    });
+  });
+  // más recientes primero
+  out.sort(function(a,b){ return String(fechaAIso_(b.fecha)||'').localeCompare(String(fechaAIso_(a.fecha)||'')); });
+  return out;
+}
+var _npsRespFiltro = '';
+function abrirRespuestasNpsCp_(tipo){
+  _npsRespFiltro = tipo || '';
+  var bg = document.getElementById('npsRespBg');
+  if(!bg){ bg = document.createElement('div'); bg.id = 'npsRespBg'; bg.onclick = cerrarRespuestasNps_; document.body.appendChild(bg); }
+  var m = document.getElementById('npsRespModal');
+  if(!m){ m = document.createElement('div'); m.className = 'modal'; m.id = 'npsRespModal'; document.body.appendChild(m); }
+  window._npsRespLista = cpRespuestasLista_();
+  pintarRespuestasNps_('NPS Contacto Posterior');
+  bg.classList.add('show'); m.classList.add('show');
+}
+function cerrarRespuestasNps_(){
+  var bg = document.getElementById('npsRespBg'), m = document.getElementById('npsRespModal');
+  if(bg) bg.classList.remove('show'); if(m) m.classList.remove('show');
+}
+function npsTipo_(n){ return n>=9 ? 'p' : (n>=7 ? 'n' : 'd'); }
+function pintarRespuestasNps_(titulo){
+  var m = document.getElementById('npsRespModal'); if(!m) return;
+  var todas = window._npsRespLista || [];
+  var cuenta = {p:0, n:0, d:0}; todas.forEach(function(x){ cuenta[npsTipo_(x.score)]++; });
+  var lista = _npsRespFiltro ? todas.filter(function(x){ return npsTipo_(x.score)===_npsRespFiltro; }) : todas;
+  var esc = function(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
+  var chip = function(k, txt, n){ return '<button type="button" class="'+(_npsRespFiltro===k?'on':'')+'" onclick="_npsRespFiltro=\''+k+'\';pintarRespuestasNps_(\''+esc(titulo)+'\')">'+txt+' · '+n+'</button>'; };
+  var MAX = 300;
+  m.innerHTML = '<div class="modal-head"><div><h3>'+esc(titulo)+' — respuestas</h3><div class="sub">Tocá una respuesta para ver qué contestó.</div></div><button class="close" onclick="cerrarRespuestasNps_()">✕</button></div>'+
+    '<div class="nps-chips">'+chip('', 'Todas', todas.length)+chip('p', 'Promotores (9-10)', cuenta.p)+chip('n', 'Neutrales (7-8)', cuenta.n)+chip('d', 'Detractores (0-6)', cuenta.d)+'</div>'+
+    '<div class="nps-lista">'+(lista.length ? lista.slice(0, MAX).map(function(x, i){
+      var t = npsTipo_(x.score);
+      var quien = x.cliente || (x.origen==='Anónima (sin VIN)' ? 'Respuesta anónima' : (x.vin ? 'VIN '+x.vin : 'Cliente sin nombre'));
+      var sub = [fmtFechaHora_(x.fecha, ''), x.vendedor, x.sucursal, x.canal].filter(Boolean).join(' · ');
+      var det = '';
+      if(x.d){
+        det += '<div class="fila"><span>¿Nos recomendaría?</span><b>'+esc(x.d.recomienda)+'/10</b></div>';
+        if(x.d.atencionAsesor) det += '<div class="fila"><span>Atención del asesor</span><b>'+esc(x.d.atencionAsesor)+'</b></div>';
+        if(x.d.gestionAdmin) det += '<div class="fila"><span>Gestión administrativa</span><b>'+esc(x.d.gestionAdmin)+'</b></div>';
+        if(x.d.experienciaEntrega) det += '<div class="fila"><span>Experiencia de entrega</span><b>'+esc(x.d.experienciaEntrega)+'</b></div>';
+      } else {
+        det += '<div class="fila"><span>Puntaje</span><b>'+esc(x.score)+'/10</b></div>';
+        if(x.vin) det += '<div class="fila"><span>VIN</span><b>'+esc(x.vin)+'</b></div>';
+      }
+      det += '<div class="fila"><span>Origen</span><b>'+esc(x.origen)+'</b></div>';
+      if(x.comentario) det += '<div class="com">“'+esc(x.comentario)+'”</div>';
+      if(x.r) det += '<button type="button" class="view-btn" style="margin-top:10px;" onclick="cerrarRespuestasNps_();openDetail(\''+x.r.marca+'\',\''+x.r.id+'\')">Abrir la ficha de la entrega</button>';
+      return '<div class="nps-item"><div class="nps-item-h" onclick="this.parentElement.classList.toggle(\'abierto\')">'+
+        '<span class="nps-score '+t+'">'+esc(x.score)+'</span>'+
+        '<div class="nps-item-t"><b>'+esc(quien)+'</b><span>'+esc(sub || x.origen)+'</span></div>'+
+        (x.comentario ? '<span class="material-symbols-outlined" style="font-size:18px;color:var(--text-faint);" title="Tiene comentario">chat</span>' : '')+
+        '<span class="material-symbols-outlined" style="font-size:18px;color:var(--text-faint);">expand_more</span></div>'+
+        '<div class="nps-item-d">'+det+'</div></div>';
+    }).join('') + (lista.length > MAX ? '<div style="text-align:center;color:var(--text-faint);font-size:12px;padding:8px;">Se muestran las '+MAX+' más recientes de '+lista.length+'.</div>' : '')
+    : '<div class="cfg-vacio" style="padding:24px;text-align:center;color:var(--text-faint);">No hay respuestas en este grupo.</div>')+'</div>';
+}
+
 function renderNpsContactoPosteriorPanel_(){
   poblarFiltroSucursalGenerico_('cpFiltroSucursal');
   renderCanalToggleGenerico_('cpCanalToggle');
@@ -17438,7 +17576,7 @@ function renderNpsContactoPosteriorPanel_(){
   });
   var pct = ventasTotalCp ? Math.round(respondidasTotalCp/ventasTotalCp*100) : 0;
   document.getElementById('cpResumen').innerHTML =
-    statChipCalidad_(nps===null?'—':nps, 'NPS Contacto Posterior', nps===null?'pending':(nps>=50?'ok':(nps>=0?'warn':'danger')), 'forum')+
+    npsTarjetaHTML_(conteoCpResumen, nps, 'NPS Contacto Posterior', 'abrirRespuestasNpsCp_')+
     statChipCalidad_(respondidasTotalCp+' / '+ventasTotalCp, 'Respondidas', 'pending', 'fact_check')+
     statChipCalidad_(pct+'%', 'Tasa de respuesta', pct>=50?'ok':'warn', 'percent');
   window._cpConDato = conDato;
