@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1D2330" id="metaTema">
+<meta name="robots" content="noindex">
+<title>Mi entrega · Grupo París</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F5F7; --panel:#FFFFFF; --text:#16181D; --dim:#5B6270; --faint:#8C93A1; --line:#E5E7EB;
+    --marca:#1D2330; --marca-txt:#FFFFFF; --ok:#16A34A; --ok-soft:#DCFCE7;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;}
+  .top{background:var(--marca);color:var(--marca-txt);padding:calc(18px + env(safe-area-inset-top,0px)) 20px 70px;}
+  .top-in{max-width:520px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+  .logo{width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
+  .logo img{width:30px;height:30px;object-fit:contain;}
+  .top small{display:block;font-size:12px;opacity:.8;font-weight:600;letter-spacing:.02em;}
+  .top b{font-size:15px;}
+  main{max-width:520px;margin:-54px auto 0;padding:0 16px calc(32px + env(safe-area-inset-bottom,0px));}
+  .card{background:var(--panel);border-radius:18px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 8px 24px -12px rgba(16,24,40,.18);margin-bottom:14px;}
+  h1{font-size:23px;line-height:1.25;margin:0 0 6px;letter-spacing:-.01em;}
+  .sub{color:var(--dim);font-size:14.5px;line-height:1.5;margin:0;}
+  /* pasos */
+  .pasos{list-style:none;margin:18px 0 0;padding:0;}
+  .paso{display:flex;gap:12px;align-items:flex-start;position:relative;padding-bottom:16px;}
+  .paso:last-child{padding-bottom:0;}
+  .paso::before{content:'';position:absolute;left:13px;top:28px;bottom:0;width:2px;background:var(--line);}
+  .paso:last-child::before{display:none;}
+  .paso.hecho::before{background:var(--marca);}
+  .bola{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--faint);position:relative;z-index:1;}
+  .paso.hecho .bola{background:var(--marca);border-color:var(--marca);color:var(--marca-txt);}
+  .paso.actual .bola{border-color:var(--marca);color:var(--marca);box-shadow:0 0 0 4px color-mix(in srgb, var(--marca) 18%, transparent);}
+  .paso-t{font-weight:700;font-size:14.5px;padding-top:4px;}
+  .paso-d{color:var(--dim);font-size:13px;margin-top:2px;line-height:1.45;}
+  .paso:not(.hecho):not(.actual) .paso-t{color:var(--faint);}
+  /* datos */
+  .dato{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line);}
+  .dato:last-of-type{border-bottom:none;}
+  .ic{width:36px;height:36px;border-radius:10px;background:color-mix(in srgb, var(--marca) 12%, #fff);color:var(--marca);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .ic svg{width:19px;height:19px;}
+  .dato small{display:block;color:var(--faint);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
+  .dato div{font-size:15px;font-weight:600;line-height:1.4;}
+  .botones{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border-radius:12px;font:inherit;font-size:14.5px;font-weight:700;text-decoration:none;border:1.5px solid var(--line);background:#fff;color:var(--text);cursor:pointer;padding:0 12px;text-align:center;}
+  .btn svg{width:18px;height:18px;flex-shrink:0;}
+  .btn.prim{background:var(--marca);border-color:var(--marca);color:var(--marca-txt);}
+  .btn.wa{background:#16A34A;border-color:#16A34A;color:#fff;}
+  .btn.full{grid-column:1/-1;}
+  .btn[disabled]{opacity:.5;cursor:default;}
+  h2{font-size:16px;margin:0 0 10px;}
+  ul.traer{margin:0;padding-left:20px;color:var(--dim);font-size:14.5px;line-height:1.7;}
+  /* encuesta */
+  .escala{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:14px 0 6px;}
+  .escala button{min-height:48px;border-radius:12px;border:1.5px solid var(--line);background:#fff;font:inherit;font-size:16px;font-weight:800;color:var(--text);cursor:pointer;}
+  .escala button.sel{background:var(--marca);border-color:var(--marca);color:var(--marca-txt);}
+  .escala-l{display:flex;justify-content:space-between;color:var(--faint);font-size:12px;}
+  textarea{width:100%;min-height:90px;border:1.5px solid var(--line);border-radius:12px;padding:12px;font:inherit;font-size:15px;margin:14px 0 12px;resize:vertical;}
+  .gracias{text-align:center;padding:8px 0;}
+  .gracias .gr-ic{font-size:40px;}
+  .pie{text-align:center;color:var(--faint);font-size:12px;margin-top:18px;}
+  .esq{height:16px;border-radius:8px;background:linear-gradient(90deg,#eceef1 25%,#f6f7f9 37%,#eceef1 63%);background-size:400% 100%;animation:br 1.3s ease infinite;margin:10px 0;}
+  @keyframes br{0%{background-position:100% 50%}100%{background-position:0 50%}}
+  .error{text-align:center;padding:30px 10px;}
+  .error p{color:var(--dim);line-height:1.5;}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){--bg:#0F131A;--panel:#171C25;--text:#EAEDF3;--dim:#A3ABBD;--faint:#79818F;--line:#2A303D;}
+    :root:not([data-theme="light"]) .btn:not(.prim):not(.wa),:root:not([data-theme="light"]) .escala button:not(.sel),:root:not([data-theme="light"]) .paso:not(.hecho) .bola,:root:not([data-theme="light"]) textarea{background:#1D2330;color:var(--text);}
+    :root:not([data-theme="light"]) .esq{background:linear-gradient(90deg,#1d2330 25%,#262d3a 37%,#1d2330 63%);background-size:400% 100%;}
+  }
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in"><div class="logo" id="logo"><img src="/assets/logos/logo-grupoparis-icon.png" alt=""></div><div><small>Grupo París</small><b id="marcaTxt">Mi entrega</b></div></div></header>
+<main id="app">
+  <div class="card"><div class="esq" style="width:70%;height:24px"></div><div class="esq"></div><div class="esq" style="width:60%"></div></div>
+  <div class="card"><div class="esq"></div><div class="esq"></div><div class="esq" style="width:50%"></div></div>
+</main>
+<script>
+(function(){
+  var ICO = {
+    cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+    pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-7.4 7-12a7 7 0 1 0-14 0c0 4.6 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+    auto:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M6 17v2M18 17v2M4 13l2-6h12l2 6v4H4z"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg>',
+    persona:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
+    reloj:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    wa:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.4.8 3.2.6a2.8 2.8 0 0 0 1.8-1.3 2.3 2.3 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>',
+    estrella:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg>'
+  };
+  var DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  var MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  function esc(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function fechaLarga(iso){
+    var m = String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); if(!m) return '';
+    var d = new Date(Number(m[1]), Number(m[2])-1, Number(m[3]));
+    return DIAS[d.getDay()].charAt(0).toUpperCase()+DIAS[d.getDay()].slice(1)+' '+d.getDate()+' de '+MESES[d.getMonth()];
+  }
+  function cuantoFalta(iso, hora){
+    var m = String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); if(!m) return '';
+    var hoy = new Date(); hoy.setHours(0,0,0,0);
+    var d = new Date(Number(m[1]), Number(m[2])-1, Number(m[3]));
+    var dias = Math.round((d - hoy)/86400000);
+    if(dias === 0) return '¡Es hoy!';
+    if(dias === 1) return 'Es mañana';
+    if(dias > 1) return 'Faltan '+dias+' días';
+    return '';
+  }
+  var params = new URLSearchParams(location.search);
+  var TOKEN = params.get('t') || '';
+  var API = '';
+  var app = document.getElementById('app');
+
+  function error(msg){
+    app.innerHTML = '<div class="card error"><h1>Ups</h1><p>'+esc(msg)+'</p></div>';
+  }
+  if(!TOKEN){ error('Este link está incompleto. Pedile a tu vendedor que te lo mande de nuevo.'); return; }
+
+  fetch('/api/config', {cache:'no-store'}).then(function(r){ return r.json(); }).then(function(c){
+    API = c.apiUrl;
+    if(!API) throw new Error('sin api');
+    return fetch(API + '?action=miEntrega&t=' + encodeURIComponent(TOKEN)).then(function(r){ return r.json(); });
+  }).then(function(d){
+    if(!d || !d.ok){ error((d && d.error) || 'No pudimos cargar tu entrega.'); return; }
+    pintar(d);
+  }).catch(function(){
+    error('No pudimos conectarnos. Revisá tu conexión y volvé a abrir el link.');
+  });
+
+  function pintar(d){
+    var root = document.documentElement;
+    root.style.setProperty('--marca', d.color || '#1D2330');
+    root.style.setProperty('--marca-txt', d.colorTexto || '#fff');
+    document.getElementById('metaTema').setAttribute('content', d.color || '#1D2330');
+    if(d.logo) document.querySelector('#logo img').src = d.logo;
+    document.getElementById('marcaTxt').textContent = d.marcaLabel || 'Mi entrega';
+    document.title = 'Mi entrega · ' + (d.marcaLabel || 'Grupo París');
+
+    var auto = d.modelo ? esc(d.modelo) : 'auto';
+    var titulo, sub;
+    if(d.entregada){ titulo = '¡Felicitaciones'+(d.nombre?', '+esc(d.nombre):'')+'!'; sub = 'Ya tenés tu '+auto+'. Gracias por elegirnos.'; }
+    else if(d.paso >= 4){ titulo = (d.nombre?esc(d.nombre)+', tu ':'Tu ')+auto+' está listo'; sub = 'Lo estamos esperando para entregártelo.'; }
+    else { titulo = (d.nombre?'Hola '+esc(d.nombre)+', ':'')+'estamos preparando tu '+auto; sub = 'Acá podés ver en qué etapa está y todo lo que necesitás para el día de la entrega.'; }
+    var falta = d.entregada || d.fechaAConfirmar ? '' : cuantoFalta(d.fechaIso);
+
+    var pasos = [
+      ['Entrega programada', 'Ya tenemos tu unidad asignada.'],
+      ['Fecha confirmada', d.fechaAConfirmar ? 'Te vamos a avisar el día y la hora.' : 'Coordinamos el día y la hora con vos.'],
+      ['En preparación', 'Revisamos la unidad, la lavamos y colocamos los accesorios.'],
+      ['Lista para entregar', 'Pasó todos los controles.'],
+      ['Entregada', '¡A disfrutarlo!']
+    ];
+    var h = '<div class="card"><h1>'+titulo+'</h1><p class="sub">'+sub+'</p>'+
+      (falta ? '<p style="margin:12px 0 0;display:inline-block;background:color-mix(in srgb, var(--marca) 14%, #fff);color:var(--marca);font-weight:800;font-size:13px;padding:6px 12px;border-radius:20px;">'+falta+'</p>' : '')+
+      '<ol class="pasos">'+pasos.map(function(p, i){
+        var n = i+1, cls = n <= d.paso ? 'hecho' : (n === d.paso + 1 ? 'actual' : '');
+        return '<li class="paso '+cls+'"><span class="bola">'+(n<=d.paso?'✓':n)+'</span><div><div class="paso-t">'+p[0]+'</div>'+(n<=d.paso+1?'<div class="paso-d">'+p[1]+'</div>':'')+'</div></li>';
+      }).join('')+'</ol></div>';
+
+    if(!d.entregada){
+      h += '<div class="card"><h2>El día de la entrega</h2>'+
+        '<div class="dato"><span class="ic">'+ICO.cal+'</span><div><small>Cuándo</small><div>'+(d.fechaAConfirmar?'Fecha a confirmar':esc(fechaLarga(d.fechaIso)||d.fecha)+(d.hora?' · '+esc(d.hora)+' hs':''))+'</div></div></div>'+
+        '<div class="dato"><span class="ic">'+ICO.reloj+'</span><div><small>Cuánto dura</small><div>Unos '+esc(d.duracion)+' minutos</div></div></div>'+
+        '<div class="dato"><span class="ic">'+ICO.pin+'</span><div><small>Dónde</small><div>'+esc(d.direccion||('Grupo París '+d.sucursal))+(d.direccion&&d.sucursal?'<br><span style="color:var(--dim);font-weight:500;">'+esc(d.sucursal)+'</span>':'')+'</div></div></div>'+
+        (d.responsable ? '<div class="dato"><span class="ic">'+ICO.persona+'</span><div><small>Te recibe</small><div>'+esc(d.responsable)+'</div></div></div>' : '')+
+        '<div class="botones">'+
+          (d.mapsUrl ? '<a class="btn prim" href="'+esc(d.mapsUrl)+'" target="_blank" rel="noopener">'+ICO.pin+'Cómo llegar</a>' : '')+
+          (d.calendarUrl && !d.fechaAConfirmar ? '<a class="btn" href="'+esc(d.calendarUrl)+'" target="_blank" rel="noopener">'+ICO.cal+'Agendar</a>' : '')+
+        '</div></div>';
+      var traer = ['Tu DNI (el del titular de la compra).'];
+      if(d.usado) traer.push('Tu usado, con el título, las cédulas, el manual y todas las llaves.');
+      if(d.planAhorro) traer.push('El último cupón pago del plan.');
+      traer.push('Tiempo para que te expliquemos todo con calma.');
+      h += '<div class="card"><h2>Qué traer</h2><ul class="traer">'+traer.map(function(t){return '<li>'+esc(t)+'</li>';}).join('')+'</ul></div>';
+    } else {
+      h += encuestaHTML(d);
+    }
+    if(d.whatsapp){
+      var msg = 'Hola, soy '+(d.nombre||'cliente')+'. Tengo una consulta sobre la entrega de mi '+(d.modelo||'auto')+'.';
+      h += '<div class="card"><h2>¿Tenés alguna duda?</h2><p class="sub" style="margin-bottom:14px;">Escribinos y te respondemos.</p>'+
+        '<a class="btn wa full" href="https://wa.me/'+esc(d.whatsapp)+'?text='+encodeURIComponent(msg)+'" target="_blank" rel="noopener">'+ICO.wa+'Escribir por WhatsApp</a></div>';
+    }
+    h += '<p class="pie">Grupo París · '+esc(d.marcaLabel||'')+'</p>';
+    app.innerHTML = h;
+    if(d.entregada) activarEncuesta(d);
+  }
+
+  function encuestaHTML(d){
+    if(d.opinion) return graciasHTML(d, Number(d.opinion.score));
+    var botones = '';
+    for(var i=0;i<=10;i++) botones += '<button type="button" data-n="'+i+'">'+i+'</button>';
+    return '<div class="card" id="encuesta"><h2>¿Cómo fue tu entrega?</h2>'+
+      '<p class="sub">Del 0 al 10, ¿cuánto nos recomendarías a un amigo o familiar?</p>'+
+      '<div class="escala">'+botones+'</div><div class="escala-l"><span>Nada probable</span><span>Muy probable</span></div>'+
+      '<textarea id="comentario" placeholder="Contanos qué te gustó o qué podemos mejorar (opcional)"></textarea>'+
+      '<button class="btn prim full" id="enviar" disabled style="width:100%;">Enviar mi opinión</button></div>';
+  }
+  function graciasHTML(d, n){
+    var resena = (n >= 9 && d.resenaUrl) ? '<p class="sub" style="margin:10px 0 14px;">¿Nos ayudás contándolo en Google? Son 30 segundos y a otras personas les sirve muchísimo.</p><a class="btn prim full" href="'+esc(d.resenaUrl)+'" target="_blank" rel="noopener">'+ICO.estrella+'Dejar una reseña en Google</a>' : '';
+    return '<div class="card gracias" id="encuesta"><div class="gr-ic">🙌</div><h2>¡Gracias por tu opinión!</h2>'+
+      (n <= 6 ? '<p class="sub">Lamentamos que no haya sido la experiencia que esperabas. Alguien del equipo de Calidad se va a comunicar con vos.</p>' : '<p class="sub">Nos alegra mucho que lo hayas disfrutado.</p>')+resena+'</div>';
+  }
+  function activarEncuesta(d){
+    var cont = document.getElementById('encuesta'); if(!cont || d.opinion) return;
+    var elegido = null, btnEnviar = document.getElementById('enviar');
+    cont.querySelectorAll('.escala button').forEach(function(b){
+      b.addEventListener('click', function(){
+        cont.querySelectorAll('.escala button').forEach(function(x){ x.classList.remove('sel'); });
+        b.classList.add('sel'); elegido = Number(b.dataset.n); btnEnviar.disabled = false;
+      });
+    });
+    btnEnviar.addEventListener('click', function(){
+      if(elegido === null) return;
+      btnEnviar.disabled = true; btnEnviar.textContent = 'Enviando…';
+      fetch(API, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action:'miEntregaOpinion', params:{t:TOKEN, score:elegido, comentario:document.getElementById('comentario').value}})})
+        .then(function(r){ return r.json(); })
+        .then(function(res){
+          if(!res || !res.ok) throw new Error((res && res.error) || 'error');
+          cont.outerHTML = graciasHTML(d, elegido);
+        })
+        .catch(function(){ btnEnviar.disabled = false; btnEnviar.textContent = 'Enviar mi opinión'; alert('No se pudo enviar. Probá de nuevo en un rato.'); });
+    });
+  }
+})();
+</script>
+</body>
+</html>

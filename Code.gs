@@ -7,6 +7,13 @@
 function doGet(e) {
   var action = e && e.parameter && e.parameter.action;
   if (action === 'encuestaUsado') return paginaEncuestaUsado_(e.parameter); // página pública de la encuesta de usados
+  if (action === 'miEntrega') { // página pública "Mi entrega" (el cliente sigue su entrega con un link)
+    var me_; try{ me_ = miEntregaDatos_(e.parameter.t); }catch(err){ me_ = {ok:false, error:'No pudimos cargar tu entrega.'}; }
+    return ContentService.createTextOutput(JSON.stringify(me_)).setMimeType(ContentService.MimeType.JSON);
+  }
+  if (action === 'miEntregaLink') { // link de seguimiento de una entrega (lo usa la app para copiarlo o mandarlo por WhatsApp)
+    return ContentService.createTextOutput(JSON.stringify({ok:true, token: miEntregaToken_(e.parameter.marca, e.parameter.id), url: miEntregaUrl_(e.parameter.marca, e.parameter.id)})).setMimeType(ContentService.MimeType.JSON);
+  }
   if (action === 'cpEntrega') { // respuesta de Contacto Posterior de UNA entrega (para ver al instante lo que respondió el cliente)
     var re_ = buscarEntrega_(e.parameter.marca, e.parameter.id);
     return ContentService.createTextOutput(JSON.stringify({ok:!!re_, contactoPosteriorData: re_ ? (re_.contactoPosteriorData||'') : '', encuestaUsadoEnviada: re_ ? (re_.encuestaUsadoEnviada||'') : ''})).setMimeType(ContentService.MimeType.JSON);
@@ -49,7 +56,8 @@ function doPost(e){
   var p = body.params || {};
   var result;
   try{
-    if(action==='addEntrega') result = {id: addEntrega(p.marca, p.obj)};
+    if(action==='miEntregaOpinion') result = miEntregaOpinion_(p.t, p.score, p.comentario);
+    else if(action==='addEntrega') result = {id: addEntrega(p.marca, p.obj)};
     else if(action==='updateEntregaFields') result = {ok: updateEntregaFields(p.marca, p.id, p.fields)};
     else if(action==='deleteEntrega') result = {ok: deleteEntrega(p.marca, p.id)};
     else if(action==='agregarComentario') result = {ok: agregarComentario(p.marca, p.id, p.autor, p.texto)};
@@ -1015,6 +1023,11 @@ function renderPlantilla_(tipo, r, config){
   // Honda y DFSK sin que haga falta editar ni migrar nada a mano: ese
   // placeholder ya lo tenés puesto en las 5.
   usadoBlock = accesoriosBlock + usadoBlock;
+  // Bloque "Antes de venir": cómo llegar, agregar al calendario, seguir la entrega y qué traer.
+  // Se suma solo en confirmación y recordatorio (no hace falta tocar las plantillas guardadas).
+  if(tipo === 'confirmacion' || tipo === 'recordatorio'){
+    try{ usadoBlock = bloqueAntesDeVenir_(r, config, direccionesMarca[r.lugar] || '') + usadoBlock; }catch(eAV){}
+  }
   var logoUrl = logoMarcaUrl_(r.marca);
   var logoBlock = logoUrl ? ('<div style="width:52px;height:52px;border-radius:50%;background:#ffffff;margin:0 auto 12px;display:table;"><div style="display:table-cell;vertical-align:middle;text-align:center;"><img src="'+logoUrl+'" width="38" style="max-width:38px;display:inline-block;"></div></div>') : '';
   var adminObj = (config.maestros.administrativos||[]).find(function(a){ return a && a.nombre===r.administrativo; });
@@ -3925,12 +3938,13 @@ function armarBienvenidaHtml_(d){
   return ''+
   '<div style="background:#f3f4f6;padding:0;margin:0;font-family:Arial,sans-serif;">'+
     '<table width="100%" cellpadding="0" cellspacing="0" style="background:#111827;"><tr><td align="center" style="padding:24px 20px 20px;">'+
-      (d.logoUrl ? '<div style="width:60px;height:60px;border-radius:50%;background:#ffffff;margin:0 auto;display:table;"><div style="display:table-cell;vertical-align:middle;text-align:center;"><img src="'+d.logoUrl+'" alt="'+e(d.marcaTxt)+'" style="max-width:42px;max-height:28px;"></div></div>' : '')+
+      (d.logoUrl ? '<div style="width:60px;height:60px;border-radius:50%;background:#ffffff;margin:0 auto;display:table;"><div style="display:table-cell;vertical-align:middle;text-align:center;"><a href="'+(wa ? 'https://wa.me/'+wa : URL_APP_)+'" target="_blank" style="text-decoration:none;border:0;"><img border="0" src="'+d.logoUrl+'" alt="'+e(d.marcaTxt)+'" style="max-width:42px;max-height:28px;"></a></div></div>' : '')+
       '<div style="color:#ffffff;font-size:11.5px;letter-spacing:2px;margin-top:10px;font-weight:bold;">'+e(String(d.entidad||'').toUpperCase())+' · POSTVENTA '+e(String(d.marcaTxt||'').toUpperCase())+'</div>'+
     '</td></tr></table>'+
     '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:0 14px 34px;">'+
       '<table width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;background:#ffffff;border-radius:14px;margin-top:-1px;border-top:5px solid '+col+';">'+
-        (d.mascotaUrl ? '<tr><td align="center" style="padding:26px 24px 0;"><img src="'+d.mascotaUrl+'" alt="" width="170" style="width:170px;max-width:60%;height:auto;display:block;"></td></tr>' : '')+
+        // La imagen va dentro de un link: así Gmail no le pone el botón de "Descargar" encima
+        (d.mascotaUrl ? '<tr><td align="center" style="padding:26px 24px 0;"><a href="'+(wa ? 'https://wa.me/'+wa : URL_APP_)+'" target="_blank" style="text-decoration:none;border:0;display:inline-block;"><img src="'+d.mascotaUrl+'" alt="" width="170" border="0" style="width:170px;max-width:60%;height:auto;display:block;border:0;outline:none;"></a></td></tr>' : '')+
         '<tr><td align="center" style="padding:'+(d.mascotaUrl?'14px':'30px')+' 30px 4px;font-family:Arial,sans-serif;">'+
           '<h1 style="margin:0 0 10px;color:#111827;font-size:22px;line-height:1.3;">'+p(d.titulo)+'</h1>'+
           '<p style="margin:0;color:#374151;font-size:14px;line-height:1.65;">'+p(d.intro)+'</p>'+
@@ -4201,4 +4215,145 @@ function agregarPuntosManualesLote_(instancia, canal, puntos, autor){
     }
     return {ok:true, agregados:agregados};
   } finally { lock.releaseLock(); }
+}
+
+
+// ============================================================
+// MI ENTREGA — página pública para que el cliente siga su entrega
+// ============================================================
+// Link: https://<app>/mi-entrega.html?t=<token>. El token se firma con una clave secreta
+// guardada en las propiedades del script, así nadie puede "adivinar" el link de otra entrega.
+function miEntregaSecreto_(){
+  var props = PropertiesService.getScriptProperties();
+  var s = props.getProperty('MI_ENTREGA_SECRETO');
+  if(!s){ s = Utilities.getUuid() + Utilities.getUuid(); props.setProperty('MI_ENTREGA_SECRETO', s); }
+  return s;
+}
+function miEntregaFirma_(marca, id){
+  var bytes = Utilities.computeHmacSha256Signature(String(marca)+'|'+String(id), miEntregaSecreto_());
+  return Utilities.base64EncodeWebSafe(bytes).replace(/=+$/,'').slice(0, 18);
+}
+function miEntregaToken_(marca, id){
+  if(!marca || !id) return '';
+  return encodeURIComponent(String(marca)) + '.' + encodeURIComponent(String(id)) + '.' + miEntregaFirma_(marca, id);
+}
+function miEntregaUrl_(marca, id){
+  return URL_APP_ + 'mi-entrega.html?t=' + miEntregaToken_(marca, id);
+}
+function miEntregaLeerToken_(t){
+  var partes = String(t||'').split('.');
+  if(partes.length < 3) return null;
+  var firma = partes.pop(), marca = decodeURIComponent(partes.shift()), id = decodeURIComponent(partes.join('.'));
+  if(miEntregaFirma_(marca, id) !== firma) return null;
+  return {marca: marca, id: id};
+}
+function miEntregaFechaIso_(f){ // dd/MM/yyyy -> yyyy-MM-dd
+  var m = String(f||'').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m) return m[3]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2);
+  return String(f||'').slice(0,10);
+}
+function miEntregaCalendarUrl_(r, direccion){
+  var iso = miEntregaFechaIso_(r.fecha); var h = String(r.hora||'10:00').match(/(\d{1,2}):(\d{2})/);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(iso) || !h) return '';
+  var dur = Number(r.duracionMinutos) || 60;
+  var ini = new Date(Number(iso.slice(0,4)), Number(iso.slice(5,7))-1, Number(iso.slice(8,10)), Number(h[1]), Number(h[2]));
+  var fin = new Date(ini.getTime() + dur*60000);
+  var fmt = function(d){ return Utilities.formatDate(d, Session.getScriptTimeZone(), "yyyyMMdd'T'HHmmss"); };
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE'+
+    '&text='+encodeURIComponent('Entrega de mi '+(MARCA_LABEL[r.marca]||'')+' '+(r.modelo||''))+
+    '&dates='+fmt(ini)+'/'+fmt(fin)+'&ctz='+encodeURIComponent(Session.getScriptTimeZone())+
+    '&details='+encodeURIComponent('Grupo París · '+(LUGAR_NOMBRE[r.lugar]||r.sucursal||'')+'. Traé tu DNI.')+
+    (direccion ? '&location='+encodeURIComponent(direccion) : '');
+}
+function miEntregaMapsUrl_(direccion, r){
+  if(!direccion || direccion==='nuestra sucursal') return '';
+  return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(direccion+', '+(LUGAR_NOMBRE[r.lugar]||r.sucursal||'')+', Argentina');
+}
+// Bloque para los mails de confirmación y recordatorio
+function bloqueAntesDeVenir_(r, config, direccion){
+  var color = MARCA_COLOR[r.marca] || '#1D2330', txt = MARCA_TEXTO[r.marca] || '#ffffff';
+  var btn = function(href, label){
+    return href ? '<a href="'+href+'" style="display:inline-block;margin:4px 4px;background:'+color+';color:'+txt+';text-decoration:none;font-weight:bold;font-size:13px;padding:10px 16px;border-radius:8px;">'+label+'</a>' : '';
+  };
+  var maps = miEntregaMapsUrl_(direccion, r), cal = miEntregaCalendarUrl_(r, direccion), seg = miEntregaUrl_(r.marca, r.id);
+  var traer = ['Tu DNI (el del titular de la compra)'];
+  if(r.usado) traer.push('Tu usado con el título, las cédulas, el manual y todas las llaves');
+  if(r.tipoVenta && /plan/i.test(String(r.tipoVenta))) traer.push('El último cupón pago del plan');
+  return '<div style="background:#f7f8fa;border-radius:10px;padding:14px 16px;margin:14px 0;text-align:center;">'+
+    '<div style="font-size:13px;font-weight:bold;color:#333;margin-bottom:6px;">Antes de venir</div>'+
+    '<div>'+btn(maps,'📍 Cómo llegar')+btn(cal,'📅 Agregar a mi calendario')+btn(seg,'🔎 Seguir mi entrega')+'</div>'+
+    '<div style="text-align:left;font-size:13px;color:#444;line-height:1.6;margin-top:10px;"><b>Qué traer:</b><br>• '+traer.join('<br>• ')+'</div>'+
+    '</div>';
+}
+function miEntregaPrep_(r){
+  try{
+    var us = listarUnidadesPreparacion_();
+    var vin = String(r.chasis||'').toUpperCase();
+    for(var i=0;i<us.length;i++){
+      var u = us[i];
+      if(String(u.entregaVinculadaId)===String(r.id) || (vin && String(u.vin||'').toUpperCase()===vin)) return u;
+    }
+  }catch(e){}
+  return null;
+}
+function miEntregaDatos_(t){
+  var ref = miEntregaLeerToken_(t);
+  if(!ref) return {ok:false, error:'El link no es válido. Pedile uno nuevo a tu vendedor.'};
+  var r = buscarEntrega_(ref.marca, ref.id);
+  if(!r) return {ok:false, error:'No encontramos esta entrega. Puede que se haya reprogramado: consultá con tu vendedor.'};
+  var config = getConfig();
+  var direccion = ((config.direcciones||{})[r.marca]||{})[r.lugar] || '';
+  var u = miEntregaPrep_(r);
+  // Pasos: programada → confirmada → en preparación → lista → entregada
+  var paso = 1;
+  if(r.confirmado) paso = 2;
+  if(u && ['buscar','revision','chapa','postventa'].indexOf(String(u.estado))>-1) paso = Math.max(paso, 3);
+  if(u && String(u.estado)==='ok') paso = Math.max(paso, 4);
+  if(r.entregada) paso = 5;
+  var primerNombre = String(r.cliente||'').trim().split(/\s+/);
+  // en la planilla suele estar "APELLIDO NOMBRE": mostramos el segundo término si hay más de uno
+  var nombre = primerNombre.length > 1 ? primerNombre[1] : primerNombre[0];
+  nombre = nombre ? nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase() : '';
+  var resenas = config.resenasGoogle || {};
+  var opinion = miEntregaOpinionGuardada_(ref.marca, ref.id);
+  return {
+    ok:true, marca:r.marca, marcaLabel: MARCA_LABEL[r.marca]||r.marca, logo: (typeof logoMarcaUrl_==='function' ? logoMarcaUrl_(r.marca) : ''),
+    color: MARCA_COLOR[r.marca] || '#1D2330', colorTexto: MARCA_TEXTO[r.marca] || '#ffffff',
+    nombre: nombre, modelo: r.modelo||'', colorAuto: r.color||'', fecha: r.fecha||'', fechaIso: miEntregaFechaIso_(r.fecha), hora: r.hora||'',
+    fechaAConfirmar: !!r.fechaSinConfirmar, sucursal: LUGAR_NOMBRE[r.lugar] || r.sucursal || '', direccion: direccion,
+    mapsUrl: miEntregaMapsUrl_(direccion, r), calendarUrl: miEntregaCalendarUrl_(r, direccion),
+    responsable: String(r.responsableEntrega||'').split(/\s+/)[0] || '', vendedor: r.vendedor||'',
+    duracion: Number(r.duracionMinutos) || config.duracionEntrega || 60,
+    whatsapp: String(config.telefonoContacto||'').replace(/[^0-9]/g,''),
+    usado: !!r.usado, planAhorro: /plan/i.test(String(r.tipoVenta||'')),
+    paso: paso, entregada: !!r.entregada,
+    resenaUrl: resenas[LUGAR_NOMBRE[r.lugar] || r.sucursal] || '',
+    opinion: opinion
+  };
+}
+function miEntregaHojaOpiniones_(){
+  var ss = getSS_(); var h = ss.getSheetByName('OpinionesClientes');
+  if(!h){ h = ss.insertSheet('OpinionesClientes'); h.appendRow(['Fecha','Marca','EntregaId','Cliente','Sucursal','Puntaje','Comentario']); }
+  return h;
+}
+function miEntregaOpinionGuardada_(marca, id){
+  try{
+    var h = getSS_().getSheetByName('OpinionesClientes'); if(!h || h.getLastRow()<2) return null;
+    var d = h.getRange(2,1,h.getLastRow()-1,7).getValues();
+    for(var i=d.length-1;i>=0;i--){ if(d[i][1]===marca && String(d[i][2])===String(id)) return {score:d[i][5], comentario:d[i][6]}; }
+  }catch(e){}
+  return null;
+}
+function miEntregaOpinion_(t, score, comentario){
+  var ref = miEntregaLeerToken_(t);
+  if(!ref) return {ok:false, error:'Link no válido.'};
+  var n = Number(score);
+  if(!(n>=0 && n<=10)) return {ok:false, error:'Elegí un puntaje del 0 al 10.'};
+  var r = buscarEntrega_(ref.marca, ref.id);
+  if(!r) return {ok:false, error:'No encontramos esta entrega.'};
+  if(miEntregaOpinionGuardada_(ref.marca, ref.id)) return {ok:true, yaEstaba:true};
+  var txt = String(comentario||'').slice(0, 1000);
+  miEntregaHojaOpiniones_().appendRow([new Date(), ref.marca, ref.id, r.cliente||'', LUGAR_NOMBRE[r.lugar]||r.sucursal||'', n, txt]);
+  try{ agregarHistorialInterno_(ref.marca, ref.id, '⭐ El cliente calificó la entrega desde "Mi entrega": '+n+'/10'+(txt?' — "'+txt+'"':'')); }catch(e){}
+  return {ok:true};
 }
