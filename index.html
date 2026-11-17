@@ -3488,7 +3488,7 @@
           <input type="checkbox" id="autoEmailActivo" onchange="guardarAutomatizaciones_()" style="width:16px;height:16px;"> Activar envío automático de Email
         </label>
         <div class="form-grid">
-          <div class="form-field"><label>Horas después de la entrega</label><input type="number" id="autoEmailHoras" value="48" onchange="guardarAutomatizaciones_()"></div>
+          <div class="form-field"><label>Horas después de la entrega</label><input type="number" id="autoEmailHoras" value="24" onchange="guardarAutomatizaciones_()"></div>
           <div class="form-field"><label>Máx. reintentos si falla</label><input type="number" id="autoEmailReintentos" value="3" onchange="guardarAutomatizaciones_()"></div>
         </div>
         <div style="margin:12px 0;">
@@ -15037,7 +15037,7 @@ function cfgRenderAuto_(){
   };
   var em = a.email||{}, wa = a.whatsapp||{};
   var filas = [
-    {ic:'mail', t:'Encuesta por mail después de la entrega', s: em.activo ? ('Se envía '+(em.horas||48)+' hs después') : 'No se está enviando', p: pill((em.marcas||[]).length, BRANDS.length, !!em.activo), go:"setMaestroTab('automatizaciones')"},
+    {ic:'mail', t:'Encuesta por mail después de la entrega', s: em.activo ? ('Se envía '+(em.horas||24)+' hs después') : 'No se está enviando', p: pill((em.marcas||[]).length, BRANDS.length, !!em.activo), go:"setMaestroTab('automatizaciones')"},
     {ic:'chat', t:'Mensaje de WhatsApp post-entrega', s:'Botón listo en el detalle de cada entrega', p: pill((wa.marcas||[]).length, BRANDS.length, true), go:"setMaestroTab('automatizaciones')"},
     {ic:'waving_hand', t:'Bienvenida a Postventa por mail', s: bienvenidaAutoConfig_().activo ? 'Sale al marcar la entrega como entregada' : 'No se está enviando sola', p: pill((bienvenidaAutoConfig_().marcas||[]).length, BRANDS.length, !!bienvenidaAutoConfig_().activo), go:"setMaestroTab('automatizaciones')"},
     {ic:'inventory_2', t:'Aviso de accesorios pendientes', s:'Mail 24 hs antes de la entrega', p: pill(cuenta(CONFIG.alertaAccesoriosEmails), BRANDS.length, true), go:"cfgAbrir_('alertaacc')"},
@@ -16046,7 +16046,7 @@ var PLANTILLA_WHATSAPP_DEFAULT = 'Buenos días, {Nombre}! 👋😊\n\nMi nombre 
 function automatizacionesDefault_(){
   return {
     whatsapp: {marcas:BRANDS.map(function(b){return b.id;}), template:PLANTILLA_WHATSAPP_DEFAULT},
-    email: {activo:false, horas:48, reintentos:3, marcas:['chevrolet'], asunto:'{NombreCompleto}, tu experiencia en {Entidad}', formUrl:{}}
+    email: {activo:false, horas:24, reintentos:3, marcas:['chevrolet'], asunto:'{NombreCompleto}, tu experiencia en {Entidad}', formUrl:{}}
   };
 }
 function renderAutomatizacionesUI_(){
@@ -16089,7 +16089,7 @@ function guardarAutomatizaciones_(yaActualizado){
   if(!yaActualizado){
     a.whatsapp.template = document.getElementById('autoWhatsappTemplate').value;
     a.email.activo = document.getElementById('autoEmailActivo').checked;
-    a.email.horas = Number(document.getElementById('autoEmailHoras').value)||48;
+    a.email.horas = Number(document.getElementById('autoEmailHoras').value)||24;
     a.email.reintentos = Number(document.getElementById('autoEmailReintentos').value)||3;
     a.email.asunto = document.getElementById('autoEmailAsunto').value;
     a.email.formUrl = {};

@@ -401,7 +401,8 @@ var CAMPOS = [
   {k:'usAnuladaFecha', h:'Usado — Fecha de anulación'},
   {k:'npsFabricaCargadoEn', h:'NPS Fábrica — Cargado/modificado en el sistema'},
   {k:'encuestaUsadoEnviada', h:'Usado — Encuesta por mail enviada'},
-  {k:'canalVenta', h:'Canal de venta (pda = Plan de Ahorro)'}
+  {k:'canalVenta', h:'Canal de venta (pda = Plan de Ahorro)'},
+  {k:'entregadaFecha', h:'Fecha y hora en que se marcó entregada'}
 ];
 
 // ============================================================
@@ -489,6 +490,23 @@ function agregarColumnasFaltantes(){
   } else {
     getSS_().toast('Columnas agregadas sin tocar los datos existentes en: '+agregadas.join(', '));
   }
+}
+
+// Si CAMPOS creció (columna nueva al final), la agrega sola en la hoja con su
+// encabezado, sin tocar datos. Así no hace falta correr nada a mano.
+function asegurarColumnasCampos_(sheet, marca){
+  try{
+    var total = CAMPOS.length;
+    if(sheet.getLastColumn() >= total) return;
+    var maxCols = sheet.getMaxColumns();
+    if(maxCols < total) sheet.insertColumnsAfter(maxCols, total - maxCols);
+    var desde = sheet.getLastColumn() + 1;
+    var nuevos = CAMPOS.slice(desde-1).map(function(c){ return c.h; });
+    if(!nuevos.length) return;
+    var rango = sheet.getRange(1, desde, 1, nuevos.length).setValues([nuevos]).setFontWeight('bold')
+      .setHorizontalAlignment('center').setVerticalAlignment('middle');
+    try{ rango.setBackground(MARCA_COLOR[marca]).setFontColor(MARCA_TEXTO[marca]); }catch(e){}
+  }catch(e){ Logger.log('asegurarColumnasCampos_: '+e); }
 }
 
 function configurarPlanilla(){
@@ -801,6 +819,7 @@ function getEntregas(){
   Object.keys(HOJAS).forEach(function(marca){
     var sheet=getSheetPorMarca_(marca);
     if(!sheet) return;
+    asegurarColumnasCampos_(sheet, marca);
     var lastRow=sheet.getLastRow();
     if(lastRow<2) return;
     var data=sheet.getRange(2,1,lastRow-1,CAMPOS.length).getValues();
@@ -833,12 +852,19 @@ function updateEntregaFields(marca, id, fields){
   var rowIdx=findRowIndexById_(marca,id);
   if(rowIdx===-1) return false;
   var sheet=getSheetPorMarca_(marca);
+  asegurarColumnasCampos_(sheet, marca);
+  // Guardamos el momento real en que se marcó "Entregada": el mail de
+  // Contacto Posterior se manda X horas (24 por defecto) después de esto.
+  if(Object.prototype.hasOwnProperty.call(fields,'entregada') && !Object.prototype.hasOwnProperty.call(fields,'entregadaFecha')){
+    var esEntregada = fields.entregada===true || String(fields.entregada).toUpperCase()==='TRUE';
+    fields.entregadaFecha = esEntregada ? Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm') : '';
+  }
   Object.keys(fields).forEach(function(f){
     var idx=-1;
     for(var i=0;i<CAMPOS.length;i++){ if(CAMPOS[i].k===f){ idx=i; break; } }
     if(idx>-1){
       var val = fields[f];
-      if((f==='fecha'||f==='hora'||f==='garantiaFecha'||f==='npsFabricaFecha') && val) val = "'" + val; // mismo truco al editar
+      if((f==='fecha'||f==='hora'||f==='garantiaFecha'||f==='npsFabricaFecha'||f==='entregadaFecha') && val) val = "'" + val; // mismo truco al editar
       if(val && typeof val==='object') val = JSON.stringify(val); // ej: trasladoChecklist
       sheet.getRange(rowIdx, idx+1).setValue(val);
     }
@@ -1922,7 +1948,7 @@ function ejecutarAutomatizaciones(){
 
     // WhatsApp queda MANUAL a propósito — el cliente elige y toca el botón desde la web,
     // no se manda solo. Solo Email corre automático acá.
-    var esUsadoV = String(r.tipoVenta||'').toUpperCase()==='USADO';
+    var esUsadoV = String(r.tipoVenta||'').toUpperCase()==='USADO' || String(r.marca||'').toLowerCase()==='usados';
     if(auto.email && auto.email.activo && (auto.email.marcas.indexOf(r.marca)>-1 || esUsadoV)){
       procesarComunicacion_(r, 'email', auto.email, ahora, config);
     }
@@ -1930,13 +1956,14 @@ function ejecutarAutomatizaciones(){
 }
 
 function procesarComunicacion_(r, canal, configCanal, ahora, configCompleto){
-  // r.entregadaFecha debe existir en tu esquema (fecha en que se marcó "Entregada").
-  // Si tu campo se llama distinto, cambiá esta línea nada más.
-  var fechaBase = parsearFechaHora_(r.entregadaFecha || r.fecha);
+  // Base: el momento real en que se marcó "Entregada". Si es una entrega vieja
+  // (anterior a este campo), usamos la fecha + hora de entrega programada.
+  var fechaBase = r.entregadaFecha ? parsearFechaHora_(r.entregadaFecha) : parsearFechaHora_(r.fecha, r.hora);
   if(!fechaBase) return;
 
   var horasPasadas = (ahora.getTime() - fechaBase.getTime()) / (1000*60*60);
-  if(horasPasadas < configCanal.horas) return; // todavía no llegó la hora
+  var horasEspera = Number(configCanal.horas); if(!(horasEspera>0)) horasEspera = 24;
+  if(horasPasadas < horasEspera) return; // todavía no pasaron las 24 hs (o las configuradas)
 
   var existente = buscarComunicacionExistente_(r.marca, r.id, canal);
   if(existente && (existente.estado==='Enviada' || existente.estado==='Cancelada')) return; // ya resuelta
@@ -1951,7 +1978,7 @@ function procesarComunicacion_(r, canal, configCanal, ahora, configCompleto){
       registrarComunicacion_(r, canal, 'Enviada', intentos, '', mensaje);
     } else if(canal==='email'){
       var asunto = reemplazarVariablesServidor_(configCanal.asunto, r);
-      if(String(r.tipoVenta||'').toUpperCase()==='USADO') enviarEncuestaUsado_(r); // usados: encuesta propia 1 a 10 + comentario
+      if(String(r.tipoVenta||'').toUpperCase()==='USADO' || String(r.marca||'').toLowerCase()==='usados') enviarEncuestaUsado_(r); // usados: encuesta propia 1 a 10 + comentario
       else enviarEmailPostEntrega_(r, asunto, configCompleto); // ya conectada, con tu HTML calcado de la captura
       registrarComunicacion_(r, canal, 'Enviada', intentos, '', '');
     }
@@ -2118,11 +2145,15 @@ function cancelarComunicacion(marca, entregaId, canal){
 }
 
 // ---- Utilidad simple de parseo de fecha dd/mm/aaaa ----
-function parsearFechaHora_(fechaStr){
+function parsearFechaHora_(fechaStr, horaStr){
   if(!fechaStr) return null;
-  var partes = String(fechaStr).split(' ')[0].split('/');
+  if(Object.prototype.toString.call(fechaStr)==='[object Date]') return isNaN(fechaStr.getTime()) ? null : fechaStr;
+  var txt = String(fechaStr).replace(/^'/,'').trim();
+  var partes = txt.split(' ')[0].split('/');
   if(partes.length!==3) return null;
-  return new Date(Number(partes[2]), Number(partes[1])-1, Number(partes[0]));
+  var anio = Number(partes[2]); if(anio<100) anio += 2000;
+  var hm = (txt.split(' ')[1] || String(horaStr||'').replace(/^'/,'')).match(/(\d{1,2})[:.](\d{2})/);
+  return new Date(anio, Number(partes[1])-1, Number(partes[0]), hm?Number(hm[1]):0, hm?Number(hm[2]):0);
 }
 
 // ============================================================
