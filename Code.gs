@@ -4407,6 +4407,8 @@ function miEntregaDatos_(t){
   var r = buscarEntrega_(ref.marca, ref.id);
   if(!r) return {ok:false, error:'No encontramos esta entrega. Puede que se haya reprogramado: consultá con tu vendedor.'};
   var config = getConfig();
+  // Se prende y apaga desde Configuración → Automatizaciones → Seguimiento para el cliente
+  if(!((config.automatizaciones||{}).seguimiento||{}).activo) return {ok:false, error:'El seguimiento de tu entrega todavía no está disponible. Cualquier consulta, hablá con tu vendedor.'};
   var direccion = ((config.direcciones||{})[r.marca]||{})[r.lugar] || '';
   var u = miEntregaPrep_(r);
   // Pasos: programada → confirmada → en preparación → lista → entregada

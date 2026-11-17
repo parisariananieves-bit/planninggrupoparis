@@ -14606,6 +14606,12 @@ function cfgMejorarAutomatizaciones_(){
       '<div style="display:flex;gap:8px;flex-wrap:wrap;"><button type="button" class="cfg-btn" onclick="setMaestroTab(\'plantillas\')"><span class="material-symbols-outlined">edit</span>Editar el texto del mail</button>'+
       '<span style="font-size:12px;color:var(--text-dim);align-self:center;">También se puede mandar a mano desde el detalle de la entrega → Bienvenida.</span></div></div>';
     wrap.appendChild(cardB);
+    // Seguimiento para el cliente (link "Mi entrega") — se prende y apaga desde acá
+    var cardS = document.createElement('section'); cardS.className='cfg-auto-card'; cardS.id='cfgAutoSeg';
+    cardS.style.setProperty('--g','var(--accent)'); cardS.style.setProperty('--gs','var(--accent-soft)');
+    cardS.innerHTML = '<header class="cfg-auto-h"><span class="cfg-ic material-symbols-outlined">route</span><div><h3>Seguimiento para el cliente</h3><p>Un link donde el cliente ve en qué etapa está su entrega, cómo llegar, qué traer, y después la puede calificar. Mientras esté <b>apagado</b>, no aparece en el detalle de la entrega y los links no abren.</p></div><span class="cfg-auto-st"></span>'+
+      '<label class="cfg-auto-sw"><span class="cfg-auto-sw-t"></span><span class="switch"><input type="checkbox" id="autoSegActivo" onchange="cfgSegAuto_()"><span class="switch-slider"></span></span></label></header>';
+    wrap.appendChild(cardS);
     // Texto de ayuda viejo de WhatsApp (ya está en el encabezado)
     var vieja = document.querySelector('#cfgAutoWa .cfg-auto-body > div:first-child'); if(vieja && /no se manda solo/i.test(vieja.textContent)) vieja.remove();
     // Interruptor del mail en el encabezado
@@ -14658,6 +14664,19 @@ function cfgBienvPintar_(){
   if(cs) cs.innerHTML = SUCURSALES.map(function(sc){ var on = (cb.sucursales||[]).indexOf(sc)>-1;
     return '<label class="filter-pill'+(on?' active':'')+'" style="cursor:pointer;"><input type="checkbox" data-suc="'+sc+'" '+(on?'checked':'')+' onchange="cfgBienvAuto_()">'+sc+'</label>'; }).join('');
 }
+function seguimientoClienteActivo_(){
+  var a = CONFIG.automatizaciones || {};
+  return !!(a.seguimiento && a.seguimiento.activo);
+}
+function cfgSegAuto_(){
+  var a = CONFIG.automatizaciones || (CONFIG.automatizaciones = automatizacionesDefault_());
+  var chk = document.getElementById('autoSegActivo'), on = !!(chk && chk.checked);
+  if(on && !seguimientoClienteActivo_() && !confirm('Se va a mostrar "Seguimiento para el cliente" en el detalle de cada entrega y los links van a empezar a funcionar. ¿Activarlo?')){ chk.checked = false; return; }
+  a.seguimiento = {activo: on};
+  cfgAutoEstados_();
+  guardarAutomatizaciones_(true);
+  if(typeof detailId!=='undefined' && detailId){ var r = ENTREGAS.find(function(e){ return e.marca===detailMarca && e.id===detailId; }); if(r) try{ renderSeguimientoCliente_(r); }catch(e){} }
+}
 function cfgBienvAuto_(){
   var cb = bienvenidaAutoConfig_(), chk = document.getElementById('autoBienvActivo');
   var era = cb.activo;
@@ -14698,6 +14717,9 @@ function cfgAutoEstados_(){
   var bb = document.querySelector('#cfgAutoBienv .cfg-auto-body'); if(bb) bb.classList.toggle('apagado', !cb.activo);
   var t = document.querySelector('#cfgAutoEm .cfg-auto-sw-t'); if(t) t.textContent = on ? 'Envío automático encendido' : 'Envío automático apagado';
   var body = document.querySelector('#cfgAutoEm .cfg-auto-body'); if(body) body.classList.toggle('apagado', !on);
+  var segOn = seguimientoClienteActivo_(), cs = document.getElementById('autoSegActivo'); if(cs) cs.checked = segOn;
+  pinta('#cfgAutoSeg .cfg-auto-st', segOn ? 'Activo' : 'Apagado', segOn ? 'on' : 'off');
+  var tsg = document.querySelector('#cfgAutoSeg .cfg-auto-sw-t'); if(tsg) tsg.textContent = segOn ? 'Encendido' : 'Apagado';
 }
 
 // ---------- Plantillas ----------
@@ -21820,6 +21842,7 @@ var _linksMiEntrega = {};
 function renderSeguimientoCliente_(r){
   var body = document.querySelector('#drawer .drawer-body'); if(!body || !r) return;
   var sec = document.getElementById('dSeguimientoSection');
+  if(!seguimientoClienteActivo_()){ if(sec) sec.remove(); return; } // apagado desde Configuración → Automatizaciones
   if(!sec){
     sec = document.createElement('div'); sec.className = 'section'; sec.id = 'dSeguimientoSection';
     var ref = Array.prototype.find.call(body.querySelectorAll('.section-title'), function(t){ return /^Confirmación y Recordatorio/i.test(t.textContent.trim()); });
