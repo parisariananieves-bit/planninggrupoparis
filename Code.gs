@@ -4147,32 +4147,80 @@ function paginaEncuestaUsado_(p){
   if(p.c !== undefined){
     return pagina('¡Gracias!', '<div class="top"><small>'+entidad.toUpperCase()+'</small><h1>¡Muchas gracias!</h1></div><div class="card" style="text-align:center">'+notaHtml+'<p>Recibimos tu respuesta y tu comentario. Nos ayuda mucho a mejorar.</p></div>');
   }
-  var accion = urlPublicaEncuesta_();
   var esc = function(x){ return String(x||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
+  var etiquetaNota = n>=9 ? '¡Nos alegra muchísimo!' : n>=7 ? 'Gracias, vamos a seguir mejorando' : 'Lamentamos que no haya sido lo que esperabas';
+  var css = '<style>'+
+    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}'+
+    '.card{padding:22px 18px 18px}'+
+    '.res{display:flex;align-items:center;gap:14px;background:#F8FAFC;border:1px solid #EEF0F3;border-radius:14px;padding:12px 14px;margin-bottom:6px}'+
+    '.res .nota{width:52px;height:52px;margin:0;font-size:24px;border-radius:14px;flex-shrink:0}'+
+    '.res b{display:block;font-size:15px}.res span{display:block;font-size:12.5px;color:#6B7280;margin-top:2px;line-height:1.4}'+
+    '.sec{display:flex;align-items:baseline;justify-content:space-between;margin:22px 2px 10px}.sec h2{font-size:17px;margin:0}.sec small{font-size:12.5px;color:#6B7280;font-weight:bold}'+
+    '.prog{display:flex;gap:5px;margin:0 2px 14px}.prog i{flex:1;height:5px;border-radius:5px;background:#E5E7EB;transition:background .25s}.prog i.on{background:#16A34A}'+
+    '.q{border:1px solid #EEF0F3;border-radius:16px;padding:14px 12px 12px;margin-bottom:12px;transition:border-color .2s,box-shadow .2s}'+
+    '.q.hecha{border-color:#BBF7D0;box-shadow:0 6px 18px -12px rgba(22,163,74,.45)}'+
+    '.qt{display:flex;gap:10px;align-items:flex-start;margin:0 2px 12px;font-weight:bold;font-size:15px;line-height:1.35}'+
+    '.qn{width:24px;height:24px;border-radius:50%;background:#0A0F1E;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:-1px}'+
+    '.q.hecha .qn{background:#16A34A}'+
+    '.ops{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}'+
+    '.ops button{width:auto;margin:0;background:#fff;color:#374151;border:1.5px solid #E5E7EB;border-radius:12px;padding:9px 2px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;font-weight:bold;line-height:1.15;transition:transform .12s,background .15s,border-color .15s}'+
+    '.ops button .em{font-size:26px;line-height:1;transition:filter .15s,transform .15s}'+
+    '.ops button:active{transform:scale(.96)}'+
+    '.ops.elegida button:not(.on) .em{filter:grayscale(1);opacity:.55}'+
+    '.ops.elegida button:not(.on){color:#9CA3AF}'+
+    '.ops button.on{color:#fff;border-color:transparent;transform:translateY(-2px);box-shadow:0 8px 16px -8px rgba(0,0,0,.35)}'+
+    '.ops button.on .em{transform:scale(1.12)}'+
+    '.ops button.v0.on{background:#16A34A}.ops button.v1.on{background:#65A30D}.ops button.v2.on{background:#2563EB}.ops button.v3.on{background:#EA580C}.ops button.v4.on{background:#DC2626}'+
+    '.com{border:1px solid #EEF0F3;border-radius:16px;padding:14px 12px 12px}'+
+    '.com textarea{border-color:#E5E7EB;background:#FAFAFB;min-height:96px;margin-top:2px}'+
+    '.cuenta{text-align:right;font-size:11.5px;color:#9CA3AF;margin-top:4px}'+
+    '.enviar{position:sticky;bottom:0;background:linear-gradient(rgba(255,255,255,0),#fff 30%);padding:14px 0 4px;margin-top:6px}'+
+    '.enviar button{margin:0;border-radius:14px;padding:15px;font-size:16px;box-shadow:0 10px 20px -10px rgba(10,15,30,.6)}'+
+    '.enviar small{display:block;text-align:center;color:#9CA3AF;font-size:12px;margin-top:8px}'+
+    '.ok{text-align:center;padding:10px 0 6px}.ok .chk{width:72px;height:72px;border-radius:50%;background:#DCFCE7;color:#16A34A;font-size:38px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;animation:pop .45s ease}'+
+    '@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}'+
+    '@media(max-width:360px){.ops button{font-size:10.5px}.ops button .em{font-size:22px}}'+
+    '</style>';
+  var caras = ['🤩','🙂','😐','😕','😞'];
+  var preguntas = PREGUNTAS_ENCUESTA_USADO_.map(function(q, qi){
+    var ya = prev[q.k] && OPCIONES_ENCUESTA_USADO_.indexOf(prev[q.k]) > -1;
+    return '<div class="q'+(ya?' hecha':'')+'" id="q_'+q.k+'"><div class="qt"><span class="qn">'+(qi+1)+'</span><span>'+esc(q.t)+'</span></div>'+
+      '<div class="ops'+(ya?' elegida':'')+'" data-k="'+q.k+'">'+
+      OPCIONES_ENCUESTA_USADO_.map(function(o, oi){
+        return '<button type="button" class="v'+oi+(prev[q.k]===o?' on':'')+'" data-v="'+esc(o)+'" aria-label="'+esc(o)+'"><span class="em">'+caras[oi]+'</span>'+esc(o)+'</button>';
+      }).join('')+
+      '</div></div>';
+  }).join('');
   return pagina('Gracias por tu respuesta',
     '<div class="top"><small>'+entidad.toUpperCase()+'</small><h1>¡Gracias por tu respuesta!</h1></div>'+
-    '<div class="card">'+notaHtml+'<p style="text-align:center;margin:0 0 14px;color:#6B7280">Guardamos tu calificación. Si te equivocaste, volvé al mail y tocá otro número.</p>'+
-    '<style>.q{margin:4px 0 16px}.q p{font-weight:bold;margin:0 0 8px;font-size:15px}.ops{display:flex;flex-wrap:wrap;gap:6px}'+
-      '.ops button{width:auto;margin:0;flex:1 1 auto;min-width:84px;background:#fff;color:#111827;border:1.5px solid #D1D5DB;border-radius:12px;padding:11px 8px;font-size:14px;font-weight:bold;cursor:pointer}'+
-      '.ops button.on{background:#0A0F1E;color:#fff;border-color:#0A0F1E}</style>'+
-    '<div id="formCom">'+
-      '<p style="text-align:center;font-weight:bold;margin:4px 0 14px;font-size:16px">Contanos un poco más (opcional)</p>'+
-      PREGUNTAS_ENCUESTA_USADO_.map(function(q){
-        return '<div class="q"><p>'+esc(q.t)+'</p><div class="ops" data-k="'+q.k+'">'+
-          OPCIONES_ENCUESTA_USADO_.map(function(o){ return '<button type="button" data-v="'+esc(o)+'" class="'+(prev[q.k]===o?'on':'')+'">'+esc(o)+'</button>'; }).join('')+
-        '</div></div>';
-      }).join('')+
-      '<div class="q"><p>¿Algo más que quieras contarnos?</p><textarea id="c" placeholder="Contanos qué te gustó o qué podemos mejorar…">'+esc(comentario)+'</textarea></div>'+
-      '<button id="b" type="button">Enviar mis respuestas</button><p id="err" style="color:#DC2626;display:none;margin-top:8px"></p></div>'+
-      '<div id="ok" style="display:none;text-align:center"><p style="font-size:18px;font-weight:bold;margin:8px 0 4px">¡Muchas gracias!</p><p style="color:#6B7280;margin:0">Recibimos tus respuestas. Nos ayudan mucho a mejorar.</p></div>'+
+    '<div class="card">'+css+
+      '<div class="res">'+notaHtml+'<div><b>'+etiquetaNota+'</b><span>Guardamos tu calificación. Si te equivocaste, volvé al mail y tocá otro número.</span></div></div>'+
+      '<div id="formCom">'+
+        '<div class="sec"><h2>Contanos un poco más</h2><small id="cuantas">Opcional · 30 segundos</small></div>'+
+        '<div class="prog">'+PREGUNTAS_ENCUESTA_USADO_.map(function(q){ return '<i data-k="'+q.k+'"'+(prev[q.k]?' class="on"':'')+'></i>'; }).join('')+'</div>'+
+        preguntas+
+        '<div class="com"><div class="qt"><span class="qn">'+(PREGUNTAS_ENCUESTA_USADO_.length+1)+'</span><span>¿Algo más que quieras contarnos?</span></div>'+
+          '<textarea id="c" maxlength="1000" placeholder="Lo que más te gustó, o lo que podemos mejorar…">'+esc(comentario)+'</textarea><div class="cuenta"><span id="cc">'+comentario.length+'</span>/1000</div></div>'+
+        '<div class="enviar"><button id="b" type="button">Enviar mis respuestas</button><small>Tus respuestas las lee el equipo de Calidad.</small><p id="err" style="color:#DC2626;display:none;margin:8px 0 0;text-align:center"></p></div>'+
+      '</div>'+
+      '<div id="ok" class="ok" style="display:none"><div class="chk">✓</div><p style="font-size:19px;font-weight:bold;margin:0 0 6px">¡Muchas gracias!</p><p style="color:#6B7280;margin:0">Recibimos tus respuestas. Nos ayudan muchísimo a mejorar.</p></div>'+
     '</div>'+
     '<script>(function(){var sel='+JSON.stringify({atencionAsesor:prev.atencionAsesor||'',gestionAdmin:prev.gestionAdmin||'',experienciaEntrega:prev.experienciaEntrega||''})+';'+
-      'Array.prototype.forEach.call(document.querySelectorAll(".ops"),function(g){Array.prototype.forEach.call(g.querySelectorAll("button"),function(bt){bt.onclick=function(){'+
-        'Array.prototype.forEach.call(g.querySelectorAll("button"),function(x){x.className="";});bt.className="on";sel[g.getAttribute("data-k")]=bt.getAttribute("data-v");};});});'+
-      'var b=document.getElementById("b");b.onclick=function(){var c=document.getElementById("c").value;b.disabled=true;b.textContent="Enviando…";'+
-      'google.script.run.withSuccessHandler(function(r){if(r&&r.ok){document.getElementById("formCom").style.display="none";document.getElementById("ok").style.display="block";}else{b.disabled=false;b.textContent="Enviar mis respuestas";var e=document.getElementById("err");e.textContent="No se pudo guardar. Probá de nuevo.";e.style.display="block";}})'+
+      'var total=document.querySelectorAll(".ops").length;'+
+      'function contar(){var n=0;for(var k in sel){if(sel[k])n++;}var c=document.getElementById("cuantas");c.textContent=n?(n+" de "+total+" respondidas"):"Opcional · 30 segundos";'+
+        'Array.prototype.forEach.call(document.querySelectorAll(".prog i"),function(i){i.className=sel[i.getAttribute("data-k")]?"on":"";});}'+
+      'var grupos=document.querySelectorAll(".ops");'+
+      'Array.prototype.forEach.call(grupos,function(g,gi){Array.prototype.forEach.call(g.querySelectorAll("button"),function(bt){bt.onclick=function(){'+
+        'var primera=!sel[g.getAttribute("data-k")];'+
+        'Array.prototype.forEach.call(g.querySelectorAll("button"),function(x){x.className=x.className.replace(/ ?on/g,"");});bt.className+=" on";g.className="ops elegida";'+
+        'g.parentNode.className="q hecha";sel[g.getAttribute("data-k")]=bt.getAttribute("data-v");contar();'+
+        'if(primera){var sig=grupos[gi+1]?grupos[gi+1].parentNode:document.querySelector(".com");setTimeout(function(){sig.scrollIntoView({behavior:"smooth",block:"center"});},220);}'+
+      '};});});'+
+      'var ta=document.getElementById("c");ta.oninput=function(){document.getElementById("cc").textContent=ta.value.length;};'+
+      'var b=document.getElementById("b");b.onclick=function(){var c=ta.value;b.disabled=true;b.textContent="Enviando…";'+
+      'google.script.run.withSuccessHandler(function(r){if(r&&r.ok){document.getElementById("formCom").style.display="none";document.getElementById("ok").style.display="block";window.scrollTo({top:0,behavior:"smooth"});}else{b.disabled=false;b.textContent="Enviar mis respuestas";var e=document.getElementById("err");e.textContent="No se pudo guardar. Probá de nuevo.";e.style.display="block";}})'+
       '.withFailureHandler(function(){b.disabled=false;b.textContent="Enviar mis respuestas";var e=document.getElementById("err");e.textContent="No se pudo guardar. Probá de nuevo.";e.style.display="block";})'+
-      '.guardarComentarioEncuestaUsado('+JSON.stringify(String(r.marca))+','+JSON.stringify(String(r.id))+','+JSON.stringify(String(p.t))+','+n+',c,JSON.stringify(sel));};})();</script>');
+      '.guardarComentarioEncuestaUsado('+JSON.stringify(String(r.marca))+','+JSON.stringify(String(r.id))+','+JSON.stringify(String(p.t))+','+n+',c,JSON.stringify(sel));};contar();})();</script>');
 }
 // Preguntas extra de la encuesta de usados (las mismas que la encuesta de 0km de GM)
 var PREGUNTAS_ENCUESTA_USADO_ = [
@@ -4307,7 +4355,7 @@ function bloqueAntesDeVenir_(r, config, direccion){
   if(r.tipoVenta && /plan/i.test(String(r.tipoVenta))) traer.push('El último cupón pago del plan');
   return '<div style="background:#f7f8fa;border-radius:10px;padding:14px 16px;margin:14px 0;text-align:center;">'+
     '<div style="font-size:13px;font-weight:bold;color:#333;margin-bottom:6px;">Antes de venir</div>'+
-    '<div>'+btn(maps,'📍 Cómo llegar')+btn(cal,'📅 Agregar a mi calendario')+btn(seg,'🔎 Seguir mi entrega')+'</div>'+
+    '<div>'+btn(maps,'📍 Cómo llegar')+btn(cal,'📅 Agregar a mi calendario')+'</div>'+
     '<div style="text-align:left;font-size:13px;color:#444;line-height:1.6;margin-top:10px;"><b>Qué traer:</b><br>• '+traer.join('<br>• ')+'</div>'+
     '</div>';
 }
