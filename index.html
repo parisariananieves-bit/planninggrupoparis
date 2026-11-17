@@ -8606,24 +8606,38 @@ function audExportarExcel_(){
   audCerrarExportar_();
   if(_audExp.alcance === 'sel') _audExp.alcance = 'vista';
 }
+// Texto para WhatsApp: sin emojis (algunas versiones de WhatsApp los cambian por "�")
+// y con una línea por dato y una línea en blanco entre unidades, para que se lea fácil.
 function audTextoListado_(){
   var filas = audFilasExport_(_audExp.alcance);
   var hoy = new Date();
   var col = AUD_COLS_.find(function(c){ return c.id===_aud.col; });
   var titulo = _audExp.alcance==='todas' ? 'Unidades pendientes' : (_audExp.alcance==='sel' ? 'Unidades seleccionadas' : (col ? col.t : 'Preparación'));
-  var txt = '*Preparación · '+titulo+'* ('+filas.length+')\n_'+fmtFechaHora_(('0'+hoy.getDate()).slice(-2)+'/'+('0'+(hoy.getMonth()+1)).slice(-2)+'/'+hoy.getFullYear(), '')+'_\n';
+  var dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  var fechaHoy = dias[hoy.getDay()]+' '+('0'+hoy.getDate()).slice(-2)+'/'+('0'+(hoy.getMonth()+1)).slice(-2);
+  var L = [];
+  L.push('*PREPARACIÓN — '+titulo.toUpperCase()+' ('+filas.length+')*');
+  L.push(fechaHoy);
   var etapaActual = '';
   filas.forEach(function(f, i){
-    if(_audExp.alcance==='todas' && f.estado !== etapaActual){ etapaActual = f.estado; txt += '\n*— '+etapaActual.toUpperCase()+' —*\n'; }
-    var vin = f.vin || 'sin VIN';
-    var donde = f.estaEn ? (f.seEntregaEn && f.estaEn!==f.seEntregaEn ? 'Está en '+f.estaEn+' → se entrega en '+f.seEntregaEn : 'Está en '+f.estaEn) : (f.seEntregaEn ? 'Se entrega en '+f.seEntregaEn+' (falta saber dónde está)' : 'Falta saber dónde está');
-    txt += '\n'+(i+1)+'. *'+(f.modelo||'Sin modelo')+'*'+(f.color?' · '+f.color:'')+'\n'+
-      '   VIN '+vin+(f.patente?' · '+f.patente:'')+'\n'+
-      '   👤 '+(f.cliente||'—')+(f.sucursalVenta?' · venta '+f.sucursalVenta:'')+'\n'+
-      '   📍 '+donde+'\n'+
-      '   📅 '+(f.fechaEntrega ? fmtFechaHora_(f.fechaEntrega, f.horaEntrega) : 'Sin fecha de entrega')+'\n';
+    if(_audExp.alcance!=='vista' && f.estado !== etapaActual){
+      etapaActual = f.estado;
+      L.push(''); L.push('━━━━━━━━━━━━'); L.push('*'+etapaActual.toUpperCase()+'*'); L.push('━━━━━━━━━━━━');
+    }
+    var donde;
+    if(f.estaEn && f.seEntregaEn && f.estaEn !== f.seEntregaEn) donde = 'Está en '+f.estaEn+' → hay que llevarla a '+f.seEntregaEn;
+    else if(f.estaEn) donde = 'Está en '+f.estaEn+(f.seEntregaEn ? ' (ya está donde se entrega)' : '');
+    else donde = 'Falta saber dónde está'+(f.seEntregaEn ? ' · se entrega en '+f.seEntregaEn : '');
+    L.push('');
+    L.push('*'+(i+1)+') '+(f.modelo||'Sin modelo')+'*');
+    if(f.color) L.push('Color: '+f.color);
+    L.push('VIN: '+(f.vin||'sin VIN')+(f.patente ? '   Patente: '+f.patente : ''));
+    L.push('Cliente: '+(f.cliente||'—'));
+    if(f.sucursalVenta) L.push('Vendida en: '+f.sucursalVenta);
+    L.push('Ubicación: '+donde);
+    L.push('Entrega: '+(f.fechaEntrega ? fmtFechaHora_(f.fechaEntrega, f.horaEntrega)+' hs' : 'sin fecha todavía'));
   });
-  return txt;
+  return L.join('\n');
 }
 function audExportarWhatsApp_(){
   var filas = audFilasExport_(_audExp.alcance);
