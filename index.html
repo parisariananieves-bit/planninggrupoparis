@@ -12009,7 +12009,7 @@ document.addEventListener('DOMContentLoaded', function(){
   poner('#dSinConfirmarBtn', 'preparacion2', 'Cómo funciona “Sin fecha confirmada”');
   poner('#dTrasladoBtn', 'traslado', 'Cómo marcar una unidad para traslado');
   poner('#dEntregaFallidaBtn', 'dia', 'Qué hacer si no se pudo entregar');
-  poner('#loginUI .login-libre', 'libre', 'Qué es el acceso libre');
+  // (sin "?" en el botón de Acceso libre)
   var lbl = function(inputId, slide, tip){ var el=document.getElementById(inputId); if(!el) return; var ff=el.closest('.form-field'); var l=ff&&ff.querySelector('label'); if(l && !l.querySelector('.ayuda-manual')) l.insertAdjacentHTML('beforeend', ayudaHTML_(slide, tip)); };
   lbl('nAccesoriosBuscador','acc1','Cómo cargar accesorios');
   lbl('nCampana','campanas','Cómo cargar una o varias campañas');
