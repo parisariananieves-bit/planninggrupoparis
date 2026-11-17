@@ -9336,12 +9336,26 @@ function pintarBodyContactoPosterior_(cache){
   var esUsadoCP = !!e.origen || (rDet && esUsadoVenta_(rDet));
   if(sub && esUsadoCP) sub.textContent = 'Encuesta por mail de usados — la nota y el comentario los carga el cliente.';
   if(esUsadoCP){
-    // Encuesta de usados: solo los datos que tiene esa encuesta (sin las preguntas de la encuesta 0 km)
+    // Encuesta de usados: la nota, las 3 preguntas de la página de la encuesta y los datos del cliente
+    var colUs = {'Excelente':['var(--ok)','🤩'], 'Muy buena':['#65A30D','🙂'], 'Buena':['#2563EB','😐'], 'Regular':['#EA580C','😕'], 'Mala':['var(--danger)','😞']};
+    var respUs = function(lbl, v){
+      var c = colUs[v];
+      return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--hairline);">'+
+        '<span style="font-size:13px;color:var(--text-dim);">'+lbl+'</span>'+
+        (c ? '<span style="display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:13px;color:#fff;background:'+c[0]+';border-radius:20px;padding:4px 11px 4px 8px;white-space:nowrap;"><span style="font-size:15px;">'+c[1]+'</span>'+v+'</span>'
+           : '<span style="font-size:12.5px;color:var(--text-faint);font-style:italic;white-space:nowrap;">Sin responder</span>')+
+      '</div>';
+    };
     body.innerHTML =
       bloqueNpsGrande_(e.recomienda, 'Respondida '+(e.fecha||''), e.comentario)+
+      '<div style="border:1px solid var(--hairline);border-radius:9px;padding:6px 14px 4px;margin-bottom:12px;">'+
+        '<div style="font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);padding:6px 0 2px;">Lo que contestó</div>'+
+        respUs('Atención del asesor de ventas', e.atencionAsesor)+
+        respUs('Gestión administrativa (papeles, transferencia, pagos)', e.gestionAdmin)+
+        respUs('Experiencia el día de la entrega', e.experienciaEntrega)+
+      '</div>'+
       '<div style="border:1px solid var(--hairline);border-radius:9px;padding:12px 14px;">'+
         fila('Origen', e.origen || 'Encuesta de usados')+fila('Fecha de respuesta', e.fecha)+fila('Nombre', e.nombre)+fila('Email', e.email)+fila('Patente / VIN', e.vinPatente)+
-        fila('Comentario', e.comentario ? '“'+String(e.comentario).replace(/</g,'&lt;')+'”' : 'Sin comentario')+
       '</div>';
     return;
   }
