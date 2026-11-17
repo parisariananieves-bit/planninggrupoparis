@@ -8539,7 +8539,9 @@ var _audExp = {alcance:'vista'};
 function audFilasExport_(alcance){
   var base = alcance === 'todas'
     ? (window._audTodas || []).filter(function(x){ return x.col!=='entregada' && x.col!=='caida'; })
-    : (window._audVisibles || []);
+    : alcance === 'sel'
+      ? (window._audTodas || []).filter(function(x){ return _aud.sel && _aud.sel[x.u.id]; })
+      : (window._audVisibles || []);
   var orden = {}; AUD_COLS_.forEach(function(c, i){ orden[c.id] = i; });
   base = base.slice().sort(function(a, b){
     if(alcance === 'todas' && orden[a.col] !== orden[b.col]) return orden[a.col] - orden[b.col];
@@ -8602,12 +8604,13 @@ function audExportarExcel_(){
   var hoy = new Date();
   XLSX.writeFile(libro, 'Preparacion_'+hoy.getFullYear()+('0'+(hoy.getMonth()+1)).slice(-2)+('0'+hoy.getDate()).slice(-2)+'.xlsx', {cellDates:true});
   audCerrarExportar_();
+  if(_audExp.alcance === 'sel') _audExp.alcance = 'vista';
 }
 function audTextoListado_(){
   var filas = audFilasExport_(_audExp.alcance);
   var hoy = new Date();
   var col = AUD_COLS_.find(function(c){ return c.id===_aud.col; });
-  var titulo = _audExp.alcance==='todas' ? 'Unidades pendientes' : (col ? col.t : 'Preparación');
+  var titulo = _audExp.alcance==='todas' ? 'Unidades pendientes' : (_audExp.alcance==='sel' ? 'Unidades seleccionadas' : (col ? col.t : 'Preparación'));
   var txt = '*Preparación · '+titulo+'* ('+filas.length+')\n_'+fmtFechaHora_(('0'+hoy.getDate()).slice(-2)+'/'+('0'+(hoy.getMonth()+1)).slice(-2)+'/'+hoy.getFullYear(), '')+'_\n';
   var etapaActual = '';
   filas.forEach(function(f, i){
@@ -8629,6 +8632,7 @@ function audExportarWhatsApp_(){
   if(txt.length > 6000) showToast('El listado es largo: si WhatsApp lo corta, usá "Copiar como texto" o el Excel');
   window.open('https://wa.me/?text='+encodeURIComponent(txt), '_blank', 'noopener');
   audCerrarExportar_();
+  if(_audExp.alcance === 'sel') _audExp.alcance = 'vista';
 }
 function audExportarCopiar_(){
   var filas = audFilasExport_(_audExp.alcance);
@@ -8884,8 +8888,10 @@ function audBarraSel_(){
   if(!n || currentAppView!=='auditoria'){ bar.classList.remove('show'); return; }
   bar.innerHTML = '<b>'+n+' seleccionada'+(n===1?'':'s')+'</b>'+
     '<button type="button" class="aud-btn ok" onclick="audMasivo_(\'entregada\')"><span class="material-symbols-outlined">task_alt</span>Ya se entregaron</button>'+
+    '<button type="button" class="aud-btn sec" onclick="_audExp.alcance=\'sel\';audExportarWhatsApp_()"><span class="material-symbols-outlined">chat</span>Enviar por WhatsApp</button>'+
+    '<button type="button" class="aud-btn sec" onclick="_audExp.alcance=\'sel\';audExportarExcel_()"><span class="material-symbols-outlined">table_view</span>Excel</button>'+
     '<button type="button" class="aud-btn sec" onclick="audMasivo_(\'descartar\')"><span class="material-symbols-outlined">delete_sweep</span>Descartar</button>'+
-    '<button type="button" class="aud-btn sec" onclick="audSelTodas_()">Elegir todas las de esta pestaña</button>'+
+    '<button type="button" class="aud-btn sec" onclick="audSelTodas_()" title="Elegir todas las de esta pestaña">Elegir todas</button>'+
     '<button type="button" class="aud-x" title="Cancelar" onclick="_aud.sel={};audBarraSel_();audRender_()"><span class="material-symbols-outlined">close</span></button>';
   bar.classList.add('show');
 }
