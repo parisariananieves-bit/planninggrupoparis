@@ -783,6 +783,10 @@ function rowToObj_(row, marca){
   obj.fecha = formatFecha_(obj.fecha);
   obj.hora = formatHora_(obj.hora);
   // Fechas de usado: Sheets las guarda como Date; se devuelven como "aaaa-mm-dd" para el <input type="date">.
+  // Fecha y hora (ej. "Última carga" del NPS de Fábrica): si Sheets la convirtió en fecha, se devuelve "dd/MM/yyyy HH:mm".
+  ['npsFabricaCargadoEn','entregadaFecha'].forEach(function(k){
+    if(obj[k] instanceof Date) obj[k] = Utilities.formatDate(obj[k], Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
+  });
   ['usFechaOferta','usFechaCarga','usFechaCompromiso'].forEach(function(k){
     if(obj[k] instanceof Date) obj[k] = Utilities.formatDate(obj[k], Session.getScriptTimeZone(), 'yyyy-MM-dd');
   });
@@ -864,7 +868,7 @@ function updateEntregaFields(marca, id, fields){
     for(var i=0;i<CAMPOS.length;i++){ if(CAMPOS[i].k===f){ idx=i; break; } }
     if(idx>-1){
       var val = fields[f];
-      if((f==='fecha'||f==='hora'||f==='garantiaFecha'||f==='npsFabricaFecha'||f==='entregadaFecha') && val) val = "'" + val; // mismo truco al editar
+      if((f==='fecha'||f==='hora'||f==='garantiaFecha'||f==='npsFabricaFecha'||f==='entregadaFecha'||f==='npsFabricaCargadoEn') && val) val = "'" + val; // mismo truco al editar
       if(val && typeof val==='object') val = JSON.stringify(val); // ej: trasladoChecklist
       sheet.getRange(rowIdx, idx+1).setValue(val);
     }
@@ -4009,7 +4013,7 @@ function bienvenidaTextos_(pl, marca){
 }
 
 // Mascota que encabeza la bienvenida (imagen pública en el sitio). Las marcas sin mascota usan solo el logo.
-var MASCOTA_BIENVENIDA = {chevrolet: URL_APP_ + 'assets/mail/chevy-postventa.png'};
+var MASCOTA_BIENVENIDA = {chevrolet: URL_APP_ + 'assets/mail/chevy-postventa.png', peugeot: URL_APP_ + 'assets/mail/peugeot-postventa.png', citroen: URL_APP_ + 'assets/mail/citroen-postventa.png'};
 function tituloCasoGs_(s){ return String(s||'').toLowerCase().replace(/(^|\s)\S/g, function(c){ return c.toUpperCase(); }); }
 function textosBienvenidaPara_(r){
   var todas = {}; try{ todas = getPlantillas() || {}; }catch(e){}

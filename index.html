@@ -9555,6 +9555,8 @@ function guardarNpsFabricaCampo_(campo, valor){
     renderHistorialUI(r);
   }
   renderAlertaNpsFabrica_(r);
+  // Actualiza ya mismo la "Última carga" del panel de NPS Fábrica
+  try{ var pf=document.getElementById('fabResumenArchivo'); if(pf && pf.offsetParent!==null) renderNpsFabricaPanel_(); }catch(e){}
 }
 function renderAlertaNpsFabrica_(r){
   var alerta = document.getElementById('dNpsFabricaAlerta');
@@ -15706,7 +15708,7 @@ function tplRenderVars_(){
   document.getElementById('tplVars').innerHTML = '<span>Insertar dato:</span>'+TPL_PH_.map(function(p){ return '<button type="button" class="cfg-var'+(p.b?' bl':'')+'" onclick="tplInsertarPh_(\''+p.k+'\')">'+p.t+'</button>'; }).join('');
 }
 // ---------- Bienvenida a Postventa ----------
-var MASCOTA_BIENVENIDA_ = {chevrolet:'assets/mail/chevy-postventa.png'};
+var MASCOTA_BIENVENIDA_ = {chevrolet:'assets/mail/chevy-postventa.png', peugeot:'assets/mail/peugeot-postventa.png', citroen:'assets/mail/citroen-postventa.png'};
 var TPL_B_VARS_ = [['{NombreCompleto}','Nombre del cliente'],['{Modelo}','Modelo'],['{Vendedor}','Vendedor'],['{Entidad}','Paris Cars / Autos / Motos'],['{Marca}','Marca']];
 function tplBCampos_(){ return {asunto:document.getElementById('tplBAsunto').value, titulo:document.getElementById('tplBTitulo').value, intro:document.getElementById('tplBIntro').value, cierre:document.getElementById('tplBCierre').value}; }
 function tplBCargar_(){
@@ -17869,6 +17871,7 @@ function guardarResumenArchivoFabrica_(canal, nombreArchivo, puntos){
 // comparar — para saber cuál de los dos canales se cargó más reciente.
 function fechaCargaAOrden_(str){
   if(!str) return 0;
+  if(/^\d{4}-\d{2}-\d{2}T/.test(String(str))){ var t = Date.parse(str); return isNaN(t) ? 0 : t; } // fecha guardada como Date en la planilla
   var m = String(str).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/);
   if(!m) return 0;
   return new Date(Number(m[3]), Number(m[2])-1, Number(m[1]), Number(m[4]||0), Number(m[5]||0)).getTime();
@@ -17995,6 +17998,7 @@ function pintarResumenArchivoFabrica_(respondidasPorCanal){
   (function(){
     var ult='', ultT=fechaCargaAOrden_(horaCalculoFab);
     ENTREGAS.forEach(function(x){ if(!x.npsFabricaCargadoEn || !pasaFiltroCanal_(x)) return; var t=fechaCargaAOrden_(x.npsFabricaCargadoEn); if(t>ultT){ ultT=t; ult=x.npsFabricaCargadoEn; } });
+    if(ult && /^\d{4}-\d{2}-\d{2}T/.test(String(ult))){ var d=new Date(ult); ult=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
     if(ult) horaCalculoFab = ult;
   })();
   cont.style.display = 'block';
