@@ -1938,16 +1938,18 @@
   #tvSingleWrap .tv3-pie::before,#tvSingleWrap .tv3-pie::after{content:'';position:absolute;top:0;bottom:0;width:30%;background:var(--tv-accent);}
   #tvSingleWrap .tv3-pie::before{left:0;clip-path:polygon(0 55%,100% 0,100% 10%,0 78%);}
   #tvSingleWrap .tv3-pie::after{right:0;clip-path:polygon(0 0,100% 55%,100% 78%,0 10%);}
-  #tvSingleWrap .tv3-frase{position:relative;z-index:1;display:flex;align-items:center;gap:clamp(10px,1.4cqw,26px);width:min(100%,860px);background:#0B1529;border:3px solid var(--tv-accent);border-radius:999px;padding:calc(var(--tvu)*1.1) clamp(10px,1.2cqw,20px);box-shadow:0 0 0 4px color-mix(in srgb, var(--tv-accent) 25%, transparent),0 0 32px color-mix(in srgb, var(--tv-accent) 55%, transparent);}
+  #tvSingleWrap .tv3-frase{position:relative;z-index:1;display:flex;align-items:center;gap:clamp(10px,1.4cqw,26px);padding-left:clamp(14px,2cqw,34px) !important;padding-right:clamp(14px,2cqw,34px) !important;width:min(100%,860px);background:#0B1529;border:3px solid var(--tv-accent);border-radius:999px;padding:calc(var(--tvu)*1.1) clamp(10px,1.2cqw,20px);box-shadow:0 0 0 4px color-mix(in srgb, var(--tv-accent) 25%, transparent),0 0 32px color-mix(in srgb, var(--tv-accent) 55%, transparent);}
   #tvSingleWrap .tv3-flecha{flex:none;width:clamp(30px,min(3cqw,calc(var(--tvu)*6)),54px);aspect-ratio:1;border-radius:50%;border:0;background:#FFFFFF;color:#0B1529;display:flex;align-items:center;justify-content:center;cursor:pointer;}
   #tvSingleWrap .tv3-flecha .material-symbols-outlined{font-size:1.5em;}
-  #tvSingleWrap .tv3-veh{flex:none;position:relative;color:#FFFFFF;padding:0 clamp(8px,1.2cqw,22px);border-left:1px solid rgba(255,255,255,.25);border-right:1px solid rgba(255,255,255,.25);}
+  #tvSingleWrap .tv3-veh{flex:none;position:relative;color:#FFFFFF;padding:0 clamp(12px,1.6cqw,28px) 0 clamp(4px,.6cqw,10px);border-right:1px solid rgba(255,255,255,.25);}
   #tvSingleWrap .tv3-veh .material-symbols-outlined{font-size:clamp(28px,min(3.4cqw,calc(var(--tvu)*6.4)),60px);}
   #tvSingleWrap .tv3-estrella{position:absolute;right:clamp(2px,.6cqw,12px);top:-4px;color:var(--tv-accent);font-style:normal;font-size:clamp(12px,1.2cqw,22px);}
-  #tvSingleWrap .tv3-frase-txt{flex:1;text-align:center;color:#FFFFFF;font-family:'Space Grotesk',sans-serif;font-style:italic;font-weight:700;font-size:clamp(15px,min(1.9cqw,calc(var(--tvu)*3.6)),36px);line-height:1.2;transition:opacity .35s ease;}
+  #tvSingleWrap .tv3-frase-txt{flex:1;text-align:center;padding-right:clamp(40px,5cqw,90px);color:#FFFFFF;font-family:'Space Grotesk',sans-serif;font-style:italic;font-weight:700;font-size:clamp(15px,min(1.9cqw,calc(var(--tvu)*3.6)),36px);line-height:1.2;transition:opacity .35s ease;}
   #tvSingleWrap .tv3-dots{position:relative;z-index:1;display:flex;gap:10px;}
   #tvSingleWrap .tv3-dots i{width:clamp(8px,.8cqw,14px);aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.45);}
-  #tvSingleWrap .tv3-dots i.on{background:var(--tv-accent);}
+  #tvSingleWrap .tv3-dots i.on{background:var(--tv-accent);width:clamp(26px,2.6cqw,46px);border-radius:999px;aspect-ratio:auto;height:clamp(8px,.8cqw,14px);}
+  #tvSingleWrap .tv3-dots i{transition:width .4s ease, background .4s ease;}
+  #tvSingleWrap .tv3-veh-der{border-left:1px solid rgba(255,255,255,.25);border-right:0;opacity:.55;transform:scaleX(-1);}
   @keyframes tv2Flota{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
   @media (prefers-reduced-motion: reduce){ #tvSingleWrap .tv3-img{animation:none;} }
   @media (max-width:760px){
@@ -6197,6 +6199,7 @@ function abrirModoTV(){
   ajustarEscalaTV_();
   window.addEventListener('resize', ajustarEscalaTV_);
   setTimeout(tvAjustarAlto_, 350); setTimeout(tvAjustarAlto_, 1200);
+  if(_tvFraseTimer) clearInterval(_tvFraseTimer); _tvFraseTimer = setInterval(tvRotarFrase_, 7000); // las frases cambian solas
   try{ if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){}); }catch(e){}
 }
 function cerrarModoTV(){
@@ -6283,8 +6286,8 @@ function tvPintarFrase_(){
   }, 350);
 }
 function tvRotarFrase_(paso){ tvFraseIdx += (typeof paso==='number' ? paso : 1); tvPintarFrase_(); }
-function tvFraseManual_(paso){ tvRotarFrase_(paso); if(_tvFraseTimer){ clearInterval(_tvFraseTimer); _tvFraseTimer = setInterval(tvRotarFrase_, 8000); } }
-if(!_tvFraseTimer) _tvFraseTimer = setInterval(tvRotarFrase_, 8000);
+function tvFraseManual_(paso){ tvRotarFrase_(paso); if(_tvFraseTimer){ clearInterval(_tvFraseTimer); } _tvFraseTimer = setInterval(tvRotarFrase_, 7000); }
+if(!_tvFraseTimer) _tvFraseTimer = setInterval(tvRotarFrase_, 7000);
 // ---- VIN visible u oculto (se guarda en esta pantalla) ----
 function tvOcultarVin_(){ try{ return localStorage.getItem('tvOcultarVin')==='1'; }catch(e){ return false; } }
 function toggleTvVin_(){ try{ localStorage.setItem('tvOcultarVin', tvOcultarVin_()?'0':'1'); }catch(e){} tvRenderSingleCard(); }
@@ -6348,10 +6351,8 @@ function tvRenderSingleCard(){
     '</div>'+
     '<div class="tv3-pie" style="--tv-accent:var('+b.color+')">'+
       '<div class="tv3-frase">'+
-        '<button type="button" class="tv3-flecha" onclick="tvFraseManual_(-1)" aria-label="Frase anterior"><span class="material-symbols-outlined">chevron_left</span></button>'+
         '<span class="tv3-veh"><span class="material-symbols-outlined">'+(esMoto?'two_wheeler':'directions_car')+'</span><i class="tv3-estrella">✦</i></span>'+
         '<span class="tv3-frase-txt" id="tvFraseTxt">'+cfgEsc_(frases[tvFraseIdx]).replace(/\n/g,'<br>')+'</span>'+
-        '<button type="button" class="tv3-flecha" onclick="tvFraseManual_(1)" aria-label="Frase siguiente"><span class="material-symbols-outlined">chevron_right</span></button>'+
       '</div>'+
       '<div class="tv3-dots">'+frases.map(function(_,i){ return '<i class="'+(i===tvFraseIdx?'on':'')+'"></i>'; }).join('')+'</div>'+
     '</div>';
