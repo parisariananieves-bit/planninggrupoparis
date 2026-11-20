@@ -244,6 +244,12 @@
   .stat-chip.ok .icon-badge{background:var(--ok-soft);color:var(--ok);} .stat-chip.warn .icon-badge{background:var(--warn-soft);color:var(--warn);}
   .stat-chip.pending .icon-badge{background:var(--pending-soft);color:var(--pending);} .stat-chip.danger .icon-badge{background:var(--danger-soft);color:var(--danger);}
   .stat-chip .n{font-family:'Space Grotesk',sans-serif;font-size:23px;font-weight:800;}
+  /* Tarjetas de Calidad: el ícono al costado del número, no arriba */
+  .stat-chip.chip-lado{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:14px;align-items:center;align-content:center;}
+  .stat-chip.chip-lado .icon-badge{grid-row:1 / span 3;grid-column:1;margin-bottom:0;width:44px;height:44px;border-radius:12px;align-self:center;}
+  .stat-chip.chip-lado .icon-badge .material-symbols-outlined{font-size:22px;}
+  .stat-chip.chip-lado .n,.stat-chip.chip-lado .l,.stat-chip.chip-lado .nps-chip-seg{grid-column:2;}
+  .stat-chip.chip-lado .n{line-height:1.1;}
   .stat-chip .l{font-size:10.5px;color:var(--text-dim);margin-top:3px;font-weight:600;}
   .stat-chip.ok .n{color:var(--ok);} .stat-chip.warn .n{color:var(--warn);} .stat-chip.pending .n{color:var(--pending);}
   .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
@@ -2599,6 +2605,11 @@
   .d-barra-accion[hidden]{display:none;}
   body.ficha-movil .d-barra-accion{margin-bottom:calc(-40px - env(safe-area-inset-bottom,0px));}
   /* ===== Tarjeta de NPS con promotores / neutrales / detractores ===== */
+  .nps-chip .nps-chip-ver{color:var(--accent);font-weight:700;white-space:nowrap;}
+  .nps-chip-seg{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px;}
+  .nps-mini{background:none;border:0;padding:0;font:inherit;font-size:11.5px;color:var(--text-dim);cursor:pointer;}
+  .nps-mini:hover{text-decoration:underline;}
+  .nps-mini b{font-weight:800;}
   .nps-card{grid-column:span 1;background:linear-gradient(160deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid var(--hairline);border-radius:14px;padding:14px 16px;cursor:pointer;transition:border-color .15s, box-shadow .15s;text-align:left;font:inherit;color:inherit;min-width:0;}
   .nps-card:hover{border-color:color-mix(in srgb, var(--accent) 55%, var(--hairline));box-shadow:0 8px 22px -14px rgba(0,0,0,.4);}
   @media(min-width:900px){ .costos-grid > .nps-card{grid-column:span 2;} }
@@ -17620,7 +17631,7 @@ function contactoPosteriorInfo_(r){
   try{ var d = JSON.parse(r.contactoPosteriorData); return (d && d.buscado && d.encontrado) ? d.respuesta : null; }catch(e){ return null; }
 }
 function statChipCalidad_(n, l, cls, icon){
-  return '<div class="stat-chip '+cls+'" style="min-width:130px;"><div class="icon-badge"><span class="material-symbols-outlined">'+icon+'</span></div><div class="n">'+n+'</div><div class="l">'+l+'</div></div>';
+  return '<div class="stat-chip chip-lado '+cls+'" style="min-width:130px;"><div class="icon-badge"><span class="material-symbols-outlined">'+icon+'</span></div><div class="n">'+n+'</div><div class="l">'+l+'</div></div>';
 }
 function poblarFiltroSucursalGenerico_(selectId){
   var sel = document.getElementById(selectId);
@@ -17948,6 +17959,20 @@ function coberturaEntrega_(r){
 // NPS — Contacto Posterior (su propia página)
 // ============================================================
 // ---- Tarjeta grande de NPS: número en %, barra y cuántos promotores / neutrales / detractores ----
+// Tarjeta de NPS con el mismo formato que las de Fábrica (ícono, número grande y título),
+// más el detalle de promotores / neutrales / detractores. Al tocarla se ven las respuestas.
+function npsChipCalidad_(conteo, nps, titulo, icon, onclickFn){
+  conteo = conteo || {promotores:0, pasivos:0, detractores:0, total:0};
+  var cls = nps===null ? 'pending' : (nps>=50 ? 'ok' : (nps>=0 ? 'warn' : 'danger'));
+  var numTxt = nps===null ? '—' : (Math.round(nps*10)/10).toString().replace('.',',')+'%';
+  var t = conteo.total || 0;
+  var seg = function(c, n, txt, k){ return '<button type="button" class="nps-mini" onclick="event.stopPropagation();'+onclickFn+'(\''+k+'\')" title="Ver '+txt+'"><b style="color:'+c+';">'+n+'</b> '+txt+'</button>'; };
+  return '<div class="stat-chip chip-lado '+cls+' nps-chip" style="min-width:130px;cursor:pointer;" role="button" tabindex="0" onclick="'+onclickFn+'(\'\')" title="Tocá para ver las respuestas">'+
+    '<div class="icon-badge"><span class="material-symbols-outlined">'+icon+'</span></div>'+
+    '<div class="n">'+numTxt+'</div><div class="l">'+titulo+(t ? ' <span class="nps-chip-ver">· Ver '+t+' respuesta'+(t===1?'':'s')+' ›</span>' : '')+'</div>'+
+    (t ? '<div class="nps-chip-seg">'+seg('var(--ok)',conteo.promotores,'promotores','p')+seg('var(--warn)',conteo.pasivos,'neutrales','n')+seg('var(--danger)',conteo.detractores,'detractores','d')+'</div>' : '')+
+  '</div>';
+}
 function npsTarjetaHTML_(conteo, nps, titulo, onclickFn){
   conteo = conteo || {promotores:0, pasivos:0, detractores:0, total:0};
   var t = conteo.total || 0;
@@ -18092,7 +18117,7 @@ function renderNpsContactoPosteriorPanel_(){
   });
   var pct = ventasTotalCp ? Math.round(respondidasTotalCp/ventasTotalCp*100) : 0;
   document.getElementById('cpResumen').innerHTML =
-    npsTarjetaHTML_(conteoCpResumen, nps, 'NPS Contacto Posterior', 'abrirRespuestasNpsCp_')+
+    npsChipCalidad_(conteoCpResumen, nps, 'NPS Contacto Posterior', 'forum', 'abrirRespuestasNpsCp_')+
     statChipCalidad_(respondidasTotalCp+' / '+ventasTotalCp, 'Respondidas', 'pending', 'fact_check')+
     statChipCalidad_(pct+'%', 'Tasa de respuesta', pct>=50?'ok':'warn', 'percent');
   window._cpConDato = conDato;
