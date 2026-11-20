@@ -9932,18 +9932,27 @@ function poblarSelectMarcaCaso_(){
 // cliente ya contó. Mismo corte de insatisfacción ("Detractor" ≤6, o el
 // umbral ≤8 que ya usaba el botón de NPS cuando hay comentario) que usa el
 // resto de la planilla. Devuelve null si no hay nada de qué sugerir.
+// Número válido tanto si Sheets lo devolvió como number (lo normal) como si
+// quedó guardado como texto (ej. "7", de una carga manual o un import) —
+// para no perder la sugerencia por una diferencia de tipo.
+function numeroEncuesta_(v){
+  if(v===''||v===null||v===undefined) return null;
+  var n = Number(v);
+  return isNaN(n) ? null : n;
+}
 function sugerenciaCasoDesdeEncuestas_(r){
   var partesMotivo = [], partesDescripcion = [];
-  if(typeof r.npsScore==='number' && r.npsScore<=8 && r.npsComentario){
-    partesMotivo.push('Insatisfacción en encuesta (NPS '+r.npsScore+'/10)');
-    partesDescripcion.push('Encuesta NPS ('+r.npsScore+'/10): "'+r.npsComentario+'"');
+  var nps = numeroEncuesta_(r.npsScore);
+  if(nps!==null && nps<=8){
+    partesMotivo.push('Insatisfacción en encuesta (NPS '+nps+'/10)');
+    partesDescripcion.push('Encuesta NPS ('+nps+'/10)'+(r.npsComentario?': "'+r.npsComentario+'"':' — sin comentario adicional del cliente.'));
   }
-  var compra = r.alertaTempranaSatisfaccionCompra, atencion = r.alertaTempranaSatisfaccionAtencion;
-  var atBaja = (typeof compra==='number' && compra<=6) || (typeof atencion==='number' && atencion<=6);
+  var compra = numeroEncuesta_(r.alertaTempranaSatisfaccionCompra), atencion = numeroEncuesta_(r.alertaTempranaSatisfaccionAtencion);
+  var atBaja = (compra!==null && compra<=6) || (atencion!==null && atencion<=6);
   if(atBaja){
     var detalle = [];
-    if(typeof compra==='number' && compra<=6) detalle.push('satisfacción compra/entrega '+compra+'/10');
-    if(typeof atencion==='number' && atencion<=6) detalle.push('satisfacción atención '+atencion+'/10');
+    if(compra!==null && compra<=6) detalle.push('satisfacción compra/entrega '+compra+'/10');
+    if(atencion!==null && atencion<=6) detalle.push('satisfacción atención '+atencion+'/10');
     partesMotivo.push('Alerta Temprana ('+detalle.join(' · ')+')');
     partesDescripcion.push('Alerta Temprana ('+detalle.join(' · ')+')'+(r.alertaTempranaComentario?': "'+r.alertaTempranaComentario+'"':' — sin comentario adicional.'));
   }
