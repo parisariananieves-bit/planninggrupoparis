@@ -9956,6 +9956,18 @@ function sugerenciaCasoDesdeEncuestas_(r){
     partesMotivo.push('Alerta Temprana ('+detalle.join(' · ')+')');
     partesDescripcion.push('Alerta Temprana ('+detalle.join(' · ')+')'+(r.alertaTempranaComentario?': "'+r.alertaTempranaComentario+'"':' — sin comentario adicional.'));
   }
+  // Contacto Posterior (encuesta pública cruzada por VIN/patente, guardada
+  // como JSON en r.contactoPosteriorData) — reusa el mismo parser que ya
+  // usa el resto de la planilla (contactoPosteriorInfo_), para no duplicar
+  // la lógica de lectura de ese campo.
+  var cp = (typeof contactoPosteriorInfo_==='function') ? contactoPosteriorInfo_(r) : null;
+  if(cp){
+    var cpScore = numeroEncuesta_(cp.recomienda);
+    if(cpScore!==null && cpScore<=8){
+      partesMotivo.push('Contacto Posterior (NPS '+cpScore+'/10)');
+      partesDescripcion.push('Encuesta de Contacto Posterior (NPS '+cpScore+'/10)'+(cp.comentario?': "'+cp.comentario+'"':' — sin comentario adicional del cliente.'));
+    }
+  }
   if(!partesMotivo.length) return null;
   return { motivo: partesMotivo.join(' + '), descripcion: partesDescripcion.join('\n') };
 }
