@@ -1107,6 +1107,21 @@
   .cfg-auto-sw{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text-dim);}
   .cfg-auto-body{padding:16px 18px !important;margin:0 !important;background:none !important;border:none !important;}
   .cfg-auto-body.apagado{opacity:.6;}
+  #cfgAutoCumple .cfg-auto-body.apagado{opacity:1;}
+  #cfgAutoCumple .cfg-auto-body.apagado #autoCumpleMarcas{opacity:.6;}
+  .cfg-cumple-sel{background:var(--panel-2);border:1px solid var(--hairline);border-radius:10px;padding:8px 10px;color:var(--text);font:inherit;font-size:13px;}
+  .cfg-cumple-lista{display:flex;flex-direction:column;gap:6px;margin-top:6px;max-height:340px;overflow:auto;}
+  .cfg-cumple-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--hairline);border-left:4px solid var(--b);border-radius:10px;background:var(--panel-2);}
+  .cfg-cumple-dia{font:700 14px 'Space Grotesk',sans-serif;min-width:44px;}
+  .cfg-cumple-q{flex:1;min-width:160px;display:flex;flex-direction:column;}
+  .cfg-cumple-q small{color:var(--text-dim);font-size:11.5px;word-break:break-all;}
+  .cfg-cumple-vacio{font-size:12.5px;color:var(--text-dim);padding:10px 0;}
+  .cumple-prev-ov{position:fixed;inset:0;background:rgba(10,12,18,.55);z-index:400;display:flex;align-items:center;justify-content:center;padding:16px;}
+  .cumple-prev-box{background:var(--panel);border-radius:16px;width:min(640px,100%);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 80px -20px rgba(0,0,0,.5);}
+  .cumple-prev-box header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--hairline);}
+  .cumple-prev-box header div{display:flex;flex-direction:column;min-width:0;}
+  .cumple-prev-box header small{color:var(--text-dim);font-size:12px;overflow:hidden;text-overflow:ellipsis;}
+  .cumple-prev-box iframe{border:0;width:100%;height:78vh;background:#f3f4f6;}
   .cfg-auto-body label{text-transform:none !important;letter-spacing:0 !important;font-size:12px !important;color:var(--text-dim) !important;}
   #paneMaestroAutomatizaciones .filter-pill input{display:none;}
   #paneMaestroAutomatizaciones .filter-pill{display:inline-flex;align-items:center;gap:6px;}
@@ -2925,6 +2940,7 @@
       <div class="form-field"><label>DNI / CUIT</label><input id="nDni" class="mono"></div>
       <div class="form-field"><label>Teléfono</label><input id="nTelefono"></div>
       <div class="form-field"><label>E-mail</label><input id="nEmail"></div>
+      <div class="form-field"><label>Fecha de nacimiento</label><input id="nFechaNac" type="date"></div>
       <div class="form-field full"><label>Modelo</label><input id="nModelo"></div>
       <div class="form-field"><label>Color</label><input id="nColor"></div>
       <div class="form-field"><label>Dominio</label><input id="nDominio" oninput="buscarEnPreparacion_(this.value);buscarDuplicadoProgramado_()"></div>
@@ -3744,6 +3760,12 @@
       <button class="save-btn" style="margin-top:10px;" onclick="guardarPostventaWhatsapp()">Guardar números de Postventa</button>
     </div>
 
+    <div class="maestro-block" data-cfg="recepventas">
+      <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">storefront</span>Recepción de Ventas por marca</div>
+      <div class="form-grid" id="recepcionVentasContainer"></div>
+      <button class="save-btn" style="margin-top:10px;" onclick="guardarRecepcionVentas()">Guardar números de Recepción de Ventas</button>
+    </div>
+
     <div class="maestro-block" data-cfg="repuestos">
       <div class="section-title" style="display:flex;align-items:center;gap:7px;"><span class="material-symbols-outlined" style="font-size:14px;color:var(--accent);">build</span>Repuestos por marca <span class="ayuda-tip" onclick="event.stopPropagation();toggleAyuda_(this)">?<span class="ayuda-tip-texto">Es solo el número de Repuestos de cada marca. Aparece en "Tus contactos" del mensaje y del mail de bienvenida que recibe el cliente al entregarle el vehículo.</span></span></div>
       <div class="form-grid" id="repuestosServicioContainer"></div>
@@ -4336,6 +4358,7 @@
         <div class="field"><div class="l">DNI / CUIT</div><input id="dDni" class="mono" onchange="guardarCampo('dni', this.value)"></div>
         <div class="field"><div class="l">Teléfono</div><input id="dTelefono" onchange="guardarCampo('telefono', this.value)"></div>
         <div class="field"><div class="l">E-mail</div><input id="dEmail" onchange="guardarCampo('email', this.value)"></div>
+        <div class="field"><div class="l">Fecha de nacimiento<span id="dCumpleEstado" style="text-transform:none;letter-spacing:0;font-weight:500;"></span></div><input id="dFechaNac" type="date" onchange="guardarCampo('fechaNacimiento', this.value)"></div>
         <div class="field"><div class="l">Tipo de venta</div><select id="dTipoVenta" onchange="guardarCampo('tipoVenta', this.value); (function(){ var r=ENTREGAS.find(function(x){return x.marca===detailMarca && x.id===detailId;}); if(r) renderUsadoUI_(r); })();"><option value="OKM">0KM</option><option value="USADO">Usado</option></select></div>
         <div class="field"><div class="l">Canal (encuestas y ranking)</div><select id="dCanalVenta" onchange="setCanalVentaDetalle_(this.value)"><option value="">Automático</option><option value="pda">Plan de Ahorro (PDA)</option><option value="directa">Directa / Tradicional</option></select><small id="dCanalVentaInfo" style="display:block;font-size:10.5px;color:var(--text-faint);margin-top:3px;"></small></div>
         <div class="field"><div class="l">Es usado (parte de pago)</div><select id="dUsado" onchange="guardarCampo('usado', this.value)"><option value="No">No</option><option value="Sí">Sí</option></select></div>
@@ -4840,6 +4863,7 @@
       <button class="tpl-tab" id="tabConf" onclick="setTplTab('confirmacion')">Confirmación de entrega</button>
       <button class="tpl-tab active" id="tabRec" onclick="setTplTab('recordatorio')">Recordatorio</button>
       <button class="tpl-tab" id="tabBienv" onclick="setTplTab('bienvenida')">Bienvenida a Postventa</button>
+      <button class="tpl-tab" id="tabCumple" onclick="setTplTab('cumpleanios')">Cumpleaños</button>
     </div>
     <div id="tplEdHtml">
       <div class="form-field full" style="margin-bottom:9px;"><label>Asunto</label><input id="tplAsunto"></div>
@@ -4865,10 +4889,10 @@
     <div id="tplEdBienv" style="display:none;">
       <div class="tpl-b-grid">
         <div class="tpl-b-form">
-          <div class="cfg-info" style="margin-bottom:12px;"><span class="material-symbols-outlined">waving_hand</span><span>El diseño ya está armado con el logo, la mascota y los números de <b>Postventa (WhatsApp)</b>, <b>Repuestos</b> y <b>Calidad</b> de Configuración. Acá solo cambiás los textos.</span></div>
+          <div class="cfg-info" id="tplBInfoCumple" style="margin-bottom:12px;display:none;"><span class="material-symbols-outlined">cake</span><span>El diseño ya está armado con la imagen de cumpleaños de la marca y el teléfono de <b>Recepción de Ventas</b> (se carga en Configuración). Acá solo editás los textos.</span></div><div class="cfg-info" id="tplBInfoBienv" style="margin-bottom:12px;"><span class="material-symbols-outlined">waving_hand</span><span>El diseño ya está armado con el logo, la mascota y los números de <b>Postventa (WhatsApp)</b>, <b>Repuestos</b> y <b>Calidad</b> de Configuración. Acá solo cambiás los textos.</span></div>
           <div class="form-field full"><label>Asunto</label><input id="tplBAsunto" oninput="tplBPreview_()"></div>
           <div class="form-field full"><label>Título</label><input id="tplBTitulo" oninput="tplBPreview_()"></div>
-          <div class="form-field full"><label>Texto de bienvenida</label><textarea id="tplBIntro" rows="5" oninput="tplBPreview_()"></textarea></div>
+          <div class="form-field full"><label id="tplBIntroLbl">Texto de bienvenida</label><textarea id="tplBIntro" rows="5" oninput="tplBPreview_()"></textarea></div>
           <div class="form-field full"><label>Cierre</label><input id="tplBCierre" oninput="tplBPreview_()"></div>
           <div class="tpl-vars" id="tplBVars"></div>
           <button type="button" class="cfg-link" onclick="tplBRestaurar_()">Volver al texto estándar</button>
@@ -12375,6 +12399,7 @@ function openDetailCore_(marca, id){
   document.getElementById('dDni').value=r.dni||'';
   document.getElementById('dTelefono').value=r.telefono||'';
   document.getElementById('dEmail').value=r.email||'';
+  var _fn=document.getElementById('dFechaNac'); if(_fn) _fn.value=fechaNacIso_(r); try{ renderEstadoCumple_(r); }catch(e){}
   document.getElementById('dTipoVenta').value=r.tipoVenta;
   document.getElementById('dUsado').value=r.usado;
   document.getElementById('dModelo').value=r.modelo||'';
@@ -12687,7 +12712,7 @@ function renderAlertaOnstar_(r){
     alertaOnstar.style.display = 'none';
   }
 }
-var ETIQUETAS_CAMPO_HIST_ = {cliente:'Cliente', dni:'DNI / CUIT', telefono:'Teléfono', email:'E-mail', modelo:'Modelo', color:'Color', dominio:'Dominio', chasis:'VIN',
+var ETIQUETAS_CAMPO_HIST_ = {fechaNacimiento:'Fecha de nacimiento', cliente:'Cliente', dni:'DNI / CUIT', telefono:'Teléfono', email:'E-mail', modelo:'Modelo', color:'Color', dominio:'Dominio', chasis:'VIN',
   observaciones:'Observaciones', vendedor:'Vendedor', administrativo:'Administrativo', responsableEntrega:'Responsable de entrega', tipoVenta:'Tipo de venta', lugar:'Lugar de entrega',
   usado:'Entrega usado', duracionMinutos:'Duración', onstar:'OnStar', npsFabricaComentario:'Comentario NPS de Fábrica',
   usFechaOferta:'Usado · Fecha de oferta', usFechaCompromiso:'Usado · Compromiso de taller', usSinGarantia:'Usado · Sin garantía', usCompServicio:'Usado · Comprobantes de servicio',
@@ -13694,7 +13719,7 @@ function openNewDelivery(){
   document.getElementById('nTipoVenta').value='OKM';
   document.getElementById('nUsado').value='No';
   actualizarSucursalYContextoNuevaEntrega_(brand);
-  ['nCliente','nDni','nTelefono','nEmail','nModelo','nColor','nDominio','nChasis','nObservaciones','nResponsablePreparacion'].forEach(function(id){document.getElementById(id).value='';});
+  ['nCliente','nDni','nTelefono','nEmail','nFechaNac','nModelo','nColor','nDominio','nChasis','nObservaciones','nResponsablePreparacion'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('nResponsablePreparacionWrap').style.display='none';
   window._nuevaEntregaAccesorios = [];
   renderNAccesoriosLista_();
@@ -14011,6 +14036,7 @@ function submitNewDelivery(){
     fecha:fecha, hora:horaVal, sucursal: sucursalElegida, tipoVenta:tipoVenta, cliente:cliente.toUpperCase(),
     dni:document.getElementById('nDni').value.trim(),
     telefono:document.getElementById('nTelefono').value.trim(), email:document.getElementById('nEmail').value.trim(),
+    fechaNacimiento:(document.getElementById('nFechaNac')||{}).value||'',
     modelo:modelo, color:document.getElementById('nColor').value.trim(), dominio:dominio.toUpperCase(),
     chasis:document.getElementById('nChasis').value.trim()||'—',
     duracionMinutos: Number(document.getElementById('nDuracion').value) || 60,
@@ -14440,6 +14466,7 @@ function openConfig(){
     Object.keys(nom).forEach(function(c){ var el = document.getElementById('cfgResena_'+c); if(el) el.value = rg[nom[c]] || ''; }); })();
   renderPostventaWhatsappInputs_();
   renderRepuestosServicioInputs_();
+  try{ renderRecepcionVentasInputs_(); }catch(e){}
   document.getElementById('cfgAccesoLibrePassword').value = CONFIG.accesoLibrePassword || '';
   var requierePass = !!CONFIG.accesoLibrePassword;
   document.getElementById('cfgAccesoLibreRequierePassword').checked = requierePass;
@@ -14484,6 +14511,7 @@ var CFG_SECC_ = [
   {id:'fechas', g:'agenda', ic:'event_busy', t:'Fechas bloqueadas', d:'Feriados, inventarios o capacitaciones en un día puntual.', kw:'feriado inventario capacitacion fecha bloqueada'},
   {id:'contacto', g:'sucursales', ic:'location_on', t:'Direcciones y contacto', d:'Dirección por marca y sucursal, teléfono, copia de mails, duración y acceso libre.', kw:'direccion telefono copia duracion minutos acceso libre contraseña'},
   {id:'whatsapp', g:'comunicaciones', ic:'chat', t:'Postventa (WhatsApp)', d:'El número de Postventa de cada marca: el cliente lo guarda y escribe por WhatsApp.', kw:'whatsapp postventa bienvenida numero turnos service'},
+  {id:'recepventas', g:'comunicaciones', ic:'storefront', t:'Recepción de Ventas', d:'El teléfono de Recepción de Ventas de cada marca, que va en el saludo de cumpleaños.', kw:'recepcion ventas telefono numero cumpleaños saludo'},
   {id:'alertacamp', g:'comunicaciones', ic:'campaign', t:'Campañas pendientes', d:'A quién avisar 24 hs antes si la campaña no se definió o todavía no se controló.', kw:'alerta aviso campaña campañas mail email'},
   {id:'repuestos', g:'repuestos', ic:'build', t:'Repuestos', d:'El teléfono de Repuestos de cada marca, que va en el mensaje de bienvenida.', kw:'repuestos telefono numero bienvenida'},
   {id:'alertaacc', g:'accesorios', ic:'inventory_2', t:'Accesorios pendientes', d:'A quién avisar 24 hs antes si todavía falta colocar un accesorio.', kw:'alerta aviso accesorio accesorios mail email'}
@@ -14608,6 +14636,19 @@ function cfgMejorarAutomatizaciones_(){
       '<div style="display:flex;gap:8px;flex-wrap:wrap;"><button type="button" class="cfg-btn" onclick="setMaestroTab(\'plantillas\')"><span class="material-symbols-outlined">edit</span>Editar el texto del mail</button>'+
       '<span style="font-size:12px;color:var(--text-dim);align-self:center;">También se puede mandar a mano desde el detalle de la entrega → Bienvenida.</span></div></div>';
     wrap.appendChild(cardB);
+    // Saludo de cumpleaños por mail
+    var cardC = document.createElement('section'); cardC.className='cfg-auto-card'; cardC.id='cfgAutoCumple';
+    cardC.style.setProperty('--g','var(--peugeot)'); cardC.style.setProperty('--gs','var(--peugeot-soft)');
+    cardC.innerHTML = '<header class="cfg-auto-h"><span class="cfg-ic material-symbols-outlined">cake</span><div><h3>Saludo de cumpleaños por mail</h3><p>El día del cumpleaños, desde las 9 de la mañana, le llega al cliente un saludo con la imagen de la mascota de su marca y el teléfono de <b>Recepción de Ventas</b>. Una sola vez por año y por email, y solo si tiene la fecha de nacimiento cargada.</p></div><span class="cfg-auto-st"></span>'+
+      '<label class="cfg-auto-sw"><span class="cfg-auto-sw-t"></span><span class="switch"><input type="checkbox" id="autoCumpleActivo" onchange="cfgCumpleAuto_()"><span class="switch-slider"></span></span></label></header>'+
+      '<div class="cfg-auto-body section"><label>Marcas en las que se envía</label><div class="filter-bar" id="autoCumpleMarcas" style="margin:6px 0 14px;"></div>'+
+      '<label>Antes de activarlo, mirá cómo queda</label><div style="display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 16px;align-items:center;"><select id="autoCumplePrevMarca" class="cfg-cumple-sel"></select>'+
+      '<button type="button" class="cfg-btn" onclick="verCumplePreview_(document.getElementById(\'autoCumplePrevMarca\').value)"><span class="material-symbols-outlined">visibility</span>Ver cómo queda</button>'+
+      '<button type="button" class="cfg-btn" onclick="enviarCumplePrueba_()"><span class="material-symbols-outlined">forward_to_inbox</span>Mandarme una prueba</button>'+
+      '<button type="button" class="cfg-btn" onclick="openPlantillas(document.getElementById(\'autoCumplePrevMarca\').value,\'cumpleanios\')"><span class="material-symbols-outlined">edit</span>Editar el texto</button>'+
+      '<button type="button" class="cfg-btn" onclick="cfgAbrir_(\'recepventas\')"><span class="material-symbols-outlined">call</span>Teléfonos de Recepción</button></div>'+
+      '<label>Próximos cumpleaños (30 días)</label><div id="autoCumpleLista" class="cfg-cumple-lista"></div></div>';
+    wrap.appendChild(cardC);
     // Seguimiento para el cliente (link "Mi entrega") — se prende y apaga desde acá
     var cardS = document.createElement('section'); cardS.className='cfg-auto-card'; cardS.id='cfgAutoSeg';
     cardS.style.setProperty('--g','var(--accent)'); cardS.style.setProperty('--gs','var(--accent-soft)');
@@ -14654,6 +14695,7 @@ function cfgMejorarAutomatizaciones_(){
     pane.querySelectorAll('.cfg-auto-body label').forEach(function(l){ var t=l.textContent; if(/^Marcas en las que aparece/i.test(t)) l.textContent='Marcas en las que aparece el botón'; if(/^Marcas habilitadas/i.test(t)) l.textContent='Marcas en las que se envía'; if(/^Link de la encuesta/i.test(t)) l.textContent='Link de la encuesta de cada marca (Google Forms, Typeform…)'; if(/^Horas después/i.test(t)) l.textContent='Se envía a las … horas de la entrega'; if(/^Máx\. reintentos/i.test(t)) l.textContent='Reintentos si falla el envío'; });
   }
   cfgBienvPintar_();
+  try{ cfgCumplePintar_(); }catch(e){}
   cfgAutoEstados_(); cfgWaPreview_(); cfgAsuntoPreview_();
 }
 function cfgBienvPintar_(){
@@ -14719,13 +14761,17 @@ function cfgAutoEstados_(){
   var bb = document.querySelector('#cfgAutoBienv .cfg-auto-body'); if(bb) bb.classList.toggle('apagado', !cb.activo);
   var t = document.querySelector('#cfgAutoEm .cfg-auto-sw-t'); if(t) t.textContent = on ? 'Envío automático encendido' : 'Envío automático apagado';
   var body = document.querySelector('#cfgAutoEm .cfg-auto-body'); if(body) body.classList.toggle('apagado', !on);
+  var cc = cumpleAutoConfig_(), nc = (cc.marcas||[]).length, totC = BRANDS.filter(function(b){ return b.id!=='usados'; }).length;
+  pinta('#cfgAutoCumple .cfg-auto-st', cc.activo ? (nc>=totC?'Activo en todas':'Activo en '+nc+' de '+totC+' marcas') : 'Apagado', cc.activo?(nc>=totC?'on':'parcial'):'off');
+  var tcu = document.querySelector('#cfgAutoCumple .cfg-auto-sw-t'); if(tcu) tcu.textContent = cc.activo ? 'Envío automático encendido' : 'Envío automático apagado';
+  var bcu = document.querySelector('#cfgAutoCumple .cfg-auto-body'); if(bcu) bcu.classList.toggle('apagado', !cc.activo);
   var segOn = seguimientoClienteActivo_(), cs = document.getElementById('autoSegActivo'); if(cs) cs.checked = segOn;
   pinta('#cfgAutoSeg .cfg-auto-st', segOn ? 'Activo' : 'Apagado', segOn ? 'on' : 'off');
   var tsg = document.querySelector('#cfgAutoSeg .cfg-auto-sw-t'); if(tsg) tsg.textContent = segOn ? 'Encendido' : 'Apagado';
 }
 
 // ---------- Plantillas ----------
-var CFG_TPL_TIPOS_ = [{id:'confirmacion', t:'Confirmación de entrega', d:'Se manda al confirmar día y hora.', ic:'event_available'},{id:'recordatorio', t:'Recordatorio', d:'Se manda el día antes de la entrega.', ic:'notifications'},{id:'bienvenida', t:'Bienvenida a Postventa', d:'Al entregar: números de taller, repuestos y calidad.', ic:'waving_hand'}];
+var CFG_TPL_TIPOS_ = [{id:'confirmacion', t:'Confirmación de entrega', d:'Se manda al confirmar día y hora.', ic:'event_available'},{id:'recordatorio', t:'Recordatorio', d:'Se manda el día antes de la entrega.', ic:'notifications'},{id:'bienvenida', t:'Bienvenida a Postventa', d:'Al entregar: números de taller, repuestos y calidad.', ic:'waving_hand'},{id:'cumpleanios', t:'Saludo de cumpleaños', d:'El día del cumpleaños: saludo con la mascota y Recepción de Ventas.', ic:'cake'}];
 function cfgRenderPlantillasLanding_(){
   var cont = document.getElementById('tplLanding'); if(!cont) return;
   var pinta = function(pl){
@@ -14733,7 +14779,7 @@ function cfgRenderPlantillasLanding_(){
       return '<section class="tpl-marca" style="--b:var('+b.color+');--bs:var('+b.soft+');"><header><span class="cfg-mlogo"><img src="'+b.logo+'" alt="" onerror="this.remove()"></span><h3>'+b.label+'</h3></header>'+
         CFG_TPL_TIPOS_.map(function(tp){
           var x = pl && pl[b.id] && pl[b.id][tp.id];
-          return '<button type="button" class="tpl-item" onclick="openPlantillas(\''+b.id+'\',\''+tp.id+'\')"><span class="material-symbols-outlined">'+tp.ic+'</span><span class="tpl-item-t"><b>'+tp.t+'</b><small>'+(x && x.asunto && tp.id!=='bienvenida' ? cfgEsc_(String(x.asunto).slice(0,70)) : tp.d)+'</small></span><span class="cfg-pill '+(x?'on':'off')+'">'+(tp.id==='bienvenida' ? (x?'Personalizada':'Texto estándar') : (x?'Propia':(b.id==='peugeot'?'Sin cargar':'Usa la de Peugeot')))+'</span><span class="material-symbols-outlined cfg-card-go">chevron_right</span></button>';
+          return '<button type="button" class="tpl-item" onclick="openPlantillas(\''+b.id+'\',\''+tp.id+'\')"><span class="material-symbols-outlined">'+tp.ic+'</span><span class="tpl-item-t"><b>'+tp.t+'</b><small>'+(x && x.asunto && tp.id!=='bienvenida' && tp.id!=='cumpleanios' ? cfgEsc_(String(x.asunto).slice(0,70)) : tp.d)+'</small></span><span class="cfg-pill '+(x?'on':'off')+'">'+((tp.id==='bienvenida'||tp.id==='cumpleanios') ? (x?'Personalizada':'Texto estándar') : (x?'Propia':(b.id==='peugeot'?'Sin cargar':'Usa la de Peugeot')))+'</span><span class="material-symbols-outlined cfg-card-go">chevron_right</span></button>';
         }).join('')+'</section>';
     }).join('');
   };
@@ -14971,8 +15017,8 @@ function cfgEstado_(id){
       var act = CONFIG.modulosActivos||{}, off=[];
       document.querySelectorAll('#cfgModulosRow input').forEach(function(c){ if(act[c.value]===false){ var l=c.closest('[data-nombre]'); off.push(l?l.getAttribute('data-nombre'):c.value); } });
       return {txt: (CFG_MODULOS_TOTAL_-off.length)+' de '+CFG_MODULOS_TOTAL_+' encendidos', est: off.length?'off':'ok', nota: off.length ? 'Apagado: '+off.join(', ') : '', notaNeutra:true};
-    case 'whatsapp': case 'repuestos': case 'alertaacc': case 'alertacamp':
-      var obj = {whatsapp:CONFIG.postventaWhatsapp, repuestos:CONFIG.repuestosServicio, alertaacc:CONFIG.alertaAccesoriosEmails, alertacamp:CONFIG.alertaCampanasEmails}[id];
+    case 'whatsapp': case 'repuestos': case 'alertaacc': case 'alertacamp': case 'recepventas':
+      var obj = {whatsapp:CONFIG.postventaWhatsapp, repuestos:CONFIG.repuestosServicio, recepventas:CONFIG.recepcionVentas, alertaacc:CONFIG.alertaAccesoriosEmails, alertacamp:CONFIG.alertaCampanasEmails}[id];
       n = porMarca(obj);
       return {txt: n+' de '+BRANDS.length+' marcas cargadas', est: n===BRANDS.length?'ok':(n?'warn':'warn'), nota: ''};
   }
@@ -15615,6 +15661,7 @@ function setTplTab(tipo){
   document.getElementById('tabRec').classList.toggle('active', tipo==='recordatorio');
   document.getElementById('tabConf').classList.toggle('active', tipo==='confirmacion');
   document.getElementById('tabBienv').classList.toggle('active', tipo==='bienvenida');
+  document.getElementById('tabCumple').classList.toggle('active', tipo==='cumpleanios');
   cargarCamposPlantilla_();
 }
 // ---------- Editor de plantillas sin código ----------
@@ -15625,7 +15672,7 @@ var TPL_PH_ = [
   {k:'vendedor',t:'Vendedor'},{k:'administrativo',t:'Administrativo'},{k:'flotaTexto',t:'N° de flota'},{k:'telefono_contacto',t:'Teléfono de contacto'},
   {k:'duracion',t:'Duración'},{k:'appBlock',t:'Bloque: app de la marca',b:1},{k:'usadoBlock',t:'Bloque: accesorios / usado',b:1},{k:'logoBlock',t:'Logo de la marca',b:1}
 ];
-var TPL_COLOR_ = {chevrolet:['#E8A33D','#1a1a1a'], peugeot:['#3E67CE','#ffffff'], citroen:['#D6304A','#ffffff'], honda:['#E4002B','#ffffff'], dfsk:['#2FA891','#ffffff'], usados:['#8E5FD6','#ffffff']};
+var TPL_COLOR_ = {chevrolet:['#F2B705','#1a1a1a'], peugeot:['#0072CE','#ffffff'], citroen:['#DA291C','#ffffff'], honda:['#E4002B','#ffffff'], dfsk:['#2FA891','#ffffff'], usados:['#8E5FD6','#ffffff']};
 function tplEtiqPh_(k){ var x = TPL_PH_.find(function(p){ return p.k===k; }); return x ? x.t : k; }
 function tplMuestra_(k){
   var b = BRANDS.find(function(x){ return x.id===tplMarcaActual; }) || {label:''};
@@ -15712,7 +15759,10 @@ var MASCOTA_BIENVENIDA_ = {chevrolet:'assets/mail/chevy-postventa.png', peugeot:
 var TPL_B_VARS_ = [['{NombreCompleto}','Nombre del cliente'],['{Modelo}','Modelo'],['{Vendedor}','Vendedor'],['{Entidad}','Paris Cars / Autos / Motos'],['{Marca}','Marca']];
 function tplBCampos_(){ return {asunto:document.getElementById('tplBAsunto').value, titulo:document.getElementById('tplBTitulo').value, intro:document.getElementById('tplBIntro').value, cierre:document.getElementById('tplBCierre').value}; }
 function tplBCargar_(){
-  var t = bienvenidaTextos_(PLANTILLAS[tplMarcaActual] && PLANTILLAS[tplMarcaActual].bienvenida, tplMarcaActual);
+  var esC = tplTabActual==='cumpleanios';
+  var t = esC ? cumpleCamposDe_(tplMarcaActual) : bienvenidaTextos_(PLANTILLAS[tplMarcaActual] && PLANTILLAS[tplMarcaActual].bienvenida, tplMarcaActual);
+  var lb = document.getElementById('tplBIntroLbl'); if(lb) lb.textContent = esC ? 'Texto del saludo' : 'Texto de bienvenida';
+  var inf = document.getElementById('tplBInfoBienv'), infC = document.getElementById('tplBInfoCumple'); if(inf) inf.style.display = esC ? 'none' : ''; if(infC) infC.style.display = esC ? '' : 'none';
   document.getElementById('tplBAsunto').value = t.asunto; document.getElementById('tplBTitulo').value = t.titulo;
   document.getElementById('tplBIntro').value = t.intro; document.getElementById('tplBCierre').value = t.cierre;
   document.getElementById('tplBVars').innerHTML = '<span>Tocá un dato para sumarlo donde está el cursor:</span>'+TPL_B_VARS_.map(function(v){ return '<button type="button" class="cfg-var" onmousedown="event.preventDefault()" onclick="tplBInsertar_(\''+v[0]+'\')" title="'+v[1]+'">'+v[1]+'</button>'; }).join('');
@@ -15723,7 +15773,7 @@ function tplBInsertar_(v){
   var el = document.getElementById(window._tplBUltimo || 'tplBIntro'), a = el.selectionStart==null ? el.value.length : el.selectionStart, b = el.selectionEnd==null ? a : el.selectionEnd;
   el.value = el.value.slice(0,a)+v+el.value.slice(b); el.focus(); el.selectionStart = el.selectionEnd = a+v.length; _tplSucio_ = true; tplBPreview_();
 }
-function tplBRestaurar_(){ var d = bienvenidaDefault_(tplMarcaActual); document.getElementById('tplBAsunto').value=d.asunto; document.getElementById('tplBTitulo').value=d.titulo; document.getElementById('tplBIntro').value=d.intro; document.getElementById('tplBCierre').value=d.cierre; _tplSucio_ = true; tplBPreview_(); }
+function tplBRestaurar_(){ var d = tplTabActual==='cumpleanios' ? (function(x){ return {asunto:x.asunto, titulo:x.titulo, intro:x.texto, cierre:x.cierre}; })(cumpleDefault_(tplMarcaActual)) : bienvenidaDefault_(tplMarcaActual); document.getElementById('tplBAsunto').value=d.asunto; document.getElementById('tplBTitulo').value=d.titulo; document.getElementById('tplBIntro').value=d.intro; document.getElementById('tplBCierre').value=d.cierre; _tplSucio_ = true; tplBPreview_(); }
 function tituloCaso_(s){ return String(s||'').toLowerCase().replace(/(^|\s)\S/g, function(c){ return c.toUpperCase(); }); }
 function bienvenidaHtmlWeb_(marca, campos, r){
   var b = BRANDS.find(function(x){ return x.id===marca; }) || {label:marca};
@@ -15738,7 +15788,7 @@ function bienvenidaHtmlWeb_(marca, campos, r){
 }
 function tplBPreview_(){
   debounce_('tplB', function(){
-    var m = bienvenidaHtmlWeb_(tplMarcaActual, tplBCampos_(), {cliente:'LÓPEZ MARTINA', modelo:'Tracker LTZ', vendedor:'Juan Pérez', _fichaUrl:'#'});
+    var m = (tplTabActual==='cumpleanios' ? cumpleHtmlWeb_ : bienvenidaHtmlWeb_)(tplMarcaActual, tplBCampos_(), {cliente:'LÓPEZ MARTINA', modelo:'Tracker LTZ', vendedor:'Juan Pérez', _fichaUrl:'#'});
     document.getElementById('tplBAsuntoPrev').innerHTML = '<span class="material-symbols-outlined">mail</span><b>'+cfgEsc_(m.asunto)+'</b>';
     var fr = document.getElementById('tplBFrame');
     fr.onload = function(){ try{ fr.style.height = Math.min(Math.max(fr.contentDocument.documentElement.scrollHeight, 400), 900)+'px'; }catch(e){} };
@@ -15747,7 +15797,7 @@ function tplBPreview_(){
 }
 function cargarCamposPlantilla_(){
   _tplSucio_ = false;
-  var esB = tplTabActual==='bienvenida';
+  var esB = tplTabActual==='bienvenida' || tplTabActual==='cumpleanios';
   document.getElementById('tplEdHtml').style.display = esB ? 'none' : '';
   document.getElementById('tplEdBienv').style.display = esB ? '' : 'none';
   if(esB){ tplBCargar_(); return; }
@@ -15760,7 +15810,7 @@ function cargarCamposPlantilla_(){
 }
 function guardarPlantillaUI(){
   var asunto, cuerpo, tipo = tplTabActual, marca = tplMarcaActual;
-  if(tipo==='bienvenida'){
+  if(tipo==='bienvenida' || tipo==='cumpleanios'){
     var c = tplBCampos_(); asunto = c.asunto; cuerpo = JSON.stringify({titulo:c.titulo, intro:c.intro, cierre:c.cierre});
   } else {
     tplSincronizar_();
@@ -15770,7 +15820,7 @@ function guardarPlantillaUI(){
     if(!PLANTILLAS[marca]) PLANTILLAS[marca]={};
     PLANTILLAS[marca][tipo]={asunto:asunto,cuerpo:cuerpo};
     _tplSucio_ = false;
-    var nom = {recordatorio:'recordatorio', confirmacion:'confirmación', bienvenida:'bienvenida a Postventa'}[tipo];
+    var nom = {recordatorio:'recordatorio', confirmacion:'confirmación', bienvenida:'bienvenida a Postventa', cumpleanios:'saludo de cumpleaños'}[tipo];
     showToast('Plantilla de '+BRANDS.find(function(b){return b.id===marca;}).label+' ('+nom+') guardada');
     if(typeof registrarCambioConfig_==='function'){ registrarCambioConfig_('Editó la plantilla de '+nom+' de '+BRANDS.find(function(b){return b.id===marca;}).label); }
     if(maestroTabActual==='plantillas') cfgRenderPlantillasLanding_();
@@ -15831,6 +15881,197 @@ function armarBienvenidaHtml_(d){
   '</div>';
 }
 // Textos por defecto (si la marca no tiene plantilla de bienvenida propia)
+// ===== Mail de FELIZ CUMPLEAÑOS (mismo diseño en la web y en Apps Script) =====
+// d = {marcaTxt, entidad, color, imagenUrl, titulo, texto, cierre, recepcion, sitio}
+function armarCumpleHtml_(d){
+  var e = function(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var p = function(x){ return e(x).replace(/\n/g,'<br>'); };
+  var tel = String(d.recepcion||'').replace(/[^0-9+]/g,''), wa = String(d.recepcion||'').replace(/[^0-9]/g,'');
+  var col = d.color || '#1D2330';
+  var link = wa ? 'https://wa.me/'+wa : (d.sitio||'#');
+  var botones = (wa ? '<a href="https://wa.me/'+wa+'" style="display:inline-block;background:#16a34a;color:#ffffff;text-decoration:none;font-weight:bold;font-size:13px;padding:9px 18px;border-radius:8px;margin:0 6px 6px 0;">Escribir por WhatsApp</a>' : '')+
+    (tel ? '<a href="tel:'+tel+'" style="display:inline-block;background:#ffffff;color:#111827;border:1px solid #d1d5db;text-decoration:none;font-weight:bold;font-size:13px;padding:8px 16px;border-radius:8px;margin:0 0 6px;">Llamar</a>' : '');
+  var tarjeta = d.recepcion ? '<tr><td style="padding:20px 26px 4px;font-family:Arial,sans-serif;">'+
+      '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;"><tr>'+
+      '<td width="54" valign="top" style="padding:16px 0 16px 16px;font-size:26px;line-height:1;">&#128222;</td>'+
+      '<td valign="top" style="padding:14px 16px 12px 10px;font-family:Arial,sans-serif;">'+
+        '<div style="color:#6b7280;font-size:11.5px;font-weight:bold;letter-spacing:.6px;text-transform:uppercase;">Recepción de Ventas · '+e(d.marcaTxt)+'</div>'+
+        '<div style="color:#111827;font-size:19px;font-weight:bold;margin:3px 0 4px;">'+e(d.recepcion)+'</div>'+
+        '<div style="color:#4b5563;font-size:12.5px;line-height:1.5;margin-bottom:10px;">Estamos para lo que necesites: consultas, un 0km, tu plan de ahorro o tu próximo usado.</div>'+
+        botones+
+      '</td></tr></table></td></tr>' : '';
+  return ''+
+  '<div style="background:#f3f4f6;padding:0;margin:0;font-family:Arial,sans-serif;">'+
+    '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:22px 14px 30px;">'+
+      '<table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;border-bottom:5px solid '+col+';">'+
+        // La imagen va dentro de un link: así Gmail no le pone el botón de "Descargar" encima
+        (d.imagenUrl ? '<tr><td style="padding:0;line-height:0;"><a href="'+link+'" target="_blank" style="text-decoration:none;border:0;display:block;"><img src="'+d.imagenUrl+'" alt="¡Feliz cumpleaños!" width="560" border="0" style="width:100%;max-width:560px;height:auto;display:block;border:0;outline:none;"></a></td></tr>' : '')+
+        '<tr><td align="center" style="padding:26px 30px 4px;font-family:Arial,sans-serif;">'+
+          '<h1 style="margin:0 0 12px;color:#111827;font-size:24px;line-height:1.3;">'+p(d.titulo)+'</h1>'+
+          '<div style="width:56px;height:4px;border-radius:4px;background:'+col+';margin:0 auto 14px;"></div>'+
+          '<p style="margin:0;color:#374151;font-size:14.5px;line-height:1.7;">'+p(d.texto)+'</p>'+
+        '</td></tr>'+
+        tarjeta+
+        '<tr><td align="center" style="padding:20px 30px 28px;font-family:Arial,sans-serif;">'+
+          '<p style="margin:0;color:#111827;font-size:14.5px;line-height:1.6;font-weight:bold;">'+p(d.cierre)+'</p>'+
+        '</td></tr>'+
+      '</table>'+
+      '<div style="font-family:Arial,sans-serif;color:#9ca3af;font-size:11px;line-height:1.6;padding-top:14px;"><b style="color:#6b7280;">'+e(d.entidad)+'</b> · Grupo París</div>'+
+    '</td></tr></table>'+
+  '</div>';
+}
+function cumpleDefault_(marca){
+  return {
+    asunto: '¡Feliz cumpleaños, {NombreCompleto}! Te saluda {Entidad}',
+    titulo: '¡Feliz cumpleaños, {NombreCompleto}!',
+    texto: 'Que pases un día hermoso junto a la gente que más querés. Gracias por elegir {Entidad}: es un gusto acompañarte en cada kilómetro.',
+    cierre: 'Un abrazo grande de todo el equipo de {Entidad}.'
+  };
+}
+function cumpleTextos_(pl, marca){
+  var def = cumpleDefault_(marca), c = {};
+  try{ c = pl && pl.cuerpo ? JSON.parse(pl.cuerpo) : {}; }catch(err){ c = {}; }
+  return { asunto: (pl && pl.asunto) || def.asunto, titulo: c.titulo || def.titulo, texto: c.intro || def.texto, cierre: c.cierre || def.cierre };
+}
+// ===== Saludo de CUMPLEAÑOS =====
+var IMAGEN_CUMPLE_ = {chevrolet:'assets/mail/cumple-chevrolet.jpg', peugeot:'assets/mail/cumple-peugeot.jpg', citroen:'assets/mail/cumple-citroen.jpg'};
+function cumpleHtmlWeb_(marca, campos, r){
+  var b = BRANDS.find(function(x){ return x.id===marca; }) || {label:marca};
+  var rr = Object.assign({}, r, {cliente: tituloCaso_(r.cliente), marca: marca});
+  var fx = function(t){ return reemplazarVariables_(String(t||''), rr); };
+  var c = TPL_COLOR_[marca] || ['#1D2330','#ffffff'];
+  var entidad = marca==='chevrolet' ? 'Paris Cars' : (marca==='honda' ? 'Paris Motos' : 'Paris Autos');
+  return {asunto: fx(campos.asunto), html: armarCumpleHtml_({marcaTxt:b.label, entidad:entidad, color:c[0], imagenUrl:IMAGEN_CUMPLE_[marca]||'',
+    titulo:fx(campos.titulo), texto:fx(campos.intro), cierre:fx(campos.cierre),
+    recepcion:(CONFIG.recepcionVentas||{})[marca]||CONFIG.telefonoContacto||'', sitio:location.origin+'/'})};
+}
+function cumpleCamposDe_(marca){
+  var t = cumpleTextos_(PLANTILLAS && PLANTILLAS[marca] && PLANTILLAS[marca].cumpleanios, marca);
+  return {asunto:t.asunto, titulo:t.titulo, intro:t.texto, cierre:t.cierre};
+}
+// Fecha de nacimiento como "aaaa-mm-dd" (la del formulario o, si no hay, la de Alerta Temprana)
+function fechaNacIso_(r){
+  var v = r && (r.fechaNacimiento || r.alertaTempranaFechaNacimiento); if(!v) return '';
+  var s = String(v).replace(/^'/,'').trim(), m;
+  if((m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/))) return s;
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){ var d = new Date(s); if(!isNaN(d)) return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0'); }
+  if((m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/))) return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
+  return '';
+}
+function cumpleAutoConfig_(){
+  var a = CONFIG.automatizaciones || (CONFIG.automatizaciones = automatizacionesDefault_());
+  if(!a.cumple) a.cumple = {activo:false, marcas:BRANDS.filter(function(b){ return b.id!=='usados'; }).map(function(b){ return b.id; })};
+  return a.cumple;
+}
+function cumpleEnviadoEsteAnio_(r){ return !!(r && String(r.cumpleMailFecha||'').indexOf('/'+new Date().getFullYear())>-1); }
+function renderEstadoCumple_(r){
+  var el = document.getElementById('dCumpleEstado'); if(!el) return;
+  if(!r || !fechaNacIso_(r)){ el.innerHTML=''; return; }
+  el.innerHTML = cumpleEnviadoEsteAnio_(r) ? ' · 🎂 saludo enviado el '+cfgEsc_(String(r.cumpleMailFecha).split(' ')[0]) : '';
+}
+// Próximos cumpleaños (un cliente por email)
+function proximosCumples_(dias){
+  var hoy = new Date(); hoy.setHours(0,0,0,0);
+  var vistos = {}, out = [];
+  ENTREGAS.forEach(function(r){
+    var f = fechaNacIso_(r); if(!f) return;
+    var clave = String(r.email||'').trim().toLowerCase() || (r.marca+'|'+r.id);
+    if(vistos[clave]) return;
+    var mes = Number(f.slice(5,7))-1, dia = Number(f.slice(8,10));
+    var prox = new Date(hoy.getFullYear(), mes, dia);
+    if(prox < hoy) prox = new Date(hoy.getFullYear()+1, mes, dia);
+    var falta = Math.round((prox - hoy)/86400000);
+    if(falta > dias) return;
+    vistos[clave] = true;
+    out.push({r:r, falta:falta, fecha:prox});
+  });
+  return out.sort(function(a,b){ return a.falta-b.falta; });
+}
+function cfgCumplePintar_(){
+  var cb = cumpleAutoConfig_(), chk = document.getElementById('autoCumpleActivo'), cont = document.getElementById('autoCumpleMarcas');
+  if(!chk || !cont) return;
+  chk.checked = !!cb.activo;
+  cont.innerHTML = BRANDS.filter(function(b){ return b.id!=='usados'; }).map(function(b){ var on = (cb.marcas||[]).indexOf(b.id)>-1;
+    return '<label class="filter-pill'+(on?' active':'')+'" style="cursor:pointer;"><input type="checkbox" data-marca="'+b.id+'" '+(on?'checked':'')+' onchange="cfgCumpleAuto_()">'+b.label+'</label>'; }).join('');
+  var sel = document.getElementById('autoCumplePrevMarca');
+  if(sel && !sel.options.length) sel.innerHTML = BRANDS.filter(function(b){ return b.id!=='usados'; }).map(function(b){ return '<option value="'+b.id+'">'+b.label+'</option>'; }).join('');
+  cfgCumpleLista_();
+}
+function cfgCumpleAuto_(){
+  var cb = cumpleAutoConfig_(), chk = document.getElementById('autoCumpleActivo'), era = cb.activo;
+  cb.activo = !!(chk && chk.checked);
+  cb.marcas = Array.prototype.slice.call(document.querySelectorAll('#autoCumpleMarcas input:checked')).map(function(i){ return i.getAttribute('data-marca'); });
+  if(cb.activo && !era && !confirm('Desde ahora, cada cliente con fecha de nacimiento y email va a recibir el saludo de cumpleaños solo, el día de su cumpleaños a partir de las 9 de la mañana (una vez por año). ¿Activarlo?')){ cb.activo = false; chk.checked = false; return; }
+  cfgCumplePintar_(); cfgAutoEstados_();
+  guardarAutomatizaciones_(true);
+}
+function cfgCumpleLista_(){
+  var cont = document.getElementById('autoCumpleLista'); if(!cont) return;
+  var cb = cumpleAutoConfig_(), lista = proximosCumples_(30);
+  if(!lista.length){ cont.innerHTML = '<div class="cfg-cumple-vacio">No hay cumpleaños en los próximos 30 días. Se toma la fecha de nacimiento cargada en la entrega (o la de la encuesta de Alerta Temprana).</div>'; return; }
+  cont.innerHTML = lista.map(function(x){
+    var r = x.r, b = BRANDS.find(function(bb){ return bb.id===r.marca; }) || {label:r.marca, color:'--accent'};
+    var cuando = x.falta===0 ? '<b style="color:var(--ok);">Hoy</b>' : (x.falta===1 ? 'Mañana' : 'En '+x.falta+' días');
+    var fecha = String(x.fecha.getDate()).padStart(2,'0')+'/'+String(x.fecha.getMonth()+1).padStart(2,'0');
+    var est = cumpleEnviadoEsteAnio_(r) ? '<span class="cfg-pill on">Enviado</span>' : (!r.email ? '<span class="cfg-pill off">Sin email</span>' : ((cb.marcas||[]).indexOf(r.marca)===-1 ? '<span class="cfg-pill off">Marca apagada</span>' : ''));
+    return '<div class="cfg-cumple-row" style="--b:var('+b.color+');"><span class="cfg-cumple-dia">'+fecha+'</span><div class="cfg-cumple-q"><b>'+cfgEsc_(tituloCaso_(r.cliente))+'</b><small>'+b.label+' · '+cuando+(r.email?' · '+cfgEsc_(r.email):'')+'</small></div>'+est+
+      '<button type="button" class="cfg-btn" onclick="verCumplePreview_(\''+r.marca+'\',\''+r.id+'\')"><span class="material-symbols-outlined">visibility</span>Ver</button>'+
+      (r.email && !cumpleEnviadoEsteAnio_(r) ? '<button type="button" class="cfg-btn" onclick="enviarCumpleAhora_(\''+r.marca+'\',\''+r.id+'\',this)"><span class="material-symbols-outlined">send</span>Enviar ahora</button>' : '')+
+      '</div>';
+  }).join('');
+}
+function verCumplePreview_(marca, id){
+  var r = id ? ENTREGAS.find(function(x){ return x.marca===marca && String(x.id)===String(id); }) : null;
+  if(!r) r = {marca:marca, cliente:'LÓPEZ MARTINA', modelo:'Tracker LTZ', vendedor:'Juan Pérez'};
+  var pinta = function(){
+    var m = cumpleHtmlWeb_(r.marca, cumpleCamposDe_(r.marca), r);
+    var ov = document.getElementById('cumplePrevModal');
+    if(!ov){
+      ov = document.createElement('div'); ov.id = 'cumplePrevModal'; ov.className = 'cumple-prev-ov';
+      ov.innerHTML = '<div class="cumple-prev-box"><header><div><b>Así le llega al cliente</b><small id="cumplePrevAsunto"></small></div><button type="button" class="cfg-btn" onclick="document.getElementById(\'cumplePrevModal\').remove()"><span class="material-symbols-outlined">close</span></button></header><iframe id="cumplePrevFrame" title="Vista previa del saludo de cumpleaños"></iframe></div>';
+      ov.addEventListener('click', function(ev){ if(ev.target===ov) ov.remove(); });
+      document.body.appendChild(ov);
+    }
+    document.getElementById('cumplePrevAsunto').textContent = 'Asunto: '+m.asunto+(r.email ? ' · Para: '+r.email : ' · (datos de ejemplo)');
+    document.getElementById('cumplePrevFrame').srcdoc = '<!doctype html><html><head><meta charset="utf-8"><base href="'+location.href.replace(/[^/]*$/,'')+'"></head><body style="margin:0;">'+m.html+'</body></html>';
+  };
+  if(window.PLANTILLAS && Object.keys(PLANTILLAS).length) pinta();
+  else gasGet('plantillas').then(function(pl){ PLANTILLAS = pl || {}; pinta(); }).catch(pinta);
+}
+function enviarCumpleAhora_(marca, id, btn){
+  var r = ENTREGAS.find(function(x){ return x.marca===marca && String(x.id)===String(id); }); if(!r) return;
+  if(!confirm('¿Mandarle ahora el saludo de cumpleaños a '+tituloCaso_(r.cliente)+' ('+r.email+')?')) return;
+  if(btn){ btn.disabled = true; btn.lastChild.textContent = 'Enviando…'; }
+  gasPost('enviarCumpleMail', {marca:marca, id:id, usuario:usuarioActual(), forzar:false}).then(function(res){
+    if(!res || res.ok===false){ showToast('No se pudo enviar el saludo'+(res&&res.error?': '+res.error:'')); if(btn){ btn.disabled=false; btn.lastChild.textContent='Enviar ahora'; } return; }
+    r.cumpleMailFecha = res.fecha || fechaHoraAhora_();
+    showToast(res.yaEnviado ? 'Ya se le había mandado el saludo este año' : '🎂 Saludo enviado a '+r.email);
+    cfgCumpleLista_();
+  }).catch(function(){ showToast('No se pudo enviar el saludo'); if(btn){ btn.disabled=false; btn.lastChild.textContent='Enviar ahora'; } });
+}
+function enviarCumplePrueba_(){
+  var marca = (document.getElementById('autoCumplePrevMarca')||{}).value || 'chevrolet';
+  var s = sesionActual() || {};
+  var email = prompt('¿A qué email te mando la prueba? (llega con datos de ejemplo)', s.email || '');
+  if(!email) return;
+  email = email.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showToast('Ese email no parece válido'); return; }
+  showToast('Enviando la prueba…');
+  gasPost('enviarCumplePrueba', {marca:marca, email:email}).then(function(res){
+    showToast(res && res.ok!==false ? '✉️ Te mandamos la prueba a '+email : 'No se pudo enviar la prueba'+(res&&res.error?': '+res.error:''));
+  }).catch(function(){ showToast('No se pudo enviar la prueba. ¿Ya pegaste y publicaste el Code.gs nuevo?'); });
+}
+// ---------- Recepción de Ventas por marca (Configuración) ----------
+function renderRecepcionVentasInputs_(){
+  cfgFilasMarca_('recepcionVentasContainer', 'cfgRecepVentas_', CONFIG.recepcionVentas||{}, 'tel');
+}
+function guardarRecepcionVentas(){
+  var nuevo = {};
+  BRANDS.forEach(function(b){ var el = document.getElementById('cfgRecepVentas_'+b.id); if(el) nuevo[b.id] = el.value.trim(); });
+  CONFIG.recepcionVentas = nuevo;
+  persistirConfig('Números de Recepción de Ventas actualizados');
+}
+
 function bienvenidaDefault_(marca){
   return {
     asunto: '¡Bienvenido/a a la Postventa de {Entidad}! Tus contactos para tu {Modelo}',

@@ -64,6 +64,8 @@ function doPost(e){
     else if(action==='agregarHistorial') result = {ok: agregarHistorial(p.marca, p.id, p.texto)};
     else if(action==='enviarConfirmacion') result = enviarConfirmacion(p.marca, p.id, p.usuario);
     else if(action==='enviarBienvenidaMail') result = enviarBienvenidaMail(p.marca, p.id, p.usuario, p.forzar);
+    else if(action==='enviarCumpleMail') result = enviarCumpleMail(p.marca, p.id, p.usuario, p.forzar);
+    else if(action==='enviarCumplePrueba') result = enviarCumplePrueba(p.marca, p.email);
     else if(action==='enviarEncuestaUsado') result = enviarEncuestaUsado(p.marca, p.id, p.usuario, p.urlPublica);
     else if(action==='fichaTecnicaEntrega') result = fichaTecnicaEntrega(p.marca, p.id);
     else if(action==='listarFichasTecnicas') result = listarFichasTecnicas();
@@ -252,7 +254,7 @@ function listarTodosLosCasosGC_(){
   }
 }
 var MARCA_LABEL = {chevrolet:'Chevrolet', peugeot:'Peugeot', citroen:'Citroën', honda:'Honda', dfsk:'DFSK / Jetour', usados:'Usados'};
-var MARCA_COLOR = {chevrolet:'#E8A33D', peugeot:'#3E67CE', citroen:'#D6304A', honda:'#E4002B', dfsk:'#2FA891', usados:'#8E5FD6'};
+var MARCA_COLOR = {chevrolet:'#F2B705', peugeot:'#0072CE', citroen:'#DA291C', honda:'#E4002B', dfsk:'#2FA891', usados:'#8E5FD6'};
 var MARCA_TEXTO = {chevrolet:'#1a1a1a', peugeot:'#ffffff', citroen:'#ffffff', honda:'#ffffff', dfsk:'#ffffff', usados:'#ffffff'};
 var URL_APP_ = 'https://planning-grupoparis.vercel.app/';
 // Logos publicados en el sitio: los clientes de mail (Gmail, Outlook) no muestran las imágenes "data:" incrustadas.
@@ -402,7 +404,9 @@ var CAMPOS = [
   {k:'npsFabricaCargadoEn', h:'NPS Fábrica — Cargado/modificado en el sistema'},
   {k:'encuestaUsadoEnviada', h:'Usado — Encuesta por mail enviada'},
   {k:'canalVenta', h:'Canal de venta (pda = Plan de Ahorro)'},
-  {k:'entregadaFecha', h:'Fecha y hora en que se marcó entregada'}
+  {k:'entregadaFecha', h:'Fecha y hora en que se marcó entregada'},
+  {k:'fechaNacimiento', h:'Fecha de nacimiento del cliente'},
+  {k:'cumpleMailFecha', h:'Saludo de cumpleaños — último envío'}
 ];
 
 // ============================================================
@@ -784,10 +788,10 @@ function rowToObj_(row, marca){
   obj.hora = formatHora_(obj.hora);
   // Fechas de usado: Sheets las guarda como Date; se devuelven como "aaaa-mm-dd" para el <input type="date">.
   // Fecha y hora (ej. "Última carga" del NPS de Fábrica): si Sheets la convirtió en fecha, se devuelve "dd/MM/yyyy HH:mm".
-  ['npsFabricaCargadoEn','entregadaFecha'].forEach(function(k){
+  ['npsFabricaCargadoEn','entregadaFecha','cumpleMailFecha'].forEach(function(k){
     if(obj[k] instanceof Date) obj[k] = Utilities.formatDate(obj[k], Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
   });
-  ['usFechaOferta','usFechaCarga','usFechaCompromiso'].forEach(function(k){
+  ['usFechaOferta','usFechaCarga','usFechaCompromiso','fechaNacimiento'].forEach(function(k){
     if(obj[k] instanceof Date) obj[k] = Utilities.formatDate(obj[k], Session.getScriptTimeZone(), 'yyyy-MM-dd');
   });
   // Campos de texto que en la planilla quedaron como número (ej. Observaciones = 123): se mandan como texto.
@@ -809,7 +813,7 @@ function objToRow_(obj){
     if(c.k==='historial') return JSON.stringify(obj.historial||[]);
     if(c.k==='trasladoChecklist') return JSON.stringify(obj.trasladoChecklist||{});
     if(c.k==='accesoriosItems') return JSON.stringify(obj.accesoriosItems||[]);
-    if(c.k==='fecha' || c.k==='hora'){
+    if(c.k==='fecha' || c.k==='hora' || c.k==='fechaNacimiento'){
       var v = obj[c.k];
       return v ? ("'" + v) : ''; // apóstrofe = forzar texto plano, Sheets nunca lo guarda
     }
@@ -868,7 +872,7 @@ function updateEntregaFields(marca, id, fields){
     for(var i=0;i<CAMPOS.length;i++){ if(CAMPOS[i].k===f){ idx=i; break; } }
     if(idx>-1){
       var val = fields[f];
-      if((f==='fecha'||f==='hora'||f==='garantiaFecha'||f==='npsFabricaFecha'||f==='entregadaFecha'||f==='npsFabricaCargadoEn') && val) val = "'" + val; // mismo truco al editar
+      if((f==='fecha'||f==='hora'||f==='garantiaFecha'||f==='npsFabricaFecha'||f==='entregadaFecha'||f==='npsFabricaCargadoEn'||f==='fechaNacimiento'||f==='cumpleMailFecha') && val) val = "'" + val; // mismo truco al editar
       if(val && typeof val==='object') val = JSON.stringify(val); // ej: trasladoChecklist
       sheet.getRange(rowIdx, idx+1).setValue(val);
     }
@@ -1947,6 +1951,8 @@ function ejecutarAutomatizaciones(){
   var entregas = leerTodasLasEntregas_(); // función que ya existe en tu código principal
   var ahora = new Date();
 
+  try{ procesarCumpleanios_(entregas, config, ahora); }catch(e){ Logger.log('procesarCumpleanios_: '+e); }
+
   entregas.forEach(function(r){
     if(!r.entregada) return;
 
@@ -2195,26 +2201,29 @@ function enviarEmailPostEntrega_(r, asunto, config){
   var logoHeader = logoMarcaUrl
     ? '<div style="width:56px;height:56px;border-radius:50%;background:#ffffff;margin:0 auto;display:table;"><div style="display:table-cell;vertical-align:middle;text-align:center;"><img src="'+logoMarcaUrl+'" width="40" style="max-width:40px;display:inline-block;"></div></div>'
     : '';
+  // Mismos colores e imagen de marca que el resto de los mails (bienvenida, cumpleaños, confirmación)
+  var col = MARCA_COLOR[r.marca] || '#1D2330', colT = MARCA_TEXTO[r.marca] || '#ffffff';
+  var nombre = tituloCasoGs_(r.cliente || '');
   var cuerpo = ''+
-    '<div style="background:#000000;padding:0;font-family:Arial,sans-serif;">'+
-      '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:26px 20px;">'+
-        logoHeader+
-      '</td></tr></table>'+
-      '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:0 16px 40px;">'+
-        '<table width="440" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:10px;padding:32px 30px;">'+
-          '<tr><td align="center" style="font-family:Arial,sans-serif;">'+
-            '<h2 style="margin:0 0 18px;color:#111827;font-size:19px;">Tu opinión nos ayuda a mejorar 🚗</h2>'+
-            '<p style="margin:0 0 10px;color:#1d4ed8;font-size:14px;">Hola '+r.cliente+',</p>'+
-            '<p style="margin:0 0 10px;color:#374151;font-size:13.5px;line-height:1.6;">Esperamos que estés disfrutando tu <b>'+r.modelo+'</b>.</p>'+
-            '<p style="margin:0 0 10px;color:#374151;font-size:13.5px;line-height:1.6;">Gracias por confiar en nosotros para la adquisición de tu 0km.</p>'+
-            '<p style="margin:0 0 18px;color:#374151;font-size:13.5px;line-height:1.6;">Nos gustaría conocer cómo fue tu experiencia durante el proceso de entrega.</p>'+
-            '<a href="'+urlEncuesta+'" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;font-weight:bold;font-size:13.5px;padding:12px 26px;border-radius:8px;margin-bottom:12px;">RESPONDER ENCUESTA INTERNA</a>'+
-            '<p style="margin:8px 0 0;color:#9ca3af;font-size:11.5px;">Te llevará menos de un minuto completarla.</p>'+
+    '<div style="background:#f3f4f6;padding:0;margin:0;font-family:Arial,sans-serif;">'+
+      '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:22px 14px 30px;">'+
+        '<table width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;">'+
+          '<tr><td align="center" style="background:#111827;padding:22px 20px 16px;border-bottom:5px solid '+col+';">'+logoHeader+
+            '<div style="color:#ffffff;font-size:10.5px;letter-spacing:2px;font-weight:bold;margin-top:10px;">'+String(nombreEntidadPorMarca_(r.marca)).toUpperCase()+' · '+String(MARCA_LABEL[r.marca]||'').toUpperCase()+'</div></td></tr>'+
+          '<tr><td align="center" style="padding:30px 32px 10px;font-family:Arial,sans-serif;">'+
+            '<h2 style="margin:0 0 12px;color:#111827;font-size:21px;">Tu opinión nos ayuda a mejorar</h2>'+
+            '<div style="width:56px;height:4px;border-radius:4px;background:'+col+';margin:0 auto 18px;"></div>'+
+            '<p style="margin:0 0 10px;color:#111827;font-size:15px;font-weight:bold;">Hola '+nombre+',</p>'+
+            '<p style="margin:0 0 10px;color:#374151;font-size:14px;line-height:1.65;">Esperamos que estés disfrutando tu <b>'+(r.modelo||'')+'</b>. Gracias por confiar en nosotros para la adquisición de tu 0km.</p>'+
+            '<p style="margin:0 0 22px;color:#374151;font-size:14px;line-height:1.65;">Nos gustaría conocer cómo fue tu experiencia durante el proceso de entrega.</p>'+
+            '<a href="'+urlEncuesta+'" style="display:inline-block;background:'+col+';color:'+colT+';text-decoration:none;font-weight:bold;font-size:14px;padding:13px 28px;border-radius:9px;">Responder la encuesta</a>'+
+            '<p style="margin:12px 0 0;color:#9ca3af;font-size:12px;">Te lleva menos de un minuto.</p>'+
           '</td></tr>'+
+          '<tr><td style="padding:22px 32px 26px;"><div style="border-top:1px solid #e5e7eb;padding-top:14px;text-align:center;font-family:Arial,sans-serif;color:#6b7280;font-size:12px;line-height:1.6;">'+
+            (config.telefonoContacto ? 'Recepción: <b style="color:#111827;">'+config.telefonoContacto+'</b>' : '')+(config.telefonoContacto && config.telefonoCalidad ? ' &nbsp;·&nbsp; ' : '')+(config.telefonoCalidad ? 'Calidad: <b style="color:#111827;">'+config.telefonoCalidad+'</b>' : '')+
+          '</div></td></tr>'+
         '</table>'+
-      '</td></tr></table>'+
-      '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="background:#f3f4f6;padding:16px;font-family:Arial,sans-serif;color:#6b7280;font-size:11px;">'+
-        '<b>'+nombreEntidadPorMarca_(r.marca)+'</b><br>Recepción: '+(config.telefonoContacto||'')+' | Calidad: '+(config.telefonoCalidad||'')+'<br>'+(config.copiaSiempreA||'')+
+        '<div style="font-family:Arial,sans-serif;color:#9ca3af;font-size:11px;line-height:1.6;padding-top:14px;"><b style="color:#6b7280;">'+nombreEntidadPorMarca_(r.marca)+'</b> · Grupo París</div>'+
       '</td></tr></table>'+
     '</div>';
   MailApp.sendEmail({to:r.email, cc:armarCC_(r, config), subject:asunto, htmlBody:cuerpo, name:nombreEntidadPorMarca_(r.marca)});
@@ -4038,6 +4047,156 @@ function bienvenidaHtml_(r, config, ficha){
     recepcion: config.telefonoContacto || '', copia: config.copiaSiempreA || ''
   });
 }
+// ===== Mail de FELIZ CUMPLEAÑOS (mismo diseño en la web y en Apps Script) =====
+// d = {marcaTxt, entidad, color, imagenUrl, titulo, texto, cierre, recepcion, sitio}
+function armarCumpleHtml_(d){
+  var e = function(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var p = function(x){ return e(x).replace(/\n/g,'<br>'); };
+  var tel = String(d.recepcion||'').replace(/[^0-9+]/g,''), wa = String(d.recepcion||'').replace(/[^0-9]/g,'');
+  var col = d.color || '#1D2330';
+  var link = wa ? 'https://wa.me/'+wa : (d.sitio||'#');
+  var botones = (wa ? '<a href="https://wa.me/'+wa+'" style="display:inline-block;background:#16a34a;color:#ffffff;text-decoration:none;font-weight:bold;font-size:13px;padding:9px 18px;border-radius:8px;margin:0 6px 6px 0;">Escribir por WhatsApp</a>' : '')+
+    (tel ? '<a href="tel:'+tel+'" style="display:inline-block;background:#ffffff;color:#111827;border:1px solid #d1d5db;text-decoration:none;font-weight:bold;font-size:13px;padding:8px 16px;border-radius:8px;margin:0 0 6px;">Llamar</a>' : '');
+  var tarjeta = d.recepcion ? '<tr><td style="padding:20px 26px 4px;font-family:Arial,sans-serif;">'+
+      '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;"><tr>'+
+      '<td width="54" valign="top" style="padding:16px 0 16px 16px;font-size:26px;line-height:1;">&#128222;</td>'+
+      '<td valign="top" style="padding:14px 16px 12px 10px;font-family:Arial,sans-serif;">'+
+        '<div style="color:#6b7280;font-size:11.5px;font-weight:bold;letter-spacing:.6px;text-transform:uppercase;">Recepción de Ventas · '+e(d.marcaTxt)+'</div>'+
+        '<div style="color:#111827;font-size:19px;font-weight:bold;margin:3px 0 4px;">'+e(d.recepcion)+'</div>'+
+        '<div style="color:#4b5563;font-size:12.5px;line-height:1.5;margin-bottom:10px;">Estamos para lo que necesites: consultas, un 0km, tu plan de ahorro o tu próximo usado.</div>'+
+        botones+
+      '</td></tr></table></td></tr>' : '';
+  return ''+
+  '<div style="background:#f3f4f6;padding:0;margin:0;font-family:Arial,sans-serif;">'+
+    '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:22px 14px 30px;">'+
+      '<table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;border-bottom:5px solid '+col+';">'+
+        // La imagen va dentro de un link: así Gmail no le pone el botón de "Descargar" encima
+        (d.imagenUrl ? '<tr><td style="padding:0;line-height:0;"><a href="'+link+'" target="_blank" style="text-decoration:none;border:0;display:block;"><img src="'+d.imagenUrl+'" alt="¡Feliz cumpleaños!" width="560" border="0" style="width:100%;max-width:560px;height:auto;display:block;border:0;outline:none;"></a></td></tr>' : '')+
+        '<tr><td align="center" style="padding:26px 30px 4px;font-family:Arial,sans-serif;">'+
+          '<h1 style="margin:0 0 12px;color:#111827;font-size:24px;line-height:1.3;">'+p(d.titulo)+'</h1>'+
+          '<div style="width:56px;height:4px;border-radius:4px;background:'+col+';margin:0 auto 14px;"></div>'+
+          '<p style="margin:0;color:#374151;font-size:14.5px;line-height:1.7;">'+p(d.texto)+'</p>'+
+        '</td></tr>'+
+        tarjeta+
+        '<tr><td align="center" style="padding:20px 30px 28px;font-family:Arial,sans-serif;">'+
+          '<p style="margin:0;color:#111827;font-size:14.5px;line-height:1.6;font-weight:bold;">'+p(d.cierre)+'</p>'+
+        '</td></tr>'+
+      '</table>'+
+      '<div style="font-family:Arial,sans-serif;color:#9ca3af;font-size:11px;line-height:1.6;padding-top:14px;"><b style="color:#6b7280;">'+e(d.entidad)+'</b> · Grupo París</div>'+
+    '</td></tr></table>'+
+  '</div>';
+}
+function cumpleDefault_(marca){
+  return {
+    asunto: '¡Feliz cumpleaños, {NombreCompleto}! Te saluda {Entidad}',
+    titulo: '¡Feliz cumpleaños, {NombreCompleto}!',
+    texto: 'Que pases un día hermoso junto a la gente que más querés. Gracias por elegir {Entidad}: es un gusto acompañarte en cada kilómetro.',
+    cierre: 'Un abrazo grande de todo el equipo de {Entidad}.'
+  };
+}
+function cumpleTextos_(pl, marca){
+  var def = cumpleDefault_(marca), c = {};
+  try{ c = pl && pl.cuerpo ? JSON.parse(pl.cuerpo) : {}; }catch(err){ c = {}; }
+  return { asunto: (pl && pl.asunto) || def.asunto, titulo: c.titulo || def.titulo, texto: c.intro || def.texto, cierre: c.cierre || def.cierre };
+}
+
+// ============================================================
+// SALUDO DE CUMPLEAÑOS POR MAIL
+// Se prende desde Configuración → Automatizaciones → Saludo de cumpleaños.
+// Corre con el mismo aviso de cada 15 min (crearTriggerAutomatizaciones):
+// desde las 9 de la mañana del día del cumpleaños, una sola vez por año
+// y por email (si el cliente tiene varias unidades, le llega un solo saludo).
+// ============================================================
+var IMAGEN_CUMPLE = {chevrolet: URL_APP_ + 'assets/mail/cumple-chevrolet.jpg', peugeot: URL_APP_ + 'assets/mail/cumple-peugeot.jpg', citroen: URL_APP_ + 'assets/mail/cumple-citroen.jpg'};
+var HORA_SALUDO_CUMPLE_ = 9;
+// Devuelve [dia, mes] de la fecha de nacimiento (la del formulario o, si no hay, la de la encuesta de Alerta Temprana)
+function diaMesNacimiento_(r){
+  var v = r.fechaNacimiento || r.alertaTempranaFechaNacimiento;
+  if(!v) return null;
+  if(Object.prototype.toString.call(v)==='[object Date]'){
+    if(isNaN(v.getTime())) return null;
+    var s = Utilities.formatDate(v, Session.getScriptTimeZone(), 'dd/MM');
+    return [Number(s.split('/')[0]), Number(s.split('/')[1])];
+  }
+  var t = String(v).replace(/^'/,'').trim(), m;
+  if((m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return [Number(m[3]), Number(m[2])];
+  if((m = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/))) return [Number(m[1]), Number(m[2])];
+  return null;
+}
+function esCumpleHoy_(r, hoy){
+  var dm = diaMesNacimiento_(r); if(!dm) return false;
+  var d = hoy.getDate(), mes = hoy.getMonth()+1;
+  if(dm[0]===d && dm[1]===mes) return true;
+  // 29 de febrero: en los años no bisiestos se saluda el 28
+  var anio = hoy.getFullYear(), bisiesto = (anio%4===0 && anio%100!==0) || anio%400===0;
+  return dm[0]===29 && dm[1]===2 && !bisiesto && d===28 && mes===2;
+}
+function cumpleAutoConfig_(config){
+  var a = (config && config.automatizaciones) || {};
+  return a.cumple || {activo:false, marcas:[]};
+}
+function textosCumplePara_(r){
+  var todas = {}; try{ todas = getPlantillas() || {}; }catch(e){}
+  var t = cumpleTextos_(todas[r.marca] && todas[r.marca].cumpleanios, r.marca);
+  var rr = {}; for(var k in r) rr[k] = r[k];
+  rr.cliente = tituloCasoGs_(r.cliente);
+  var fx = function(x){ return reemplazarVariablesServidor_(String(x||'').split('{Marca}').join(MARCA_LABEL[r.marca]||r.marca||''), rr); };
+  return {asunto: fx(t.asunto), titulo: fx(t.titulo), texto: fx(t.texto), cierre: fx(t.cierre)};
+}
+function cumpleHtml_(r, config){
+  var t = textosCumplePara_(r);
+  return armarCumpleHtml_({
+    marcaTxt: MARCA_LABEL[r.marca] || '', entidad: nombreEntidadPorMarca_(r.marca),
+    color: MARCA_COLOR[r.marca] || '#1D2330', imagenUrl: IMAGEN_CUMPLE[r.marca] || '',
+    titulo: t.titulo, texto: t.texto, cierre: t.cierre,
+    recepcion: ((config.recepcionVentas||{})[r.marca]) || config.telefonoContacto || '', sitio: URL_APP_
+  });
+}
+// Envío de un saludo (a mano desde la app, o desde el automático)
+function enviarCumpleMail(marca, id, usuario, forzar){
+  var config = getConfig();
+  var rowIdx = findRowIndexById_(marca, id);
+  if(rowIdx===-1) return {ok:false, error:'No se encontró la entrega.'};
+  var r = rowToObj_(getSheetPorMarca_(marca).getRange(rowIdx,1,1,CAMPOS.length).getValues()[0], marca);
+  if(!r.email) return {ok:false, error:'La entrega no tiene e-mail del cliente.'};
+  var anio = String(new Date().getFullYear());
+  if(!forzar && String(r.cumpleMailFecha||'').indexOf('/'+anio)>-1) return {ok:true, yaEnviado:true};
+  var t = textosCumplePara_(r);
+  MailApp.sendEmail({to:r.email, subject:t.asunto, htmlBody:cumpleHtml_(r, config), name:nombreEntidadPorMarca_(marca)});
+  var ahora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
+  updateEntregaFields(marca, id, {cumpleMailFecha:ahora});
+  agregarHistorialInterno_(marca, id, '🎂 Saludo de cumpleaños enviado por mail a '+r.email+(usuario ? ' — '+usuario : ' (envío automático)'));
+  return {ok:true, fecha:ahora};
+}
+// Mail de prueba con datos de ejemplo, para ver cómo queda antes de activarlo
+function enviarCumplePrueba(marca, email){
+  if(!email) return {ok:false, error:'Falta el email.'};
+  var config = getConfig();
+  var r = {marca:marca||'chevrolet', cliente:'LÓPEZ MARTINA', modelo:'Tracker LTZ', vendedor:'Juan Pérez', email:email};
+  var t = textosCumplePara_(r);
+  MailApp.sendEmail({to:email, subject:'[PRUEBA] '+t.asunto, htmlBody:cumpleHtml_(r, config), name:nombreEntidadPorMarca_(r.marca)});
+  return {ok:true};
+}
+// Automático: lo llama ejecutarAutomatizaciones() cada 15 minutos
+function procesarCumpleanios_(entregas, config, ahora){
+  var cfg = cumpleAutoConfig_(config);
+  if(!cfg.activo) return;
+  if(Number(Utilities.formatDate(ahora, Session.getScriptTimeZone(), 'H')) < HORA_SALUDO_CUMPLE_) return;
+  var hoy = new Date(Utilities.formatDate(ahora, Session.getScriptTimeZone(), "yyyy/MM/dd") + ' 12:00');
+  var anio = String(hoy.getFullYear()), marcas = cfg.marcas || [];
+  // Emails que ya recibieron el saludo este año (en cualquier unidad)
+  var yaSaludados = {};
+  entregas.forEach(function(r){ if(r.email && String(r.cumpleMailFecha||'').indexOf('/'+anio)>-1) yaSaludados[String(r.email).trim().toLowerCase()] = true; });
+  entregas.forEach(function(r){
+    if(marcas.indexOf(r.marca)===-1 || !r.email) return;
+    if(/cancel|anulad/i.test(String(r.estado||''))) return;
+    var mail = String(r.email).trim().toLowerCase();
+    if(yaSaludados[mail] || !esCumpleHoy_(r, hoy)) return;
+    try{ enviarCumpleMail(r.marca, r.id, '', false); yaSaludados[mail] = true; }
+    catch(e){ Logger.log('Cumpleaños '+r.marca+'/'+r.id+': '+e); }
+  });
+}
+
 function enviarBienvenidaMail(marca, id, usuario, forzar){
   var config = getConfig();
   var rowIdx = findRowIndexById_(marca, id);
