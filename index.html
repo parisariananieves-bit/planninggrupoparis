@@ -9926,6 +9926,30 @@ function poblarSelectMarcaCaso_(){
     sel.appendChild(opt);
   });
 }
+// Arma un Motivo + Descripción sugeridos para el formulario de "Reportar
+// caso" a partir de las encuestas que ESTA entrega ya tiene respondidas
+// (NPS general y/o Alerta Temprana), para no tener que retipear lo que el
+// cliente ya contó. Mismo corte de insatisfacción ("Detractor" ≤6, o el
+// umbral ≤8 que ya usaba el botón de NPS cuando hay comentario) que usa el
+// resto de la planilla. Devuelve null si no hay nada de qué sugerir.
+function sugerenciaCasoDesdeEncuestas_(r){
+  var partesMotivo = [], partesDescripcion = [];
+  if(typeof r.npsScore==='number' && r.npsScore<=8 && r.npsComentario){
+    partesMotivo.push('Insatisfacción en encuesta (NPS '+r.npsScore+'/10)');
+    partesDescripcion.push('Encuesta NPS ('+r.npsScore+'/10): "'+r.npsComentario+'"');
+  }
+  var compra = r.alertaTempranaSatisfaccionCompra, atencion = r.alertaTempranaSatisfaccionAtencion;
+  var atBaja = (typeof compra==='number' && compra<=6) || (typeof atencion==='number' && atencion<=6);
+  if(atBaja){
+    var detalle = [];
+    if(typeof compra==='number' && compra<=6) detalle.push('satisfacción compra/entrega '+compra+'/10');
+    if(typeof atencion==='number' && atencion<=6) detalle.push('satisfacción atención '+atencion+'/10');
+    partesMotivo.push('Alerta Temprana ('+detalle.join(' · ')+')');
+    partesDescripcion.push('Alerta Temprana ('+detalle.join(' · ')+')'+(r.alertaTempranaComentario?': "'+r.alertaTempranaComentario+'"':' — sin comentario adicional.'));
+  }
+  if(!partesMotivo.length) return null;
+  return { motivo: partesMotivo.join(' + '), descripcion: partesDescripcion.join('\n') };
+}
 function abrirModalCaso(marca, id){
   if(!puedeEditarModulo_('casos')){ showToast('Tenés acceso de solo lectura a Reportar Caso — no podés cargar casos nuevos.'); return; }
   var r = (marca && id) ? ENTREGAS.find(function(x){return x.marca===marca && x.id===id;}) : null;
@@ -9967,9 +9991,24 @@ function abrirModalCaso(marca, id){
   document.getElementById('casoDatosWrap').style.display = r ? 'block' : 'none';
   document.getElementById('casoManualWrap').style.display = r ? 'none' : 'block';
   if(r){
-    // Si ya hay un caso previo de este cliente con DNI cargado, lo autocompletamos para no pedirlo de nuevo
-    var previo = CASOS.find(function(c){ return c.dni && normalizarBusquedaCaso_(c.cliente)===normalizarBusquedaCaso_(r.cliente); });
-    if(previo) document.getElementById('casoDni').value = previo.dni;
+    // DNI: si ya lo tenemos cargado en la propia entrega, no hace falta
+    // pedirlo de nuevo; si no, probamos con el de un caso previo de este
+    // mismo cliente (lo que ya hacía esto antes).
+    if(r.dni){
+      document.getElementById('casoDni').value = r.dni;
+    }else{
+      var previo = CASOS.find(function(c){ return c.dni && normalizarBusquedaCaso_(c.cliente)===normalizarBusquedaCaso_(r.cliente); });
+      if(previo) document.getElementById('casoDni').value = previo.dni;
+    }
+    // Si esta entrega ya tiene una encuesta respondida con insatisfacción
+    // (NPS, Alerta Temprana), precargamos Motivo y Descripción con lo que el
+    // cliente ya contó — así no hay que volver a escribirlo a mano. Sigue
+    // siendo 100% editable antes de enviar.
+    var sugerencia = sugerenciaCasoDesdeEncuestas_(r);
+    if(sugerencia){
+      document.getElementById('casoMotivo').value = sugerencia.motivo;
+      document.getElementById('casoDescripcion').value = sugerencia.descripcion;
+    }
     document.getElementById('casoCliente_display').textContent = r.cliente||'';
     document.getElementById('casoVehiculo_display').textContent = ((b?b.label:'')+' '+(r.modelo||'')).trim() + (r.dominio||r.chasis ? ' · '+(r.dominio||r.chasis) : '');
     document.getElementById('casoDominio_display').textContent = '';

@@ -58,14 +58,7 @@ function doPost(e){
   try{
     if(action==='miEntregaOpinion') result = miEntregaOpinion_(p.t, p.score, p.comentario);
     else if(action==='addEntrega') result = {id: addEntrega(p.marca, p.obj)};
-    else if(action==='updateEntregaFields'){
-      // Antes de aplicar los campos, miramos cómo estaba la Alerta Temprana
-      // ANTES de este guardado — así, si ya estaba "Respondida", sabemos que
-      // esto es un reintento/edición y no disparamos un caso de nuevo.
-      var _entregaAntesAT_ = (p.fields && p.fields.alertaTempranaEstado==='Respondida') ? obtenerEntregaPorId_(p.marca, p.id) : null;
-      result = {ok: updateEntregaFields(p.marca, p.id, p.fields)};
-      if(result.ok) procesarAlertaTempranaParaCalidad_(p.marca, p.id, p.fields, _entregaAntesAT_);
-    }
+    else if(action==='updateEntregaFields') result = {ok: updateEntregaFields(p.marca, p.id, p.fields)};
     else if(action==='deleteEntrega') result = {ok: deleteEntrega(p.marca, p.id)};
     else if(action==='agregarComentario') result = {ok: agregarComentario(p.marca, p.id, p.autor, p.texto)};
     else if(action==='agregarHistorial') result = {ok: agregarHistorial(p.marca, p.id, p.texto)};
@@ -2365,93 +2358,6 @@ function enviarEventoGestionCasos_(p, codigo){
   }
 }
 
-// ============================================================
-// Conexión AUTOMÁTICA con Gestión de Calidad — dispara el mismo camino que
-// ya usaba el botón manual "Enviar a Calidad" (reportarCaso_ +
-// sincronizarCasoGestionDeCasos_), pero sin esperar a que alguien lo revise
-// y apriete el botón. Se activa desde dos encuestas:
-//   1) Alerta Temprana (la completa el vendedor/administrativo al momento
-//      de la entrega) — ver el hook en doPost, acción 'updateEntregaFields'.
-//   2) "Mi entrega" (la completa el cliente solo, desde el link público)
-//      — ver el hook al final de miEntregaOpinion_.
-// Mismo corte de "Detractor" que ya usa esta planilla para el NPS: puntaje
-// 6 o menos sobre 10. No crea una base de datos nueva ni duplica el caso en
-// Planning: usa la hoja "Casos" y el envío a Gestión de Casos que ya
-// existían para el flujo manual.
-// ============================================================
-var UMBRAL_SATISFACCION_BAJA_AUTO_ = 6; // 1 a 10 — igual al corte "Detractor" del NPS
-
-function procesarAlertaTempranaParaCalidad_(marca, id, fields, antesDeGuardar){
-  try{
-    if(!fields || fields.alertaTempranaEstado!=='Respondida') return; // no es esta encuesta
-    if(antesDeGuardar && antesDeGuardar.alertaTempranaEstado==='Respondida') return; // ya se había respondido — no duplicar
-
-    var compra = fields.alertaTempranaSatisfaccionCompra;
-    var atencion = fields.alertaTempranaSatisfaccionAtencion;
-    var motivoPartes = [];
-    if(typeof compra==='number' && compra<=UMBRAL_SATISFACCION_BAJA_AUTO_) motivoPartes.push('satisfacción con la compra/entrega: '+compra+'/10');
-    if(typeof atencion==='number' && atencion<=UMBRAL_SATISFACCION_BAJA_AUTO_) motivoPartes.push('satisfacción con la atención: '+atencion+'/10');
-    if(!motivoPartes.length) return; // no hubo insatisfacción — no se crea nada
-
-    var r = obtenerEntregaPorId_(marca, id);
-    if(!r) return;
-
-    crearCasoAutomaticoDesdeEncuesta_({
-      marca: marca, entregaId: id, cliente: r.cliente||'', dni: r.dni||'', telefono: r.telefono||'',
-      modelo: r.modelo||'', dominio: r.dominio||'', sucursal: r.sucursal||'',
-      vendedor: r.vendedor||'', administrativo: r.administrativo||'', responsableEntrega: r.responsableEntrega||'',
-      motivo: 'Alerta Temprana — '+motivoPartes.join(' · '),
-      descripcion: 'Generado automáticamente por una respuesta de Alerta Temprana con baja satisfacción.'+
-        (fields.alertaTempranaComentario ? ' Comentario del cliente: "'+fields.alertaTempranaComentario+'"' : ' Sin comentario adicional del cliente.')
-    });
-  }catch(err){
-    // Nunca rompemos el guardado de la encuesta por un error acá.
-  }
-}
-
-// Hook de la encuesta pública "Mi entrega" (ver miEntregaOpinion_): mismo
-// corte de Detractor (<=6), usando el puntaje y comentario que el cliente
-// ya cargó ahí mismo. miEntregaOpinion_ ya se asegura de no llamar esto dos
-// veces para la misma entrega (corta antes si miEntregaOpinionGuardada_).
-function procesarOpinionMiEntregaParaCalidad_(marca, id, score, comentario){
-  try{
-    var n = Number(score);
-    if(!(n>=0 && n<=UMBRAL_SATISFACCION_BAJA_AUTO_)) return;
-    var r = buscarEntrega_(marca, id);
-    if(!r) return;
-    crearCasoAutomaticoDesdeEncuesta_({
-      marca: marca, entregaId: id, cliente: r.cliente||'', dni: r.dni||'', telefono: r.telefono||'',
-      modelo: r.modelo||'', dominio: r.dominio||'', sucursal: r.sucursal||'',
-      vendedor: r.vendedor||'', administrativo: r.administrativo||'', responsableEntrega: r.responsableEntrega||'',
-      motivo: 'Encuesta "Mi entrega" — calificación '+n+'/10',
-      descripcion: 'Generado automáticamente por una calificación baja en la encuesta pública "Mi entrega".'+
-        (comentario ? ' Comentario del cliente: "'+String(comentario).slice(0,1000)+'"' : ' Sin comentario adicional del cliente.')
-    });
-  }catch(err){
-    // Nunca rompemos el guardado de la opinión del cliente por un error acá.
-  }
-}
-
-// Punto único que arma el caso y lo manda por el mismo camino que el botón
-// manual "Enviar a Calidad": reportarCaso_ (queda también en la hoja
-// "Casos" de Planning, para historial propio) + sincronizarCasoGestionDeCasos_
-// (lo manda al Motor de Eventos de Gestión de Casos — ahí queda esperando
-// en la Bandeja de entrada para que Calidad lo confirme, igual que
-// cualquier otro caso manual).
-function crearCasoAutomaticoDesdeEncuesta_(datos){
-  var payload = {
-    marca: datos.marca, entregaId: datos.entregaId, cliente: datos.cliente, dni: datos.dni,
-    telefono: datos.telefono, modelo: datos.modelo, dominio: datos.dominio, sucursal: datos.sucursal,
-    vendedor: datos.vendedor, administrativo: datos.administrativo, responsableEntrega: datos.responsableEntrega,
-    areaOrigen: 'Entregas', tipoCaso: 'Alerta temprana — encuesta', motivo: datos.motivo,
-    prioridad: 'Alta', descripcion: datos.descripcion, reportadoPor: 'Sistema (automático — encuesta)'
-  };
-  var creado = reportarCaso_(payload);
-  if(creado && creado.ok){
-    sincronizarCasoGestionDeCasos_(payload, creado.id);
-  }
-}
-
 // Por si se reportó un caso por error (duplicado, mal cargado, etc.) —
 // borra la fila entera de la hoja Casos. No hay "papelera": es definitivo.
 function eliminarCaso_(codigo){
@@ -4719,6 +4625,5 @@ function miEntregaOpinion_(t, score, comentario){
   var txt = String(comentario||'').slice(0, 1000);
   miEntregaHojaOpiniones_().appendRow([new Date(), ref.marca, ref.id, r.cliente||'', LUGAR_NOMBRE[r.lugar]||r.sucursal||'', n, txt]);
   try{ agregarHistorialInterno_(ref.marca, ref.id, '⭐ El cliente calificó la entrega desde "Mi entrega": '+n+'/10'+(txt?' — "'+txt+'"':'')); }catch(e){}
-  try{ procesarOpinionMiEntregaParaCalidad_(ref.marca, ref.id, n, txt); }catch(e){}
   return {ok:true};
 }
