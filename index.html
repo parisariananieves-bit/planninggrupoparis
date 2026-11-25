@@ -9384,6 +9384,7 @@ function fmtFechaCaso_(valor){
 }
 // Consulta de solo lectura a la planilla de Gestión de Casos — matchea por
 // el código del caso (origenId), VIN/dominio, DNI o nombre de cliente.
+function gcEsc_(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function verSeguimientoGC_(dominio, cliente, dni, origenId){
   document.getElementById('overlay').classList.add('show');
   document.getElementById('modalSeguimientoGC').classList.add('show');
@@ -9406,7 +9407,11 @@ function verSeguimientoGC_(dominio, cliente, dni, origenId){
         '<div style="font-size:12px;color:var(--text-dim);margin-bottom:3px;">Prioridad: <b style="color:'+colorPrio+';">'+c.prioridad+'</b> · Responsable: <b>'+c.responsable+'</b></div>'+
         '<div style="font-size:12px;color:var(--text-dim);margin-bottom:3px;">Motivo: '+(c.motivo||'—')+'</div>'+
         (c.proximaAccion ? '<div style="font-size:12px;color:var(--text-dim);margin-bottom:3px;">Próxima acción: '+c.proximaAccion+'</div>' : '')+
-        (c.ultimaNovedad ? '<div style="margin-top:8px;background:var(--panel-2);border-radius:7px;padding:8px 10px;font-size:11.5px;"><b>Última novedad</b> ('+c.ultimaNovedad.fecha+' — '+c.ultimaNovedad.autor+'): '+c.ultimaNovedad.texto+'</div>' : '')+
+        (c.proximoPasoTexto ? '<div style="font-size:12px;color:var(--text-dim);margin-bottom:3px;"><b>Próximo paso'+(c.proximoPasoFecha?' ('+gcEsc_(c.proximoPasoFecha)+')':'')+':</b> '+gcEsc_(c.proximoPasoTexto)+'</div>' : '')+
+        (c.novedades && c.novedades.length ?
+          '<div style="margin-top:8px;background:var(--panel-2);border-radius:7px;padding:8px 10px;font-size:11.5px;"><b>Qué se hizo (lo más nuevo primero)</b>'+
+          c.novedades.map(function(n){ return '<div style="margin-top:5px;padding-left:8px;border-left:2px solid var(--hairline);"><span style="color:var(--text-faint);">'+gcEsc_(n.fecha)+' · '+gcEsc_(n.autor)+'</span><br>'+gcEsc_(n.texto)+'</div>'; }).join('')+'</div>'
+        : (c.ultimaNovedad ? '<div style="margin-top:8px;background:var(--panel-2);border-radius:7px;padding:8px 10px;font-size:11.5px;"><b>Última novedad</b> ('+gcEsc_(c.ultimaNovedad.fecha)+' — '+gcEsc_(c.ultimaNovedad.autor)+'): '+gcEsc_(c.ultimaNovedad.texto)+'</div>' : '<div style="margin-top:8px;font-size:11.5px;color:var(--text-faint);">Todavía sin novedades cargadas.</div>'))+
         '<div style="font-size:10.5px;color:var(--text-faint);margin-top:6px;">Actualizado: '+c.fechaUltimaActualizacion+'</div>'+
       '</div>';
     }).join('');
