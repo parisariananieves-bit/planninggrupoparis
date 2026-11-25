@@ -172,7 +172,7 @@ function obtenerSeguimientoGestionCasos_(params){
       id:0, fechaCreacion:1, estado:2, prioridad:3, cliente:4, dni:5, telefono:6, email:7,
       marca:8, modelo:9, dominio:10, sucursal:11, sector:12, unidad:13, tipoCaso:14, motivo:15,
       descripcion:16, responsable:17, fuente:18, origenId:19, proximaAccion:20,
-      fechaUltimaActualizacion:21, slaVencimiento:22
+      fechaUltimaActualizacion:21, slaVencimiento:22, proximoPasoTexto:34, proximoPasoFecha:35
     };
     var dominioQ = String(params.dominio||'').trim().toUpperCase();
     var clienteQ = String(params.cliente||'').trim().toUpperCase();
@@ -197,7 +197,9 @@ function obtenerSeguimientoGestionCasos_(params){
         id: fila[idx.id], fechaCreacion: formatFechaGC_(fila[idx.fechaCreacion]), estado: fila[idx.estado],
         prioridad: fila[idx.prioridad], responsable: fila[idx.responsable]||'Sin asignar',
         motivo: fila[idx.motivo], proximaAccion: fila[idx.proximaAccion],
-        fechaUltimaActualizacion: formatFechaGC_(fila[idx.fechaUltimaActualizacion])
+        fechaUltimaActualizacion: formatFechaGC_(fila[idx.fechaUltimaActualizacion]),
+        proximoPasoTexto: String(fila[idx.proximoPasoTexto]||''),
+        proximoPasoFecha: formatFechaGC_(fila[idx.proximoPasoFecha]).slice(0,10)
       });
     }
     if(encontrados.length){
@@ -209,6 +211,10 @@ function obtenerSeguimientoGestionCasos_(params){
           if(propios.length){
             var u = propios[propios.length-1];
             c.ultimaNovedad = {fecha: formatFechaGC_(u[2]), autor: u[3], texto: u[5]};
+            // Últimas novedades (más nuevas primero) para que el vendedor vea qué se hizo con el caso.
+            c.novedades = propios.slice(-4).reverse().map(function(r){
+              return {fecha: formatFechaGC_(r[2]), autor: r[3], tipo: r[4], texto: r[5]};
+            });
           }
         });
       }

@@ -10087,7 +10087,8 @@ function renderAlertaCasoAbierto_(r){
     el.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">report</span>'+
       'Este cliente tiene '+propios.length+' caso'+(propios.length>1?'s':'')+' reportado'+(propios.length>1?'s':'')+
       ' — último: '+(ultimo.motivo||'—')+' ('+fmtFechaCaso_(ultimo.fechaReporte)+') <span style="text-decoration:underline;margin-left:4px;">Ver →</span>';
-    el.onclick = function(){
+    el.onclick = function(ev){
+      if(ev && ev.target.closest && ev.target.closest('.gc-novedades')) return;
       closeDetail();
       setAppView('casos');
       setTimeout(function(){
@@ -10095,6 +10096,28 @@ function renderAlertaCasoAbierto_(r){
         if(input){ input.value = r.cliente; buscarClienteParaCaso(); }
       }, 150);
     };
+    // Lo que se hizo del otro lado (Gestión de Casos): estado, responsable,
+    // próximo paso y últimas novedades, para que el vendedor lo vea acá.
+    var tok = window._tokAlertaCaso_ = Date.now()+Math.random();
+    gasGet('seguimientoGestionCasos', {dominio:r.dominio||r.chasis||'', cliente:r.cliente||'', dni:'', origenId:''}).then(function(res){
+      if(!res || !res.ok || !res.casos || !res.casos.length) return;
+      if(window._tokAlertaCaso_!==tok) return; // se abrió otro detalle mientras cargaba
+      var esc = function(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+      var html = res.casos.slice(0,3).map(function(c){
+        var cerrado = c.estado==='cerrado'||c.estado==='resuelto';
+        var col = cerrado ? 'var(--ok)' : (c.estado==='nuevo' ? 'var(--caso)' : 'var(--warn)');
+        var pp = c.proximoPasoTexto ? '<div style="margin-top:4px;"><b>Próximo paso'+(c.proximoPasoFecha?' ('+esc(c.proximoPasoFecha)+')':'')+':</b> '+esc(c.proximoPasoTexto)+'</div>' : '';
+        var nov = (c.novedades||[]).filter(function(n){ return n.tipo!=='sistema' || /Próximo paso/.test(n.texto||'')===false; }).slice(0,3).map(function(n){
+          return '<div style="margin-top:3px;padding-left:8px;border-left:2px solid var(--hairline);"><span style="color:var(--text-faint);">'+esc(n.fecha)+' · '+esc(n.autor)+':</span> '+esc(n.texto)+'</div>';
+        }).join('');
+        return '<div class="gc-novedades" style="flex:1 1 100%;margin-top:8px;padding-top:8px;border-top:1px dashed var(--caso);font-weight:500;color:var(--text);cursor:default;">'+
+          '<div><span class="mono" style="font-weight:700;color:var(--caso);">'+esc(c.id)+'</span> · <b style="color:'+col+';text-transform:uppercase;font-size:10.5px;">'+esc(c.estado)+'</b> · Responsable: <b>'+esc(c.responsable)+'</b></div>'+
+          pp + (nov ? '<div style="margin-top:4px;font-weight:700;">Qué se hizo:</div>'+nov : '<div style="margin-top:4px;color:var(--text-faint);">Todavía sin novedades cargadas.</div>')+
+        '</div>';
+      }).join('');
+      el.style.flexWrap = 'wrap';
+      el.insertAdjacentHTML('beforeend', html);
+    }).catch(function(){});
   }
   if(_casosCargadas_) pintar();
   else cargarCasosSiHaceFalta_().then(pintar);
