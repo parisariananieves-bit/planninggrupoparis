@@ -9404,14 +9404,7 @@ function verSeguimientoGC_(dominio, cliente, dni, origenId){
           '<span class="mono" style="font-weight:700;color:var(--caso);">'+c.id+'</span>'+
           '<span style="font-weight:700;font-size:11px;color:'+colorEstado+';text-transform:uppercase;">'+c.estado+'</span>'+
         '</div>'+
-        '<div style="font-size:12px;color:var(--text-dim);margin-bottom:3px;">Prioridad: <b style="color:'+colorPrio+';">'+c.prioridad+'</b> · Responsable: <b>'+c.responsable+'</b></div>'+
-        '<div style="font-size:12px;color:var(--text-dim);margin-bottom:3px;">Motivo: '+(c.motivo||'—')+'</div>'+
-        (c.proximaAccion ? '<div style="font-size:12px;color:var(--text-dim);margin-bottom:3px;">Próxima acción: '+c.proximaAccion+'</div>' : '')+
-        (c.proximoPasoTexto ? '<div style="font-size:12px;color:var(--text-dim);margin-bottom:3px;"><b>Próximo paso'+(c.proximoPasoFecha?' ('+gcEsc_(c.proximoPasoFecha)+')':'')+':</b> '+gcEsc_(c.proximoPasoTexto)+'</div>' : '')+
-        (c.novedades && c.novedades.length ?
-          '<div style="margin-top:8px;background:var(--panel-2);border-radius:7px;padding:8px 10px;font-size:11.5px;"><b>Qué se hizo (lo más nuevo primero)</b>'+
-          c.novedades.map(function(n){ return '<div style="margin-top:5px;padding-left:8px;border-left:2px solid var(--hairline);"><span style="color:var(--text-faint);">'+gcEsc_(n.fecha)+' · '+gcEsc_(n.autor)+'</span><br>'+gcEsc_(n.texto)+'</div>'; }).join('')+'</div>'
-        : (c.ultimaNovedad ? '<div style="margin-top:8px;background:var(--panel-2);border-radius:7px;padding:8px 10px;font-size:11.5px;"><b>Última novedad</b> ('+gcEsc_(c.ultimaNovedad.fecha)+' — '+gcEsc_(c.ultimaNovedad.autor)+'): '+gcEsc_(c.ultimaNovedad.texto)+'</div>' : '<div style="margin-top:8px;font-size:11.5px;color:var(--text-faint);">Todavía sin novedades cargadas.</div>'))+
+        '<div style="font-size:12px;color:var(--text-dim);margin-bottom:3px;">Derivado a Calidad · Motivo: '+gcEsc_(c.motivo||'—')+'</div>'+
         '<div style="font-size:10.5px;color:var(--text-faint);margin-top:6px;">Actualizado: '+c.fechaUltimaActualizacion+'</div>'+
       '</div>';
     }).join('');
@@ -10111,13 +10104,8 @@ function renderAlertaCasoAbierto_(r){
       var html = res.casos.slice(0,3).map(function(c){
         var cerrado = c.estado==='cerrado'||c.estado==='resuelto';
         var col = cerrado ? 'var(--ok)' : (c.estado==='nuevo' ? 'var(--caso)' : 'var(--warn)');
-        var pp = c.proximoPasoTexto ? '<div style="margin-top:4px;"><b>Próximo paso'+(c.proximoPasoFecha?' ('+esc(c.proximoPasoFecha)+')':'')+':</b> '+esc(c.proximoPasoTexto)+'</div>' : '';
-        var nov = (c.novedades||[]).filter(function(n){ return n.tipo!=='sistema' || /Próximo paso/.test(n.texto||'')===false; }).slice(0,3).map(function(n){
-          return '<div style="margin-top:3px;padding-left:8px;border-left:2px solid var(--hairline);"><span style="color:var(--text-faint);">'+esc(n.fecha)+' · '+esc(n.autor)+':</span> '+esc(n.texto)+'</div>';
-        }).join('');
         return '<div class="gc-novedades" style="flex:1 1 100%;margin-top:8px;padding-top:8px;border-top:1px dashed var(--caso);font-weight:500;color:var(--text);cursor:default;">'+
-          '<div><span class="mono" style="font-weight:700;color:var(--caso);">'+esc(c.id)+'</span> · <b style="color:'+col+';text-transform:uppercase;font-size:10.5px;">'+esc(c.estado)+'</b> · Responsable: <b>'+esc(c.responsable)+'</b></div>'+
-          pp + (nov ? '<div style="margin-top:4px;font-weight:700;">Qué se hizo:</div>'+nov : '<div style="margin-top:4px;color:var(--text-faint);">Todavía sin novedades cargadas.</div>')+
+          '<span class="mono" style="font-weight:700;color:var(--caso);">'+esc(c.id)+'</span> · Derivado a Calidad · Estado: <b style="color:'+col+';text-transform:uppercase;font-size:10.5px;">'+esc(c.estado)+'</b>'+
         '</div>';
       }).join('');
       el.style.flexWrap = 'wrap';
