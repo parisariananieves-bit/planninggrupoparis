@@ -746,6 +746,7 @@
   .cal-dow{font-size:9.5px;color:var(--text-faint);text-transform:uppercase;text-align:center;padding-bottom:7px;letter-spacing:.6px;font-weight:700;}
   .cal-day{background:var(--panel-2);border:1px solid var(--hairline);border-radius:13px;height:100%;min-width:0;overflow:visible;padding:8px;cursor:pointer;position:relative;transition:transform .12s,border-color .12s,box-shadow .12s;}
   .cal-day-cliente{margin-top:5px;font-size:9.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .cal-chip-abre{cursor:pointer;user-select:none;-webkit-user-select:none;}
   .cal-day-cliente:hover{filter:brightness(1.15);text-decoration:underline;}
   .cal-day-cliente.mas{color:var(--text-faint);background:none;padding:2px 6px 0;font-weight:700;}
   .cal-day:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.12);}
@@ -7389,7 +7390,7 @@ function renderCalendar(){
     var entregasAMostrar = esVistaCompacta ? entregasDia.slice(0, MAX_CHIPS_POR_DIA_) : entregasDia;
     var clientesHtml = entregasAMostrar.map(function(r){
       var b = BRANDS.find(function(x){return x.id===r.marca;}) || BRANDS[0];
-      return '<div class="cal-day-cliente" onclick="event.stopPropagation();openDetail(\''+r.marca+'\',\''+r.id+'\')" title="'+r.hora+' hs · '+r.cliente+' · '+b.label+'" style="background:var('+b.soft+');color:var('+b.color+');border-left:3px solid var('+b.color+');'+(r.fechaSinConfirmar && !r.entregada?'border-style:dashed;opacity:.85;':'')+'">'+(r.fechaSinConfirmar && !r.entregada?'⏳ ':'')+r.hora+' '+r.cliente+'</div>';
+      return '<div class="cal-day-cliente cal-chip-abre" data-m="'+encodeURIComponent(r.marca)+'" data-i="'+encodeURIComponent(r.id)+'" title="'+r.hora+' hs · '+r.cliente+' · '+b.label+'" style="background:var('+b.soft+');color:var('+b.color+');border-left:3px solid var('+b.color+');'+(r.fechaSinConfirmar && !r.entregada?'border-style:dashed;opacity:.85;':'')+'">'+(r.fechaSinConfirmar && !r.entregada?'⏳ ':'')+r.hora+' '+r.cliente+'</div>';
     }).join('');
     if(esVistaCompacta && entregasDia.length > MAX_CHIPS_POR_DIA_){
       clientesHtml += '<div class="cal-day-cliente mas">+'+(entregasDia.length-MAX_CHIPS_POR_DIA_)+' más</div>';
@@ -12554,6 +12555,26 @@ function renderColorVehiculoHeader_(r){
 
 // Si alguna parte del detalle falla con un dato raro (ej. una hora cargada como número
 // en la planilla de una marca), antes NO se abría el detalle. Ahora se abre igual y avisa.
+// Chips del calendario: abren el detalle con un clic simple. Se resuelve por pointerdown/pointerup
+// (no por 'click') porque la actualización silenciosa puede redibujar el calendario entre medio
+// y el navegador terminaba seleccionando el texto en vez de abrir.
+(function(){
+  var down = null;
+  function chipDe(e){ return e.target && e.target.closest ? e.target.closest('.cal-chip-abre') : null; }
+  document.addEventListener('pointerdown', function(e){
+    var c = chipDe(e); down = c ? {m:c.getAttribute('data-m'), i:c.getAttribute('data-i'), x:e.clientX, y:e.clientY} : null;
+    if(c) e.preventDefault();
+  }, true);
+  document.addEventListener('pointerup', function(e){
+    var c = chipDe(e);
+    if(!down || !c) { down = null; return; }
+    var igual = c.getAttribute('data-m')===down.m && c.getAttribute('data-i')===down.i;
+    var movio = Math.abs(e.clientX-down.x)>8 || Math.abs(e.clientY-down.y)>8;
+    var d = down; down = null;
+    if(igual && !movio){ e.stopPropagation(); try{ window.getSelection().removeAllRanges(); }catch(_){} openDetail(decodeURIComponent(d.m), decodeURIComponent(d.i)); }
+  }, true);
+  document.addEventListener('click', function(e){ if(chipDe(e)){ e.stopPropagation(); } }, true);
+})();
 function openDetail(marca, id){
   try{
     openDetailCore_(marca, id);
