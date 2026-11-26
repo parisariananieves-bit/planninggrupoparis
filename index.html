@@ -11535,6 +11535,22 @@ function bienvenidaAutoPara_(r){
   var suc = r.sucursal && r.sucursal!=='default' ? r.sucursal : '';
   return !suc || (cb.sucursales||[]).indexOf(suc)>-1;
 }
+// Red de seguridad: si la bienvenida es automática y la entrega ya está entregada pero el mail nunca salió
+// (por ejemplo se cerró la pestaña antes de los 8 segundos, o se marcó entregada desde otro lado),
+// sale sola al abrir el detalle. Solo entregas de los últimos 10 días, para no mandar mails viejos.
+function bienvenidaPonerAlDia_(r){
+  if(!r || !r.entregada || r.bienvenidaMailFecha || r._bvIntento || r._bvEnviando) return;
+  if(!r.email || !bienvenidaAutoPara_(r)) return;
+  var m = String(r.fecha||'').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/), d = null;
+  if(m) d = new Date(Number(m[3]), Number(m[2])-1, Number(m[1]));
+  else if((m = String(r.fecha||'').match(/^(\d{4})-(\d{2})-(\d{2})/))) d = new Date(Number(m[1]), Number(m[2])-1, Number(m[3]));
+  if(!d || isNaN(d)) return;
+  var dias = (Date.now()-d.getTime())/86400000;
+  if(dias > 10 || dias < -1) return;
+  r._bvIntento = true;
+  logHistorial_(r.marca, r.id, '✉️ La bienvenida automática no había salido: se envía ahora');
+  enviarBienvenidaMailAuto_(r.marca, r.id, r);
+}
 function enviarBienvenidaMailAuto_(marca, id, r){
   if(!bienvenidaAutoPara_(r)) return;
   if(!r || r.bienvenidaMailFecha) return;
@@ -12622,6 +12638,7 @@ function openDetailCore_(marca, id){
   updateTrasladoUI(r);
   renderEstadoComunicaciones(r);
   renderEstadoBienvenida_(r);
+  try{ bienvenidaPonerAlDia_(r); }catch(e){}
   var btnAbrirCaso = document.getElementById('dBtnAbrirCaso');
   renderBotonAbrirCaso_(r);
   document.getElementById('dCliente').value=r.cliente;
