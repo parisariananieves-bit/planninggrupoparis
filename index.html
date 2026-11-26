@@ -744,13 +744,13 @@
   .cal-legend .sw{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;}
   .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(118px,auto);gap:7px;min-width:0;}
   .cal-dow{font-size:9.5px;color:var(--text-faint);text-transform:uppercase;text-align:center;padding-bottom:7px;letter-spacing:.6px;font-weight:700;}
-  .cal-day{background:var(--panel-2);border:1px solid var(--hairline);border-radius:13px;height:100%;min-width:0;overflow:visible;padding:8px;cursor:pointer;position:relative;transition:transform .12s,border-color .12s,box-shadow .12s;}
+  .cal-day{background:var(--panel-2);border:1px solid var(--hairline);border-radius:13px;height:100%;min-width:0;overflow:visible;padding:8px;cursor:pointer;position:relative;transition:border-color .12s,box-shadow .12s;}
   .cal-day-cliente{margin-top:5px;font-size:9.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .cal-chip-abre{cursor:pointer;user-select:none;-webkit-user-select:none;position:relative;}
-  .cal-chip-abre::before{content:'';position:absolute;left:-2px;right:-2px;top:-6px;bottom:-4px;}
+  .cal-day-cliente.cal-chip-abre{margin-top:0;border-top:5px solid transparent;border-bottom:3px solid transparent;background-clip:padding-box;}
   .cal-day-cliente:hover{filter:brightness(1.15);text-decoration:underline;}
   .cal-day-cliente.mas{color:var(--text-faint);background:none;padding:2px 6px 0;font-weight:700;}
-  .cal-day:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.12);}
+  .cal-day:hover{border-color:var(--accent);box-shadow:0 6px 14px rgba(0,0,0,.12);}
   .cal-day.empty{background:transparent;border-color:transparent;cursor:default;}
   .cal-day.empty:hover{transform:none;box-shadow:none;}
   .cal-day.today{background:var(--accent-soft);border-color:var(--accent);}
@@ -11136,11 +11136,20 @@ function actualizacionSilenciosa(){
   if(!GAS_URL || hayModalAbierto() || MODO_VISTA_PREVIA || navigator.onLine === false || document.visibilityState === 'hidden') return;
   gasGet('entregas').then(function(data){
     if(!Array.isArray(data)) return;
+    // Si el usuario está tocando la pantalla, no redibujamos (se perdía el clic) — se reintenta en el próximo ciclo.
+    if(window._punteroAbajo_ || (Date.now()-(window._ultimaInteraccion_||0)) < 4000) return;
+    var firma = ''; try{ firma = JSON.stringify(data); }catch(e){}
+    if(firma && firma === window._firmaEntregas_) return; // nada cambió: no hace falta redibujar todo
+    window._firmaEntregas_ = firma;
     ENTREGAS=normalizarTextosEntregas_(data);
     renderAll();
     guardarDatosCache_(ENTREGAS, CONFIG); // mantiene la caché fresca para la próxima apertura
   }).catch(function(){});
 }
+['pointerdown','keydown','wheel','touchstart'].forEach(function(ev){
+  document.addEventListener(ev, function(){ window._ultimaInteraccion_ = Date.now(); if(ev==='pointerdown') window._punteroAbajo_ = true; }, {capture:true, passive:true});
+});
+['pointerup','pointercancel'].forEach(function(ev){ document.addEventListener(ev, function(){ window._punteroAbajo_ = false; }, {capture:true, passive:true}); });
 setInterval(actualizacionSilenciosa, 25000);
 
 function itemsPendientesParaEntregar_(r){
@@ -12564,7 +12573,6 @@ function renderColorVehiculoHeader_(r){
   function chipDe(e){ return e.target && e.target.closest ? e.target.closest('.cal-chip-abre') : null; }
   document.addEventListener('pointerdown', function(e){
     var c = chipDe(e); down = c ? {m:c.getAttribute('data-m'), i:c.getAttribute('data-i'), x:e.clientX, y:e.clientY} : null;
-    if(c) e.preventDefault();
   }, true);
   document.addEventListener('pointerup', function(e){
     var c = chipDe(e);
