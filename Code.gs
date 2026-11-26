@@ -412,7 +412,8 @@ var CAMPOS = [
   {k:'canalVenta', h:'Canal de venta (pda = Plan de Ahorro)'},
   {k:'entregadaFecha', h:'Fecha y hora en que se marcó entregada'},
   {k:'fechaNacimiento', h:'Fecha de nacimiento del cliente'},
-  {k:'cumpleMailFecha', h:'Saludo de cumpleaños — último envío'}
+  {k:'cumpleMailFecha', h:'Saludo de cumpleaños — último envío'},
+  {k:'npsNoQuisoResponder', h:'NPS — El cliente no quiso responder'}
 ];
 
 // ============================================================

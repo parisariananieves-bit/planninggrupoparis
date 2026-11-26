@@ -4391,6 +4391,7 @@
   <div style="display:flex;gap:10px;margin-top:14px;">
     <button class="save-btn" style="flex:1;margin:0;" onclick="guardarEncuestaNPS_()">Guardar y marcar como entregada</button>
   </div>
+  <button type="button" class="view-btn" style="width:100%;margin-top:10px;" onclick="npsClienteNoQuisoResponder_()">El cliente no quiso responder</button>
 </div>
 <div class="overlay" id="overlay" onclick="closeAll()"></div>
 
@@ -11247,7 +11248,7 @@ function toggleEntregadaId(marca,id){
       abrirAlertaTemprana_(marca, id, function(){ marcarEntregadaEfectiva_(marca, id, r); });
       return;
     }
-    if(marca!=='chevrolet' && !r.npsScore){
+    if(marca!=='chevrolet' && !r.npsScore && r.npsNoQuisoResponder!=='Sí'){
       abrirEncuestaNPS_(marca, id, function(){ marcarEntregadaEfectiva_(marca, id, r); });
       return;
     }
@@ -12130,6 +12131,22 @@ function mostrarErrorNPS_(msg){
 }
 function ocultarErrorNPS_(){
   document.getElementById('npsError').style.display = 'none';
+}
+function npsClienteNoQuisoResponder_(){
+  if(!npsContexto_) return;
+  var marca=npsContexto_.marca, id=npsContexto_.id;
+  var r = ENTREGAS.find(function(x){return x.marca===marca && x.id===id;});
+  if(!r){ mostrarErrorNPS_('Esta entrega ya no existe en el sistema.'); return; }
+  var comentario = document.getElementById('npsComentario').value.trim();
+  r.npsNoQuisoResponder = 'Sí';
+  r.npsComentario = comentario;
+  r.npsFecha = fechaHoraAhora_();
+  gasPost('updateEntregaFields',{marca:marca,id:id,fields:{npsNoQuisoResponder:'Sí', npsComentario:comentario, npsFecha:r.npsFecha}});
+  logHistorial_(marca, id, '⭐ Encuesta NPS: el cliente no quiso responder'+(comentario?' — "'+comentario+'"':''));
+  var callback = npsContexto_.alGuardar;
+  cerrarEncuestaNPS_();
+  showToast('Registrado: el cliente no quiso responder');
+  if(callback) callback();
 }
 function guardarEncuestaNPS_(){
   ocultarErrorNPS_();
